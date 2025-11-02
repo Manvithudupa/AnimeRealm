@@ -65,9 +65,6 @@ function Footer() {
               hosts and providers. {website_name} is not responsible for any media
               files shown by the video providers.
             </p>
-            <p className="text-white font-bold">
-              Made with ❤️ by Manvith for his brother Namith.
-            </p>
             <p>© {website_name}. All rights reserved.</p>
           </div>
         </div>
