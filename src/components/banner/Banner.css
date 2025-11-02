@@ -1,0 +1,95 @@
+.spotlight {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+.spotlight img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s ease, filter 0.6s ease;
+  filter: brightness(0.9) contrast(1.1);
+}
+
+.spotlight:hover img {
+  transform: scale(1.05);
+  filter: brightness(1) contrast(1.15);
+}
+
+/* 🩶 Refined overlay with cinematic depth and better light falloff */
+.spotlight-overlay {
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(
+      to right,
+      rgba(10, 10, 10, 0.9) 0%,
+      rgba(10, 10, 10, 0.7) 40%,
+      rgba(10, 10, 10, 0.2) 70%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to top,
+      rgba(10, 10, 10, 0.9) 0%,
+      rgba(10, 10, 10, 0.6) 25%,
+      rgba(10, 10, 10, 0.1) 60%,
+      transparent 100%
+    );
+  pointer-events: none;
+  transition: background 0.3s ease;
+}
+
+/* ✨ Add a subtle animated glow */
+.spotlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 30% 70%,
+    rgba(255, 182, 255, 0.08),
+    transparent 70%
+  );
+  z-index: 0;
+  transition: opacity 0.4s ease;
+  opacity: 0;
+}
+
+.spotlight:hover::after {
+  opacity: 1;
+}
+
+/* 📱 Mobile adjustments */
+@media (max-width: 1200px) {
+  .spotlight-overlay {
+    background:
+      linear-gradient(
+        to right,
+        rgba(10, 10, 10, 0.9) 0%,
+        rgba(10, 10, 10, 0.6) 45%,
+        rgba(10, 10, 10, 0.3) 75%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to top,
+        rgba(10, 10, 10, 0.85) 0%,
+        rgba(10, 10, 10, 0.5) 25%,
+        rgba(10, 10, 10, 0.1) 60%,
+        transparent 100%
+      );
+  }
+}
+
+@media (max-width: 768px) {
+  .spotlight-overlay {
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(10, 10, 10, 0.9) 0%,
+        rgba(10, 10, 10, 0.8) 40%,
+        rgba(10, 10, 10, 0.6) 70%,
+        transparent 100%
+      );
+  }
+}
