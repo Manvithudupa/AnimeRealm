@@ -6,7 +6,7 @@ const LatestEpisodeCard = ({ item, path }) => {
 
   return (
     <div
-      className="relative overflow-hidden rounded-lg group cursor-pointer transition-all duration-300 ease-in-out bg-black/20 hover:shadow-lg hover:shadow-black/40"
+      className="relative overflow-hidden rounded-lg group cursor-pointer bg-black/20 transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-black/40"
       onClick={() =>
         navigate(
           path === "top-upcoming" ? `/${item.id}` : `/watch/${item.id}`
@@ -21,24 +21,24 @@ const LatestEpisodeCard = ({ item, path }) => {
         loading="lazy"
       />
 
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
-      {/* Episode badge */}
+      {/* Episode Badge */}
       {item.tvInfo?.episode && (
         <div className="absolute top-2 right-2 bg-sky-500 text-white text-xs font-semibold px-2 py-1 rounded-md">
           Episode {item.tvInfo.episode}
         </div>
       )}
 
-      {/* 18+ badge */}
-      {(item.tvInfo?.rating === "18+" || item.adultContent === true) && (
+      {/* 18+ Badge */}
+      {(item.tvInfo?.rating === "18+" || item.adultContent) && (
         <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md">
           18+
         </div>
       )}
 
-      {/* Title + Info */}
+      {/* Title & Info */}
       <div className="absolute bottom-2 left-2 right-2 text-white">
         <p className="text-sm font-semibold leading-tight line-clamp-2">
           {item.title}
