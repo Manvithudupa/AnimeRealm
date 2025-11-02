@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import PropTypes from "prop-types";
 import { Link, useNavigate } from "react-router-dom";
 import { FaChevronRight } from "react-icons/fa";
 import { useLanguage } from "@/src/context/LanguageContext";
-import useToolTipPosition from "@/src/hooks/useToolTipPosition";
 import Qtip from "@/src/components/qtip/Qtip";
 
 function TabbedAnimeSection({
@@ -18,26 +17,14 @@ function TabbedAnimeSection({
   const { language } = useLanguage();
   const navigate = useNavigate();
 
+  const cardRefs = useRef([]);
   const tabs = [
     { id: "airing", label: "Top Airing", data: topAiring, path: "top-airing" },
-    {
-      id: "favorite",
-      label: "Most Favorite",
-      data: mostFavorite,
-      path: "most-favorite",
-    },
-    {
-      id: "completed",
-      label: "Latest Completed",
-      data: latestCompleted,
-      path: "completed",
-    },
+    { id: "favorite", label: "Most Favorite", data: mostFavorite, path: "most-favorite" },
+    { id: "completed", label: "Latest Completed", data: latestCompleted, path: "completed" },
   ];
 
   const activeTabData = tabs.find((tab) => tab.id === activeTab);
-
-  const { tooltipPosition, tooltipHorizontalPosition, cardRefs } =
-    useToolTipPosition(hoveredItem, activeTabData?.data || []);
 
   const handleMouseEnter = (item, index) => {
     if (hoverTimeout) clearTimeout(hoverTimeout);
@@ -104,7 +91,7 @@ function TabbedAnimeSection({
               onMouseLeave={handleMouseLeave}
               onClick={() => navigate(`/watch/${item.id}`)}
             >
-              {/* ✅ Aspect ratio preserved */}
+              {/* Aspect ratio preserved */}
               <div className="relative w-full aspect-[3/4] overflow-hidden">
                 <img
                   src={item.poster}
@@ -121,11 +108,13 @@ function TabbedAnimeSection({
               </div>
             </div>
 
-            {/* ✅ Qtip Tooltip (fixed) */}
+            {/* Tooltip (fixed & visible) */}
             {hoveredItem === item.id + index && window.innerWidth > 1024 && (
               <div
-                className={`absolute z-[100000] ${tooltipPosition} ${tooltipHorizontalPosition}`}
+                className="fixed z-[999999]"
                 style={{
+                  top: `${cardRefs.current[index]?.getBoundingClientRect().top + window.scrollY - 20}px`,
+                  left: `${cardRefs.current[index]?.getBoundingClientRect().right + 10}px`,
                   pointerEvents: "auto",
                   opacity: hoveredItem === item.id + index ? 1 : 0,
                   transform:
