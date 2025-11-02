@@ -69,4 +69,4 @@ TabbedAnimeSection.propTypes = {
   className: PropTypes.string,
 };
 
-export default TabbedAnimeSection; add that feature heer
+export default TabbedAnimeSection;
