@@ -121,13 +121,17 @@ function TabbedAnimeSection({
               </div>
             </div>
 
-            {/* ✅ Qtip Tooltip */}
+            {/* ✅ Qtip Tooltip (fixed) */}
             {hoveredItem === item.id + index && window.innerWidth > 1024 && (
               <div
-                className={`absolute z-[100000] ${tooltipPosition} ${tooltipHorizontalPosition}
-                  transition-all duration-300 ease-in-out transform scale-95 opacity-0
-                  group-hover:scale-100 group-hover:opacity-100`}
-                style={{ pointerEvents: "auto" }}
+                className={`absolute z-[100000] ${tooltipPosition} ${tooltipHorizontalPosition}`}
+                style={{
+                  pointerEvents: "auto",
+                  opacity: hoveredItem === item.id + index ? 1 : 0,
+                  transform:
+                    hoveredItem === item.id + index ? "scale(1)" : "scale(0.95)",
+                  transition: "opacity 0.25s ease, transform 0.25s ease",
+                }}
                 onMouseEnter={() => clearTimeout(hoverTimeout)}
                 onMouseLeave={handleMouseLeave}
               >
