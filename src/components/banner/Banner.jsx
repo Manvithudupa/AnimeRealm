@@ -12,10 +12,8 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
-import "./hero.css";
+import "./Banner.css";
 import { Link } from "react-router-dom";
-import SoundsInfo from "./SoundsInfo";
-
 const HeroBanner = ({ slides }) => {
   return (
     <Swiper
