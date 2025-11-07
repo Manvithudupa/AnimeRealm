@@ -1,116 +1,92 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faPlay,
-  faClosedCaptioning,
-  faMicrophone,
-  faCalendar,
-  faClock,
-} from "@fortawesome/free-solid-svg-icons";
+  FaAngleRight,
+  FaCalendarDay,
+  FaCirclePlay,
+  FaClock,
+} from "react-icons/fa6";
+
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
+
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+import "swiper/css/autoplay";
+import "./hero.css";
 import { Link } from "react-router-dom";
-import { useLanguage } from "@/src/context/LanguageContext";
-import "./Banner.css";
+import SoundsInfo from "./SoundsInfo";
 
-function Banner({ item, index }) {
-  const { language } = useLanguage();
-
+const HeroBanner = ({ slides }) => {
   return (
-    <section className="relative w-full h-full rounded-2xl overflow-hidden group">
-      {/* Background */}
-      <img
-        src={item.poster}
-        alt={item.title}
-        className="absolute inset-0 w-full h-full object-cover rounded-2xl transition-transform duration-700 group-hover:scale-105"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-[1] rounded-2xl"></div>
+    <Swiper
+      speed={400}
+      grabCursor={true}
+      modules={[Navigation, Pagination, Autoplay]}
+      slidesPerView={1}
+      loop={true}
+      autoplay={{ delay: 5000 }}
+      pagination={{ clickable: true }}
+      navigation={true}
+      className="hero-swiper"
+    >
+      {slides &&
+        slides.map((item) => (
+          <SwiperSlide key={item.id} className="hero-slide">
+            {/* Background image */}
+            <div className="hero-bg">
+              <img
+                src={item.poster}
+                alt={item.title}
+                loading="lazy"
+                className="hero-bg-img"
+              />
+              <div className="hero-overlay"></div>
+            </div>
 
-      {/* Content */}
-      <div className="absolute bottom-0 left-0 p-8 z-[2] max-w-[60%] text-left text-white 
-                      max-lg:max-w-[80%] max-md:max-w-[90%] max-md:p-4">
-
-        <p className="text-pink-400 font-semibold tracking-wider text-lg max-md:text-base mb-2">
-          #{index + 1} Spotlight
-        </p>
-
-        <h3 className="text-5xl font-extrabold leading-tight mb-4 
-                      drop-shadow-lg max-xl:text-4xl max-md:text-2xl transition-all duration-300">
-          {language === "EN" ? item.title : item.japanese_title}
-        </h3>
-
-        {/* Info bar */}
-        {item.tvInfo && (
-          <div className="flex flex-wrap gap-x-5 gap-y-2 items-center text-white/80 text-sm mb-5">
-            {item.tvInfo.showType && (
-              <div className="flex items-center gap-1">
-                <FontAwesomeIcon icon={faPlay} className="text-pink-400" />
-                <span>{item.tvInfo.showType}</span>
+            {/* Content */}
+            <div className="hero-content">
+              <div className="hero-info text-sm md:text-base mb-3 hidden md:flex gap-6">
+                <div className="item">
+                  <FaCirclePlay /> <span>{item.type}</span>
+                </div>
+                <div className="item">
+                  <FaClock /> <span>{item.duration}</span>
+                </div>
+                <div className="item">
+                  <FaCalendarDay /> <span>{item.aired}</span>
+                </div>
+                <div className="item bg-primary text-black text-xs font-bold px-2 rounded-sm">
+                  {item.quality}
+                </div>
+                <div className="item">
+                  <SoundsInfo episodes={item.episodes} />
+                </div>
               </div>
-            )}
-            {item.tvInfo.duration && (
-              <div className="flex items-center gap-1">
-                <FontAwesomeIcon icon={faClock} className="text-pink-400" />
-                <span>{item.tvInfo.duration}</span>
+
+              <h1 className="hero-title">{item.title}</h1>
+              <p className="hero-synopsis">{item.synopsis}</p>
+
+              <div className="hero-buttons mt-5 flex gap-3">
+                <Link
+                  to={`/watch/${item.id}`}
+                  className="hero-btn watch-btn flex items-center gap-2"
+                >
+                  <FaCirclePlay />
+                  <span>Watch Now</span>
+                </Link>
+                <Link
+                  to={`/anime/${item.id}`}
+                  className="hero-btn detail-btn flex items-center gap-2"
+                >
+                  <span>Details</span>
+                  <FaAngleRight />
+                </Link>
               </div>
-            )}
-            {item.tvInfo.releaseDate && (
-              <div className="flex items-center gap-1">
-                <FontAwesomeIcon icon={faCalendar} className="text-pink-400" />
-                <span>{item.tvInfo.releaseDate}</span>
-              </div>
-            )}
-
-            {item.tvInfo.quality && (
-              <span className="bg-pink-500/20 text-pink-300 font-bold px-2 py-[2px] rounded text-xs">
-                {item.tvInfo.quality}
-              </span>
-            )}
-
-            {item.tvInfo.episodeInfo && (
-              <div className="flex items-center gap-2">
-                {item.tvInfo.episodeInfo.sub && (
-                  <div className="flex items-center gap-1 bg-white/10 px-2 py-[2px] rounded">
-                    <FontAwesomeIcon icon={faClosedCaptioning} className="text-xs" />
-                    <span>{item.tvInfo.episodeInfo.sub}</span>
-                  </div>
-                )}
-                {item.tvInfo.episodeInfo.dub && (
-                  <div className="flex items-center gap-1 bg-white/10 px-2 py-[2px] rounded">
-                    <FontAwesomeIcon icon={faMicrophone} className="text-xs" />
-                    <span>{item.tvInfo.episodeInfo.dub}</span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        <p className="text-white/80 max-w-[80%] line-clamp-3 text-[16px] mb-6 max-md:hidden">
-          {item.description}
-        </p>
-
-        {/* Buttons */}
-        <div className="flex gap-x-4 max-md:gap-x-2">
-          <Link
-            to={`/watch/${item.id}`}
-            className="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-6 py-2.5 rounded-xl
-                       shadow-md shadow-pink-500/30 transition-all duration-200 flex items-center gap-x-2
-                       hover:translate-y-[-2px]"
-          >
-            <FontAwesomeIcon icon={faPlay} className="text-sm" />
-            <span>Watch Now</span>
-          </Link>
-
-          <Link
-            to={`/${item.id}`}
-            className="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-2.5 rounded-xl 
-                       border border-white/20 backdrop-blur-sm transition-all duration-200 
-                       flex items-center gap-x-2 hover:translate-y-[-2px]"
-          >
-            <span>Details</span>
-          </Link>
-        </div>
-      </div>
-    </section>
+            </div>
+          </SwiperSlide>
+        ))}
+    </Swiper>
   );
-}
+};
 
 export default Banner;
