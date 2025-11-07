@@ -1,7 +1,8 @@
-/* --- Base Swiper styles --- */
+/* ========== Swiper Base Styles ========== */
 .swiper {
   width: 100%;
 }
+
 .swiper-slide {
   font-size: 18px;
   display: flex;
@@ -9,7 +10,7 @@
   align-items: center;
 }
 
-/* --- Navigation Buttons --- */
+/* ========== Navigation Buttons ========== */
 .button-prev,
 .button-next {
   width: 36px;
@@ -21,7 +22,6 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  z-index: 10;
 }
 
 .button-prev:hover,
@@ -31,7 +31,7 @@
 
 .button-prev::after,
 .button-next::after {
-  content: '';
+  content: "";
   width: 9px;
   height: 9px;
   border: 2px solid #ffffff;
@@ -49,7 +49,7 @@
   margin-right: 3px;
 }
 
-/* --- Pagination --- */
+/* ========== Pagination Bullets ========== */
 .swiper-horizontal > .swiper-pagination-bullets {
   bottom: 20px !important;
   left: 50% !important;
@@ -75,7 +75,7 @@
   border-radius: 12px !important;
 }
 
-/* --- Responsive Pagination --- */
+/* ========== Responsive Pagination ========== */
 @media only screen and (max-width: 575px) {
   .swiper-horizontal > .swiper-pagination-bullets {
     bottom: 20px !important;
@@ -104,7 +104,7 @@
   }
 }
 
-/* --- Spotlight Custom Styles --- */
+/* ========== Spotlight Layout ========== */
 .spotlight-slide {
   position: relative;
   width: 100%;
@@ -131,50 +131,60 @@
 .spotlight-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.85) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.9) 100%
+  );
   z-index: 1;
 }
 
+/* ========== Content Area ========== */
 .spotlight-content {
   position: absolute;
   bottom: 60px;
   left: 60px;
   z-index: 2;
-  color: white;
+  color: #fff;
   max-width: 600px;
 }
 
-.spotlight-content h1 {
+.spotlight-title {
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 10px;
 }
 
-.spotlight-content p {
+.spotlight-description {
   font-size: 1rem;
   opacity: 0.9;
   margin-bottom: 20px;
   line-height: 1.5;
 }
 
-/* --- Meta Info --- */
 .spotlight-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 8px;
 }
 
 .meta-tag,
 .meta-time,
-.meta-date {
-  font-size: 0.9rem;
+.meta-date,
+.meta-quality,
+.meta-rating {
+  font-size: 0.85rem;
   background: rgba(255, 255, 255, 0.1);
-  padding: 4px 10px;
+  padding: 3px 10px;
   border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-/* --- Buttons --- */
+/* ========== Buttons ========== */
 .spotlight-buttons {
   display: flex;
   gap: 1rem;
@@ -192,6 +202,9 @@
 .spotlight-buttons .watch {
   background-color: #8b5cf6;
   color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .spotlight-buttons .watch:hover {
@@ -207,7 +220,7 @@
   background-color: rgba(255, 255, 255, 0.25);
 }
 
-/* --- Responsive Layout --- */
+/* ========== Responsive Adjustments ========== */
 @media (max-width: 768px) {
   .spotlight-content {
     left: 30px;
@@ -215,11 +228,11 @@
     max-width: 80%;
   }
 
-  .spotlight-content h1 {
+  .spotlight-title {
     font-size: 1.5rem;
   }
 
-  .spotlight-content p {
+  .spotlight-description {
     font-size: 0.9rem;
   }
 }
