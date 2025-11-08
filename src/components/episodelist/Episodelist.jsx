@@ -28,7 +28,9 @@ function Episodelist({
   const [episodeNum, setEpisodeNum] = useState(currentEpisode);
   const dropDownRef = useRef(null);
   const [searchedEpisode, setSearchedEpisode] = useState(null);
-  const [viewMode, setViewMode] = useState("grid"); // ✅ toggle grid/list
+
+  // ✅ default to "list" view
+  const [viewMode, setViewMode] = useState("list");
 
   const scrollToActiveEpisode = () => {
     if (activeEpisodeRef.current && listContainerRef.current) {
@@ -113,7 +115,7 @@ function Episodelist({
   const displayedEpisodes = episodes.slice(
     selectedRange[0] - 1,
     selectedRange[1]
-  ); // ✅ same for grid & list
+  );
 
   return (
     <div className="flex flex-col w-full h-full">
