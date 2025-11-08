@@ -26,43 +26,37 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
 
   // Tooltip position hook expects hoveredItem and data
   const { tooltipPosition, tooltipHorizontalPosition } =
-    useToolTipPosition(hoveredItem, activeTabData.data, cardRefs); // adjust signature if required
+    useToolTipPosition(hoveredItem, activeTabData.data, cardRefs);
 
-  // Hover handlers: we'll use item.id to reference cards
+  // Hover handlers
   const handleMouseEnter = (item) => {
-    // clear hide timer (if leaving tooltip back to card)
     if (hideTimerRef.current) {
       clearTimeout(hideTimerRef.current);
       hideTimerRef.current = null;
     }
-    // avoid stacking multiple show timers
     if (showTimerRef.current) {
       clearTimeout(showTimerRef.current);
       showTimerRef.current = null;
     }
 
-    // small show delay to prevent flicker; set hoveredItem after delay
     showTimerRef.current = setTimeout(() => {
       setHoveredItem(item.id);
       showTimerRef.current = null;
-    }, 200); // 200ms show delay (adjustable)
+    }, 200);
   };
 
   const handleMouseLeave = () => {
-    // clear pending show timers
     if (showTimerRef.current) {
       clearTimeout(showTimerRef.current);
       showTimerRef.current = null;
     }
-    // set hide timer so tooltip doesn't vanish instantly when moving between card <-> tooltip
     if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     hideTimerRef.current = setTimeout(() => {
       setHoveredItem(null);
       hideTimerRef.current = null;
-    }, 200); // 200ms hide delay (adjustable)
+    }, 200);
   };
 
-  // tooltip itself should cancel hide timer on enter and start hide timer on leave
   const handleTooltipMouseEnter = () => {
     if (hideTimerRef.current) {
       clearTimeout(hideTimerRef.current);
@@ -80,6 +74,7 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
 
   return (
     <div className={`w-full ${className}`}>
+      {/* Tabs Header */}
       <div className="flex justify-between items-center border-b border-[#ffffff1a] relative">
         <div className="flex">
           {tabs.map((tab) => (
@@ -87,9 +82,10 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`relative px-6 py-4 text-[15px] font-medium transition-all duration-300 
-                ${activeTab === tab.id 
-                  ? "text-white after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-primary after:rounded-t-full"
-                  : "text-[#ffffff80] hover:text-white"
+                ${
+                  activeTab === tab.id
+                    ? "text-white after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-primary after:rounded-t-full"
+                    : "text-[#ffffff80] hover:text-white"
                 }
                 before:absolute before:bottom-0 before:left-1/2 before:w-0 before:h-[2px] before:bg-[#ffffff40]
                 before:transition-all before:duration-300 before:-translate-x-1/2
@@ -111,30 +107,33 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
             transition-all duration-300 group"
         >
           View all
-          <FaChevronRight className="text-[10px] transform transition-transform duration-300 
-            group-hover:translate-x-0.5" />
+          <FaChevronRight
+            className="text-[10px] transform transition-transform duration-300 
+            group-hover:translate-x-0.5"
+          />
         </Link>
       </div>
 
-      {/* grid of cards (keeps exact card sizing) */}
+      {/* Grid of Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 gap-3 mt-4">
-        {activeTabData.data?.slice(0, 12).map((item, index) => (
+        {activeTabData.data?.slice(0, 12).map((item) => (
           <div
             key={item.id}
-            // save refs by id so index changes don't break mapping
             ref={(el) => (cardRefs.current[item.id] = el)}
             className="relative group"
             onMouseEnter={() => handleMouseEnter(item)}
             onMouseLeave={handleMouseLeave}
           >
+            {/* ✅ Normalized Card Size */}
             <div
               onClick={() => navigate(`/watch/${item.id}`)}
-              className="relative cursor-pointer overflow-hidden rounded-lg bg-black/20 transition-all duration-300 hover:shadow-lg hover:shadow-black/40"
+              className="relative aspect-[2/3] cursor-pointer overflow-hidden rounded-lg bg-black/20 
+              transition-all duration-300 hover:shadow-lg hover:shadow-black/40"
             >
               <img
                 src={item.poster}
                 alt={item.title}
-                className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
@@ -143,15 +142,17 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
               </p>
             </div>
 
-            {/* Tooltip preview */}
+            {/* Tooltip Preview */}
             {hoveredItem === item.id && window.innerWidth > 1024 && (
               <div
-                className={`absolute ${tooltipPosition || "top-full"} ${tooltipHorizontalPosition || "left-0"}
+                className={`absolute ${tooltipPosition || "top-full"} ${
+                  tooltipHorizontalPosition || "left-0"
+                }
                   z-[100000] transform transition-all duration-200 ease-in-out
                   opacity-100 translate-y-0`}
                 onMouseEnter={handleTooltipMouseEnter}
                 onMouseLeave={handleTooltipMouseLeave}
-                style={{ pointerEvents: "auto" }} // allow interacting with the tooltip
+                style={{ pointerEvents: "auto" }}
               >
                 <Qtip id={item.id} />
               </div>
