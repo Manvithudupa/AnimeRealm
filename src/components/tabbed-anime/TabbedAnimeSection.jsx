@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import PropTypes from "prop-types";
 import CategoryCard from "@/src/components/categorycard/CategoryCard.jsx";
 import { Link, useNavigate } from "react-router-dom";
@@ -8,9 +8,13 @@ import Qtip from "@/src/components/qtip/Qtip.jsx";
 
 function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, className = "" }) {
   const [activeTab, setActiveTab] = useState("airing");
-  const [hoveredItem, setHoveredItem] = useState(null);
-  const [hoverTimeout, setHoverTimeout] = useState(null);
+  const [hoveredItem, setHoveredItem] = useState(null); // will store item.id
   const navigate = useNavigate();
+
+  // refs for timers and refs map (cardRefs used by useToolTipPosition)
+  const showTimerRef = useRef(null);
+  const hideTimerRef = useRef(null);
+  const cardRefs = useRef({}); // map of id -> element
 
   const tabs = [
     { id: "airing", label: "Top Airing", data: topAiring, path: "top-airing" },
@@ -20,27 +24,62 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
 
   const activeTabData = tabs.find((tab) => tab.id === activeTab);
 
-  // Tooltip position hook
-  const { tooltipPosition, tooltipHorizontalPosition, cardRefs } =
-    useToolTipPosition(hoveredItem, activeTabData.data);
+  // Tooltip position hook expects hoveredItem and data
+  const { tooltipPosition, tooltipHorizontalPosition } =
+    useToolTipPosition(hoveredItem, activeTabData.data, cardRefs); // adjust signature if required
 
-  // Hover handling (same as Topten)
-  const handleMouseEnter = (item, index) => {
-    if (hoverTimeout) clearTimeout(hoverTimeout);
-    setHoveredItem(item.id + index);
+  // Hover handlers: we'll use item.id to reference cards
+  const handleMouseEnter = (item) => {
+    // clear hide timer (if leaving tooltip back to card)
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+    // avoid stacking multiple show timers
+    if (showTimerRef.current) {
+      clearTimeout(showTimerRef.current);
+      showTimerRef.current = null;
+    }
+
+    // small show delay to prevent flicker; set hoveredItem after delay
+    showTimerRef.current = setTimeout(() => {
+      setHoveredItem(item.id);
+      showTimerRef.current = null;
+    }, 200); // 200ms show delay (adjustable)
   };
 
   const handleMouseLeave = () => {
-    setHoverTimeout(
-      setTimeout(() => {
-        setHoveredItem(null);
-      }, 200)
-    );
+    // clear pending show timers
+    if (showTimerRef.current) {
+      clearTimeout(showTimerRef.current);
+      showTimerRef.current = null;
+    }
+    // set hide timer so tooltip doesn't vanish instantly when moving between card <-> tooltip
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => {
+      setHoveredItem(null);
+      hideTimerRef.current = null;
+    }, 200); // 200ms hide delay (adjustable)
+  };
+
+  // tooltip itself should cancel hide timer on enter and start hide timer on leave
+  const handleTooltipMouseEnter = () => {
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+  };
+
+  const handleTooltipMouseLeave = () => {
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => {
+      setHoveredItem(null);
+      hideTimerRef.current = null;
+    }, 200);
   };
 
   return (
     <div className={`w-full ${className}`}>
-      {/* Tabs Header */}
       <div className="flex justify-between items-center border-b border-[#ffffff1a] relative">
         <div className="flex">
           {tabs.map((tab) => (
@@ -77,14 +116,15 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
         </Link>
       </div>
 
-      {/* Anime Cards */}
+      {/* grid of cards (keeps exact card sizing) */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 gap-3 mt-4">
         {activeTabData.data?.slice(0, 12).map((item, index) => (
           <div
-            key={index}
-            ref={(el) => (cardRefs.current[index] = el)}
+            key={item.id}
+            // save refs by id so index changes don't break mapping
+            ref={(el) => (cardRefs.current[item.id] = el)}
             className="relative group"
-            onMouseEnter={() => handleMouseEnter(item, index)}
+            onMouseEnter={() => handleMouseEnter(item)}
             onMouseLeave={handleMouseLeave}
           >
             <div
@@ -103,19 +143,15 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
               </p>
             </div>
 
-            {/* Tooltip (Anime Details Preview) */}
-            {hoveredItem === item.id + index && window.innerWidth > 1024 && (
+            {/* Tooltip preview */}
+            {hoveredItem === item.id && window.innerWidth > 1024 && (
               <div
-                className={`absolute ${tooltipPosition} ${tooltipHorizontalPosition}
-                z-[100000] transform transition-all duration-300 ease-in-out
-                ${hoveredItem === item.id + index
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-2"
-                }`}
-                onMouseEnter={() => {
-                  if (hoverTimeout) clearTimeout(hoverTimeout);
-                }}
-                onMouseLeave={handleMouseLeave}
+                className={`absolute ${tooltipPosition || "top-full"} ${tooltipHorizontalPosition || "left-0"}
+                  z-[100000] transform transition-all duration-200 ease-in-out
+                  opacity-100 translate-y-0`}
+                onMouseEnter={handleTooltipMouseEnter}
+                onMouseLeave={handleTooltipMouseLeave}
+                style={{ pointerEvents: "auto" }} // allow interacting with the tooltip
               >
                 <Qtip id={item.id} />
               </div>
