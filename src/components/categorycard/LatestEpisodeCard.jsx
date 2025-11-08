@@ -27,7 +27,7 @@ const LatestEpisodeCard = ({ item, path }) => {
       {/* Episode Badge */}
       {item.tvInfo?.episode && (
         <div className="absolute top-2 right-2 bg-sky-500 text-white text-xs font-semibold px-2 py-1 rounded-md">
-          Episode {item.tvInfo.episode}
+          Ep {item.tvInfo.episode}
         </div>
       )}
 
@@ -35,6 +35,13 @@ const LatestEpisodeCard = ({ item, path }) => {
       {(item.tvInfo?.rating === "18+" || item.adultContent) && (
         <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md">
           18+
+        </div>
+      )}
+
+      {/* Latest Episode Tag (Non-spoiler) */}
+      {item.isLatest && (
+        <div className="absolute bottom-10 left-2 bg-green-600 text-white text-[10px] font-semibold px-2 py-1 rounded-md">
+          Latest Episode Aired
         </div>
       )}
 
