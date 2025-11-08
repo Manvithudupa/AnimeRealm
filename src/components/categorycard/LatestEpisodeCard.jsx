@@ -1,67 +1,28 @@
-import React, { useState, useRef } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import Qtip from "@/src/components/qtip/Qtip.jsx";
 
 const LatestEpisodeCard = ({ item, path }) => {
   const navigate = useNavigate();
-  const [showTooltip, setShowTooltip] = useState(false);
-  const showTimerRef = useRef(null);
-  const hideTimerRef = useRef(null);
-
-  // Hover handling with slight delay (prevents flicker)
-  const handleMouseEnter = () => {
-    if (hideTimerRef.current) {
-      clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = null;
-    }
-    showTimerRef.current = setTimeout(() => {
-      setShowTooltip(true);
-    }, 200);
-  };
-
-  const handleMouseLeave = () => {
-    if (showTimerRef.current) {
-      clearTimeout(showTimerRef.current);
-      showTimerRef.current = null;
-    }
-    hideTimerRef.current = setTimeout(() => {
-      setShowTooltip(false);
-    }, 200);
-  };
-
-  const handleTooltipMouseEnter = () => {
-    if (hideTimerRef.current) {
-      clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = null;
-    }
-  };
-
-  const handleTooltipMouseLeave = () => {
-    hideTimerRef.current = setTimeout(() => {
-      setShowTooltip(false);
-    }, 200);
-  };
 
   return (
     <div
       className="relative overflow-hidden rounded-lg group cursor-pointer bg-black/20 transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-black/40"
       onClick={() =>
-        navigate(path === "top-upcoming" ? `/${item.id}` : `/watch/${item.id}`)
+        navigate(
+          path === "top-upcoming" ? `/${item.id}` : `/watch/${item.id}`
+        )
       }
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       {/* Thumbnail */}
-      <div className="relative aspect-[2/3]">
-        <img
-          src={item.poster}
-          alt={item.title}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          loading="lazy"
-        />
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-      </div>
+      <img
+        src={item.poster}
+        alt={item.title}
+        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+        loading="lazy"
+      />
+
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
       {/* Episode Badge */}
       {item.tvInfo?.episode && (
@@ -77,7 +38,7 @@ const LatestEpisodeCard = ({ item, path }) => {
         </div>
       )}
 
-      {/* Latest Episode Tag */}
+      {/* Latest Episode Tag (Non-spoiler) */}
       {item.isLatest && (
         <div className="absolute bottom-10 left-2 bg-green-600 text-white text-[10px] font-semibold px-2 py-1 rounded-md">
           Latest Episode Aired
@@ -94,18 +55,6 @@ const LatestEpisodeCard = ({ item, path }) => {
           {item.tvInfo?.duration || item.duration || "24m"}
         </p>
       </div>
-
-      {/* ✅ Tooltip */}
-      {showTooltip && window.innerWidth > 1024 && (
-        <div
-          className="absolute top-0 left-full ml-2 z-[10000]"
-          onMouseEnter={handleTooltipMouseEnter}
-          onMouseLeave={handleTooltipMouseLeave}
-          style={{ pointerEvents: "auto" }}
-        >
-          <Qtip id={item.id} />
-        </div>
-      )}
     </div>
   );
 };
