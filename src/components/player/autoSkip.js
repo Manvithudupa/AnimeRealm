@@ -1,4 +1,5 @@
 export default function autoSkip(option) {
+  // --- 🧩 Helper: Validate user-supplied ranges ---
   function validateRanges(ranges) {
     if (!Array.isArray(ranges)) {
       throw new TypeError("Option must be an array of time ranges");
@@ -12,6 +13,7 @@ export default function autoSkip(option) {
       }
 
       const [start, end] = range;
+
       if (
         typeof start !== "number" ||
         (typeof end !== "number" && end !== Infinity)
@@ -37,10 +39,15 @@ export default function autoSkip(option) {
       }
     });
   }
+
+  // --- ✅ Validate initial input ---
   validateRanges(option);
+
+  // --- 🎞️ Return actual Artplayer plugin ---
   return (art) => {
     let skipRanges = option;
 
+    // --- Update Infinity ranges when duration known ---
     function updateRanges() {
       const duration = art.duration;
       skipRanges = skipRanges.map(([start, end]) => [
@@ -49,19 +56,58 @@ export default function autoSkip(option) {
       ]);
     }
 
+    // --- Skip logic ---
     function checkAndSkip() {
       const currentTime = art.currentTime;
       for (const [start, end] of skipRanges) {
         if (currentTime >= start && currentTime < end) {
-          art.seek = end;
+          console.log(`⏭️ Skipping from ${start}s to ${end}s`);
+          showSkipOverlay(start, end);
+          art.seek(end);
           break;
         }
       }
     }
 
-    art.on("video:timeupdate", checkAndSkip);
-    art.on("video:loadedmetadata", updateRanges);
+    // --- Small overlay during skip ---
+    let skipOverlay = null;
 
+    function showSkipOverlay(start, end) {
+      if (skipOverlay) {
+        skipOverlay.remove();
+      }
+
+      const div = document.createElement("div");
+      div.textContent = `⏩ Skipping from ${start}s to ${end}s`;
+      Object.assign(div.style, {
+        position: "absolute",
+        top: "10px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        background: "rgba(0,0,0,0.6)",
+        color: "#fff",
+        padding: "6px 12px",
+        borderRadius: "4px",
+        fontSize: "14px",
+        zIndex: 9999,
+        transition: "opacity 0.3s",
+      });
+      art.template.$player.appendChild(div);
+      skipOverlay = div;
+
+      setTimeout(() => {
+        if (skipOverlay) {
+          skipOverlay.style.opacity = "0";
+          setTimeout(() => skipOverlay.remove(), 500);
+        }
+      }, 800);
+    }
+
+    // --- Event listeners ---
+    art.on("loadedmetadata", updateRanges);
+    art.on("timeupdate", checkAndSkip);
+
+    // --- Plugin interface ---
     return {
       name: "autoSkip",
       update(newOption = []) {
