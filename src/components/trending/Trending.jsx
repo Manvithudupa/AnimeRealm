@@ -29,13 +29,13 @@ const Trending = ({ trending, className }) => {
     setHoverTimeout(
       setTimeout(() => {
         setHoveredItem(null);
-      }, 300) // Prevent flickering
+      }, 300)
     );
   };
 
   return (
     <div
-      className={`bg-[#1a1a1a] rounded-lg p-4 shadow-lg shadow-black/30 ${className}`}
+      className={`bg-[#1a1a1a] rounded-lg p-4 shadow-lg shadow-black/30 relative ${className}`}
     >
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
@@ -49,7 +49,7 @@ const Trending = ({ trending, className }) => {
       </div>
 
       {/* List */}
-      <div className="flex flex-col space-y-3 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-track-[#1a1a1a] scrollbar-thumb-[#2a2a2a] hover:scrollbar-thumb-[#333] scrollbar-thumb-rounded">
+      <div className="flex flex-col space-y-3 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-track-[#1a1a1a] scrollbar-thumb-[#2a2a2a] hover:scrollbar-thumb-[#333] scrollbar-thumb-rounded relative">
         {trending && trending.length > 0 ? (
           trending.map((item, index) => {
             const info = item.tvInfo || item;
@@ -74,30 +74,6 @@ const Trending = ({ trending, className }) => {
                   <div className="absolute top-0 left-0 bg-gradient-to-r from-pink-500 to-orange-500 text-white text-[11px] font-bold px-1.5 rounded-br-md">
                     #{index + 1}
                   </div>
-
-                  {/* Tooltip */}
-                  {hoveredItem === item.id + index && window.innerWidth > 1024 && (
-                    <div
-                      className={`absolute ${tooltipPosition} ${tooltipHorizontalPosition} 
-                      ${
-                        tooltipPosition === "top-1/2"
-                          ? "translate-y-[50px]"
-                          : "translate-y-[-50px]"
-                      } 
-                      z-[100000] transform transition-all duration-300 ease-in-out 
-                      ${
-                        hoveredItem === item.id + index
-                          ? "opacity-100 translate-y-0"
-                          : "opacity-0 translate-y-2"
-                      }`}
-                      onMouseEnter={() => {
-                        if (hoverTimeout) clearTimeout(hoverTimeout);
-                      }}
-                      onMouseLeave={handleMouseLeave}
-                    >
-                      <Qtip id={item.id} />
-                    </div>
-                  )}
                 </div>
 
                 {/* Details */}
@@ -120,9 +96,7 @@ const Trending = ({ trending, className }) => {
                           icon={faClosedCaptioning}
                           className="text-[10px]"
                         />
-                        <span className="text-[10px] font-medium">
-                          {info.sub}
-                        </span>
+                        <span className="text-[10px] font-medium">{info.sub}</span>
                       </div>
                     )}
                     {info.dub && (
@@ -131,9 +105,7 @@ const Trending = ({ trending, className }) => {
                           icon={faMicrophone}
                           className="text-[10px]"
                         />
-                        <span className="text-[10px] font-medium">
-                          {info.dub}
-                        </span>
+                        <span className="text-[10px] font-medium">{info.dub}</span>
                       </div>
                     )}
                     {info.showType && (
@@ -143,6 +115,21 @@ const Trending = ({ trending, className }) => {
                     )}
                   </div>
                 </div>
+
+                {/* Qtip overlay */}
+                {hoveredItem === item.id + index && (
+                  <div
+                    className={`absolute z-[1000] ${tooltipPosition} ${tooltipHorizontalPosition} pointer-events-none`}
+                    style={{
+                      transform:
+                        tooltipPosition === "top-1/2"
+                          ? "translateY(50px)"
+                          : "translateY(-50px)",
+                    }}
+                  >
+                    <Qtip id={item.id} />
+                  </div>
+                )}
               </div>
             );
           })
