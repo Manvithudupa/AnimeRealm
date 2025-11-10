@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -6,10 +7,33 @@ import {
   faMicrophone,
   faFire,
 } from "@fortawesome/free-solid-svg-icons";
+import useToolTipPosition from "@/src/hooks/useToolTipPosition";
+import Qtip from "../qtip/Qtip";
 
 const Trending = ({ trending, className }) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
+
+  // ✅ Tooltip states
+  const [hoveredItem, setHoveredItem] = useState(null);
+  const [hoverTimeout, setHoverTimeout] = useState(null);
+
+  const { tooltipPosition, tooltipHorizontalPosition, cardRefs } =
+    useToolTipPosition(hoveredItem, trending);
+
+  // ✅ Hover handlers
+  const handleMouseEnter = (item, index) => {
+    if (hoverTimeout) clearTimeout(hoverTimeout);
+    setHoveredItem(item.id + index);
+  };
+
+  const handleMouseLeave = () => {
+    setHoverTimeout(
+      setTimeout(() => {
+        setHoveredItem(null);
+      }, 300)
+    );
+  };
 
   return (
     <div
@@ -30,16 +54,20 @@ const Trending = ({ trending, className }) => {
       <div className="flex flex-col space-y-3 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-track-[#1a1a1a] scrollbar-thumb-[#2a2a2a] hover:scrollbar-thumb-[#333] scrollbar-thumb-rounded">
         {trending && trending.length > 0 ? (
           trending.map((item, index) => {
-            const info = item.tvInfo || item; // ✅ fallback if tvInfo missing
+            const info = item.tvInfo || item;
+
             return (
               <div
                 key={index}
-                className="flex items-start gap-3 p-2 rounded-lg transition-all duration-200 hover:bg-[#2a2a2a]/60"
+                className="flex items-start gap-3 p-2 rounded-lg transition-all duration-200 hover:bg-[#2a2a2a]/60 relative"
+                ref={(el) => (cardRefs.current[index] = el)}
               >
                 {/* Thumbnail */}
                 <div
                   className="relative cursor-pointer flex-shrink-0"
                   onClick={() => navigate(`/watch/${item.id}`)}
+                  onMouseEnter={() => handleMouseEnter(item, index)}
+                  onMouseLeave={handleMouseLeave}
                 >
                   <img
                     src={item.poster}
@@ -49,6 +77,31 @@ const Trending = ({ trending, className }) => {
                   <div className="absolute top-0 left-0 bg-gradient-to-r from-pink-500 to-orange-500 text-white text-[11px] font-bold px-1.5 rounded-br-md">
                     #{index + 1}
                   </div>
+
+                  {/* ✅ Tooltip */}
+                  {hoveredItem === item.id + index &&
+                    window.innerWidth > 1024 && (
+                      <div
+                        className={`absolute ${tooltipPosition} ${tooltipHorizontalPosition} 
+                          ${
+                            tooltipPosition === "top-1/2"
+                              ? "translate-y-[50px]"
+                              : "translate-y-[-50px]"
+                          } 
+                          z-[100000] transform transition-all duration-300 ease-in-out 
+                          ${
+                            hoveredItem === item.id + index
+                              ? "opacity-100 translate-y-0"
+                              : "opacity-0 translate-y-2"
+                          }`}
+                        onMouseEnter={() => {
+                          if (hoverTimeout) clearTimeout(hoverTimeout);
+                        }}
+                        onMouseLeave={handleMouseLeave}
+                      >
+                        <Qtip id={item.id} />
+                      </div>
+                    )}
                 </div>
 
                 {/* Details */}
@@ -56,7 +109,9 @@ const Trending = ({ trending, className }) => {
                   <Link
                     to={`/${item.id}`}
                     className="text-[0.95em] font-medium text-gray-200 hover:text-white transition-colors line-clamp-2"
-                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
                   >
                     {language === "EN" ? item.title : item.japanese_title}
                   </Link>
@@ -105,4 +160,4 @@ const Trending = ({ trending, className }) => {
   );
 };
 
-export default Trending;
+export default React.memo(Trending);
