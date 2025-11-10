@@ -7,6 +7,7 @@ import {
   faMicrophone,
   faFire,
 } from "@fortawesome/free-solid-svg-icons";
+import { createPortal } from "react-dom";
 import useToolTipPosition from "@/src/hooks/useToolTipPosition";
 import Qtip from "../qtip/Qtip";
 
@@ -14,14 +15,14 @@ const Trending = ({ trending, className }) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
 
-  // ✅ Tooltip states
+  // Tooltip state
   const [hoveredItem, setHoveredItem] = useState(null);
   const [hoverTimeout, setHoverTimeout] = useState(null);
 
   const { tooltipPosition, tooltipHorizontalPosition, cardRefs } =
     useToolTipPosition(hoveredItem, trending);
 
-  // ✅ Hover handlers
+  // Hover logic
   const handleMouseEnter = (item, index) => {
     if (hoverTimeout) clearTimeout(hoverTimeout);
     setHoveredItem(item.id + index);
@@ -29,9 +30,37 @@ const Trending = ({ trending, className }) => {
 
   const handleMouseLeave = () => {
     setHoverTimeout(
-      setTimeout(() => {
-        setHoveredItem(null);
-      }, 300)
+      setTimeout(() => setHoveredItem(null), 300)
+    );
+  };
+
+  // Render tooltip via portal
+  const renderTooltip = (item, index) => {
+    if (hoveredItem !== item.id + index || window.innerWidth <= 1024)
+      return null;
+
+    const ref = cardRefs.current[index];
+    if (!ref) return null;
+
+    const rect = ref.getBoundingClientRect();
+    const top = rect.top + window.scrollY;
+    const left = rect.right + 10 + window.scrollX;
+
+    return createPortal(
+      <div
+        className={`fixed z-[999999] transform transition-all duration-200 ease-in-out`}
+        style={{
+          top: top,
+          left: left,
+        }}
+        onMouseEnter={() => {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+        }}
+        onMouseLeave={handleMouseLeave}
+      >
+        <Qtip id={item.id} />
+      </div>,
+      document.body
     );
   };
 
@@ -77,32 +106,10 @@ const Trending = ({ trending, className }) => {
                   <div className="absolute top-0 left-0 bg-gradient-to-r from-pink-500 to-orange-500 text-white text-[11px] font-bold px-1.5 rounded-br-md">
                     #{index + 1}
                   </div>
-
-                  {/* ✅ Tooltip */}
-                  {hoveredItem === item.id + index &&
-                    window.innerWidth > 1024 && (
-                      <div
-                        className={`absolute ${tooltipPosition} ${tooltipHorizontalPosition} 
-                          ${
-                            tooltipPosition === "top-1/2"
-                              ? "translate-y-[50px]"
-                              : "translate-y-[-50px]"
-                          } 
-                          z-[100000] transform transition-all duration-300 ease-in-out 
-                          ${
-                            hoveredItem === item.id + index
-                              ? "opacity-100 translate-y-0"
-                              : "opacity-0 translate-y-2"
-                          }`}
-                        onMouseEnter={() => {
-                          if (hoverTimeout) clearTimeout(hoverTimeout);
-                        }}
-                        onMouseLeave={handleMouseLeave}
-                      >
-                        <Qtip id={item.id} />
-                      </div>
-                    )}
                 </div>
+
+                {/* Tooltip rendered outside stacking context */}
+                {renderTooltip(item, index)}
 
                 {/* Details */}
                 <div className="flex flex-col gap-1 flex-1 min-w-0">
