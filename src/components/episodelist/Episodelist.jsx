@@ -17,7 +17,6 @@ function Episodelist({
   onEpisodeClick,
   currentEpisode,
   totalEpisodes,
-  animeTitle, // ✅ add HiAnime title as prop
 }) {
   const [activeEpisodeId, setActiveEpisodeId] = useState(currentEpisode);
   const { language } = useLanguage();
@@ -29,11 +28,10 @@ function Episodelist({
   const [episodeNum, setEpisodeNum] = useState(currentEpisode);
   const dropDownRef = useRef(null);
   const [searchedEpisode, setSearchedEpisode] = useState(null);
-  const [viewMode, setViewMode] = useState("list"); // default
-  const [animePaheId, setAnimePaheId] = useState(null);
-  const [episodeThumbnails, setEpisodeThumbnails] = useState({});
 
-  // Scroll to active episode
+  // ✅ default to "list" view
+  const [viewMode, setViewMode] = useState("list");
+
   const scrollToActiveEpisode = () => {
     if (activeEpisodeRef.current && listContainerRef.current) {
       const container = listContainerRef.current;
@@ -54,7 +52,6 @@ function Episodelist({
   useEffect(() => setActiveEpisodeId(episodeNum), [episodeNum]);
   useEffect(() => scrollToActiveEpisode(), [activeEpisodeId]);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropDownRef.current && !dropDownRef.current.contains(event.target)) {
@@ -65,7 +62,6 @@ function Episodelist({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Search field handler
   function handleChange(e) {
     const value = e.target.value.trim();
     if (value === "") {
@@ -121,59 +117,6 @@ function Episodelist({
     selectedRange[1]
   );
 
-  // ✅ Step 1: Search AnimePahe ID using Kenjitsu API
-  useEffect(() => {
-    if (!animeTitle) return;
-
-    async function fetchAnimePaheId() {
-      try {
-        const res = await fetch(
-          `https://kenjitsu.vercel.app/api/animepahe/search?query=${encodeURIComponent(
-            animeTitle
-          )}`
-        );
-        const data = await res.json();
-        if (data?.data?.length > 0) {
-          setAnimePaheId(data.data[0].id);
-        }
-      } catch (err) {
-        console.error("Error fetching AnimePahe ID:", err);
-      }
-    }
-
-    fetchAnimePaheId();
-  }, [animeTitle]);
-
-  // ✅ Step 2: Fetch episode thumbnails using the found AnimePahe ID
-  useEffect(() => {
-    if (!animePaheId) return;
-
-    async function fetchThumbnails() {
-      try {
-        const res = await fetch(
-          `https://kenjitsu.vercel.app/api/animepahe/anime/${animePaheId}/episodes`
-        );
-        const data = await res.json();
-
-        if (data?.data) {
-          const thumbs = {};
-          data.data.forEach((ep) => {
-            thumbs[ep.episodeNumber] = ep.thumbnail;
-          });
-          setEpisodeThumbnails(thumbs);
-        }
-      } catch (err) {
-        console.error("Error fetching thumbnails:", err);
-      }
-    }
-
-    fetchThumbnails();
-  }, [animePaheId]);
-
-  const fallbackImage =
-    "https://via.placeholder.com/160x90?text=No+Thumbnail";
-
-  // ✅ UI
   return (
     <div className="flex flex-col w-full h-full">
       {/* Header */}
@@ -246,10 +189,7 @@ function Episodelist({
 
           {totalEpisodes > 100 && (
             <div className="flex items-center min-w-[150px] bg-[#2a2a2a] rounded-lg px-2 py-1 border border-[#3a3a3a]">
-              <FontAwesomeIcon
-                icon={faMagnifyingGlass}
-                className="text-gray-400 text-xs"
-              />
+              <FontAwesomeIcon icon={faMagnifyingGlass} className="text-gray-400 text-xs" />
               <input
                 type="text"
                 className="w-full bg-transparent focus:outline-none text-xs text-white ml-2 placeholder:text-gray-500"
@@ -278,6 +218,13 @@ function Episodelist({
                 <div
                   key={item?.id}
                   ref={isActive ? activeEpisodeRef : null}
+                  className={`flex items-center justify-center h-[35px] text-xs font-medium rounded-md cursor-pointer transition-all
+                    ${
+                      isActive
+                        ? "bg-white text-black"
+                        : "bg-[#2a2a2a] text-gray-400 hover:bg-[#3a3a3a] hover:text-white"
+                    }
+                    ${isSearched ? "ring-1 ring-white" : ""}`}
                   onClick={() => {
                     if (episodeNumber) {
                       onEpisodeClick(episodeNumber);
@@ -285,28 +232,8 @@ function Episodelist({
                       setSearchedEpisode(null);
                     }
                   }}
-                  className={`relative flex items-center justify-center h-[90px] text-xs font-medium rounded-md cursor-pointer overflow-hidden transition-all
-                    ${
-                      isActive
-                        ? "ring-2 ring-white"
-                        : "bg-[#2a2a2a] hover:bg-[#3a3a3a]"
-                    }
-                    ${isSearched ? "ring-1 ring-white" : ""}`}
                 >
-                  <img
-                    src={episodeThumbnails[episodeNumber] || fallbackImage}
-                    alt={`Episode ${episodeNumber}`}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-semibold">
-                    {index + selectedRange[0]}
-                  </div>
-                  {isActive && (
-                    <div className="absolute inset-0 bg-white/20 flex items-center justify-center">
-                      <FontAwesomeIcon icon={faCirclePlay} className="text-white" />
-                    </div>
-                  )}
+                  {index + selectedRange[0]}
                 </div>
               );
             })}
