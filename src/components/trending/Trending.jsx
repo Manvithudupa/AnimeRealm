@@ -119,12 +119,14 @@ const Trending = ({ trending, className }) => {
                 {/* Qtip overlay */}
                 {hoveredItem === item.id + index && (
                   <div
-                    className={`absolute z-[1000] ${tooltipPosition} ${tooltipHorizontalPosition} pointer-events-none`}
+                    className={`absolute z-[1000] pointer-events-none`}
                     style={{
-                      transform:
-                        tooltipPosition === "top-1/2"
-                          ? "translateY(50px)"
-                          : "translateY(-50px)",
+                      top: cardRefs.current[index]
+                        ? cardRefs.current[index].offsetTop
+                        : 0,
+                      left: cardRefs.current[index]
+                        ? cardRefs.current[index].offsetLeft + 70
+                        : 70,
                     }}
                   >
                     <Qtip id={item.id} />
