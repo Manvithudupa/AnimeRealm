@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 const AuthContext = createContext({
@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        
+
         if (session?.user) {
           setTimeout(() => {
             supabase
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-      
+
       if (session?.user) {
         supabase
           .from('profiles')
@@ -63,10 +63,10 @@ export const AuthProvider = ({ children }) => {
     await supabase.auth.signOut();
   };
 
-  return (
-    <AuthContext.Provider value={{ user, session, loading, profile, signOut }}>
-      {children}
-    </AuthContext.Provider>
+  return React.createElement(
+    AuthContext.Provider,
+    { value: { user, session, loading, profile, signOut } },
+    children
   );
 };
 
