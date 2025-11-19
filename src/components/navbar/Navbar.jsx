@@ -7,15 +7,25 @@ import {
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { useLanguage } from "@/src/context/LanguageContext";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "../sidebar/Sidebar";
 import { SearchProvider } from "@/src/context/SearchContext";
 import WebSearch from "../searchbar/WebSearch";
 import MobileSearch from "../searchbar/MobileSearch";
 
+// Auth + Avatar UI
+import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { language, toggleLanguage } = useLanguage();
+
+  const { user, profile, signOut } = useAuth(); // 🔥 integrated auth
+
   const [isNotHomePage, setIsNotHomePage] = useState(
     location.pathname !== "/" && location.pathname !== "/home"
   );
@@ -23,35 +33,27 @@ function Navbar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
+  // Scroll Listener
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 0);
     window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleHamburgerClick = () => {
-    setIsSidebarOpen(true);
-  };
-
-  const handleCloseSidebar = () => {
-    setIsSidebarOpen(false);
-  };
-
-  const handleRandomClick = () => {
-    if (location.pathname === "/random") {
-      window.location.reload();
-    }
-  };
-
+  // Home Detection
   useEffect(() => {
     setIsNotHomePage(
       location.pathname !== "/" && location.pathname !== "/home"
     );
   }, [location.pathname]);
+
+  // Sidebar handlers
+  const handleHamburgerClick = () => setIsSidebarOpen(true);
+  const handleCloseSidebar = () => setIsSidebarOpen(false);
+
+  const handleRandomClick = () => {
+    if (location.pathname === "/random") window.location.reload();
+  };
 
   return (
     <SearchProvider>
@@ -60,7 +62,8 @@ function Navbar() {
           ${isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"}`}
       >
         <div className="max-w-[1920px] mx-auto px-4 h-16 flex items-center justify-between">
-          {/* Left Section */}
+          
+          {/* LEFT SECTION */}
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-4">
               <FontAwesomeIcon
@@ -74,10 +77,12 @@ function Navbar() {
             </div>
           </div>
 
-          {/* Center Section - Search */}
+          {/* CENTER SEARCH BAR (Desktop) */}
           <div className="flex-1 flex justify-center items-center max-w-none mx-8 hidden md:flex">
             <div className="flex items-center gap-2 w-[600px]">
               <WebSearch />
+
+              {/* RANDOM BUTTON */}
               <Link
                 to={location.pathname === "/random" ? "#" : "/random"}
                 onClick={handleRandomClick}
@@ -89,7 +94,10 @@ function Navbar() {
             </div>
           </div>
 
-          {/* Language Toggle - Desktop */}
+          {/* RIGHT SECTION */}
+          <div className="flex items-center gap-4">
+
+            {/* LANGUAGE TOGGLE (Moved Here) */}
             <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
               {["EN", "JP"].map((lang) => (
                 <button
@@ -106,30 +114,57 @@ function Navbar() {
               ))}
             </div>
 
-          {/* Mobile Search Icon */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center w-[38px] h-[38px]"
-              title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
-            >
-              <FontAwesomeIcon 
-                icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass} 
-                className="w-[18px] h-[18px] transition-transform duration-200"
-                style={{ transform: isMobileSearchOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
-              />
-            </button>
+            {/* LOGIN / PROFILE BUTTON */}
+            {user ? (
+              <button
+                onClick={() => navigate("/profile")}
+                className="rounded-md h-10 w-10 overflow-hidden shadow-sm bg-[#2a2a2a]/70 hover:bg-[#3a3a3a] transition"
+              >
+                <Avatar className="h-10 w-10 rounded-md">
+                  <AvatarImage
+                    src={profile?.avatar_url || undefined}
+                    className="object-cover rounded-md"
+                  />
+                  <AvatarFallback className="rounded-md bg-primary/10 text-primary flex items-center justify-center">
+                    <User className="h-5 w-5" />
+                  </AvatarFallback>
+                </Avatar>
+              </button>
+            ) : (
+              <Button
+                size="sm"
+                onClick={() => navigate("/auth")}
+                className="bg-primary text-white hover:bg-primary/90"
+              >
+                Login
+              </Button>
+            )}
+
+            {/* MOBILE SEARCH ICON */}
+            <div className="md:hidden flex items-center">
+              <button
+                onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center w-[38px] h-[38px]"
+                title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
+              >
+                <FontAwesomeIcon
+                  icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
+                  className="w-[18px] h-[18px]"
+                />
+              </button>
+            </div>
+
           </div>
         </div>
 
-        {/* Mobile Search Dropdown */}
+        {/* MOBILE SEARCH DROPDOWN */}
         {isMobileSearchOpen && (
           <div className="md:hidden bg-[#18181B] shadow-lg">
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
-        </div>
+          </div>
         )}
 
-        {/* Sidebar */}
+        {/* SIDEBAR */}
         <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
       </nav>
     </SearchProvider>
