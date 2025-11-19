@@ -1,9 +1,10 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { HomeInfoProvider } from "./context/HomeInfoContext";
+import { useAuth } from "./hooks/useAuth"; // Auth hook
 import Home from "./pages/Home/Home";
 import AnimeInfo from "./pages/animeInfo/AnimeInfo";
 import Navbar from "./components/navbar/Navbar";
@@ -20,6 +21,18 @@ import SplashScreen from "./components/splashscreen/SplashScreen";
 import Terms from "./pages/terms/Terms";
 import DMCA from "./pages/dmca/DMCA";
 import Contact from "./pages/contact/Contact";
+import Auth from "./pages/auth/Auth"; // import your auth page component
+import Profile from "./pages/profile/Profile"; // Profile page
+
+// Auth-protected route wrapper
+const AuthRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) return null; // or show a spinner
+  if (!user) return <Navigate to="/auth" replace />;
+
+  return children;
+};
 
 function App() {
   const location = useLocation();
@@ -29,7 +42,7 @@ function App() {
     window.scrollTo(0, 0);
   }, [location]);
 
-  // Check if the current route is for the splash screen
+  // Splash screen check
   const isSplashScreen = location.pathname === "/";
 
   return (
@@ -40,6 +53,7 @@ function App() {
           <Routes>
             <Route path="/" element={<SplashScreen />} />
             <Route path="/home" element={<Home />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/:id" element={<AnimeInfo />} />
             <Route path="/watch/:id" element={<Watch />} />
             <Route path="/random" element={<AnimeInfo random={true} />} />
@@ -48,7 +62,8 @@ function App() {
             <Route path="/terms-of-service" element={<Terms />} />
             <Route path="/dmca" element={<DMCA />} />
             <Route path="/contact" element={<Contact />} />
-            {/* Render category routes */}
+
+            {/* Category routes */}
             {categoryRoutes.map((path) => (
               <Route
                 key={path}
@@ -58,17 +73,29 @@ function App() {
                 }
               />
             ))}
-            {/* Render A to Z routes */}
+
+            {/* A-Z routes */}
             {azRoute.map((path) => (
-              <Route
-                key={path}
-                path={`/${path}`}
-                element={<AtoZ path={path} />}
-              />
+              <Route key={path} path={`/${path}`} element={<AtoZ path={path} />} />
             ))}
+
+            {/* Producer route */}
             <Route path="/producer/:id" element={<Producer />} />
+
+            {/* Search route */}
             <Route path="/search" element={<Search />} />
-            {/* Catch-all route for 404 */}
+
+            {/* Profile route (auth-protected) */}
+            <Route
+              path="/profile"
+              element={
+                <AuthRoute>
+                  <Profile />
+                </AuthRoute>
+              }
+            />
+
+            {/* Catch-all 404 */}
             <Route path="*" element={<Error error="404" />} />
           </Routes>
           {!isSplashScreen && <Footer />}
