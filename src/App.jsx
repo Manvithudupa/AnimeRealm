@@ -21,8 +21,8 @@ import SplashScreen from "./components/splashscreen/SplashScreen";
 import Terms from "./pages/terms/Terms";
 import DMCA from "./pages/dmca/DMCA";
 import Contact from "./pages/contact/Contact";
-import Auth from "./pages/auth/Auth"; // import your auth page component
-import Profile from "./pages/profile/Profile"; // Profile page
+import Auth from "./pages/Auth/Auth"; // import your auth page component
+import Profile from "./pages/Profile/Profile"; // Profile page
 
 // Auth-protected route wrapper
 const AuthRoute = ({ children }) => {
