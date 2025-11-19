@@ -6,46 +6,35 @@ import {
   faMagnifyingGlass,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import { useLanguage } from "@/src/context/LanguageContext";
+import { useLanguage } from "../../context/LanguageContext";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "../sidebar/Sidebar";
-import { SearchProvider } from "@/src/context/SearchContext";
+import { SearchProvider } from "../../context/SearchContext";
 import WebSearch from "../searchbar/WebSearch";
 import MobileSearch from "../searchbar/MobileSearch";
 
 // Auth + Avatar UI
-import { useAuth } from "@/hooks/useAuth";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "../../hooks/useAuth";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { User } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "../ui/button";
 
 function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { language, toggleLanguage } = useLanguage();
+  const { user, profile, signOut } = useAuth(); // 🔥 Auth hook
 
-  const { user, profile, signOut } = useAuth(); // 🔥 integrated auth
-
-  const [isNotHomePage, setIsNotHomePage] = useState(
-    location.pathname !== "/" && location.pathname !== "/home"
-  );
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
-  // Scroll Listener
+  // Scroll listener
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 0);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  // Home Detection
-  useEffect(() => {
-    setIsNotHomePage(
-      location.pathname !== "/" && location.pathname !== "/home"
-    );
-  }, [location.pathname]);
 
   // Sidebar handlers
   const handleHamburgerClick = () => setIsSidebarOpen(true);
@@ -62,7 +51,7 @@ function Navbar() {
           ${isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"}`}
       >
         <div className="max-w-[1920px] mx-auto px-4 h-16 flex items-center justify-between">
-          
+
           {/* LEFT SECTION */}
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-4">
@@ -97,7 +86,7 @@ function Navbar() {
           {/* RIGHT SECTION */}
           <div className="flex items-center gap-4">
 
-            {/* LANGUAGE TOGGLE (Moved Here) */}
+            {/* LANGUAGE TOGGLE */}
             <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
               {["EN", "JP"].map((lang) => (
                 <button
@@ -114,7 +103,7 @@ function Navbar() {
               ))}
             </div>
 
-            {/* LOGIN / PROFILE BUTTON */}
+            {/* LOGIN / PROFILE */}
             {user ? (
               <button
                 onClick={() => navigate("/profile")}
