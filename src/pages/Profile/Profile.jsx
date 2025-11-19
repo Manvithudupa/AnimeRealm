@@ -27,15 +27,11 @@ export const Profile = () => {
   });
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
+    if (!authLoading && !user) navigate("/auth");
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    if (user) {
-      loadProfile();
-    }
+    if (user) loadProfile();
   }, [user]);
 
   const loadProfile = async () => {
@@ -68,44 +64,27 @@ export const Profile = () => {
         query {
           Page(page: 1, perPage: 50) {
             characters(sort: FAVOURITES_DESC) {
-              image {
-                large
-              }
+              image { large }
             }
           }
         }
       `;
-
       const response = await fetch("https://graphql.anilist.co", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ query }),
       });
-
       const result = await response.json();
-
       if (result.errors) throw new Error(result.errors[0].message);
 
       const characters = result.data.Page.characters;
-      const randomCharacter =
-        characters[Math.floor(Math.random() * characters.length)];
-
+      const randomCharacter = characters[Math.floor(Math.random() * characters.length)];
       setProfile((prev) => ({ ...prev, avatar_url: randomCharacter.image.large }));
 
-      toast({
-        title: "Avatar Generated!",
-        description: "Random anime character selected as your profile picture.",
-      });
+      toast({ title: "Avatar Generated!", description: "Random anime character selected as your profile picture." });
     } catch (error) {
       console.error("Error generating avatar:", error);
-      toast({
-        title: "Error",
-        description: "Failed to generate avatar. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to generate avatar. Please try again.", variant: "destructive" });
     } finally {
       setGenerating(false);
     }
@@ -131,17 +110,10 @@ export const Profile = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success!",
-        description: "Profile updated successfully.",
-      });
+      toast({ title: "Success!", description: "Profile updated successfully." });
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update profile.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message || "Failed to update profile.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -167,10 +139,8 @@ export const Profile = () => {
             <CardTitle className="text-2xl font-bold">Profile Settings</CardTitle>
             <CardDescription>Manage your profile information and avatar</CardDescription>
           </CardHeader>
-
           <CardContent className="space-y-8">
             <form onSubmit={updateProfile} className="space-y-8">
-              
               {/* Avatar Section */}
               <div className="flex flex-col items-center gap-4">
                 <div className="relative group">
@@ -180,7 +150,6 @@ export const Profile = () => {
                       <User className="h-16 w-16 text-muted-foreground" />
                     </AvatarFallback>
                   </Avatar>
-
                   <div className="absolute inset-0 rounded-xl bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
 
@@ -220,10 +189,7 @@ export const Profile = () => {
               {/* Gender */}
               <div className="space-y-2">
                 <Label htmlFor="gender">Gender</Label>
-                <Select
-                  value={profile.gender}
-                  onValueChange={(value) => setProfile({ ...profile, gender: value })}
-                >
+                <Select value={profile.gender} onValueChange={(value) => setProfile({ ...profile, gender: value })}>
                   <SelectTrigger id="gender" className="transition-all focus:ring-2">
                     <SelectValue placeholder="Select your gender" />
                   </SelectTrigger>
