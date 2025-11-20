@@ -123,6 +123,7 @@ export const Profile = () => {
 
     try {
       const { error } = await supabase.from("profiles").upsert({
+        id: user.id, // ✅ FIX: REQUIRED - prevents NULL id error
         user_id: user.id,
         username: profile.username,
         gender: profile.gender,
@@ -159,7 +160,6 @@ export const Profile = () => {
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       <Navbar />
 
-      {/* Center the profile card */}
       <main className="flex justify-center px-4 pt-24 pb-12">
         <Card className="w-full max-w-xl bg-[#111] border border-white/10 shadow-2xl rounded-2xl">
           <CardHeader className="text-center pb-2">
@@ -258,7 +258,7 @@ export const Profile = () => {
                 />
               </div>
 
-              {/* Save */}
+              {/* Save Button */}
               <Button
                 type="submit"
                 className="w-full bg-white text-black hover:bg-white/90 font-medium h-11"
