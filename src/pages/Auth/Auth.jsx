@@ -94,11 +94,7 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center px-4 bg-[#0a0a0a] text-white">
       <Card className="w-full max-w-sm bg-[#111] border border-white/10 rounded-xl shadow-lg shadow-black/40">
         <CardHeader className="text-center space-y-2 pb-2">
-          <div className="flex justify-center">
-            <div className="p-2 rounded-full bg-white/5 border border-white/10">
-              <img src="/logo.png" alt="Logo" className="h-8 w-8" />
-            </div>
-          </div>
+          <img src="/logo.png" alt="Logo" className="mx-auto h-16 w-auto" />
 
           <CardTitle className="text-2xl font-semibold text-white">
             {isLogin ? "Sign In" : "Create Account"}
