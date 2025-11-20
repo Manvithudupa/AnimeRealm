@@ -1,11 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faBars,
-  faRandom,
-  faMagnifyingGlass,
-  faXmark,
-} from "@fortawesome/free-solid-svg-icons";
+import { faBars, faRandom, faMagnifyingGlass, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useLanguage } from "../../context/LanguageContext";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "../sidebar/Sidebar";
@@ -13,7 +8,6 @@ import { SearchProvider } from "../../context/SearchContext";
 import WebSearch from "../searchbar/WebSearch";
 import MobileSearch from "../searchbar/MobileSearch";
 
-// Auth + Avatar UI
 import { useAuth } from "../../hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { User } from "lucide-react";
@@ -23,43 +17,37 @@ function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { language, toggleLanguage } = useLanguage();
-  const { user, profile, signOut } = useAuth(); // 🔥 Auth hook
+  const { user, profile, signOut } = useAuth();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Scroll listener
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 0);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const dropdownRef = useRef();
 
-  // Click outside to close dropdown
+  // Close dropdown if clicked outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Sidebar handlers
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 0);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const handleHamburgerClick = () => setIsSidebarOpen(true);
   const handleCloseSidebar = () => setIsSidebarOpen(false);
 
   const handleRandomClick = () => {
     if (location.pathname === "/random") window.location.reload();
-  };
-
-  const handleLogout = async () => {
-    await signOut();
-    navigate("/auth");
   };
 
   return (
@@ -73,29 +61,18 @@ function Navbar() {
           {/* LEFT SECTION */}
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-4">
-              <FontAwesomeIcon
-                icon={faBars}
-                className="text-xl text-gray-200 cursor-pointer hover:text-white transition-colors"
-                onClick={handleHamburgerClick}
-              />
+              <FontAwesomeIcon icon={faBars} className="text-xl text-gray-200 cursor-pointer hover:text-white transition-colors" onClick={handleHamburgerClick} />
               <Link to="/home" className="flex items-center">
                 <img src="/logo.png" alt="An!meRealm Logo" className="h-9 w-auto" />
               </Link>
             </div>
           </div>
 
-          {/* CENTER SEARCH BAR (Desktop) */}
+          {/* CENTER SEARCH BAR */}
           <div className="flex-1 flex justify-center items-center max-w-none mx-8 hidden md:flex">
             <div className="flex items-center gap-2 w-[600px]">
               <WebSearch />
-
-              {/* RANDOM BUTTON */}
-              <Link
-                to={location.pathname === "/random" ? "#" : "/random"}
-                onClick={handleRandomClick}
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center"
-                title="Random Anime"
-              >
+              <Link to={location.pathname === "/random" ? "#" : "/random"} onClick={handleRandomClick} className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center" title="Random Anime">
                 <FontAwesomeIcon icon={faRandom} className="text-lg" />
               </Link>
             </div>
@@ -107,55 +84,28 @@ function Navbar() {
             {/* LANGUAGE TOGGLE */}
             <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
               {["EN", "JP"].map((lang) => (
-                <button
-                  key={lang}
-                  onClick={() => toggleLanguage(lang)}
-                  className={`px-3 py-1 text-sm font-medium rounded ${
-                    language === lang
-                      ? "bg-[#3F3F46] text-white"
-                      : "text-gray-400 hover:text-white"
-                  }`}
-                >
+                <button key={lang} onClick={() => toggleLanguage(lang)} className={`px-3 py-1 text-sm font-medium rounded ${language === lang ? "bg-[#3F3F46] text-white" : "text-gray-400 hover:text-white"}`}>
                   {lang}
                 </button>
               ))}
             </div>
 
-            {/* LOGIN / PROFILE */}
+            {/* USER AVATAR / LOGIN */}
             {user ? (
               <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="rounded-full h-10 w-10 overflow-hidden shadow-sm bg-[#2a2a2a]/70 hover:bg-[#3a3a3a] transition"
-                >
-                  <Avatar className="h-10 w-10 rounded-full">
-                    <AvatarImage
-                      src={profile?.avatar_url || "/default-avatar.png"}
-                      className="object-cover rounded-full"
-                    />
-                    <AvatarFallback className="rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="rounded-md h-10 w-10 overflow-hidden shadow-sm bg-[#2a2a2a]/70 hover:bg-[#3a3a3a] transition">
+                  <Avatar className="h-10 w-10 rounded-md">
+                    <AvatarImage src={profile?.avatar_url || "/default-avatar.png"} className="object-cover rounded-md" />
+                    <AvatarFallback className="rounded-md bg-primary/10 text-primary flex items-center justify-center">
                       <User className="h-5 w-5" />
                     </AvatarFallback>
                   </Avatar>
                 </button>
 
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-40 bg-[#1f1f1f] rounded-md shadow-lg z-50">
-                    <button
-                      onClick={() => {
-                        navigate("/profile");
-                        setDropdownOpen(false);
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm hover:bg-[#272727]"
-                    >
-                      Profile
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm hover:bg-[#272727]"
-                    >
-                      Logout
-                    </button>
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-40 bg-[#1a1a1a] rounded-md shadow-lg border border-gray-700 overflow-hidden z-50">
+                    <button onClick={() => navigate("/profile")} className="block w-full text-left px-4 py-2 hover:bg-gray-800">Profile</button>
+                    <button onClick={signOut} className="block w-full text-left px-4 py-2 hover:bg-gray-800">Logout</button>
                   </div>
                 )}
               </div>
@@ -165,29 +115,17 @@ function Navbar() {
               </Button>
             )}
 
-            {/* MOBILE SEARCH ICON */}
+            {/* MOBILE SEARCH */}
             <div className="md:hidden flex items-center">
-              <button
-                onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center w-[38px] h-[38px]"
-                title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
-              >
-                <FontAwesomeIcon
-                  icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
-                  className="w-[18px] h-[18px]"
-                />
+              <button onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)} className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center w-[38px] h-[38px]" title={isMobileSearchOpen ? "Close Search" : "Search Anime"}>
+                <FontAwesomeIcon icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass} className="w-[18px] h-[18px]" />
               </button>
             </div>
-
           </div>
         </div>
 
         {/* MOBILE SEARCH DROPDOWN */}
-        {isMobileSearchOpen && (
-          <div className="md:hidden bg-[#18181B] shadow-lg">
-            <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
-          </div>
-        )}
+        {isMobileSearchOpen && <div className="md:hidden bg-[#18181B] shadow-lg"><MobileSearch onClose={() => setIsMobileSearchOpen(false)} /></div>}
 
         {/* SIDEBAR */}
         <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
