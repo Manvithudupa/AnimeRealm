@@ -47,7 +47,7 @@ const Auth = () => {
           description: "Signed in successfully.",
         });
 
-        navigate("/");
+        navigate("/home");
       } else {
         const { error } = await supabase.auth.signUp({
           email,
