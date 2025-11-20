@@ -1,14 +1,26 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/src/hooks/useAuth";
 import { supabase } from "@/src/integrations/supabase/client";
-import Navbar from "@/src/components/navbar/Navbar"; // Use Navbar here
+import Navbar from "@/src/components/navbar/Navbar";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Textarea } from "@/src/components/ui/textarea";
 import { Avatar, AvatarImage, AvatarFallback } from "@/src/components/ui/avatar";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/src/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/select";
 import { Loader2, User, Sparkles } from "lucide-react";
 import { useToast } from "@/src/hooks/use-toast.js";
 import { useNavigate } from "react-router-dom";
@@ -17,8 +29,10 @@ export const Profile = () => {
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+
   const [profile, setProfile] = useState({
     username: "",
     gender: "",
@@ -28,7 +42,7 @@ export const Profile = () => {
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading]);
 
   useEffect(() => {
     if (user) loadProfile();
@@ -36,13 +50,11 @@ export const Profile = () => {
 
   const loadProfile = async () => {
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("profiles")
         .select("*")
         .eq("user_id", user.id)
         .single();
-
-      if (error && error.code !== "PGRST116") throw error;
 
       if (data) {
         setProfile({
@@ -69,22 +81,35 @@ export const Profile = () => {
           }
         }
       `;
+
       const response = await fetch("https://graphql.anilist.co", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ query }),
       });
+
       const result = await response.json();
-      if (result.errors) throw new Error(result.errors[0].message);
 
       const characters = result.data.Page.characters;
-      const randomCharacter = characters[Math.floor(Math.random() * characters.length)];
-      setProfile((prev) => ({ ...prev, avatar_url: randomCharacter.image.large }));
+      const randomCharacter =
+        characters[Math.floor(Math.random() * characters.length)];
 
-      toast({ title: "Avatar Generated!", description: "Random anime character selected as your profile picture." });
+      setProfile((prev) => ({
+        ...prev,
+        avatar_url: randomCharacter.image.large,
+      }));
+
+      toast({
+        title: "Avatar Generated!",
+        description: "Your new anime avatar is set!",
+      });
     } catch (error) {
-      console.error("Error generating avatar:", error);
-      toast({ title: "Error", description: "Failed to generate avatar. Please try again.", variant: "destructive" });
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to generate avatar.",
+        variant: "destructive",
+      });
     } finally {
       setGenerating(false);
     }
@@ -95,25 +120,28 @@ export const Profile = () => {
     if (!user) return;
 
     setLoading(true);
+
     try {
-      const { error } = await supabase.from("profiles").upsert(
-        {
-          user_id: user.id,
-          id: user.id,
-          username: profile.username,
-          gender: profile.gender,
-          bio: profile.bio,
-          avatar_url: profile.avatar_url,
-        },
-        { onConflict: "user_id" }
-      );
+      const { error } = await supabase.from("profiles").upsert({
+        user_id: user.id,
+        username: profile.username,
+        gender: profile.gender,
+        bio: profile.bio,
+        avatar_url: profile.avatar_url,
+      });
 
       if (error) throw error;
 
-      toast({ title: "Success!", description: "Profile updated successfully." });
+      toast({
+        title: "Saved!",
+        description: "Your profile has been updated.",
+      });
     } catch (error) {
-      console.error("Error updating profile:", error);
-      toast({ title: "Error", description: error.message || "Failed to update profile.", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -121,55 +149,57 @@ export const Profile = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container py-20 flex justify-center">
-          <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
-        </div>
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-white/60" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
       <Navbar />
-      <main className="container py-10 max-w-2xl animate-fadeIn">
-        <Card className="shadow-md border-border/50">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Profile Settings</CardTitle>
-            <CardDescription>Manage your profile information and avatar</CardDescription>
+
+      {/* Center the profile card */}
+      <main className="flex justify-center px-4 pt-24 pb-12">
+        <Card className="w-full max-w-xl bg-[#111] border border-white/10 shadow-2xl rounded-2xl">
+          <CardHeader className="text-center pb-2">
+            <CardTitle className="text-2xl font-semibold text-white">
+              Profile Settings
+            </CardTitle>
+            <CardDescription className="text-white/40">
+              Update your anime profile
+            </CardDescription>
           </CardHeader>
+
           <CardContent className="space-y-8">
             <form onSubmit={updateProfile} className="space-y-8">
               {/* Avatar Section */}
               <div className="flex flex-col items-center gap-4">
-                <div className="relative group">
-                  <Avatar className="h-32 w-32 ring-4 ring-muted/40 group-hover:ring-primary/40 transition-all duration-300 rounded-xl shadow-lg">
-                    <AvatarImage
-                      src={profile.avatar_url || "/default-avatar.png"} // default image
-                      className="rounded-xl object-cover"
-                    />
-                    <AvatarFallback className="rounded-xl bg-muted flex items-center justify-center">
-                      <User className="h-16 w-16 text-muted-foreground" />
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
+                <Avatar className="h-32 w-32 rounded-xl border border-white/10 shadow-lg">
+                  <AvatarImage
+                    src={profile.avatar_url || "/default-avatar.png"}
+                    className="rounded-xl object-cover"
+                  />
+                  <AvatarFallback className="bg-black/40 flex items-center justify-center rounded-xl">
+                    <User className="h-16 w-16 text-white/40" />
+                  </AvatarFallback>
+                </Avatar>
 
                 <Button
                   type="button"
                   variant="outline"
                   onClick={generateRandomAvatar}
                   disabled={generating}
-                  className="transition-all flex items-center gap-2"
+                  className="bg-black/30 text-white border-white/10 hover:bg-black/50"
                 >
                   {generating ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
                       Generating...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="h-4 w-4" />
+                      <Sparkles className="h-4 w-4 mr-2" />
                       Generate Random Avatar
                     </>
                   )}
@@ -178,48 +208,60 @@ export const Profile = () => {
 
               {/* Username */}
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label className="text-white/80">Username</Label>
                 <Input
-                  id="username"
                   value={profile.username}
-                  onChange={(e) => setProfile({ ...profile, username: e.target.value })}
-                  placeholder="Enter your username"
-                  className="transition-all focus:ring-2"
+                  onChange={(e) =>
+                    setProfile({ ...profile, username: e.target.value })
+                  }
+                  placeholder="Your username"
+                  className="bg-black/30 text-white border-white/10 placeholder:text-white/30"
                 />
               </div>
 
               {/* Gender */}
               <div className="space-y-2">
-                <Label htmlFor="gender">Gender</Label>
-                <Select value={profile.gender} onValueChange={(value) => setProfile({ ...profile, gender: value })}>
-                  <SelectTrigger id="gender" className="transition-all focus:ring-2">
-                    <SelectValue placeholder="Select your gender" />
+                <Label className="text-white/80">Gender</Label>
+
+                <Select
+                  value={profile.gender}
+                  onValueChange={(value) =>
+                    setProfile({ ...profile, gender: value })
+                  }
+                >
+                  <SelectTrigger className="bg-black/30 text-white border-white/10">
+                    <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
-                  <SelectContent>
+
+                  <SelectContent className="bg-[#111] border-white/10 text-white">
                     <SelectItem value="male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
                     <SelectItem value="non-binary">Non-binary</SelectItem>
-                    <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
+                    <SelectItem value="prefer-not-to-say">
+                      Prefer not to say
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Bio */}
               <div className="space-y-2">
-                <Label htmlFor="bio">Bio</Label>
+                <Label className="text-white/80">Bio</Label>
                 <Textarea
-                  id="bio"
                   value={profile.bio}
-                  onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                  placeholder="Tell us about yourself..."
+                  onChange={(e) =>
+                    setProfile({ ...profile, bio: e.target.value })
+                  }
+                  placeholder="Write something cool..."
                   rows={4}
-                  className="transition-all focus:ring-2"
+                  className="bg-black/30 text-white border-white/10 placeholder:text-white/30"
                 />
               </div>
 
+              {/* Save */}
               <Button
                 type="submit"
-                className="w-full h-12 text-lg font-medium transition-all hover:brightness-110"
+                className="w-full bg-white text-black hover:bg-white/90 font-medium h-11"
                 disabled={loading}
               >
                 {loading ? (
