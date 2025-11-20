@@ -40,10 +40,12 @@ export const Profile = () => {
     avatar_url: "",
   });
 
+  // Redirect if not logged in
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
   }, [user, authLoading]);
 
+  // Load profile
   useEffect(() => {
     if (user) loadProfile();
   }, [user]);
@@ -69,6 +71,7 @@ export const Profile = () => {
     }
   };
 
+  // Avatar generator
   const generateRandomAvatar = async () => {
     setGenerating(true);
     try {
@@ -89,7 +92,6 @@ export const Profile = () => {
       });
 
       const result = await response.json();
-
       const characters = result.data.Page.characters;
       const randomCharacter =
         characters[Math.floor(Math.random() * characters.length)];
@@ -115,21 +117,23 @@ export const Profile = () => {
     }
   };
 
+  // Save profile (fixed upsert)
   const updateProfile = async (e) => {
     e.preventDefault();
     if (!user) return;
-
     setLoading(true);
 
     try {
-      const { error } = await supabase.from("profiles").upsert({
-        id: user.id, // ✅ FIX: REQUIRED - prevents NULL id error
-        user_id: user.id,
-        username: profile.username,
-        gender: profile.gender,
-        bio: profile.bio,
-        avatar_url: profile.avatar_url,
-      });
+      const { error } = await supabase.from("profiles").upsert(
+        {
+          user_id: user.id,
+          username: profile.username,
+          gender: profile.gender,
+          bio: profile.bio,
+          avatar_url: profile.avatar_url,
+        },
+        { onConflict: "user_id" } // safe with the new schema
+      );
 
       if (error) throw error;
 
@@ -148,6 +152,7 @@ export const Profile = () => {
     }
   };
 
+  // Loading screen
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
@@ -173,7 +178,8 @@ export const Profile = () => {
 
           <CardContent className="space-y-8">
             <form onSubmit={updateProfile} className="space-y-8">
-              {/* Avatar Section */}
+
+              {/* Avatar */}
               <div className="flex flex-col items-center gap-4">
                 <Avatar className="h-32 w-32 rounded-xl border border-white/10 shadow-lg">
                   <AvatarImage
@@ -222,7 +228,6 @@ export const Profile = () => {
               {/* Gender */}
               <div className="space-y-2">
                 <Label className="text-white/80">Gender</Label>
-
                 <Select
                   value={profile.gender}
                   onValueChange={(value) =>
@@ -232,7 +237,6 @@ export const Profile = () => {
                   <SelectTrigger className="bg-black/30 text-white border-white/10">
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
-
                   <SelectContent className="bg-[#111] border-white/10 text-white">
                     <SelectItem value="male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
@@ -258,7 +262,7 @@ export const Profile = () => {
                 />
               </div>
 
-              {/* Save Button */}
+              {/* Save */}
               <Button
                 type="submit"
                 className="w-full bg-white text-black hover:bg-white/90 font-medium h-11"
@@ -273,6 +277,7 @@ export const Profile = () => {
                   "Save Profile"
                 )}
               </Button>
+
             </form>
           </CardContent>
         </Card>
