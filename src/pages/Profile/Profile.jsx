@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/src/hooks/useAuth";
 import { supabase } from "@/src/integrations/supabase/client";
-import { Header } from "@/src/components/Header";
+import { Header } from "@/src/components/navbar/Navbar";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
