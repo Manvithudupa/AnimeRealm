@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBars,
@@ -28,6 +28,8 @@ function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   // Scroll listener
   useEffect(() => {
@@ -36,12 +38,28 @@ function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   // Sidebar handlers
   const handleHamburgerClick = () => setIsSidebarOpen(true);
   const handleCloseSidebar = () => setIsSidebarOpen(false);
 
   const handleRandomClick = () => {
     if (location.pathname === "/random") window.location.reload();
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/auth");
   };
 
   return (
@@ -105,26 +123,44 @@ function Navbar() {
 
             {/* LOGIN / PROFILE */}
             {user ? (
-              <button
-                onClick={() => navigate("/profile")}
-                className="rounded-md h-10 w-10 overflow-hidden shadow-sm bg-[#2a2a2a]/70 hover:bg-[#3a3a3a] transition"
-              >
-                <Avatar className="h-10 w-10 rounded-md">
-                  <AvatarImage
-                    src={profile?.avatar_url || undefined}
-                    className="object-cover rounded-md"
-                  />
-                  <AvatarFallback className="rounded-md bg-primary/10 text-primary flex items-center justify-center">
-                    <User className="h-5 w-5" />
-                  </AvatarFallback>
-                </Avatar>
-              </button>
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="rounded-full h-10 w-10 overflow-hidden shadow-sm bg-[#2a2a2a]/70 hover:bg-[#3a3a3a] transition"
+                >
+                  <Avatar className="h-10 w-10 rounded-full">
+                    <AvatarImage
+                      src={profile?.avatar_url || "/default-avatar.png"}
+                      className="object-cover rounded-full"
+                    />
+                    <AvatarFallback className="rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                      <User className="h-5 w-5" />
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-40 bg-[#1f1f1f] rounded-md shadow-lg z-50">
+                    <button
+                      onClick={() => {
+                        navigate("/profile");
+                        setDropdownOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm hover:bg-[#272727]"
+                    >
+                      Profile
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm hover:bg-[#272727]"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
-              <Button
-                size="sm"
-                onClick={() => navigate("/auth")}
-                className="bg-primary text-white hover:bg-primary/90"
-              >
+              <Button size="sm" onClick={() => navigate("/auth")} className="bg-primary text-white hover:bg-primary/90">
                 Login
               </Button>
             )}
