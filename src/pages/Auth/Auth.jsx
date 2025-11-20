@@ -5,7 +5,7 @@ import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src/components/ui/card';
-import { useToast } from '@/src/hooks/use-toast';
+import { useToast } from '@/src/hooks/use-toast.js';
 import { BookOpen, Loader2 } from 'lucide-react';
 import { useAuth } from '@/src/hooks/useAuth';
 
