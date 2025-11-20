@@ -87,15 +87,15 @@ const Auth = () => {
               <BookOpen className="h-10 w-10 text-primary" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold">MangaVerse</h1>
-          <p className="text-muted-foreground">Your manga reading companion</p>
+          <h1 className="text-3xl font-bold">An!meRealm</h1>
+          <p className="text-muted-foreground">Anime Streaming Site</p>
         </div>
 
         <Card>
           <CardHeader>
             <CardTitle>{isLogin ? 'Welcome Back' : 'Create Account'}</CardTitle>
             <CardDescription>
-              {isLogin ? 'Sign in to continue your reading journey' : 'Sign up to start tracking your manga'}
+              {isLogin ? 'Sign in to continue your Anime journey' : 'Sign up to start tracking your Anime'}
             </CardDescription>
           </CardHeader>
 
