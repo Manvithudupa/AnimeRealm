@@ -1,6 +1,5 @@
 import { LanguageProvider } from './context/LanguageContext';
-import { AuthProvider } from './hooks/useAuth';
-import { ToastProvider } from './hooks/use-toast'; // <-- add ToastProvider
+import { AuthProvider } from './hooks/useAuth'; // <-- import your AuthProvider
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
@@ -10,10 +9,8 @@ createRoot(document.getElementById('root')).render(
   <LanguageProvider>
     <BrowserRouter>
       <AuthProvider>
-        <ToastProvider>
-          <App />
-        </ToastProvider>
+        <App />
       </AuthProvider>
     </BrowserRouter>
   </LanguageProvider>
-);
+); add use-toast from hooks
