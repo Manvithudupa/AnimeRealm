@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/src/hooks/useAuth";
 import { supabase } from "@/src/integrations/supabase/client";
-import {Navbar} from "@/src/components/navbar/Navbar";
+import Navbar from "@/src/components/navbar/Navbar"; // Use Navbar here
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
@@ -122,7 +122,7 @@ export const Profile = () => {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <Navbar />
         <div className="container py-20 flex justify-center">
           <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
         </div>
@@ -132,7 +132,7 @@ export const Profile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Navbar />
       <main className="container py-10 max-w-2xl animate-fadeIn">
         <Card className="shadow-md border-border/50">
           <CardHeader className="text-center">
@@ -145,12 +145,14 @@ export const Profile = () => {
               <div className="flex flex-col items-center gap-4">
                 <div className="relative group">
                   <Avatar className="h-32 w-32 ring-4 ring-muted/40 group-hover:ring-primary/40 transition-all duration-300 rounded-xl shadow-lg">
-                    <AvatarImage src={profile.avatar_url} className="rounded-xl object-cover" />
+                    <AvatarImage
+                      src={profile.avatar_url || "/default-avatar.png"} // default image
+                      className="rounded-xl object-cover"
+                    />
                     <AvatarFallback className="rounded-xl bg-muted flex items-center justify-center">
                       <User className="h-16 w-16 text-muted-foreground" />
                     </AvatarFallback>
                   </Avatar>
-                  <div className="absolute inset-0 rounded-xl bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
 
                 <Button
@@ -236,5 +238,5 @@ export const Profile = () => {
     </div>
   );
 };
-export default Profile;
 
+export default Profile;
