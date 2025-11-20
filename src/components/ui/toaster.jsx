@@ -8,8 +8,9 @@ export function Toaster() {
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className="pointer-events-auto px-4 py-3 rounded-lg bg-neutral-900 text-white shadow-xl border border-neutral-700 
-          animate-in fade-in slide-in-from-top-4 max-w-sm"
+          className={`pointer-events-auto px-4 py-3 rounded-lg bg-neutral-900 text-white shadow-xl border border-neutral-700 
+          animate-in fade-in slide-in-from-top-4 max-w-sm transition-opacity duration-500
+          ${!toast.open ? "opacity-0" : "opacity-100"}`}
         >
           <p className="font-semibold">{toast.title}</p>
           {toast.description && (
