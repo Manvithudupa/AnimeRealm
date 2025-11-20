@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/src/hooks/useAuth";
 import { supabase } from "@/src/integrations/supabase/client";
-import {Navbar} from "@/components/navbar/Navbar";
+import {Navbar} from "@/src/components/navbar/Navbar";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
