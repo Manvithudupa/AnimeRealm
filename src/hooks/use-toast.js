@@ -1,7 +1,8 @@
 import * as React from "react";
 
 const TOAST_LIMIT = 1;
-const TOAST_REMOVE_DELAY = 1000000;
+// Toast disappears after 5 seconds
+const TOAST_REMOVE_DELAY = 5000;
 
 let count = 0;
 function genId() {
@@ -18,7 +19,7 @@ const addToRemoveQueue = (toastId, dispatch) => {
     toastTimeouts.delete(toastId);
     dispatch({
       type: "REMOVE_TOAST",
-      toastId: toastId,
+      toastId,
     });
   }, TOAST_REMOVE_DELAY);
 
@@ -122,4 +123,3 @@ function useToast() {
 }
 
 export { useToast, toast };
-
