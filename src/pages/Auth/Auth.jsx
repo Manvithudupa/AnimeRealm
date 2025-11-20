@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 import { useToast } from "@/src/hooks/use-toast.js";
-import { BookOpen, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useAuth } from "@/src/hooks/useAuth";
 
 const Auth = () => {
@@ -96,7 +96,7 @@ const Auth = () => {
         <CardHeader className="text-center space-y-2 pb-2">
           <div className="flex justify-center">
             <div className="p-2 rounded-full bg-white/5 border border-white/10">
-              <BookOpen className="h-8 w-8 text-white/90" />
+              <img src="/logo.png" alt="Logo" className="h-8 w-8" />
             </div>
           </div>
 
