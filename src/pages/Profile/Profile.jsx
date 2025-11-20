@@ -10,7 +10,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/src/components/ui/avatar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select";
 import { Loader2, User, Sparkles } from "lucide-react";
-import { useToast } from "@/src/hooks/use-toast";
+import { useToast } from "@/src/hooks/use-toast.js";
 import { useNavigate } from "react-router-dom";
 
 export const Profile = () => {
