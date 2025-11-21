@@ -149,19 +149,6 @@ function Navbar() {
                       Profile
                     </button>
 
-                    {/* Favorites */}
-                    <button
-                      onClick={() => navigate("/favorites")}
-                      className="flex items-center gap-3 w-full text-left px-4 py-3 text-gray-300 hover:bg-white/5 transition"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                          d="M5 5v14l7-4 7 4V5a2 2 0 00-2-2H7a2 2 0 00-2 2z"/>
-                      </svg>
-                      Favorites
-                    </button>
-
                     {/* Logout */}
                     <button
                       onClick={signOut}
