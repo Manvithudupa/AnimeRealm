@@ -1,10 +1,11 @@
 import { useState, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./SplashScreen.css";
 import logoTitle from "@/src/config/logoTitle";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 const FAQ_ITEMS = [
   {
@@ -25,6 +26,7 @@ function SplashScreen() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [captchaToken, setCaptchaToken] = useState("");
 
   const handleSearchSubmit = useCallback(() => {
     const trimmedSearch = search.trim();
@@ -44,6 +46,14 @@ function SplashScreen() {
 
   const toggleFaq = (index) => {
     setExpandedFaq(expandedFaq === index ? null : index);
+  };
+
+  const handleEnterHomepage = () => {
+    if (!captchaToken) {
+      alert("Please verify you are human before continuing.");
+      return;
+    }
+    navigate("/home");
   };
 
   return (
@@ -72,9 +82,22 @@ function SplashScreen() {
           </button>
         </div>
 
-        <Link to="/home" className="enter-button">
+        {/* Turnstile captcha */}
+        <div className="captcha-wrapper" style={{ margin: "20px 0", textAlign: "center" }}>
+          <Turnstile
+            siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+            onSuccess={(token) => setCaptchaToken(token)}
+          />
+        </div>
+
+        <button
+          className="enter-button"
+          onClick={handleEnterHomepage}
+          disabled={!captchaToken} // disable until captcha is done
+          style={{ cursor: !captchaToken ? "not-allowed" : "pointer" }}
+        >
           Enter Homepage <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
-        </Link>
+        </button>
 
         <div className="faq-section">
           <h2 className="faq-title">Frequently Asked Questions</h2>
