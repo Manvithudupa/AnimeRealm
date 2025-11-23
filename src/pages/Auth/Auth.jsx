@@ -15,12 +15,18 @@ import { useToast } from "@/src/hooks/use-toast.js";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/src/hooks/useAuth";
 
+// 🔥 Turnstile import
+import { Turnstile } from "@marsidev/react-turnstile";
+
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // 🔥 Captcha token state
+  const [captchaToken, setCaptchaToken] = useState("");
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -34,12 +40,28 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
+    if (!captchaToken) {
+      toast({
+        variant: "destructive",
+        title: "Captcha Required",
+        description: "Please complete the captcha before continuing.",
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { error } = await supabase.auth.signInWithPassword(
+          {
+            email,
+            password,
+          },
+          {
+            captchaToken, // 🔥 required for Turnstile
+          }
+        );
+
         if (error) throw error;
 
         toast({
@@ -49,13 +71,18 @@ const Auth = () => {
 
         navigate("/home");
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { username },
+        const { error } = await supabase.auth.signUp(
+          {
+            email,
+            password,
+            options: {
+              data: { username },
+            },
           },
-        });
+          {
+            captchaToken, // 🔥 required for Turnstile
+          }
+        );
 
         if (error) throw error;
 
@@ -153,6 +180,14 @@ const Auth = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
+              />
+            </div>
+
+            {/* 🔥 Turnstile Captcha */}
+            <div className="flex justify-center">
+              <Turnstile
+                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                onSuccess={(token) => setCaptchaToken(token)}
               />
             </div>
 
