@@ -1,11 +1,10 @@
 import { useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./SplashScreen.css";
 import logoTitle from "@/src/config/logoTitle";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
-import { Turnstile } from "@marsidev/react-turnstile";
 
 const FAQ_ITEMS = [
   {
@@ -26,7 +25,6 @@ function SplashScreen() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [expandedFaq, setExpandedFaq] = useState(null);
-  const [captchaToken, setCaptchaToken] = useState("");
 
   const handleSearchSubmit = useCallback(() => {
     const trimmedSearch = search.trim();
@@ -46,11 +44,6 @@ function SplashScreen() {
 
   const toggleFaq = (index) => {
     setExpandedFaq(expandedFaq === index ? null : index);
-  };
-
-  const handleEnterHomepage = () => {
-    if (!captchaToken) return;
-    navigate("/home");
   };
 
   return (
@@ -79,23 +72,9 @@ function SplashScreen() {
           </button>
         </div>
 
-        {/* Turnstile captcha */}
-        <div className="captcha-wrapper" style={{ margin: "20px 0", textAlign: "center" }}>
-          <Turnstile
-            siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-            onSuccess={(token) => setCaptchaToken(token)}
-          />
-        </div>
-
-        {/* Enter Homepage button only visible after captcha */}
-        {captchaToken && (
-          <button
-            className="enter-button"
-            onClick={handleEnterHomepage}
-          >
-            Enter Homepage <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
-          </button>
-        )}
+        <Link to="/home" className="enter-button">
+          Enter Homepage <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
+        </Link>
 
         <div className="faq-section">
           <h2 className="faq-title">Frequently Asked Questions</h2>
