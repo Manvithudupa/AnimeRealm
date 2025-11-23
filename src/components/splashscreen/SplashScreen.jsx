@@ -49,10 +49,7 @@ function SplashScreen() {
   };
 
   const handleEnterHomepage = () => {
-    if (!captchaToken) {
-      alert("Please verify you are human before continuing.");
-      return;
-    }
+    if (!captchaToken) return;
     navigate("/home");
   };
 
@@ -90,14 +87,15 @@ function SplashScreen() {
           />
         </div>
 
-        <button
-          className="enter-button"
-          onClick={handleEnterHomepage}
-          disabled={!captchaToken} // disable until captcha is done
-          style={{ cursor: !captchaToken ? "not-allowed" : "pointer" }}
-        >
-          Enter Homepage <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
-        </button>
+        {/* Enter Homepage button only visible after captcha */}
+        {captchaToken && (
+          <button
+            className="enter-button"
+            onClick={handleEnterHomepage}
+          >
+            Enter Homepage <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
+          </button>
+        )}
 
         <div className="faq-section">
           <h2 className="faq-title">Frequently Asked Questions</h2>
