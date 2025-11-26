@@ -117,11 +117,22 @@ export const Profile = () => {
     }
   };
 
-  // Save profile (fixed upsert)
+  // Save profile (fixed upsert + validation added)
   const updateProfile = async (e) => {
     e.preventDefault();
     if (!user) return;
     setLoading(true);
+
+    // ✅ Validation added, everything else untouched
+    if (profile.username.length > 25 || profile.bio.length > 200) {
+      toast({
+        title: "Limit exceeded",
+        description: "Username must be ≤ 25 and Bio must be ≤ 200 characters.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
 
     try {
       const { error } = await supabase.from("profiles").upsert(
@@ -132,7 +143,7 @@ export const Profile = () => {
           bio: profile.bio,
           avatar_url: profile.avatar_url,
         },
-        { onConflict: "user_id" } // safe with the new schema
+        { onConflict: "user_id" }
       );
 
       if (error) throw error;
@@ -217,12 +228,17 @@ export const Profile = () => {
                 <Label className="text-white/80">Username</Label>
                 <Input
                   value={profile.username}
-                  onChange={(e) =>
-                    setProfile({ ...profile, username: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const val = e.target.value.slice(0, 25); // ✅ restrict added
+                    setProfile({ ...profile, username: val });
+                  }}
                   placeholder="Your username"
+                  maxLength={25} // ✅ native safeguard
                   className="bg-black/30 text-white border-white/10 placeholder:text-white/30"
                 />
+                <div className="text-right text-xs text-white/40">
+                  {profile.username.length}/25
+                </div>
               </div>
 
               {/* Gender */}
@@ -253,13 +269,18 @@ export const Profile = () => {
                 <Label className="text-white/80">Bio</Label>
                 <Textarea
                   value={profile.bio}
-                  onChange={(e) =>
-                    setProfile({ ...profile, bio: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const val = e.target.value.slice(0, 200); // ✅ restrict added
+                    setProfile({ ...profile, bio: val });
+                  }}
                   placeholder="Write something cool..."
                   rows={4}
+                  maxLength={200} // ✅ native safeguard
                   className="bg-black/30 text-white border-white/10 placeholder:text-white/30"
                 />
+                <div className="text-right text-xs text-white/40">
+                  {profile.bio.length}/200
+                </div>
               </div>
 
               {/* Save */}
