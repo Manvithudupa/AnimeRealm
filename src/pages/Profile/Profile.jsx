@@ -4,23 +4,9 @@ import { supabase } from "@/src/integrations/supabase/client";
 import Navbar from "@/src/components/navbar/Navbar";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
-import { Label } from "@/src/components/ui/label";
 import { Textarea } from "@/src/components/ui/textarea";
-import { Avatar, AvatarImage, AvatarFallback } from "@/src/components/ui/avatar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/src/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/src/components/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select";
 import { Loader2, User, Sparkles } from "lucide-react";
 import { useToast } from "@/src/hooks/use-toast.js";
 import { useNavigate } from "react-router-dom";
@@ -33,6 +19,9 @@ export const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
 
+  const [usernameWarning, setUsernameWarning] = useState(false);
+  const [bioWarning, setBioWarning] = useState(false);
+
   const [profile, setProfile] = useState({
     username: "",
     gender: "",
@@ -40,12 +29,10 @@ export const Profile = () => {
     avatar_url: "",
   });
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
   }, [user, authLoading]);
 
-  // Load profile
   useEffect(() => {
     if (user) loadProfile();
   }, [user]);
@@ -71,7 +58,6 @@ export const Profile = () => {
     }
   };
 
-  // Avatar generator
   const generateRandomAvatar = async () => {
     setGenerating(true);
     try {
@@ -93,31 +79,21 @@ export const Profile = () => {
 
       const result = await response.json();
       const characters = result.data.Page.characters;
-      const randomCharacter =
-        characters[Math.floor(Math.random() * characters.length)];
+      const randomCharacter = characters[Math.floor(Math.random() * characters.length)];
 
       setProfile((prev) => ({
         ...prev,
         avatar_url: randomCharacter.image.large,
       }));
 
-      toast({
-        title: "Avatar Generated!",
-        description: "Your new anime avatar is set!",
-      });
+      toast({ title: "Avatar Generated!", description: "Your new anime avatar is set!" });
     } catch (error) {
-      console.error(error);
-      toast({
-        title: "Error",
-        description: "Failed to generate avatar.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to generate avatar.", variant: "destructive" });
     } finally {
       setGenerating(false);
     }
   };
 
-  // Save profile (fixed upsert)
   const updateProfile = async (e) => {
     e.preventDefault();
     if (!user) return;
@@ -127,32 +103,45 @@ export const Profile = () => {
       const { error } = await supabase.from("profiles").upsert(
         {
           user_id: user.id,
-          username: profile.username,
+          username: profile.username.trim(),
           gender: profile.gender,
-          bio: profile.bio,
+          bio: profile.bio.trim(),
           avatar_url: profile.avatar_url,
         },
-        { onConflict: "user_id" } // safe with the new schema
+        { onConflict: "user_id" }
       );
 
       if (error) throw error;
-
-      toast({
-        title: "Saved!",
-        description: "Your profile has been updated.",
-      });
+      toast({ title: "Saved!", description: "Your profile has been updated." });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
-  // Loading screen
+  const handleUsernameChange = (e) => {
+    const value = e.target.value;
+    if (value.length >= 25) setUsernameWarning(true);
+    else setUsernameWarning(false);
+
+    setProfile((prev) => ({
+      ...prev,
+      username: value.slice(0, 25),
+    }));
+  };
+
+  const handleBioChange = (e) => {
+    const value = e.target.value;
+    if (value.length >= 200) setBioWarning(true);
+    else setBioWarning(false);
+
+    setProfile((prev) => ({
+      ...prev,
+      bio: value.slice(0, 200),
+    }));
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
@@ -168,28 +157,22 @@ export const Profile = () => {
       <main className="flex justify-center px-4 pt-24 pb-12">
         <Card className="w-full max-w-xl bg-[#111] border border-white/10 shadow-2xl rounded-2xl">
           <CardHeader className="text-center pb-2">
-            <CardTitle className="text-2xl font-semibold text-white">
-              Profile Settings
-            </CardTitle>
-            <CardDescription className="text-white/40">
-              Update your anime profile
-            </CardDescription>
+            <CardTitle className="text-2xl font-semibold text-white">Profile Settings</CardTitle>
+            <CardDescription className="text-white/40">Update your anime profile</CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-8">
             <form onSubmit={updateProfile} className="space-y-8">
 
-              {/* Avatar */}
+              {/* AVATAR */}
               <div className="flex flex-col items-center gap-4">
-                <Avatar className="h-32 w-32 rounded-xl border border-white/10 shadow-lg">
-                  <AvatarImage
+                <div className="h-32 w-32 rounded-xl border border-white/10 shadow-lg overflow-hidden">
+                  <img
                     src={profile.avatar_url || "/default-avatar.png"}
-                    className="rounded-xl object-cover"
+                    className="h-full w-full object-cover"
+                    alt="avatar"
                   />
-                  <AvatarFallback className="bg-black/40 flex items-center justify-center rounded-xl">
-                    <User className="h-16 w-16 text-white/40" />
-                  </AvatarFallback>
-                </Avatar>
+                </div>
 
                 <Button
                   type="button"
@@ -212,28 +195,25 @@ export const Profile = () => {
                 </Button>
               </div>
 
-              {/* Username */}
+              {/* USERNAME */}
               <div className="space-y-2">
                 <Label className="text-white/80">Username</Label>
                 <Input
                   value={profile.username}
-                  onChange={(e) =>
-                    setProfile({ ...profile, username: e.target.value })
-                  }
+                  onChange={handleUsernameChange}
                   placeholder="Your username"
+                  maxLength={25}
                   className="bg-black/30 text-white border-white/10 placeholder:text-white/30"
                 />
+                <p className={`text-xs text-right ${usernameWarning ? "text-yellow-400" : "text-white/40"}`}>
+                  {profile.username.length}/25 {usernameWarning && "⚠ Max limit reached"}
+                </p>
               </div>
 
-              {/* Gender */}
+              {/* GENDER */}
               <div className="space-y-2">
                 <Label className="text-white/80">Gender</Label>
-                <Select
-                  value={profile.gender}
-                  onValueChange={(value) =>
-                    setProfile({ ...profile, gender: value })
-                  }
-                >
+                <Select value={profile.gender} onValueChange={(value) => setProfile({ ...profile, gender: value })}>
                   <SelectTrigger className="bg-black/30 text-white border-white/10">
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
@@ -241,28 +221,28 @@ export const Profile = () => {
                     <SelectItem value="male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
                     <SelectItem value="non-binary">Non-binary</SelectItem>
-                    <SelectItem value="prefer-not-to-say">
-                      Prefer not to say
-                    </SelectItem>
+                    <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Bio */}
+              {/* BIO */}
               <div className="space-y-2">
                 <Label className="text-white/80">Bio</Label>
                 <Textarea
                   value={profile.bio}
-                  onChange={(e) =>
-                    setProfile({ ...profile, bio: e.target.value })
-                  }
+                  onChange={handleBioChange}
                   placeholder="Write something cool..."
                   rows={4}
+                  maxLength={200}
                   className="bg-black/30 text-white border-white/10 placeholder:text-white/30"
                 />
+                <p className={`text-xs text-right ${bioWarning ? "text-yellow-400" : "text-white/40"}`}>
+                  {profile.bio.length}/200 {bioWarning && "⚠ Max limit reached"}
+                </p>
               </div>
 
-              {/* Save */}
+              {/* SAVE BUTTON */}
               <Button
                 type="submit"
                 className="w-full bg-white text-black hover:bg-white/90 font-medium h-11"
