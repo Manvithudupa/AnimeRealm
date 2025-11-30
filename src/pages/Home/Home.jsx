@@ -15,7 +15,7 @@ import TabbedAnimeSection from "@/src/components/tabbed-anime/TabbedAnimeSection
 function Home() {
   const { homeInfo, homeInfoLoading, error } = useHomeInfo();
 
-  // ✅ Load Ad Script Below Top 10
+  // ✅ Load Ad Script when component mounts
   useEffect(() => {
     const script = document.createElement("script");
     script.async = true;
@@ -44,7 +44,6 @@ function Home() {
         <ContinueWatching />
 
         <div className="w-full grid grid-cols-[minmax(0,75%),minmax(0,25%)] gap-x-6 max-[1200px]:flex flex-col">
-          
           {/* LEFT SECTION */}
           <div>
             <CategoryCard
@@ -69,16 +68,17 @@ function Home() {
           <div className="w-full mt-[60px]">
             <Trending trending={homeInfo.trending} />
             <Topten data={homeInfo.topten} className="mt-12" />
-
-            {/* ✅ AD CONTAINER ADDED BELOW TOP 10 */}
-            <div
-              id="container-effbe0e0de0a07083d9b1f14527c63ca"
-              className="mt-10 w-full"
-            ></div>
-            {/* ✅ END OF AD */}
           </div>
-
         </div>
+
+        {/* ✅ FULL LENGTH AD BELOW TOP 10 */}
+        <div className="w-full mt-12 flex justify-center">
+          <div
+            id="container-effbe0e0de0a07083d9b1f14527c63ca"
+            className="w-full"
+          ></div>
+        </div>
+        {/* ✅ END OF FULL LENGTH AD */}
       </div>
     </>
   );
