@@ -16,28 +16,29 @@ function Home() {
   const { homeInfo, homeInfoLoading, error } = useHomeInfo();
 
   useEffect(() => {
-    const adOptions = document.createElement("script");
-    adOptions.type = "text/javascript";
-    adOptions.innerHTML = `
-      atOptions = {
-        'key' : '905d4aa3130f8b2e32194ead18c4412d',
-        'format' : 'iframe',
-        'height' : 250,
-        'width' : 300,
-        'params' : {}
-      };
-    `;
+    const container = document.getElementById("home-ad-slot");
+    if (!container) return;
 
+    // ✅ clear old content to force reload
+    container.innerHTML = "";
+
+    // ✅ make options GLOBAL so the ad script can read it
+    window.atOptions = {
+      key: "905d4aa3130f8b2e32194ead18c4412d",
+      format: "iframe",
+      height: 250,
+      width: 300,
+      params: {},
+    };
+
+    // ✅ inject provider script (cache-busting added)
     const adInvoke = document.createElement("script");
-    adInvoke.type = "text/javascript";
-    adInvoke.src = "//www.highperformanceformat.com/905d4aa3130f8b2e32194ead18c4412d/invoke.js";
+    adInvoke.src =
+      "//www.highperformanceformat.com/905d4aa3130f8b2e32194ead18c4412d/invoke.js?t=" +
+      Date.now();
     adInvoke.async = true;
 
-    const container = document.getElementById("home-ad-slot");
-    if (container) {
-      container.appendChild(adOptions);
-      container.appendChild(adInvoke);
-    }
+    container.appendChild(adInvoke);
   }, []);
 
   if (homeInfoLoading) return <Loader type="home" />;
@@ -77,14 +78,15 @@ function Home() {
             <Trending trending={homeInfo.trending} />
             <Topten data={homeInfo.topten} className="mt-12" />
 
-            {/* ✅ AD PLACED BELOW TOPTEN */}
+            {/* ✅ AD WILL RENDER HERE BELOW TOP 10 */}
             <div
               id="home-ad-slot"
               className="flex justify-center mt-6 min-h-[260px] w-full"
-            ></div>
-
+            />
           </div>
         </div>
+
+        {/* Footer spacing is already below this so ad appears near footer naturally */}
       </div>
     </>
   );
