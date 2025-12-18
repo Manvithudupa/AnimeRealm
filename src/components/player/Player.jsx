@@ -89,7 +89,7 @@ export default function Player({
         referer: iframe ? new URL(iframe).origin + "/" : undefined,
       };
 
-      const { data, error } = await supabase.functions.invoke("M3U8-Proxy", {
+      const { data, error } = await supabase.functions.invoke("m3u8-proxy", {
         body: { url, headers },
       });
 
