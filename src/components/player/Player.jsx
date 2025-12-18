@@ -28,7 +28,7 @@ import website_name from "@/src/config/website";
 import getChapterStyles from "./getChapterStyle";
 import artplayerPluginHlsControl from "artplayer-plugin-hls-control";
 import artplayerPluginUploadSubtitle from "./artplayerPluginUploadSubtitle";
-import { supabase } from "@/src/lib/supabase";
+import { supabase } from "@/src/integrations/supabase/client";
 
 Artplayer.LOG_VERSION = false;
 Artplayer.CONTEXTMENU = false;
