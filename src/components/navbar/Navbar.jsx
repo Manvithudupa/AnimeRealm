@@ -93,14 +93,20 @@ function Navbar() {
           {/* RIGHT */}
           <div className="flex items-center gap-4">
 
-            {/* LANG */}
-            <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
+            {/* LANG (IMPROVED) */}
+            <div className="hidden md:flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 backdrop-blur-md p-1">
               {["EN", "JP"].map((lang) => (
                 <button
                   key={lang}
                   onClick={() => toggleLanguage(lang)}
-                  className={`px-3 py-1 text-sm font-medium rounded 
-                    ${language === lang ? "bg-[#3F3F46] text-white" : "text-gray-400 hover:text-white"}`}
+                  className={`
+                    px-3 py-1 text-xs font-semibold rounded-md transition-all duration-200
+                    ${
+                      language === lang
+                        ? "bg-white/10 text-white border border-white/20 shadow-sm"
+                        : "text-gray-400 hover:text-white hover:bg-white/5"
+                    }
+                  `}
                 >
                   {lang}
                 </button>
@@ -116,7 +122,7 @@ function Navbar() {
                 >
                   <Avatar className="h-10 w-10 rounded-md">
                     <AvatarImage
-                      src={profile?.avatar_url || undefined} // NO DEFAULT AVATAR
+                      src={profile?.avatar_url || undefined}
                       className="object-cover rounded-md"
                     />
                     <AvatarFallback className="rounded-md bg-primary/10 text-primary flex items-center justify-center">
@@ -126,21 +132,13 @@ function Navbar() {
                 </button>
 
                 {isDropdownOpen && (
-                  <div
-                    className="absolute right-0 mt-2 w-48 
-                    bg-[#111111]/90 backdrop-blur-xl 
-                    rounded-xl shadow-xl 
-                    border border-white/10 
-                    overflow-hidden z-50 animate-fadeIn"
-                  >
-                    {/* User */}
+                  <div className="absolute right-0 mt-2 w-48 bg-[#111111]/90 backdrop-blur-xl rounded-xl shadow-xl border border-white/10 overflow-hidden z-50 animate-fadeIn">
                     <div className="px-4 py-3 border-b border-white/10">
                       <p className="text-sm text-gray-300 font-medium">
                         {profile?.username || user.email}
                       </p>
                     </div>
 
-                    {/* Profile */}
                     <button
                       onClick={() => navigate("/profile")}
                       className="flex items-center gap-3 w-full text-left px-4 py-3 text-gray-300 hover:bg-white/5 transition"
@@ -149,16 +147,10 @@ function Navbar() {
                       Profile
                     </button>
 
-                    {/* Logout */}
                     <button
                       onClick={signOut}
                       className="flex items-center gap-3 w-full text-left px-4 py-3 text-red-400 hover:bg-red-500/10 transition"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
-                      </svg>
                       Logout
                     </button>
                   </div>
