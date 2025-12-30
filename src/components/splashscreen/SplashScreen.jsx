@@ -1,105 +1,100 @@
-import { useState, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import "./SplashScreen.css";
-import logoTitle from "@/src/config/logoTitle";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass, faChevronDown } from "@fortawesome/free-solid-svg-icons";
-import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import "./SplashScreen.css";
 
-const FAQ_ITEMS = [
-  {
-    question: "Is An!meRealm safe?",
-    answer: "Yes, An!meRealm is completely safe to use. We ensure all content is properly scanned and secured for our users."
-  },
-  {
-    question: "What makes An!meRealm the best site to watch anime free online?",
-    answer: "An!meRealm offers high-quality streaming, a vast library of anime, no intrusive ads, and a user-friendly interface - all completely free."
-  },
-  {
-    question: "How do I request an anime?",
-    answer: "You can submit anime requests through our contact form or by reaching out to our support team."
-  }
-];
+const API_BASE = import.meta.env.VITE_API_URL;
 
 function SplashScreen() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [expandedFaq, setExpandedFaq] = useState(null);
+  const [topSearches, setTopSearches] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleSearchSubmit = useCallback(() => {
-    const trimmedSearch = search.trim();
-    if (!trimmedSearch) return;
-    const queryParam = encodeURIComponent(trimmedSearch);
-    navigate(`/search?keyword=${queryParam}`);
+  /* ---------- Search ---------- */
+
+  const submitSearch = useCallback(() => {
+    const q = search.trim();
+    if (!q) return;
+    navigate(`/search?keyword=${encodeURIComponent(q)}`);
   }, [search, navigate]);
 
-  const handleKeyDown = useCallback(
-    (e) => {
-      if (e.key === "Enter") {
-        handleSearchSubmit();
-      }
-    },
-    [handleSearchSubmit]
-  );
-
-  const toggleFaq = (index) => {
-    setExpandedFaq(expandedFaq === index ? null : index);
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") submitSearch();
   };
 
-  return (
-    <div className="splash-container">
-      <div className="splash-overlay"></div>
-      <div className="content-wrapper">
-        <div className="logo-container">
-          <img src="/logo.png" alt={logoTitle} className="logo" />
-        </div>
+  /* ---------- Fetch Top Searches ---------- */
 
-        <div className="search-container">
+  useEffect(() => {
+    const fetchTopSearches = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/top-search`);
+        const data = await res.json();
+
+        if (data?.success && Array.isArray(data.results)) {
+          setTopSearches(data.results);
+        }
+      } catch (err) {
+        console.error("Top search fetch failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTopSearches();
+  }, []);
+
+  return (
+    <div className="splash">
+      <div className="splash-inner">
+        {/* Logo */}
+        <img src="/logo.png" alt="AnimeRealm" className="splash-logo" />
+
+        <h1 className="splash-title">Watch Anime Instantly</h1>
+        <p className="splash-subtitle">
+          Search, stream, and discover anime — no sign-up required.
+        </p>
+
+        {/* Search */}
+        <div className="splash-search">
           <input
             type="text"
             placeholder="Search anime..."
-            className="search-input"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={handleKeyDown}
           />
-          <button
-            className="search-button"
-            onClick={handleSearchSubmit}
-            aria-label="Search"
-          >
+          <button onClick={submitSearch} aria-label="Search">
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
         </div>
 
-        <Link to="/home" className="enter-button">
-          Enter Homepage <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
-        </Link>
+        {/* Top Searches */}
+        <div className="top-searches">
+          <h3>🔥 Trending Now</h3>
 
-        <div className="faq-section">
-          <h2 className="faq-title">Frequently Asked Questions</h2>
-          <div className="faq-list">
-            {FAQ_ITEMS.map((item, index) => (
-              <div key={index} className="faq-item">
+          {loading ? (
+            <p className="muted">Loading...</p>
+          ) : (
+            <div className="top-search-list">
+              {topSearches.slice(0, 10).map((item, i) => (
                 <button
-                  className="faq-question"
-                  onClick={() => toggleFaq(index)}
+                  key={i}
+                  className="top-search-item"
+                  onClick={() => navigate(item.link)}
                 >
-                  <span>{item.question}</span>
-                  <FontAwesomeIcon 
-                    icon={faChevronDown} 
-                    className={`faq-toggle ${expandedFaq === index ? 'rotate' : ''}`}
-                  />
+                  {item.title}
                 </button>
-                {expandedFaq === index && (
-                  <div className="faq-answer">
-                    {item.answer}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
+
+        {/* Enter */}
+        <Link to="/home" className="enter-home">
+          Enter Site <FontAwesomeIcon icon={faArrowRight} />
+        </Link>
       </div>
     </div>
   );
