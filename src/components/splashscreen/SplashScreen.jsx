@@ -3,8 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./SplashScreen.css";
 import logoTitle from "@/src/config/logoTitle";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
@@ -14,32 +13,26 @@ function SplashScreen() {
   const [topSearches, setTopSearches] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  /* Search */
   const handleSearchSubmit = useCallback(() => {
     const trimmed = search.trim();
     if (!trimmed) return;
     navigate(`/search?keyword=${encodeURIComponent(trimmed)}`);
   }, [search, navigate]);
 
-  const handleKeyDown = useCallback(
-    (e) => {
-      if (e.key === "Enter") handleSearchSubmit();
-    },
-    [handleSearchSubmit]
-  );
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") handleSearchSubmit();
+  };
 
-  /* Top Searches */
   useEffect(() => {
     const fetchTopSearches = async () => {
       try {
         const res = await fetch(`${API_BASE}/top-search`);
         const data = await res.json();
-
         if (data?.success && Array.isArray(data.results)) {
           setTopSearches(data.results);
         }
-      } catch (err) {
-        console.error("Failed to load top searches", err);
+      } catch (e) {
+        console.error(e);
       } finally {
         setLoading(false);
       }
@@ -68,11 +61,7 @@ function SplashScreen() {
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={handleKeyDown}
           />
-          <button
-            className="search-button"
-            onClick={handleSearchSubmit}
-            aria-label="Search"
-          >
+          <button className="search-button" onClick={handleSearchSubmit}>
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
         </div>
@@ -87,17 +76,22 @@ function SplashScreen() {
           <h2 className="top-search-title">Trending Searches</h2>
 
           {loading ? (
-            <p className="top-search-loading">Loading...</p>
+            <div className="top-search-skeleton">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="skeleton-card"></div>
+              ))}
+            </div>
           ) : (
             <div className="top-search-list">
               {topSearches.slice(0, 10).map((item, index) => (
                 <button
                   key={index}
-                  className="top-search-item"
+                  className="top-search-card"
                   onClick={() => navigate(item.link)}
                 >
                   <span className="rank">{index + 1}</span>
                   <span className="title">{item.title}</span>
+                  <span className="arrow">→</span>
                 </button>
               ))}
             </div>
