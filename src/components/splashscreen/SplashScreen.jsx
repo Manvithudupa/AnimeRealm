@@ -14,12 +14,11 @@ function SplashScreen() {
   const [topSearches, setTopSearches] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  /* ---------- Search ---------- */
-
+  /* Search */
   const handleSearchSubmit = useCallback(() => {
-    const trimmedSearch = search.trim();
-    if (!trimmedSearch) return;
-    navigate(`/search?keyword=${encodeURIComponent(trimmedSearch)}`);
+    const trimmed = search.trim();
+    if (!trimmed) return;
+    navigate(`/search?keyword=${encodeURIComponent(trimmed)}`);
   }, [search, navigate]);
 
   const handleKeyDown = useCallback(
@@ -29,8 +28,7 @@ function SplashScreen() {
     [handleSearchSubmit]
   );
 
-  /* ---------- Top Searches ---------- */
-
+  /* Top Searches */
   useEffect(() => {
     const fetchTopSearches = async () => {
       try {
@@ -41,7 +39,7 @@ function SplashScreen() {
           setTopSearches(data.results);
         }
       } catch (err) {
-        console.error("Failed to fetch top searches", err);
+        console.error("Failed to load top searches", err);
       } finally {
         setLoading(false);
       }
@@ -81,13 +79,12 @@ function SplashScreen() {
 
         {/* Enter */}
         <Link to="/home" className="enter-button">
-          Enter Homepage{" "}
-          <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
+          Enter Homepage <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
         </Link>
 
         {/* Top Searches */}
         <div className="top-search-section">
-          <h2 className="top-search-title">🔥 Trending Searches</h2>
+          <h2 className="top-search-title">Trending Searches</h2>
 
           {loading ? (
             <p className="top-search-loading">Loading...</p>
@@ -99,7 +96,8 @@ function SplashScreen() {
                   className="top-search-item"
                   onClick={() => navigate(item.link)}
                 >
-                  {item.title}
+                  <span className="rank">{index + 1}</span>
+                  <span className="title">{item.title}</span>
                 </button>
               ))}
             </div>
