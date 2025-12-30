@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { useState, useCallback, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./SplashScreen.css";
+import logoTitle from "@/src/config/logoTitle";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
@@ -14,17 +16,20 @@ function SplashScreen() {
 
   /* ---------- Search ---------- */
 
-  const submitSearch = useCallback(() => {
-    const q = search.trim();
-    if (!q) return;
-    navigate(`/search?keyword=${encodeURIComponent(q)}`);
+  const handleSearchSubmit = useCallback(() => {
+    const trimmedSearch = search.trim();
+    if (!trimmedSearch) return;
+    navigate(`/search?keyword=${encodeURIComponent(trimmedSearch)}`);
   }, [search, navigate]);
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") submitSearch();
-  };
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.key === "Enter") handleSearchSubmit();
+    },
+    [handleSearchSubmit]
+  );
 
-  /* ---------- Fetch Top Searches ---------- */
+  /* ---------- Top Searches ---------- */
 
   useEffect(() => {
     const fetchTopSearches = async () => {
@@ -36,7 +41,7 @@ function SplashScreen() {
           setTopSearches(data.results);
         }
       } catch (err) {
-        console.error("Top search fetch failed:", err);
+        console.error("Failed to fetch top searches", err);
       } finally {
         setLoading(false);
       }
@@ -46,41 +51,51 @@ function SplashScreen() {
   }, []);
 
   return (
-    <div className="splash">
-      <div className="splash-inner">
-        {/* Logo */}
-        <img src="/logo.png" alt="AnimeRealm" className="splash-logo" />
+    <div className="splash-container">
+      <div className="splash-overlay"></div>
 
-        <h1 className="splash-title">Watch Anime Instantly</h1>
-        <p className="splash-subtitle">
-          Search, stream, and discover anime — no sign-up required.
-        </p>
+      <div className="content-wrapper">
+        {/* Logo */}
+        <div className="logo-container">
+          <img src="/logo.png" alt={logoTitle} className="logo" />
+        </div>
 
         {/* Search */}
-        <div className="splash-search">
+        <div className="search-container">
           <input
             type="text"
             placeholder="Search anime..."
+            className="search-input"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={handleKeyDown}
           />
-          <button onClick={submitSearch} aria-label="Search">
+          <button
+            className="search-button"
+            onClick={handleSearchSubmit}
+            aria-label="Search"
+          >
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
         </div>
 
+        {/* Enter */}
+        <Link to="/home" className="enter-button">
+          Enter Homepage{" "}
+          <FontAwesomeIcon icon={faAngleRight} className="angle-icon" />
+        </Link>
+
         {/* Top Searches */}
-        <div className="top-searches">
-          <h3>🔥 Trending Now</h3>
+        <div className="top-search-section">
+          <h2 className="top-search-title">🔥 Trending Searches</h2>
 
           {loading ? (
-            <p className="muted">Loading...</p>
+            <p className="top-search-loading">Loading...</p>
           ) : (
             <div className="top-search-list">
-              {topSearches.slice(0, 10).map((item, i) => (
+              {topSearches.slice(0, 10).map((item, index) => (
                 <button
-                  key={i}
+                  key={index}
                   className="top-search-item"
                   onClick={() => navigate(item.link)}
                 >
@@ -90,11 +105,6 @@ function SplashScreen() {
             </div>
           )}
         </div>
-
-        {/* Enter */}
-        <Link to="/home" className="enter-home">
-          Enter Site <FontAwesomeIcon icon={faArrowRight} />
-        </Link>
       </div>
     </div>
   );
