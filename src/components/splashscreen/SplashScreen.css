@@ -1,6 +1,7 @@
+/* Root */
 .splash-root {
-  background: #0f0f1a;
-  color: white;
+  background: #0b0b12;
+  color: #e6e6ff;
 }
 
 /* Layout */
@@ -10,7 +11,7 @@
   padding: 48px 24px;
 }
 
-/* NAV */
+/* NAVBAR */
 .splash-nav {
   display: flex;
   justify-content: center;
@@ -23,10 +24,16 @@
   font-weight: 600;
 }
 
-.nav-links a:hover {
-  color: #ffbade;
+.nav-links a {
+  color: #c7c7ff;
+  transition: color 0.2s ease;
 }
 
+.nav-links a:hover {
+  color: #9a8cff;
+}
+
+/* Mobile */
 .mobile-menu {
   display: none;
 }
@@ -42,17 +49,17 @@
   }
 }
 
-/* Modal */
+/* Mobile Modal */
 .mobile-modal {
   position: absolute;
   top: 48px;
   width: 100%;
-  background: #111;
+  background: #11111a;
   border-radius: 16px;
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
   z-index: 50;
 }
 
@@ -60,24 +67,24 @@
   position: absolute;
   top: 8px;
   right: 12px;
-  background: white;
-  color: black;
+  background: #1b1b2b;
+  color: #c7c7ff;
   font-weight: bold;
   border-radius: 8px;
   padding: 4px 10px;
 }
 
-/* Splash */
+/* SPLASH */
 .splashscreen {
   margin-top: 32px;
   border-radius: 40px;
   overflow: hidden;
   display: flex;
-  background: linear-gradient(135deg, #2b2a3c, #1c1b2b);
+  background: linear-gradient(135deg, #141422, #0b0b12);
   min-height: 520px;
 }
 
-/* Content */
+/* CONTENT */
 .splash-content {
   width: 55%;
   padding: 80px;
@@ -87,13 +94,14 @@
 .splash-logo {
   font-size: 46px;
   font-weight: 900;
+  color: #e6e6ff;
 }
 
 .splash-logo span {
-  color: #ffbade;
+  color: #8f7bff;
 }
 
-/* Search */
+/* SEARCH */
 .search-box {
   display: flex;
   margin-top: 32px;
@@ -105,18 +113,29 @@
   padding: 14px 18px;
   border-radius: 14px;
   font-size: 18px;
-  color: black;
+  background: #0f0f18;
+  color: #e6e6ff;
+  border: 1px solid #23233a;
+}
+
+.search-box input::placeholder {
+  color: #7777aa;
 }
 
 .search-box button {
-  background: #ffbade;
+  background: #8f7bff;
   padding: 14px 18px;
   border-radius: 14px;
+  color: black;
 }
 
-/* Top search */
+/* TOP SEARCH */
 .top-search {
   margin-top: 32px;
+}
+
+.top-search strong {
+  color: #b5b5ff;
 }
 
 .top-search-items {
@@ -127,15 +146,15 @@
   display: inline-block;
   margin: 6px 8px 0 0;
   padding: 6px 14px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(143, 123, 255, 0.12);
   border-radius: 999px;
   font-size: 14px;
+  color: #e6e6ff;
   transition: 0.25s;
 }
 
 .splashitem:hover {
-  background: rgba(255, 186, 222, 0.25);
-  color: #ffbade;
+  background: rgba(143, 123, 255, 0.25);
 }
 
 /* CTA */
@@ -145,14 +164,14 @@
   gap: 16px;
   margin-top: 40px;
   padding: 18px 36px;
-  background: #ffbade;
+  background: #8f7bff;
   color: black;
   font-size: 20px;
   font-weight: bold;
   border-radius: 18px;
 }
 
-/* Image */
+/* IMAGE */
 .splash-image-wrapper {
   width: 45%;
   position: relative;
@@ -162,6 +181,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: brightness(0.9) contrast(1.05);
 }
 
 .splashoverlay {
@@ -169,16 +189,18 @@
   inset: 0;
   background: linear-gradient(
     90deg,
-    rgba(43, 42, 60, 1) 0%,
-    rgba(43, 42, 60, 0.1) 100%
+    rgba(20, 20, 34, 1) 0%,
+    rgba(20, 20, 34, 0.85) 40%,
+    rgba(20, 20, 34, 0.3) 75%,
+    rgba(20, 20, 34, 0) 100%
   );
   z-index: 20;
 }
 
-/* Footer */
+/* FOOTER */
 .splash-footer {
   margin-top: 40px;
   text-align: center;
   font-size: 14px;
-  opacity: 0.8;
+  color: #8888bb;
 }
