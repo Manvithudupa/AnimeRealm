@@ -34,7 +34,7 @@ function Cart({ label, data, path }) {
 
   return (
     <div className="flex flex-col w-1/4 space-y-7 max-[1200px]:w-full">
-      <h1 className="font-bold text-2xl text-[#ffbade] max-md:text-xl">
+      <h1 className="font-bold text-2xl text-[#ffffff] max-md:text-xl">
         {label}
       </h1>
       <div className="w-full space-y-4 flex flex-col">
