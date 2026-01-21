@@ -6,106 +6,126 @@ import {
   faCalendar,
   faClock,
 } from "@fortawesome/free-solid-svg-icons";
+import { FaChevronRight } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/src/context/LanguageContext";
 import "./Banner.css";
 
 function Banner({ item, index }) {
   const { language } = useLanguage();
-
   return (
-    <section className="relative w-full h-full rounded-2xl overflow-hidden group">
-      {/* Background */}
+    <section className="spotlight w-full h-full">
       <img
-        src={item.poster}
+        src={`${item.poster}`}
         alt={item.title}
-        className="absolute inset-0 w-full h-full object-cover rounded-2xl transition-transform duration-700 group-hover:scale-105"
+        className="absolute right-0 object-cover h-full w-[80%] bg-auto max-[1200px]:w-full max-[1200px]:bottom-0"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-[1] rounded-2xl"></div>
-
-      {/* Content */}
-      <div className="absolute bottom-0 left-0 p-8 z-[2] max-w-[60%] text-left text-white 
-                      max-lg:max-w-[80%] max-md:max-w-[90%] max-md:p-4">
-
-        <p className="text-pink-400 font-semibold tracking-wider text-lg max-md:text-base mb-2">
+      <div className="spotlight-overlay"></div>
+      <div className="absolute flex flex-col left-0 bottom-[50px] w-[55%] p-4 z-10 max-[1390px]:w-[45%] max-[1390px]:bottom-[10px] max-[1300px]:w-[600px] max-[1120px]:w-[60%] max-md:w-[90%] max-[300px]:w-full">
+        <p className="text-[#ffbade] font-semibold text-[20px] w-fit max-[1300px]:text-[15px]">
           #{index + 1} Spotlight
         </p>
-
-        <h3 className="text-5xl font-extrabold leading-tight mb-4 
-                      drop-shadow-lg max-xl:text-4xl max-md:text-2xl transition-all duration-300">
+        <h3 className="text-white line-clamp-2 text-5xl font-bold mt-6 text-left max-[1390px]:text-[45px] max-[1300px]:text-3xl max-[1300px]:mt-4 max-md:text-2xl max-md:mt-1 max-[575px]:text-[22px] max-sm:leading-6 max-sm:w-[80%] max-[320px]:w-full ">
           {language === "EN" ? item.title : item.japanese_title}
         </h3>
+        <div className="flex h-fit justify-center items-center w-fit space-x-5 mt-8 max-[1300px]:mt-6 max-md:hidden">
+          {item.tvInfo && (
+            <>
+              {item.tvInfo.showType && (
+                <div className="flex space-x-1 justify-center items-center">
+                  <FontAwesomeIcon
+                    icon={faPlay}
+                    className="text-[8px] bg-white px-[4px] py-[3px] rounded-full"
+                  />
+                  <p className="text-white text-[16px]">
+                    {item.tvInfo.showType}
+                  </p>
+                </div>
+              )}
 
-        {/* Info bar */}
-        {item.tvInfo && (
-          <div className="flex flex-wrap gap-x-5 gap-y-2 items-center text-white/80 text-sm mb-5">
-            {item.tvInfo.showType && (
-              <div className="flex items-center gap-1">
-                <FontAwesomeIcon icon={faPlay} className="text-pink-400" />
-                <span>{item.tvInfo.showType}</span>
-              </div>
-            )}
-            {item.tvInfo.duration && (
-              <div className="flex items-center gap-1">
-                <FontAwesomeIcon icon={faClock} className="text-pink-400" />
-                <span>{item.tvInfo.duration}</span>
-              </div>
-            )}
-            {item.tvInfo.releaseDate && (
-              <div className="flex items-center gap-1">
-                <FontAwesomeIcon icon={faCalendar} className="text-pink-400" />
-                <span>{item.tvInfo.releaseDate}</span>
-              </div>
-            )}
+              {item.tvInfo.duration && (
+                <div className="flex space-x-1 justify-center items-center">
+                  <FontAwesomeIcon
+                    icon={faClock}
+                    className="text-white text-[14px]"
+                  />
+                  <p className="text-white text-[17px]">
+                    {item.tvInfo.duration}
+                  </p>
+                </div>
+              )}
 
-            {item.tvInfo.quality && (
-              <span className="bg-pink-500/20 text-pink-300 font-bold px-2 py-[2px] rounded text-xs">
-                {item.tvInfo.quality}
-              </span>
-            )}
+              {item.tvInfo.releaseDate && (
+                <div className="flex space-x-1 justify-center items-center">
+                  <FontAwesomeIcon
+                    icon={faCalendar}
+                    className="text-white text-[14px]"
+                  />
+                  <p className="text-white text-[16px]">
+                    {item.tvInfo.releaseDate}
+                  </p>
+                </div>
+              )}
 
-            {item.tvInfo.episodeInfo && (
-              <div className="flex items-center gap-2">
-                {item.tvInfo.episodeInfo.sub && (
-                  <div className="flex items-center gap-1 bg-white/10 px-2 py-[2px] rounded">
-                    <FontAwesomeIcon icon={faClosedCaptioning} className="text-xs" />
-                    <span>{item.tvInfo.episodeInfo.sub}</span>
+              <div className="flex space-x-3 w-fit">
+                {item.tvInfo.quality && (
+                  <div className="bg-[#ffbade] py-[1px] px-[6px] rounded-md w-fit text-[11px] font-bold h-fit">
+                    {item.tvInfo.quality}
                   </div>
                 )}
-                {item.tvInfo.episodeInfo.dub && (
-                  <div className="flex items-center gap-1 bg-white/10 px-2 py-[2px] rounded">
-                    <FontAwesomeIcon icon={faMicrophone} className="text-xs" />
-                    <span>{item.tvInfo.episodeInfo.dub}</span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+                <div className="flex space-x-[1px] rounded-r-[5px] rounded-l-[5px] w-fit py-[1px] overflow-hidden">
+                  {item.tvInfo.episodeInfo?.sub && (
+                    <div className="flex space-x-1 justify-center items-center bg-[#B0E3AF] px-[4px]">
+                      <FontAwesomeIcon
+                        icon={faClosedCaptioning}
+                        className="text-[12px]"
+                      />
+                      <p className="text-[12px] font-bold">
+                        {item.tvInfo.episodeInfo.sub}
+                      </p>
+                    </div>
+                  )}
 
-        <p className="text-white/80 max-w-[80%] line-clamp-3 text-[16px] mb-6 max-md:hidden">
+                  {item.tvInfo.episodeInfo?.dub && (
+                    <div className="flex space-x-1 justify-center items-center bg-[#B9E7FF] px-[4px]">
+                      <FontAwesomeIcon
+                        icon={faMicrophone}
+                        className="text-[12px]"
+                      />
+                      <p className="text-[12px] font-semibold">
+                        {item.tvInfo.episodeInfo.dub}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+        <p className="text-white text-[17px] font-sm mt-6 text-left line-clamp-3 max-[1200px]:line-clamp-2 max-[1300px]:w-[500px] max-[1120px]:w-[90%] max-md:hidden">
           {item.description}
         </p>
-
-        {/* Buttons */}
-        <div className="flex gap-x-4 max-md:gap-x-2">
-          <Link
-            to={`/watch/${item.id}`}
-            className="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-6 py-2.5 rounded-xl
-                       shadow-md shadow-pink-500/30 transition-all duration-200 flex items-center gap-x-2
-                       hover:translate-y-[-2px]"
-          >
-            <FontAwesomeIcon icon={faPlay} className="text-sm" />
-            <span>Watch Now</span>
-          </Link>
-
+        <div className="flex gap-x-5 mt-10 max-md:mt-6 max-sm:w-full max-[320px]:flex-col max-[320px]:space-y-3">
+          <button className="flex justify-center items-center bg-[#ffbade] px-4 py-2 rounded-3xl gap-x-2 max-[320px]:w-fit ">
+            <FontAwesomeIcon
+              icon={faPlay}
+              className="text-[8px] bg-[#000000] px-[6px] py-[6px] rounded-full text-[#ffbade] max-[320px]:text-[6px]"
+            />
+            <Link
+              to={`/watch/${item.id}`}
+              className="max-[1000px]:text-[15px] font-semibold max-[320px]:text-[12px]"
+            >
+              Watch Now
+            </Link>
+          </button>
           <Link
             to={`/${item.id}`}
-            className="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-2.5 rounded-xl 
-                       border border-white/20 backdrop-blur-sm transition-all duration-200 
-                       flex items-center gap-x-2 hover:translate-y-[-2px]"
+            className="flex bg-[#3B3A52] justify-center items-center px-4 py-2 rounded-3xl gap-x-2 max-[320px]:w-fit max-[320px]:px-3"
           >
-            <span>Details</span>
+            <p className="text-white max-[1000px]:text-[15px] font-semibold max-[320px]:text-[12px]">
+              Detail
+            </p>
+            <FaChevronRight className="text-white max-[320px]:text-[10px]" />
           </Link>
         </div>
       </div>
