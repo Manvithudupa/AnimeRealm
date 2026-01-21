@@ -169,16 +169,24 @@ function AnimeInfo({ random = false }) {
                 ))}
               </div>
             </div>
+
+            {/* Watch Buttons */}
             {info?.Status?.toLowerCase() !== "not-yet-aired" ? (
-              <Link to={`/watch/${animeInfo.id}`} className="flex gap-x-2 px-6 py-2 bg-[#FFBADE] w-fit text-black items-center rounded-3xl mt-5">
+              <Link
+                to={`/watch/${animeInfo.id}`}
+                className="flex gap-x-2 px-6 py-2 bg-gradient-to-r from-purple-700 to-purple-500 hover:from-purple-600 hover:to-purple-400 text-white items-center rounded-full mt-5 shadow-xl transform hover:scale-105 transition-all duration-200"
+              >
                 <FontAwesomeIcon icon={faPlay} className="text-[14px] mt-[1px]" />
                 <p className="text-lg font-medium">Watch Now</p>
               </Link>
             ) : (
-              <Link to={`/${animeInfo.id}`} className="flex gap-x-2 px-6 py-2 bg-[#FFBADE] w-fit text-black items-center rounded-3xl mt-5">
-                <p className="text-lg font-medium">Not released</p>
-              </Link>
+              <button
+                className="flex gap-x-2 px-6 py-2 bg-gray-600 text-gray-300 cursor-not-allowed items-center rounded-full mt-5 opacity-70"
+              >
+                <p className="text-lg font-medium">Not Released</p>
+              </button>
             )}
+
             {info?.Overview && (
               <div className="text-[14px] mt-2 max-[575px]:hidden">
                 {info.Overview.length > 270 ? (
@@ -191,6 +199,7 @@ function AnimeInfo({ random = false }) {
                 ) : info.Overview}
               </div>
             )}
+
             <p className="text-[14px] max-[575px]:hidden">
               {`${website_name} is the best site to watch `}
               <span className="font-bold">{title}</span>
@@ -250,9 +259,7 @@ function AnimeInfo({ random = false }) {
         <div>
           {seasons?.length > 0 && (
             <div className="flex flex-col gap-y-7 mt-8">
-              <h1 className="w-fit text-2xl text-[#ffbade] max-[478px]:text-[18px] font-bold">
-                More Seasons
-              </h1>
+              <h1 className="w-fit text-2xl text-[#ffbade] max-[478px]:text-[18px] font-bold">More Seasons</h1>
               <div className="flex flex-wrap gap-4 max-[575px]:grid max-[575px]:grid-cols-3 max-[575px]:gap-3 max-[480px]:grid-cols-2">
                 {seasons.map((season, index) => (
                   <Link
@@ -272,13 +279,7 @@ function AnimeInfo({ random = false }) {
           )}
           {animeInfo?.charactersVoiceActors.length > 0 && <Voiceactor animeInfo={animeInfo} />}
           {animeInfo.recommended_data.length > 0 && (
-            <CategoryCard
-              label="Recommended for you"
-              data={animeInfo.recommended_data}
-              limit={animeInfo.recommended_data.length}
-              showViewMore={false}
-              className={"mt-8"}
-            />
+            <CategoryCard label="Recommended for you" data={animeInfo.recommended_data} limit={animeInfo.recommended_data.length} showViewMore={false} className={"mt-8"} />
           )}
         </div>
         <div>
