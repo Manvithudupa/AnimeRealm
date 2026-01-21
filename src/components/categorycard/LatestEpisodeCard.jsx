@@ -6,53 +6,49 @@ const LatestEpisodeCard = ({ item, path }) => {
 
   return (
     <div
-      className="relative overflow-hidden rounded-lg group cursor-pointer bg-black/20 transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-black/40"
       onClick={() =>
         navigate(
           path === "top-upcoming" ? `/${item.id}` : `/watch/${item.id}`
         )
       }
+      className="relative cursor-pointer rounded-xl overflow-hidden bg-[#0f0f1a] group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40"
     >
       {/* Thumbnail */}
       <img
         src={item.poster}
         alt={item.title}
-        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+        className="w-full h-48 object-cover"
         loading="lazy"
       />
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+      {/* Subtle dark overlay */}
+      <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
 
-      {/* Episode Badge */}
+      {/* Episode Badge (Top Right) */}
       {item.tvInfo?.episode && (
-        <div className="absolute top-2 right-2 bg-sky-500 text-white text-xs font-semibold px-2 py-1 rounded-md">
-          Ep {item.tvInfo.episode}
+        <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-full">
+          <span className="w-2 h-2 rounded-full bg-emerald-400" />
+          <span className="text-xs text-white font-medium">
+            Episode {item.tvInfo.episode}
+          </span>
         </div>
       )}
 
-      {/* 18+ Badge */}
+      {/* 18+ Badge (Top Left) */}
       {(item.tvInfo?.rating === "18+" || item.adultContent) && (
-        <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md">
+        <div className="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md">
           18+
         </div>
       )}
 
-      {/* Latest Episode Tag (Non-spoiler) */}
-      {item.isLatest && (
-        <div className="absolute bottom-10 left-2 bg-green-600 text-white text-[10px] font-semibold px-2 py-1 rounded-md">
-          Latest Episode Aired
-        </div>
-      )}
-
-      {/* Title & Info */}
-      <div className="absolute bottom-2 left-2 right-2 text-white">
-        <p className="text-sm font-semibold leading-tight line-clamp-2">
+      {/* Bottom Info */}
+      <div className="absolute bottom-3 left-3 right-3">
+        <p className="text-white text-sm font-semibold leading-snug line-clamp-2">
           {item.title}
         </p>
-        <p className="text-xs opacity-80 mt-0.5">
-          {item.tvInfo?.showType || item.type || "TV"} •{" "}
-          {item.tvInfo?.duration || item.duration || "24m"}
+
+        <p className="text-xs text-white/70 mt-1">
+          {item.tvInfo?.showType || item.type || "TV"}
         </p>
       </div>
     </div>
