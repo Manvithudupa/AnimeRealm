@@ -1,113 +1,133 @@
-/* 🌅 Base container */
 .spotlight {
-  position: relative;
   overflow: hidden;
-  width: 100%;
-  height: 100%;
-  border-radius: 16px;
-  background: #000;
 }
 
-/* 🎥 Image styling */
-.spotlight img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scale(1);
-  transition: transform 1s ease, filter 0.8s ease;
-  filter: brightness(0.88) contrast(1.1) saturate(1.05);
-  z-index: 1;
-}
-
-/* ✨ Subtle zoom + exposure lift on hover */
-.spotlight:hover img {
-  transform: scale(1.06);
-  filter: brightness(1) contrast(1.15) saturate(1.1);
-}
-
-/* 🌈 Cinematic overlay gradients */
 .spotlight-overlay {
+  width: 100.1%;
+  height: 100.1%;
   position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      to right,
-      rgba(8, 8, 8, 0.95) 0%,
-      rgba(8, 8, 8, 0.75) 35%,
-      rgba(8, 8, 8, 0.4) 70%,
-      rgba(8, 8, 8, 0.1) 100%
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom:0;
+  background: radial-gradient(
+      circle at 130% center,
+      rgba(32, 31, 49, 0) 50%,
+      rgba(32, 31, 49, 0.5) 60%,
+      rgba(32, 31, 49, 1) 80%,
+      rgba(32, 31, 49, 1) 100%
     ),
     linear-gradient(
       to top,
-      rgba(0, 0, 0, 0.9) 0%,
-      rgba(0, 0, 0, 0.5) 40%,
-      rgba(0, 0, 0, 0.1) 75%,
-      transparent 100%
+      rgba(32, 31, 49, 1) 0%,
+      rgba(32, 31, 49, 0) 20%,
+      rgba(32, 31, 49, 0) 100%
+    ),
+    linear-gradient(
+      to left,
+      rgba(32, 31, 49, 1) 0%,
+      rgba(32, 31, 49, 0) 20%,
+      rgba(32, 31, 49, 0) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(32, 31, 49, 1) 0%,
+      rgba(32, 31, 49, 0) 20%,
+      rgba(32, 31, 49, 0) 100%
     );
-  pointer-events: none;
-  transition: opacity 0.5s ease, background 0.4s ease;
-  z-index: 2;
-}
 
-/* 💫 Ambient glow effect */
-.spotlight::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at 35% 65%,
-    rgba(255, 192, 255, 0.1),
-    transparent 75%
-  );
-  opacity: 0;
-  transition: opacity 0.6s ease;
   z-index: 1;
 }
-
-.spotlight:hover::after {
-  opacity: 1;
-}
-
-/* 🪄 Smooth depth on hover */
-.spotlight:hover {
-  transform: scale(1.002);
-  transition: transform 0.6s ease;
-}
-
-/* 📱 Tablet adjustments */
-@media (max-width: 1200px) {
+@media only screen and (max-width: 1300px) {
   .spotlight-overlay {
-    background:
-      linear-gradient(
-        to right,
-        rgba(10, 10, 10, 0.9) 0%,
-        rgba(10, 10, 10, 0.65) 45%,
-        rgba(10, 10, 10, 0.3) 80%,
-        transparent 100%
-      ),
-      linear-gradient(
-        to top,
-        rgba(10, 10, 10, 0.8) 0%,
-        rgba(10, 10, 10, 0.4) 40%,
-        transparent 100%
-      );
+    background: radial-gradient(
+      circle at 130% center,
+      rgba(32, 31, 49, 0) 50%,
+      rgba(32, 31, 49, 0.5) 60%,
+      rgba(32, 31, 49, 1) 80%,
+      rgba(32, 31, 49, 1) 100%
+    ),
+    linear-gradient(
+      to top,
+      rgba(32, 31, 49, 1) 0%,
+      rgba(32, 31, 49, 0) 20%,
+      rgba(32, 31, 49, 0) 100%
+    ),
+    linear-gradient(
+      to left,
+      rgba(32, 31, 49, 1) 0%,
+      rgba(32, 31, 49, 0) 20%,
+      rgba(32, 31, 49, 0) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(32, 31, 49, 1) 0%,
+      rgba(32, 31, 49, 0) 50%,
+      rgba(32, 31, 49, 0) 100%
+    );
   }
 }
-
-/* 📱 Mobile adjustments */
-@media (max-width: 768px) {
+@media only screen and (max-width: 1200px) {
   .spotlight-overlay {
-    background:
-      linear-gradient(
-        to bottom,
-        rgba(10, 10, 10, 0.9) 0%,
-        rgba(10, 10, 10, 0.8) 40%,
-        rgba(10, 10, 10, 0.6) 70%,
-        transparent 100%
-      );
+    background: radial-gradient(
+      circle at 100% center,
+      rgba(32, 31, 49, 0) 50%,
+      rgba(32, 31, 49, 0.5) 60%,
+      rgba(32, 31, 49, 1) 95%,
+      rgba(32, 31, 49, 1) 100%
+    ),
+    linear-gradient(
+      to top,
+      rgba(32, 31, 49, 1) 0%,
+      rgba(32, 31, 49, 0) 20%,
+      rgba(32, 31, 49, 0) 100%
+    ),
+    linear-gradient(
+      to left,
+      rgba(32, 31, 49, 1) 0%,
+      rgba(32, 31, 49, 0) 20%,
+      rgba(32, 31, 49, 0) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(32, 31, 49, 1) 0%,
+      rgba(32, 31, 49, 0) 70%,
+      rgba(32, 31, 49, 0) 100%
+    );
   }
-
-  .spotlight img {
-    filter: brightness(0.95) contrast(1.05);
+}
+@media only screen and (max-width: 900px) {
+  .spotlight-overlay {
+    background: radial-gradient(
+      circle at 60% center,
+      rgba(32, 31, 49, 0) 50%,
+      rgba(32, 31, 49, 0.5) 85%,
+      rgba(32, 31, 49, 1) 95%,
+      rgba(32, 31, 49, 1) 100%
+    ),
+    linear-gradient(
+      to top,
+      rgba(32, 31, 49, 1) 0%,
+      rgba(32, 31, 49, 0) 70%,
+      rgba(32, 31, 49, 0) 100%
+    ),
+    linear-gradient(
+      to left,
+      rgba(32, 31, 49, 1) 0%,
+      rgba(32, 31, 49, 0) 20%,
+      rgba(32, 31, 49, 0) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(32, 31, 49, 1) 0%,
+      rgba(32, 31, 49, 0) 70%,
+      rgba(32, 31, 49, 0) 100%
+    ),
+    linear-gradient(
+      to right,
+      rgba(32, 31, 49, 1) 0%,
+      rgba(32, 31, 49, 0) 15%,
+      rgba(32, 31, 49, 0) 100%
+    );
   }
 }
