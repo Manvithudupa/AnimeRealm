@@ -18,25 +18,26 @@ const LatestEpisodeCard = ({ item, path }) => {
         )
       }
       className="relative overflow-hidden group cursor-pointer
-                 w-full md:w-[500px] lg:w-[700px] xl:w-[900px]
-                 aspect-video rounded-2xl
+                 w-48 sm:w-56 md:w-60 lg:w-64
+                 h-[300px] sm:h-[350px] md:h-[380px] lg:h-[400px]
+                 rounded-xl
                  transition-transform duration-300 ease-out
-                 hover:scale-[1.05] hover:shadow-2xl hover:shadow-black/60"
+                 hover:scale-105 hover:shadow-lg hover:shadow-black/40"
     >
       {/* Image */}
       <img
         src={item.poster}
         alt={item.title}
         loading="lazy"
-        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
       />
 
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
       {/* Episode Badge */}
-      <div className="absolute top-4 right-4 flex items-center gap-2
-                      bg-black/60 backdrop-blur-sm px-3 py-1
+      <div className="absolute top-2 right-2 flex items-center gap-1.5
+                      bg-black/60 backdrop-blur-sm px-2 py-1
                       rounded text-xs font-medium text-white">
         <span className="w-2 h-2 rounded-full bg-accent" />
         <span>Episode {episodeNum}</span>
@@ -44,20 +45,20 @@ const LatestEpisodeCard = ({ item, path }) => {
 
       {/* 18+ Badge */}
       {(item.tvInfo?.rating === "18+" || item.adultContent) && (
-        <div className="absolute top-4 left-4 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md">
+        <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md">
           18+
         </div>
       )}
 
       {/* Latest Episode Tag */}
       {item.isLatest && (
-        <div className="absolute bottom-16 left-4 bg-green-600 text-white text-[10px] font-semibold px-3 py-1 rounded-md">
+        <div className="absolute bottom-12 left-2 bg-green-600 text-white text-[10px] font-semibold px-2 py-1 rounded-md">
           Latest Episode Aired
         </div>
       )}
 
       {/* Bottom Content */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+      <div className="absolute bottom-2 left-2 right-2 text-white">
         <p className="text-sm font-semibold leading-tight line-clamp-2">
           {item.title}
         </p>
