@@ -9,7 +9,7 @@ const Trending = ({ trending }) => {
   const navigate = useNavigate();
   return (
     <div className="mt-6 max-[1200px]:px-4 max-md:px-0">
-      <h1 className="text-[#ffbade] text-2xl font-bold max-md:pl-4">
+      <h1 className="text-[#ffffff] text-2xl font-bold max-md:pl-4">
         Trending
       </h1>
       <div className="pr-[60px] relative mx-auto overflow-hidden z-[1] mt-6 max-[759px]:pr-0">
