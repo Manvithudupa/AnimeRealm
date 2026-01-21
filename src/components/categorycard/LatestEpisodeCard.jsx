@@ -18,8 +18,8 @@ const LatestEpisodeCard = ({ item, path }) => {
         )
       }
       className="relative overflow-hidden group cursor-pointer
-                 w-48 sm:w-56 md:w-60 lg:w-64
-                 h-[300px] sm:h-[350px] md:h-[380px] lg:h-[400px]
+                 w-56 sm:w-64 md:w-72 lg:w-80
+                 h-40 sm:h-48 md:h-52 lg:h-56
                  rounded-xl
                  transition-transform duration-300 ease-out
                  hover:scale-105 hover:shadow-lg hover:shadow-black/40"
@@ -39,7 +39,8 @@ const LatestEpisodeCard = ({ item, path }) => {
       <div className="absolute top-2 right-2 flex items-center gap-1.5
                       bg-black/60 backdrop-blur-sm px-2 py-1
                       rounded text-xs font-medium text-white">
-        <span className="w-2 h-2 rounded-full bg-accent" />
+        {/* Green dot */}
+        <span className="w-2 h-2 rounded-full bg-green-500" />
         <span>Episode {episodeNum}</span>
       </div>
 
@@ -52,7 +53,7 @@ const LatestEpisodeCard = ({ item, path }) => {
 
       {/* Latest Episode Tag */}
       {item.isLatest && (
-        <div className="absolute bottom-12 left-2 bg-green-600 text-white text-[10px] font-semibold px-2 py-1 rounded-md">
+        <div className="absolute bottom-10 left-2 bg-green-600 text-white text-[10px] font-semibold px-2 py-1 rounded-md">
           Latest Episode Aired
         </div>
       )}
