@@ -33,7 +33,7 @@
   color: #9a8cff;
 }
 
-/* Mobile */
+/* Mobile Menu */
 .mobile-menu {
   display: none;
 }
@@ -72,6 +72,11 @@
   font-weight: bold;
   border-radius: 8px;
   padding: 4px 10px;
+}
+
+.mobile-modal a {
+  font-size: 18px;
+  padding: 8px 12px;
 }
 
 /* SPLASH */
@@ -127,6 +132,7 @@
   padding: 14px 18px;
   border-radius: 14px;
   color: black;
+  flex: none;
 }
 
 /* TOP SEARCH */
@@ -243,17 +249,17 @@
 /* Extra small screens (phones) */
 @media (max-width: 480px) {
   .search-box {
-    flex-direction: column;
-    gap: 12px;
+    flex-direction: row; /* keep input + button side by side */
+    gap: 8px;
   }
 
-  .search-box input,
-  .search-box button {
-    width: 100%;
+  .search-box input {
+    flex: 1; /* input fills available space */
   }
 
   .search-box button {
-    padding: 12px 0;
+    flex: none; /* button keeps natural size */
+    padding: 12px 16px;
   }
 
   .splash-logo {
