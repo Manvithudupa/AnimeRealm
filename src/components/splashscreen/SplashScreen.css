@@ -214,17 +214,28 @@
 
 /* ================== MOBILE RESPONSIVE ================== */
 @media (max-width: 780px) {
-  /* Make splash full background */
-  .splashscreen {
-    flex-direction: column;
-    min-height: 100vh;
-    border-radius: 0;
-    background: url('/splash.jpg') center/cover no-repeat;
+  .splash-root {
+    background: url('/splash.jpg') center/cover no-repeat fixed; /* full page background */
+    background-size: cover;
+    position: relative;
   }
 
-  /* Overlay for readability */
-  .splashoverlay {
-    background: rgba(11, 11, 18, 0.7);
+  /* Add overlay for readability */
+  .splash-root::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(11, 11, 18, 0.7); /* dark overlay */
+    z-index: 0;
+  }
+
+  /* Make wrapper and content relative to overlay */
+  .splash-wrapper {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+    max-width: 100%;
+    padding: 40px 20px;
   }
 
   .splash-content {
@@ -235,7 +246,7 @@
     color: #e6e6ff;
   }
 
-  /* Hide separate image */
+  /* Hide separate splash image section */
   .splash-image-wrapper {
     display: none;
   }
@@ -249,31 +260,5 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-  }
-}
-
-/* Extra small screens (phones) */
-@media (max-width: 480px) {
-  .search-box {
-    flex-direction: row; /* keep input + button side by side */
-    gap: 8px;
-  }
-
-  .search-box input {
-    flex: 1;
-  }
-
-  .search-box button {
-    flex: none;
-    padding: 12px 16px;
-  }
-
-  .splash-logo {
-    font-size: 36px;
-  }
-
-  .cta-btn {
-    font-size: 18px;
-    padding: 14px 20px;
   }
 }
