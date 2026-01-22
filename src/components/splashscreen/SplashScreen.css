@@ -1,3 +1,8 @@
+/* ================== GLOBAL ================== */
+* {
+  box-sizing: border-box;
+}
+
 /* Root */
 .splash-root {
   background: #0b0b12;
@@ -11,7 +16,7 @@
   padding: 48px 24px;
 }
 
-/* NAVBAR */
+/* ================== NAVBAR ================== */
 .splash-nav {
   display: flex;
   justify-content: center;
@@ -79,7 +84,7 @@
   padding: 8px 12px;
 }
 
-/* SPLASH */
+/* ================== SPLASH ================== */
 .splashscreen {
   margin-top: 32px;
   border-radius: 40px;
@@ -107,7 +112,7 @@
   color: #8f7bff;
 }
 
-/* SEARCH */
+/* ================== SEARCH ================== */
 .search-box {
   display: flex;
   margin-top: 32px;
@@ -122,6 +127,7 @@
   background: #0f0f18;
   color: #e6e6ff;
   border: 1px solid #23233a;
+  width: 100%;
 }
 
 .search-box input::placeholder {
@@ -134,9 +140,10 @@
   border-radius: 14px;
   color: black;
   flex: none;
+  white-space: nowrap;
 }
 
-/* TOP SEARCH */
+/* ================== TOP SEARCH ================== */
 .top-search {
   margin-top: 32px;
 }
@@ -164,7 +171,7 @@
   background: rgba(143, 123, 255, 0.25);
 }
 
-/* CTA */
+/* ================== CTA ================== */
 .cta-btn {
   display: inline-flex;
   align-items: center;
@@ -178,7 +185,7 @@
   border-radius: 18px;
 }
 
-/* IMAGE */
+/* ================== IMAGE ================== */
 .splash-image-wrapper {
   width: 45%;
   position: relative;
@@ -204,7 +211,7 @@
   z-index: 20;
 }
 
-/* FOOTER */
+/* ================== FOOTER ================== */
 .splash-footer {
   margin-top: 40px;
   text-align: center;
@@ -215,21 +222,19 @@
 /* ================== MOBILE RESPONSIVE ================== */
 @media (max-width: 780px) {
   .splash-root {
-    background: url('/splash.jpg') center/cover no-repeat fixed; /* full page background */
+    background: url('/splash.jpg') center/cover no-repeat fixed;
     background-size: cover;
     position: relative;
   }
 
-  /* Add overlay for readability */
   .splash-root::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(11, 11, 18, 0.7); /* dark overlay */
+    background: rgba(11, 11, 18, 0.7);
     z-index: 0;
   }
 
-  /* Make wrapper and content relative to overlay */
   .splash-wrapper {
     position: relative;
     z-index: 1;
@@ -243,10 +248,8 @@
     padding: 40px 20px;
     position: relative;
     z-index: 2;
-    color: #e6e6ff;
   }
 
-  /* Hide separate splash image section */
   .splash-image-wrapper {
     display: none;
   }
@@ -254,6 +257,16 @@
   .cta-btn {
     width: 100%;
     justify-content: center;
+  }
+
+  /* 🔥 FIX: SEARCH BUTTON VISIBILITY */
+  .search-box {
+    flex-wrap: wrap;
+  }
+
+  .search-box input,
+  .search-box button {
+    width: 100%;
   }
 
   .top-search-items {
