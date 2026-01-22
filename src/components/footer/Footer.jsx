@@ -1,6 +1,7 @@
 import logoTitle from "@/src/config/logoTitle.js";
 import website_name from "@/src/config/website.js";
 import { Link } from "react-router-dom";
+import FooterAd from "@/src/components/ads/FooterAd"; // import the ad
 
 function Footer() {
   return (
@@ -56,6 +57,9 @@ function Footer() {
               </Link>
             </div>
           </div>
+
+          {/* Footer Ad */}
+          <FooterAd />  {/* 🔥 Ad added here */}
 
           {/* Legal Text */}
           <div className="space-y-2 text-sm text-white/40 text-center sm:text-left">
