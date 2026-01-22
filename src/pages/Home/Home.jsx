@@ -23,7 +23,7 @@ function Home() {
       {/* Spotlight / Hero Slider */}
       <Spotlight spotlights={homeInfo.spotlights} />
 
-      {/* Move Genres right below the hero */}
+      {/* Genres */}
       <div className="mt-6">
         <Genre data={homeInfo.genres} />
       </div>
@@ -58,7 +58,7 @@ function Home() {
         />
       </div>
 
-      {/* Latest Episodes / New / Top Upcoming */}
+      {/* Latest Episodes / Top Upcoming */}
       <div className="w-full grid grid-cols-[minmax(0,75%),minmax(0,25%)] gap-x-6 max-[1200px]:flex flex-col max-[1200px]:px-4">
         <div>
           <CategoryCard
@@ -68,14 +68,9 @@ function Home() {
             path="recently-updated"
             limit={12}
           />
-          <CategoryCard
-            label={`New On An!meRealm`}
-            data={homeInfo.recently_added}
-            className={"mt-[60px]"}
-            path="recently-added"
-            limit={12}
-          />
+
           <Schedule />
+
           <CategoryCard
             label="Top Upcoming"
             data={homeInfo.top_upcoming}
