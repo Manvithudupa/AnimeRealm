@@ -67,9 +67,13 @@ function Home() {
 
         {/* Right Sidebar */}
         <div className="w-full mt-[60px] space-y-6">
+          {/* Top Ten */}
           <Topten data={homeInfo.topten} className="mt-12" />
 
-          {/* 🔥 AD PLACEMENT */}
+          {/* AD 1 */}
+          <SidebarAd />
+
+          {/* AD 2 */}
           <SidebarAd />
         </div>
       </div>
