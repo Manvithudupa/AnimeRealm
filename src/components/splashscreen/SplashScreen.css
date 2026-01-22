@@ -117,17 +117,18 @@
   display: flex;
   margin-top: 32px;
   gap: 12px;
+  width: 100%;
 }
 
 .search-box input {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 0;
   padding: 14px 18px;
   border-radius: 14px;
   font-size: 18px;
   background: #0f0f18;
   color: #e6e6ff;
   border: 1px solid #23233a;
-  width: 100%;
 }
 
 .search-box input::placeholder {
@@ -135,11 +136,11 @@
 }
 
 .search-box button {
+  flex: 0 0 auto;
   background: #8f7bff;
   padding: 14px 18px;
   border-radius: 14px;
   color: black;
-  flex: none;
   white-space: nowrap;
 }
 
@@ -223,7 +224,6 @@
 @media (max-width: 780px) {
   .splash-root {
     background: url('/splash.jpg') center/cover no-repeat fixed;
-    background-size: cover;
     position: relative;
   }
 
@@ -238,7 +238,6 @@
   .splash-wrapper {
     position: relative;
     z-index: 1;
-    background: transparent;
     max-width: 100%;
     padding: 40px 20px;
   }
@@ -246,7 +245,6 @@
   .splash-content {
     width: 100%;
     padding: 40px 20px;
-    position: relative;
     z-index: 2;
   }
 
@@ -259,14 +257,18 @@
     justify-content: center;
   }
 
-  /* 🔥 FIX: SEARCH BUTTON VISIBILITY */
+  /* 🔥 INLINE MOBILE FIX */
   .search-box {
-    flex-wrap: wrap;
+    gap: 8px;
   }
 
-  .search-box input,
+  .search-box input {
+    font-size: 16px;
+  }
+
   .search-box button {
-    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px;
   }
 
   .top-search-items {
