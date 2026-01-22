@@ -50,7 +50,7 @@ const Trending = ({ trending }) => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
                   {/* BIG Rank Number */}
-                  <div className="absolute top-3 left-3 text-[#8f7bff] text-[48px] font-extrabold leading-none drop-shadow-lg">
+                  <div className="absolute top-3 left-3 text-[#ffffff] text-[48px] font-extrabold leading-none drop-shadow-lg">
                     {item.number}
                   </div>
 
