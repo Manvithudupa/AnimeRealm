@@ -4,201 +4,162 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background: black;
 }
 
 /* ================== IMAGE ================== */
 .spotlight img {
   position: absolute;
-  right: 0;
-  top: 0;
+  inset: 0;
+  width: 100%;
   height: 100%;
-  width: 80%;
   object-fit: cover;
-}
-
-@media (max-width: 1200px) {
-  .spotlight img {
-    width: 100%;
-    bottom: 0;
-  }
 }
 
 /* ================== OVERLAY ================== */
 .spotlight-overlay {
-  width: 100%;
-  height: 100%;
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(
-      circle at 130% center,
-      rgba(32, 31, 49, 0) 50%,
-      rgba(32, 31, 49, 0.5) 60%,
-      rgba(32, 31, 49, 1) 80%,
-      rgba(32, 31, 49, 1) 100%
-    ),
     linear-gradient(
       to top,
-      rgba(32, 31, 49, 1) 0%,
-      rgba(32, 31, 49, 0) 20%,
-      rgba(32, 31, 49, 0) 100%
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.6) 35%,
+      rgba(0, 0, 0, 0.2) 60%,
+      rgba(0, 0, 0, 0) 100%
     ),
     linear-gradient(
-      to left,
-      rgba(32, 31, 49, 1) 0%,
-      rgba(32, 31, 49, 0) 20%,
-      rgba(32, 31, 49, 0) 100%
-    ),
-    linear-gradient(
-      to bottom,
-      rgba(32, 31, 49, 1) 0%,
-      rgba(32, 31, 49, 0) 20%,
-      rgba(32, 31, 49, 0) 100%
+      to right,
+      rgba(0, 0, 0, 0.65) 0%,
+      rgba(0, 0, 0, 0) 55%
     );
   z-index: 1;
 }
 
-/* ================== RESPONSIVE OVERLAYS ================== */
-@media (max-width: 1300px) {
-  .spotlight-overlay {
-    background:
-      radial-gradient(
-        circle at 130% center,
-        rgba(32, 31, 49, 0) 50%,
-        rgba(32, 31, 49, 0.5) 60%,
-        rgba(32, 31, 49, 1) 80%,
-        rgba(32, 31, 49, 1) 100%
-      ),
-      linear-gradient(
-        to top,
-        rgba(32, 31, 49, 1) 0%,
-        rgba(32, 31, 49, 0) 20%,
-        rgba(32, 31, 49, 0) 100%
-      ),
-      linear-gradient(
-        to left,
-        rgba(32, 31, 49, 1) 0%,
-        rgba(32, 31, 49, 0) 20%,
-        rgba(32, 31, 49, 0) 100%
-      ),
-      linear-gradient(
-        to bottom,
-        rgba(32, 31, 49, 1) 0%,
-        rgba(32, 31, 49, 0) 50%,
-        rgba(32, 31, 49, 0) 100%
-      );
-  }
-}
-
-@media (max-width: 1200px) {
-  .spotlight-overlay {
-    background:
-      radial-gradient(
-        circle at 100% center,
-        rgba(32, 31, 49, 0) 50%,
-        rgba(32, 31, 49, 0.5) 60%,
-        rgba(32, 31, 49, 1) 95%,
-        rgba(32, 31, 49, 1) 100%
-      ),
-      linear-gradient(
-        to top,
-        rgba(32, 31, 49, 1) 0%,
-        rgba(32, 31, 49, 0) 20%,
-        rgba(32, 31, 49, 0) 100%
-      ),
-      linear-gradient(
-        to left,
-        rgba(32, 31, 49, 1) 0%,
-        rgba(32, 31, 49, 0) 20%,
-        rgba(32, 31, 49, 0) 100%
-      ),
-      linear-gradient(
-        to bottom,
-        rgba(32, 31, 49, 1) 0%,
-        rgba(32, 31, 49, 0) 70%,
-        rgba(32, 31, 49, 0) 100%
-      );
-  }
+/* ================== CONTENT ================== */
+.spotlight-content {
+  position: absolute;
+  left: 0;
+  bottom: 40px;
+  z-index: 2;
+  width: 55%;
+  padding: 24px;
 }
 
 @media (max-width: 900px) {
-  .spotlight-overlay {
-    background:
-      radial-gradient(
-        circle at 60% center,
-        rgba(32, 31, 49, 0) 50%,
-        rgba(32, 31, 49, 0.5) 85%,
-        rgba(32, 31, 49, 1) 95%,
-        rgba(32, 31, 49, 1) 100%
-      ),
-      linear-gradient(
-        to top,
-        rgba(32, 31, 49, 1) 0%,
-        rgba(32, 31, 49, 0) 70%,
-        rgba(32, 31, 49, 0) 100%
-      ),
-      linear-gradient(
-        to left,
-        rgba(32, 31, 49, 1) 0%,
-        rgba(32, 31, 49, 0) 20%,
-        rgba(32, 31, 49, 0) 100%
-      ),
-      linear-gradient(
-        to bottom,
-        rgba(32, 31, 49, 1) 0%,
-        rgba(32, 31, 49, 0) 70%,
-        rgba(32, 31, 49, 0) 100%
-      ),
-      linear-gradient(
-        to right,
-        rgba(32, 31, 49, 1) 0%,
-        rgba(32, 31, 49, 0) 15%,
-        rgba(32, 31, 49, 0) 100%
-      );
+  .spotlight-content {
+    width: 90%;
   }
 }
 
-/* ================== SQUARE ACTION BUTTONS ================== */
-.spotlight .watch-btn,
-.spotlight .details-btn {
+/* ================== TEXT ================== */
+.spotlight-rank {
+  color: #ffbade;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.spotlight-title {
+  margin-top: 16px;
+  color: white;
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+@media (max-width: 900px) {
+  .spotlight-title {
+    font-size: 28px;
+  }
+}
+
+.spotlight-desc {
+  margin-top: 18px;
+  color: #e5e5e5;
+  font-size: 16px;
+  max-width: 600px;
+}
+
+/* ================== META ================== */
+.spotlight-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+  color: white;
+  font-size: 14px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta-badge {
+  background: #ffbade;
+  color: black;
+  padding: 2px 8px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.meta-badge.sub {
+  background: #b0e3af;
+}
+
+.meta-badge.dub {
+  background: #b9e7ff;
+}
+
+/* ================== ACTION BUTTONS ================== */
+.spotlight-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+/* HARD OVERRIDE TAILWIND ROUNDING */
+.spotlight a,
+.spotlight button,
+.spotlight a *,
+.spotlight button * {
+  border-radius: 0 !important;
+}
+
+/* WATCH */
+.watch-btn {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-
+  background: white;
+  color: black;
   padding: 14px 28px;
-  border-radius: 0; /* 🔥 SQUARE */
-  font-weight: 600;
-  font-size: 15px;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-
-  transition: all 0.2s ease;
+  font-weight: 800;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.2s ease;
 }
 
-/* WATCH BUTTON */
-.spotlight .watch-btn {
-  background: #7c3aed;
+.watch-btn:hover {
+  background: #e5e5e5;
+}
+
+/* DETAILS */
+.details-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.15);
   color: white;
+  padding: 14px 24px;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: background 0.2s ease;
 }
 
-.spotlight .watch-btn:hover {
-  background: #6d28d9;
-  transform: translateY(-2px);
-}
-
-/* DETAILS BUTTON */
-.spotlight .details-btn {
-  background: #2f2e44;
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.spotlight .details-btn:hover {
-  background: #3b3a52;
-  transform: translateY(-2px);
-}
-
-/* Remove rounded icon look */
-.spotlight .watch-btn svg {
-  border-radius: 0;
+.details-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
 }
