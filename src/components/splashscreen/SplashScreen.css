@@ -186,19 +186,23 @@
   border-radius: 18px;
 }
 
-/* ================== IMAGE ================== */
+/* ================== IMAGE (FIXED) ================== */
 .splash-image-wrapper {
   width: 45%;
+  height: 520px; /* matches splashscreen height */
   position: relative;
 }
 
 .splash-image-wrapper img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;   /* ✅ FULL IMAGE VISIBLE */
+  object-position: center;
+  background: #0b0b12;
   filter: brightness(0.9) contrast(1.05);
 }
 
+/* Overlay */
 .splashoverlay {
   position: absolute;
   inset: 0;
@@ -257,7 +261,6 @@
     justify-content: center;
   }
 
-  /* 🔥 INLINE MOBILE FIX */
   .search-box {
     gap: 8px;
   }
