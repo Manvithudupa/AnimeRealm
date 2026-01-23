@@ -10,8 +10,6 @@ import Error from "@/src/components/error/Error.jsx";
 import { useHomeInfo } from "@/src/context/HomeInfoContext.jsx";
 import Schedule from "@/src/components/schedule/Schedule";
 import ContinueWatching from "@/src/components/continue/ContinueWatching";
-import SidebarAd from "@/src/components/ads/SidebarAd";
-
 function Home() {
   const { homeInfo, homeInfoLoading, error } = useHomeInfo();
 
@@ -68,9 +66,6 @@ function Home() {
         {/* Right Sidebar */}
         <div className="w-full mt-[60px] space-y-6">
           <Topten data={homeInfo.topten} className="mt-12" />
-
-          {/* 🔥 AD PLACEMENT */}
-          <SidebarAd />
         </div>
       </div>
     </div>
