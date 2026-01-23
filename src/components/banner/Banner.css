@@ -1,16 +1,36 @@
 /* ================== SPOTLIGHT ================== */
 .spotlight {
   position: relative;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
+}
+
+/* ================== IMAGE ================== */
+.spotlight img {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 80%;
+  object-fit: cover;
+}
+
+@media (max-width: 1200px) {
+  .spotlight img {
+    width: 100%;
+    bottom: 0;
+  }
 }
 
 /* ================== OVERLAY ================== */
 .spotlight-overlay {
-  width: 100.1%;
-  height: 100.1%;
+  width: 100%;
+  height: 100%;
   position: absolute;
   inset: 0;
-  background: radial-gradient(
+  background:
+    radial-gradient(
       circle at 130% center,
       rgba(32, 31, 49, 0) 50%,
       rgba(32, 31, 49, 0.5) 60%,
@@ -39,9 +59,10 @@
 }
 
 /* ================== RESPONSIVE OVERLAYS ================== */
-@media only screen and (max-width: 1300px) {
+@media (max-width: 1300px) {
   .spotlight-overlay {
-    background: radial-gradient(
+    background:
+      radial-gradient(
         circle at 130% center,
         rgba(32, 31, 49, 0) 50%,
         rgba(32, 31, 49, 0.5) 60%,
@@ -69,9 +90,10 @@
   }
 }
 
-@media only screen and (max-width: 1200px) {
+@media (max-width: 1200px) {
   .spotlight-overlay {
-    background: radial-gradient(
+    background:
+      radial-gradient(
         circle at 100% center,
         rgba(32, 31, 49, 0) 50%,
         rgba(32, 31, 49, 0.5) 60%,
@@ -99,9 +121,10 @@
   }
 }
 
-@media only screen and (max-width: 900px) {
+@media (max-width: 900px) {
   .spotlight-overlay {
-    background: radial-gradient(
+    background:
+      radial-gradient(
         circle at 60% center,
         rgba(32, 31, 49, 0) 50%,
         rgba(32, 31, 49, 0.5) 85%,
@@ -138,16 +161,44 @@
 /* ================== SQUARE ACTION BUTTONS ================== */
 .spotlight .watch-btn,
 .spotlight .details-btn {
-  border-radius: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
   padding: 14px 28px;
+  border-radius: 0; /* 🔥 SQUARE */
   font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.4px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+
+  transition: all 0.2s ease;
 }
 
-/* Optional: hover polish */
-.spotlight .watch-btn:hover,
+/* WATCH BUTTON */
+.spotlight .watch-btn {
+  background: #7c3aed;
+  color: white;
+}
+
+.spotlight .watch-btn:hover {
+  background: #6d28d9;
+  transform: translateY(-2px);
+}
+
+/* DETAILS BUTTON */
+.spotlight .details-btn {
+  background: #2f2e44;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
 .spotlight .details-btn:hover {
-  transform: translateY(-1px);
-  transition: all 0.2s ease;
+  background: #3b3a52;
+  transform: translateY(-2px);
+}
+
+/* Remove rounded icon look */
+.spotlight .watch-btn svg {
+  border-radius: 0;
 }
