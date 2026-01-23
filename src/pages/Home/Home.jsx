@@ -10,6 +10,7 @@ import Error from "@/src/components/error/Error.jsx";
 import { useHomeInfo } from "@/src/context/HomeInfoContext.jsx";
 import Schedule from "@/src/components/schedule/Schedule";
 import ContinueWatching from "@/src/components/continue/ContinueWatching";
+
 function Home() {
   const { homeInfo, homeInfoLoading, error } = useHomeInfo();
 
@@ -18,9 +19,13 @@ function Home() {
   if (!homeInfo) return <Error error="404" />;
 
   return (
-    <div className="px-4 w-full max-[1200px]:px-0 text-white">
+    <div className="w-full px-4 max-[1200px]:px-0 text-white pt-16">
+      {/* pt-16 ensures content starts below the navbar */}
+
       {/* Spotlight */}
-      <Spotlight spotlights={homeInfo.spotlights} />
+      <div id="spotlight" className="mt-4">
+        <Spotlight spotlights={homeInfo.spotlights} />
+      </div>
 
       {/* Genres */}
       <div className="mt-6">
@@ -28,10 +33,14 @@ function Home() {
       </div>
 
       {/* Continue Watching */}
-      <ContinueWatching />
+      <div className="mt-6">
+        <ContinueWatching />
+      </div>
 
       {/* Trending */}
-      <Trending trending={homeInfo.trending} />
+      <div className="mt-6">
+        <Trending trending={homeInfo.trending} />
+      </div>
 
       {/* Top Airing / Most Popular / Most Favorite / Latest Completed */}
       <div className="mt-10 flex gap-6 max-[1200px]:px-4 max-[1200px]:grid max-[1200px]:grid-cols-2 max-[1200px]:mt-12 max-[1200px]:gap-y-10 max-[680px]:grid-cols-1">
@@ -42,7 +51,7 @@ function Home() {
       </div>
 
       {/* Main Content + Sidebar */}
-      <div className="w-full grid grid-cols-[minmax(0,75%),minmax(0,25%)] gap-x-6 max-[1200px]:flex flex-col max-[1200px]:px-4">
+      <div className="w-full grid grid-cols-[minmax(0,75%),minmax(0,25%)] gap-x-6 max-[1200px]:flex flex-col max-[1200px]:px-4 mt-10">
         <div>
           <CategoryCard
             label="Latest Episode"
