@@ -23,8 +23,8 @@ function InfoItem({ label, value }) {
   if (!value) return null;
 
   return (
-    <div className="text-sm space-x-1">
-      <span className="text-white/50">{label}:</span>
+    <div className="text-sm">
+      <span className="text-white/50">{label}: </span>
       <span className="text-white/90">{value}</span>
     </div>
   );
@@ -33,11 +33,9 @@ function InfoItem({ label, value }) {
 /* ---------------- Tags ---------------- */
 function Tag({ icon, text }) {
   return (
-    <div
-      className="flex items-center gap-1.5 px-3 py-1 rounded-full
+    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full
       bg-white/10 backdrop-blur-md text-sm font-medium
-      hover:bg-white/20 transition"
-    >
+      hover:bg-white/20 transition">
       {icon && <FontAwesomeIcon icon={icon} className="text-xs" />}
       {text}
     </div>
@@ -69,7 +67,6 @@ function AnimeInfo({ random = false }) {
 
       try {
         const data = await getAnimeInfo(id, random);
-
         setAnimeInfo(data.data);
         setSeasons(data?.seasons || []);
       } catch (err) {
@@ -158,25 +155,25 @@ function AnimeInfo({ random = false }) {
   ].filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="min-h-screen bg-black text-white">
 
       {/* ---------- HERO ---------- */}
-      <div className="relative h-[450px] overflow-hidden">
+      <div className="relative min-h-[520px] overflow-hidden">
 
         {/* Background */}
         <img
           src={poster}
-          className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-30"
           alt=""
+          className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-30"
         />
 
         {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/30" />
 
         {/* Content */}
-        <div className="relative container mx-auto px-5 h-full flex items-end pb-12">
+        <div className="relative container mx-auto px-5 pt-28 pb-14">
 
-          <div className="flex flex-col md:flex-row gap-8 items-end">
+          <div className="flex flex-col md:flex-row gap-8 items-start">
 
             {/* Poster */}
             <div className="w-[220px] shrink-0">
@@ -187,14 +184,35 @@ function AnimeInfo({ random = false }) {
               />
             </div>
 
-            {/* Text */}
-            <div className="space-y-4 max-w-2xl">
+            {/* Info */}
+            <div className="flex-1 space-y-4 max-w-3xl">
 
+              {/* Title */}
               <h1 className="text-4xl lg:text-5xl font-bold leading-tight">
                 {language === "EN" ? title : japanese_title}
               </h1>
 
-              <div className="flex flex-wrap gap-2">
+              {/* Synopsis */}
+              {info?.Overview && (
+                <p className="text-gray-300 leading-relaxed max-w-2xl">
+
+                  {info.Overview.length > 260 && !isFull
+                    ? `${info.Overview.slice(0, 260)}...`
+                    : info.Overview}
+
+                  {info.Overview.length > 260 && (
+                    <button
+                      onClick={() => setIsFull(!isFull)}
+                      className="ml-2 text-purple-400 hover:text-purple-300"
+                    >
+                      {isFull ? "Show Less" : "Read More"}
+                    </button>
+                  )}
+                </p>
+              )}
+
+              {/* Tags */}
+              <div className="flex flex-wrap gap-2 pt-1">
                 {tags.map((tag, i) =>
                   typeof tag === "string" ? (
                     <Tag key={i} text={tag} />
@@ -205,7 +223,7 @@ function AnimeInfo({ random = false }) {
               </div>
 
               {/* Buttons */}
-              <div className="flex gap-4 pt-2">
+              <div className="flex flex-wrap gap-4 pt-3">
 
                 {info?.Status?.toLowerCase() !== "not-yet-aired" && (
                   <Link
@@ -232,43 +250,19 @@ function AnimeInfo({ random = false }) {
                   <FontAwesomeIcon
                     icon={inWatchlist ? faCheck : faBookmark}
                   />
-                  {inWatchlist ? "In Watchlist" : "Add"}
+                  {inWatchlist ? "In Watchlist" : "Add to Watchlist"}
                 </button>
 
               </div>
+
             </div>
           </div>
         </div>
       </div>
 
-      {/* ---------- CONTENT ---------- */}
+      {/* ---------- DETAILS ---------- */}
       <div className="container mx-auto px-5 py-12 space-y-12">
 
-        {/* Overview */}
-        {info?.Overview && (
-          <div className="max-w-4xl mx-auto bg-white/5 backdrop-blur-lg p-6 rounded-2xl">
-
-            <h2 className="text-xl font-semibold mb-3">Overview</h2>
-
-            <p className="text-gray-300 leading-relaxed">
-
-              {info.Overview.length > 300 && !isFull
-                ? `${info.Overview.slice(0, 300)}...`
-                : info.Overview}
-
-              {info.Overview.length > 300 && (
-                <button
-                  onClick={() => setIsFull(!isFull)}
-                  className="ml-2 text-purple-400 hover:text-purple-300"
-                >
-                  {isFull ? "Show Less" : "Read More"}
-                </button>
-              )}
-            </p>
-          </div>
-        )}
-
-        {/* Details */}
         <div className="max-w-4xl mx-auto grid sm:grid-cols-2 gap-4
           bg-white/5 backdrop-blur-lg p-6 rounded-2xl">
 
