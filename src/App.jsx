@@ -21,8 +21,9 @@ import SplashScreen from "./components/splashscreen/SplashScreen";
 import Terms from "./pages/terms/Terms";
 import DMCA from "./pages/dmca/DMCA";
 import Contact from "./pages/contact/Contact";
-import Auth from "./pages/Auth/Auth"; // import your auth page component
-import Profile from "./pages/Profile/Profile"; // Profile page
+import Auth from "./pages/Auth/Auth"; 
+import Profile from "./pages/Profile/Profile";
+import Watchlist from "@/src/pages/Watchlist";
 
 // Auth-protected route wrapper
 const AuthRoute = ({ children }) => {
@@ -62,6 +63,7 @@ function App() {
             <Route path="/terms-of-service" element={<Terms />} />
             <Route path="/dmca" element={<DMCA />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/watchlist" element={<Watchlist />} />
 
             {/* Category routes */}
             {categoryRoutes.map((path) => (
