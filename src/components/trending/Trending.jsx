@@ -19,30 +19,13 @@ const Trending = ({ trending }) => {
           slidesPerView={1.4} // default for very small screens
           spaceBetween={10}
           breakpoints={{
-            360: {
-              slidesPerView: 1.8,
-              spaceBetween: 12,
-            },
-            480: {
-              slidesPerView: 2.2,
-              spaceBetween: 12,
-            },
-            640: {
-              slidesPerView: 3,
-              spaceBetween: 15,
-            },
-            768: {
-              slidesPerView: 4,
-              spaceBetween: 15,
-            },
-            1024: {
-              slidesPerView: 5,
-              spaceBetween: 15,
-            },
-            1300: {
-              slidesPerView: 6,
-              spaceBetween: 15,
-            },
+            360: { slidesPerView: 1.8, spaceBetween: 12 },
+            480: { slidesPerView: 2.2, spaceBetween: 12 },
+            640: { slidesPerView: 3, spaceBetween: 15 },
+            768: { slidesPerView: 3, spaceBetween: 15 }, // reduced for tablets/iPads
+            900: { slidesPerView: 4, spaceBetween: 15 },
+            1024: { slidesPerView: 5, spaceBetween: 15 },
+            1300: { slidesPerView: 6, spaceBetween: 15 },
           }}
           modules={[Pagination, Navigation]}
           navigation={{
@@ -55,7 +38,11 @@ const Trending = ({ trending }) => {
               <SwiperSlide key={idx} className="flex justify-center">
                 <Link
                   to={`/${item.id}`}
-                  className="group relative w-full aspect-[16/9] overflow-hidden rounded-xl bg-[#2a2c31] shadow-lg"
+                  className="
+                    group relative w-full 
+                    h-[180px] sm:h-[200px] md:h-[220px] lg:h-[240px] 
+                    overflow-hidden rounded-xl bg-[#2a2c31] shadow-lg
+                  "
                 >
                   {/* Poster */}
                   <img
@@ -75,10 +62,7 @@ const Trending = ({ trending }) => {
                       text-white font-extrabold leading-none
                       opacity-70
                       drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]
-                      text-[28px]
-                      sm:text-[36px]
-                      md:text-[44px]
-                      lg:text-[48px]
+                      text-[28px] sm:text-[36px] md:text-[44px] lg:text-[48px]
                     "
                   >
                     {item.number}
@@ -86,18 +70,8 @@ const Trending = ({ trending }) => {
 
                   {/* Title */}
                   <div className="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3">
-                    <p
-                      className="
-                        text-white font-medium
-                        truncate
-                        text-[12px]
-                        sm:text-sm
-                        md:text-[15px]
-                      "
-                    >
-                      {language === "EN"
-                        ? item.title
-                        : item.japanese_title}
+                    <p className="text-white font-medium truncate text-[12px] sm:text-sm md:text-[15px]">
+                      {language === "EN" ? item.title : item.japanese_title}
                     </p>
                   </div>
                 </Link>
