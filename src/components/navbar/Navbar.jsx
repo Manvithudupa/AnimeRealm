@@ -76,6 +76,8 @@ function Navbar() {
           <div className="hidden md:flex flex-1 justify-center mx-8">
             <div className="flex gap-2 w-[600px]">
               <WebSearch />
+
+              {/* RANDOM (DESKTOP ONLY, ALWAYS SHOW) */}
               <Link
                 to="/random"
                 className="p-[10px] bg-[#2a2a2a]/75 rounded-lg text-white/50 hover:text-white"
@@ -165,7 +167,7 @@ function Navbar() {
               </Button>
             )}
 
-            {/* MOBILE SEARCH */}
+            {/* MOBILE SEARCH BUTTON */}
             <button
               className="md:hidden p-[10px] bg-[#2a2a2a]/75 rounded-lg text-white/60"
               onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
@@ -177,6 +179,7 @@ function Navbar() {
           </div>
         </div>
 
+        {/* MOBILE SEARCH */}
         {isMobileSearchOpen && (
           <div className="md:hidden bg-[#18181B]">
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
