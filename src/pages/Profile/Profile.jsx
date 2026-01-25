@@ -112,14 +112,14 @@ export const Profile = () => {
       }));
 
       toast({
-        title: "Avatar Updated 💜",
+        title: "Avatar Updated 👌",
       });
     } catch (error) {
       console.error(error);
 
       toast({
         title: "Error",
-        description: "Avatar generation failed",
+        description: "Avatar generation failed 😖",
         variant: "destructive",
       });
     } finally {
