@@ -13,17 +13,36 @@ const Trending = ({ trending }) => {
         Trending
       </h1>
 
-      <div className="pr-[60px] relative mx-auto overflow-hidden z-[1] mt-6 max-[759px]:pr-0">
+      <div className="pr-[60px] relative mx-auto overflow-hidden z-[1] mt-6 max-md:pr-2">
         <Swiper
           className="w-full h-full"
-          slidesPerView={3}
-          spaceBetween={12}
+          slidesPerView={1.4} // default for very small screens
+          spaceBetween={10}
           breakpoints={{
-            479: { spaceBetween: 12 },
-            575: { spaceBetween: 15 },
-            640: { slidesPerView: 3, spaceBetween: 15 },
-            900: { slidesPerView: 4, spaceBetween: 15 },
-            1300: { slidesPerView: 6, spaceBetween: 15 },
+            360: {
+              slidesPerView: 1.8,
+              spaceBetween: 12,
+            },
+            480: {
+              slidesPerView: 2.2,
+              spaceBetween: 12,
+            },
+            640: {
+              slidesPerView: 3,
+              spaceBetween: 15,
+            },
+            768: {
+              slidesPerView: 4,
+              spaceBetween: 15,
+            },
+            1024: {
+              slidesPerView: 5,
+              spaceBetween: 15,
+            },
+            1300: {
+              slidesPerView: 6,
+              spaceBetween: 15,
+            },
           }}
           modules={[Pagination, Navigation]}
           navigation={{
