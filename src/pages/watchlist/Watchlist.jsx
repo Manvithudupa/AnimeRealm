@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Loader from "@/src/components/Loader/Loader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { Bookmark } from "lucide-react";
 
 function Watchlist() {
   const { user, loading: authLoading } = useAuth();
@@ -54,7 +55,10 @@ function Watchlist() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold">My Watchlist</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
+            <Bookmark className="w-6 h-6 text-purple-500" />
+            My Watchlist
+          </h1>
           <p className="text-white/60 mt-1 text-sm">
             {watchlist.length} anime saved
           </p>
@@ -92,7 +96,7 @@ function Watchlist() {
               <Link
                 key={anime.id}
                 to={`/${anime.anime_id}`}
-                className="group relative rounded-xl overflow-hidden bg-black/60"
+                className="group relative rounded-xl overflow-hidden bg-black/60 hover:ring-2 hover:ring-purple-500 transition"
               >
                 {/* Poster */}
                 <img
@@ -111,8 +115,9 @@ function Watchlist() {
                 {/* Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
-                {/* Title */}
-                <div className="absolute bottom-0 p-3">
+                {/* Title with Icon */}
+                <div className="absolute bottom-0 p-3 flex items-center gap-1">
+                  <Bookmark className="w-4 h-4 text-purple-500" />
                   <p className="text-sm font-semibold leading-snug line-clamp-2">
                     {anime.anime_title}
                   </p>
