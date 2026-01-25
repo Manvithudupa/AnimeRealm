@@ -23,11 +23,9 @@ function InfoItem({ label, value }) {
   if (!value) return null;
 
   return (
-    <div className="text-[11px] sm:text-[14px]">
-      <span className="text-white/50">{label}: </span>
-      <span className="text-white/90 hover:text-white transition">
-        {Array.isArray(value) ? value.join(", ") : value}
-      </span>
+    <div className="text-sm space-x-1">
+      <span className="text-white/50">{label}:</span>
+      <span className="text-white/90">{value}</span>
     </div>
   );
 }
@@ -35,12 +33,13 @@ function InfoItem({ label, value }) {
 /* ---------------- Tags ---------------- */
 function Tag({ icon, text }) {
   return (
-    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5
-      rounded-md bg-black/60 backdrop-blur-md
-      text-white text-[11px] sm:text-[13px]
-      font-semibold hover:bg-black/80 transition">
-      {icon && <FontAwesomeIcon icon={icon} className="text-[11px]" />}
-      <span>{text}</span>
+    <div
+      className="flex items-center gap-1.5 px-3 py-1 rounded-full
+      bg-white/10 backdrop-blur-md text-sm font-medium
+      hover:bg-white/20 transition"
+    >
+      {icon && <FontAwesomeIcon icon={icon} className="text-xs" />}
+      {text}
     </div>
   );
 }
@@ -49,8 +48,9 @@ function AnimeInfo({ random = false }) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { id: paramId } = useParams();
-  const id = random ? null : paramId;
   const navigate = useNavigate();
+
+  const id = random ? null : paramId;
 
   const [animeInfo, setAnimeInfo] = useState(null);
   const [seasons, setSeasons] = useState([]);
@@ -66,8 +66,10 @@ function AnimeInfo({ random = false }) {
   useEffect(() => {
     const fetchAnime = async () => {
       setLoading(true);
+
       try {
         const data = await getAnimeInfo(id, random);
+
         setAnimeInfo(data.data);
         setSeasons(data?.seasons || []);
       } catch (err) {
@@ -78,7 +80,7 @@ function AnimeInfo({ random = false }) {
     };
 
     fetchAnime();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo(0, 0);
   }, [id, random]);
 
   /* ---------- Page Title ---------- */
@@ -86,6 +88,7 @@ function AnimeInfo({ random = false }) {
     if (animeInfo) {
       document.title = `Watch ${animeInfo.title} on ${website_name}`;
     }
+
     return () => {
       document.title = `${website_name} | Free anime streaming`;
     };
@@ -139,6 +142,7 @@ function AnimeInfo({ random = false }) {
 
   if (loading) return <Loader type="animeInfo" />;
   if (error) return <Error />;
+
   if (!animeInfo) {
     navigate("/404-not-found-page");
     return null;
@@ -154,136 +158,182 @@ function AnimeInfo({ random = false }) {
   ].filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white mt-[74px]">
-      <div className="container mx-auto py-10 animate-fadeIn">
-        <div className="flex flex-col md:flex-row gap-8">
+    <div className="min-h-screen bg-[#050505] text-white">
 
-          {/* Poster */}
-          <div className="group w-[220px] shrink-0">
-            <div className="relative aspect-[2/3] rounded-2xl overflow-hidden shadow-lg">
+      {/* ---------- HERO ---------- */}
+      <div className="relative h-[450px] overflow-hidden">
+
+        {/* Background */}
+        <img
+          src={poster}
+          className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-30"
+          alt=""
+        />
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/20" />
+
+        {/* Content */}
+        <div className="relative container mx-auto px-5 h-full flex items-end pb-12">
+
+          <div className="flex flex-col md:flex-row gap-8 items-end">
+
+            {/* Poster */}
+            <div className="w-[220px] shrink-0">
               <img
                 src={poster}
                 alt={title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="rounded-2xl shadow-2xl"
               />
             </div>
-          </div>
 
-          {/* Info */}
-          <div className="flex-1 space-y-5">
-            <h1 className="text-3xl lg:text-4xl font-bold truncate">
-              {language === "EN" ? title : japanese_title}
-            </h1>
+            {/* Text */}
+            <div className="space-y-4 max-w-2xl">
 
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag, i) =>
-                typeof tag === "string" ? (
-                  <Tag key={i} text={tag} />
-                ) : (
-                  <Tag key={i} icon={tag.icon} text={tag.text} />
-                )
-              )}
-            </div>
+              <h1 className="text-4xl lg:text-5xl font-bold leading-tight">
+                {language === "EN" ? title : japanese_title}
+              </h1>
 
-            {/* Overview */}
-            {info?.Overview && (
-              <p className="text-gray-300 leading-[1.65] tracking-[0.01em] max-w-2xl">
-                {info.Overview.length > 270 && !isFull
-                  ? `${info.Overview.slice(0, 270)}...`
-                  : info.Overview}
-                {info.Overview.length > 270 && (
-                  <button
-                    onClick={() => setIsFull(!isFull)}
-                    className="ml-2 text-white/70 hover:text-white"
-                  >
-                    {isFull ? "Show Less" : "Read More"}
-                  </button>
+              <div className="flex flex-wrap gap-2">
+                {tags.map((tag, i) =>
+                  typeof tag === "string" ? (
+                    <Tag key={i} text={tag} />
+                  ) : (
+                    <Tag key={i} icon={tag.icon} text={tag.text} />
+                  )
                 )}
-              </p>
-            )}
+              </div>
 
-            {/* ✅ WATCHLIST + WATCH (ADDED HERE) */}
-            <div className="flex flex-wrap gap-4">
-              {info?.Status?.toLowerCase() !== "not-yet-aired" && (
-                <Link
-                  to={`/watch/${animeInfo.id}`}
-                  className="inline-flex items-center px-6 py-2.5
-                  bg-gradient-to-r from-purple-600 to-purple-500
-                  hover:from-purple-500 hover:to-purple-400
-                  rounded-xl font-semibold shadow-lg"
-                >
-                  <FontAwesomeIcon icon={faPlay} className="mr-2 text-sm" />
-                  Watch Now
-                </Link>
-              )}
+              {/* Buttons */}
+              <div className="flex gap-4 pt-2">
 
-              <button
-                onClick={toggleWatchlist}
-                disabled={watchlistLoading}
-                className={`inline-flex items-center px-5 py-2.5 rounded-xl font-semibold gap-2
-                  ${
+                {info?.Status?.toLowerCase() !== "not-yet-aired" && (
+                  <Link
+                    to={`/watch/${animeInfo.id}`}
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl
+                    bg-purple-600 hover:bg-purple-500
+                    font-semibold shadow-lg transition"
+                  >
+                    <FontAwesomeIcon icon={faPlay} />
+                    Watch Now
+                  </Link>
+                )}
+
+                <button
+                  onClick={toggleWatchlist}
+                  disabled={watchlistLoading}
+                  className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold
+                  transition ${
                     inWatchlist
                       ? "bg-green-600 hover:bg-green-500"
                       : "bg-white/10 hover:bg-white/20"
                   }`}
-              >
-                <FontAwesomeIcon icon={inWatchlist ? faCheck : faBookmark} />
-                {inWatchlist ? "In Watchlist" : "Add to Watchlist"}
-              </button>
-            </div>
+                >
+                  <FontAwesomeIcon
+                    icon={inWatchlist ? faCheck : faBookmark}
+                  />
+                  {inWatchlist ? "In Watchlist" : "Add"}
+                </button>
 
-            {/* Details */}
-            <div className="grid grid-cols-2 gap-3 bg-white/5 backdrop-blur-md p-5 rounded-xl">
-              <InfoItem label="Japanese" value={info?.Japanese} />
-              <InfoItem label="Synonyms" value={info?.Synonyms} />
-              <InfoItem label="Aired" value={info?.Aired} />
-              <InfoItem label="Premiered" value={info?.Premiered} />
-              <InfoItem label="Duration" value={info?.Duration} />
-              <InfoItem label="Status" value={info?.Status} />
-              <InfoItem label="MAL Score" value={info?.["MAL Score"]} />
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Seasons */}
-      {seasons.length > 0 && (
-        <div className="container mx-auto py-10">
-          <h2 className="text-2xl font-bold mb-6">More Seasons</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {seasons.map((season) => (
-              <Link
-                to={`/${season.id}`}
-                key={season.id}
-                className={`relative aspect-[3/1] rounded-lg overflow-hidden group
-                ${currentId === String(season.id) ? "ring-2 ring-purple-500" : ""}`}
-              >
-                <img
-                  src={season.season_poster}
-                  alt={season.season}
-                  className="w-full h-full object-cover opacity-40 scale-150"
-                />
-                <p className="absolute inset-0 flex items-center justify-center text-lg font-bold">
-                  {season.season}
-                </p>
-              </Link>
-            ))}
+      {/* ---------- CONTENT ---------- */}
+      <div className="container mx-auto px-5 py-12 space-y-12">
+
+        {/* Overview */}
+        {info?.Overview && (
+          <div className="max-w-4xl mx-auto bg-white/5 backdrop-blur-lg p-6 rounded-2xl">
+
+            <h2 className="text-xl font-semibold mb-3">Overview</h2>
+
+            <p className="text-gray-300 leading-relaxed">
+
+              {info.Overview.length > 300 && !isFull
+                ? `${info.Overview.slice(0, 300)}...`
+                : info.Overview}
+
+              {info.Overview.length > 300 && (
+                <button
+                  onClick={() => setIsFull(!isFull)}
+                  className="ml-2 text-purple-400 hover:text-purple-300"
+                >
+                  {isFull ? "Show Less" : "Read More"}
+                </button>
+              )}
+            </p>
           </div>
+        )}
+
+        {/* Details */}
+        <div className="max-w-4xl mx-auto grid sm:grid-cols-2 gap-4
+          bg-white/5 backdrop-blur-lg p-6 rounded-2xl">
+
+          <InfoItem label="Japanese" value={info?.Japanese} />
+          <InfoItem label="Synonyms" value={info?.Synonyms} />
+          <InfoItem label="Aired" value={info?.Aired} />
+          <InfoItem label="Premiered" value={info?.Premiered} />
+          <InfoItem label="Duration" value={info?.Duration} />
+          <InfoItem label="Status" value={info?.Status} />
+          <InfoItem label="MAL Score" value={info?.["MAL Score"]} />
+
         </div>
-      )}
 
-      {animeInfo?.charactersVoiceActors?.length > 0 && (
-        <Voiceactor animeInfo={animeInfo} />
-      )}
+        {/* Seasons */}
+        {seasons.length > 0 && (
+          <div>
 
-      {animeInfo?.recommended_data?.length > 0 && (
-        <CategoryCard
-          label="Recommended for you"
-          data={animeInfo.recommended_data}
-          showViewMore={false}
-        />
-      )}
+            <h2 className="text-2xl font-bold mb-5">More Seasons</h2>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+
+              {seasons.map((season) => (
+                <Link
+                  to={`/${season.id}`}
+                  key={season.id}
+                  className={`relative h-[90px] rounded-xl overflow-hidden
+                  group ${
+                    currentId === String(season.id)
+                      ? "ring-2 ring-purple-500"
+                      : ""
+                  }`}
+                >
+                  <img
+                    src={season.season_poster}
+                    alt={season.season}
+                    className="w-full h-full object-cover scale-125 opacity-40
+                    group-hover:scale-110 transition"
+                  />
+
+                  <div className="absolute inset-0 flex items-center justify-center
+                    font-bold text-lg">
+                    {season.season}
+                  </div>
+                </Link>
+              ))}
+
+            </div>
+          </div>
+        )}
+
+        {/* Voice Actors */}
+        {animeInfo?.charactersVoiceActors?.length > 0 && (
+          <Voiceactor animeInfo={animeInfo} />
+        )}
+
+        {/* Recommendations */}
+        {animeInfo?.recommended_data?.length > 0 && (
+          <CategoryCard
+            label="Recommended for you"
+            data={animeInfo.recommended_data}
+            showViewMore={false}
+          />
+        )}
+
+      </div>
     </div>
   );
 }
