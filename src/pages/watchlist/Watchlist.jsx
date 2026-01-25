@@ -13,13 +13,6 @@ function Watchlist() {
   const [watchlist, setWatchlist] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  /* ---------- Auth Guard ---------- */
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [authLoading, user, navigate]);
-
   /* ---------- Fetch Watchlist ---------- */
   useEffect(() => {
     if (!user) return;
@@ -27,13 +20,13 @@ function Watchlist() {
     const fetchWatchlist = async () => {
       setLoading(true);
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("watchlists")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
-      if (!error) setWatchlist(data || []);
+      setWatchlist(data || []);
       setLoading(false);
     };
 
@@ -56,50 +49,98 @@ function Watchlist() {
   if (loading || authLoading) return <Loader />;
 
   return (
-    <div className="min-h-screen bg-[#0b0b0b] text-white mt-[74px]">
-      <div className="container mx-auto px-4 py-10">
+    <div className="min-h-screen bg-[#0b0b0b] text-white pt-[90px] pb-16">
+      <div className="max-w-[1400px] mx-auto px-4">
 
-        <h1 className="text-3xl font-bold mb-8">My Watchlist</h1>
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold">My Watchlist</h1>
+          <p className="text-white/60 mt-1 text-sm">
+            {watchlist.length} anime saved
+          </p>
+        </div>
 
+        {/* Empty State */}
         {watchlist.length === 0 ? (
-          <p className="text-white/60">Your watchlist is empty.</p>
+          <div className="flex flex-col items-center justify-center text-center py-24">
+            <p className="text-lg font-semibold mb-2">
+              Your watchlist is empty
+            </p>
+            <p className="text-white/50 text-sm mb-6">
+              Start adding anime you want to watch later
+            </p>
+            <Link
+              to="/home"
+              className="px-6 py-3 rounded-full bg-purple-600 hover:bg-purple-700 transition"
+            >
+              Browse Anime
+            </Link>
+          </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          <div
+            className="
+              grid
+              grid-cols-2
+              sm:grid-cols-3
+              md:grid-cols-4
+              lg:grid-cols-5
+              gap-4
+              sm:gap-6
+            "
+          >
             {watchlist.map((anime) => (
-              <div
+              <Link
                 key={anime.id}
-                className="relative rounded-xl overflow-hidden bg-black/50 hover:ring-2 hover:ring-purple-600 transition"
+                to={`/${anime.anime_id}`}
+                className="group relative rounded-xl overflow-hidden bg-black/60"
               >
-                {/* ✅ CORRECT LINK */}
-                <Link to={`/${anime.anime_id}`} className="block">
-                  <img
-                    src={anime.anime_poster}
-                    alt={anime.anime_title}
-                    className="aspect-[2/3] w-full object-cover"
-                  />
+                {/* Poster */}
+                <img
+                  src={anime.anime_poster}
+                  alt={anime.anime_title}
+                  className="
+                    w-full
+                    aspect-[2/3]
+                    object-cover
+                    group-hover:scale-105
+                    transition-transform
+                    duration-300
+                  "
+                />
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                {/* Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
-                  <div className="absolute bottom-0 p-3">
-                    <p className="text-sm font-semibold line-clamp-2">
-                      {anime.anime_title}
-                    </p>
-                  </div>
-                </Link>
+                {/* Title */}
+                <div className="absolute bottom-0 p-3">
+                  <p className="text-sm font-semibold leading-snug line-clamp-2">
+                    {anime.anime_title}
+                  </p>
+                </div>
 
-                {/* Remove button */}
+                {/* Remove */}
                 <button
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     removeFromWatchlist(anime.anime_id);
                   }}
-                  className="absolute top-2 right-2 p-2 rounded-full
-                             bg-black/70 hover:bg-red-600 transition"
+                  className="
+                    absolute
+                    top-2
+                    right-2
+                    p-2
+                    rounded-full
+                    bg-black/70
+                    backdrop-blur
+                    hover:bg-red-600
+                    transition
+                  "
+                  aria-label="Remove from watchlist"
                 >
                   <FontAwesomeIcon icon={faTrash} size="sm" />
                 </button>
-              </div>
+              </Link>
             ))}
           </div>
         )}
