@@ -13,7 +13,7 @@
 .splash-wrapper {
   max-width: 1300px;
   margin: auto;
-  padding: 48px 24px;
+  padding: 32px 24px; /* ⬇ Reduced */
 }
 
 /* ================== NAVBAR ================== */
@@ -47,6 +47,7 @@
   .nav-links {
     display: none;
   }
+
   .mobile-menu {
     display: block;
     position: absolute;
@@ -79,31 +80,26 @@
   padding: 4px 10px;
 }
 
-.mobile-modal a {
-  font-size: 18px;
-  padding: 8px 12px;
-}
-
 /* ================== SPLASH ================== */
 .splashscreen {
-  margin-top: 32px;
-  border-radius: 40px;
+  margin-top: 24px;
+  border-radius: 32px;
   overflow: hidden;
   display: flex;
   background: linear-gradient(135deg, #141422, #0b0b12);
-  min-height: 520px;
+  min-height: 420px; /* ⬇ Reduced */
   position: relative;
 }
 
-/* CONTENT */
+/* ================== CONTENT ================== */
 .splash-content {
   width: 55%;
-  padding: 80px;
+  padding: 48px 56px; /* ⬇ Reduced */
   z-index: 40;
 }
 
 .splash-logo {
-  font-size: 46px;
+  font-size: 42px;
   font-weight: 900;
   color: #e6e6ff;
 }
@@ -115,46 +111,35 @@
 /* ================== SEARCH ================== */
 .search-box {
   display: flex;
-  margin-top: 32px;
+  margin-top: 28px;
   gap: 12px;
   width: 100%;
 }
 
 .search-box input {
-  flex: 1 1 auto;
-  min-width: 0;
-  padding: 14px 18px;
-  border-radius: 14px;
-  font-size: 18px;
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 16px;
   background: #0f0f18;
   color: #e6e6ff;
   border: 1px solid #23233a;
 }
 
-.search-box input::placeholder {
-  color: #7777aa;
-}
-
 .search-box button {
-  flex: 0 0 auto;
   background: #8f7bff;
-  padding: 14px 18px;
-  border-radius: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
   color: black;
-  white-space: nowrap;
 }
 
 /* ================== TOP SEARCH ================== */
 .top-search {
-  margin-top: 32px;
+  margin-top: 24px;
 }
 
 .top-search strong {
   color: #b5b5ff;
-}
-
-.top-search-items {
-  margin-top: 12px;
 }
 
 .splashitem {
@@ -165,40 +150,34 @@
   border-radius: 999px;
   font-size: 14px;
   color: #e6e6ff;
-  transition: 0.25s;
-}
-
-.splashitem:hover {
-  background: rgba(143, 123, 255, 0.25);
 }
 
 /* ================== CTA ================== */
 .cta-btn {
   display: inline-flex;
   align-items: center;
-  gap: 16px;
-  margin-top: 40px;
-  padding: 18px 36px;
+  gap: 14px;
+  margin-top: 32px;
+  padding: 14px 28px;
   background: #8f7bff;
   color: black;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
-  border-radius: 18px;
+  border-radius: 14px;
 }
 
-/* ================== IMAGE (FIXED) ================== */
+/* ================== IMAGE ================== */
 .splash-image-wrapper {
   width: 45%;
-  height: 520px; /* matches splashscreen height */
+  height: 100%;
   position: relative;
+  overflow: hidden;
 }
 
 .splash-image-wrapper img {
   width: 100%;
   height: 100%;
-  object-fit: contain;   /* ✅ FULL IMAGE VISIBLE */
-  object-position: center;
-  background: #0b0b12;
+  object-fit: cover;
   filter: brightness(0.9) contrast(1.05);
 }
 
@@ -209,8 +188,8 @@
   background: linear-gradient(
     90deg,
     rgba(20, 20, 34, 1) 0%,
-    rgba(20, 20, 34, 0.85) 40%,
-    rgba(20, 20, 34, 0.3) 75%,
+    rgba(20, 20, 34, 0.7) 40%,
+    rgba(20, 20, 34, 0.15) 75%,
     rgba(20, 20, 34, 0) 100%
   );
   z-index: 20;
@@ -218,38 +197,17 @@
 
 /* ================== FOOTER ================== */
 .splash-footer {
-  margin-top: 40px;
+  margin-top: 32px;
   text-align: center;
   font-size: 14px;
   color: #8888bb;
 }
 
-/* ================== MOBILE RESPONSIVE ================== */
+/* ================== MOBILE ================== */
 @media (max-width: 780px) {
-  .splash-root {
-    background: url('/splash.jpg') center/cover no-repeat fixed;
-    position: relative;
-  }
-
-  .splash-root::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: rgba(11, 11, 18, 0.7);
-    z-index: 0;
-  }
-
-  .splash-wrapper {
-    position: relative;
-    z-index: 1;
-    max-width: 100%;
-    padding: 40px 20px;
-  }
-
   .splash-content {
     width: 100%;
-    padding: 40px 20px;
-    z-index: 2;
+    padding: 32px 20px;
   }
 
   .splash-image-wrapper {
@@ -259,24 +217,5 @@
   .cta-btn {
     width: 100%;
     justify-content: center;
-  }
-
-  .search-box {
-    gap: 8px;
-  }
-
-  .search-box input {
-    font-size: 16px;
-  }
-
-  .search-box button {
-    padding: 12px 14px;
-    font-size: 16px;
-  }
-
-  .top-search-items {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
   }
 }
