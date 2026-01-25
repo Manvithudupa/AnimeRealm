@@ -6,7 +6,11 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Textarea } from "@/src/components/ui/textarea";
-import { Avatar, AvatarImage, AvatarFallback } from "@/src/components/ui/avatar";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/src/components/ui/avatar";
 import {
   Card,
   CardContent,
@@ -40,12 +44,12 @@ export const Profile = () => {
     avatar_url: "",
   });
 
-  // Redirect if not logged in
+  /* ---------- Redirect if not logged in ---------- */
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
   }, [user, authLoading]);
 
-  // Load profile
+  /* ---------- Load profile ---------- */
   useEffect(() => {
     if (user) loadProfile();
   }, [user]);
@@ -71,9 +75,10 @@ export const Profile = () => {
     }
   };
 
-  // Avatar generator
+  /* ---------- Avatar Generator ---------- */
   const generateRandomAvatar = async () => {
     setGenerating(true);
+
     try {
       const query = `
         query {
@@ -87,12 +92,17 @@ export const Profile = () => {
 
       const response = await fetch("https://graphql.anilist.co", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({ query }),
       });
 
       const result = await response.json();
+
       const characters = result.data.Page.characters;
+
       const randomCharacter =
         characters[Math.floor(Math.random() * characters.length)];
 
@@ -102,14 +112,15 @@ export const Profile = () => {
       }));
 
       toast({
-        title: "Avatar Generated!",
-        description: "Your new anime avatar is set!",
+        title: "Avatar Updated",
+        description: "New anime avatar applied 💜",
       });
     } catch (error) {
       console.error(error);
+
       toast({
         title: "Error",
-        description: "Failed to generate avatar.",
+        description: "Failed to generate avatar",
         variant: "destructive",
       });
     } finally {
@@ -117,19 +128,21 @@ export const Profile = () => {
     }
   };
 
-  // Save profile (fixed upsert + validation added)
+  /* ---------- Save Profile ---------- */
   const updateProfile = async (e) => {
     e.preventDefault();
+
     if (!user) return;
+
     setLoading(true);
 
-    // ✅ Validation added, everything else untouched
     if (profile.username.length > 25 || profile.bio.length > 200) {
       toast({
-        title: "Limit exceeded",
-        description: "Username must be ≤ 25 and Bio must be ≤ 200 characters.",
+        title: "Limit Exceeded",
+        description: "Username ≤ 25, Bio ≤ 200 characters",
         variant: "destructive",
       });
+
       setLoading(false);
       return;
     }
@@ -149,8 +162,8 @@ export const Profile = () => {
       if (error) throw error;
 
       toast({
-        title: "Saved!",
-        description: "Your profile has been updated.",
+        title: "Profile Saved",
+        description: "Your changes were saved successfully ✨",
       });
     } catch (error) {
       toast({
@@ -163,7 +176,7 @@ export const Profile = () => {
     }
   };
 
-  // Loading screen
+  /* ---------- Loading Screen ---------- */
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
@@ -176,29 +189,53 @@ export const Profile = () => {
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       <Navbar />
 
-      <main className="flex justify-center px-4 pt-24 pb-12">
-        <Card className="w-full max-w-xl bg-[#111] border border-white/10 shadow-2xl rounded-2xl">
-          <CardHeader className="text-center pb-2">
-            <CardTitle className="text-2xl font-semibold text-white">
+      {/* Main */}
+      <main className="flex justify-center px-3 sm:px-6 pt-20 sm:pt-24 pb-12">
+
+        <Card
+          className="w-full max-w-md sm:max-w-xl
+          bg-white/5 backdrop-blur-xl
+          border border-white/10
+          shadow-2xl shadow-purple-900/20
+          rounded-2xl sm:rounded-3xl
+          transition"
+        >
+          {/* Header */}
+          <CardHeader className="text-center pb-3">
+
+            <CardTitle className="text-2xl sm:text-3xl font-semibold">
               Profile Settings
             </CardTitle>
+
             <CardDescription className="text-white/40">
-              Update your anime profile
+              Customize your anime identity
             </CardDescription>
+
           </CardHeader>
 
-          <CardContent className="space-y-8">
-            <form onSubmit={updateProfile} className="space-y-8">
+          {/* Content */}
+          <CardContent>
 
+            <form
+              onSubmit={updateProfile}
+              className="space-y-6 sm:space-y-8"
+            >
               {/* Avatar */}
               <div className="flex flex-col items-center gap-4">
-                <Avatar className="h-32 w-32 rounded-xl border border-white/10 shadow-lg">
+
+                <Avatar
+                  className="h-24 w-24 sm:h-32 sm:w-32
+                  rounded-xl sm:rounded-2xl
+                  border border-white/10
+                  shadow-lg shadow-black/40"
+                >
                   <AvatarImage
                     src={profile.avatar_url || "/default-avatar.png"}
-                    className="rounded-xl object-cover"
+                    className="object-cover"
                   />
-                  <AvatarFallback className="bg-black/40 flex items-center justify-center rounded-xl">
-                    <User className="h-16 w-16 text-white/40" />
+
+                  <AvatarFallback className="bg-black/40 flex items-center justify-center">
+                    <User className="h-12 w-12 sm:h-16 sm:w-16 text-white/40" />
                   </AvatarFallback>
                 </Avatar>
 
@@ -207,7 +244,8 @@ export const Profile = () => {
                   variant="outline"
                   onClick={generateRandomAvatar}
                   disabled={generating}
-                  className="bg-black/30 text-white border-white/10 hover:bg-black/50"
+                  className="bg-black/30 text-white border-white/10
+                  hover:bg-black/50 transition"
                 >
                   {generating ? (
                     <>
@@ -217,42 +255,55 @@ export const Profile = () => {
                   ) : (
                     <>
                       <Sparkles className="h-4 w-4 mr-2" />
-                      Generate Random Avatar
+                      Generate Avatar
                     </>
                   )}
                 </Button>
+
               </div>
 
               {/* Username */}
               <div className="space-y-2">
-                <Label className="text-white/80">Username</Label>
+
+                <Label>Username</Label>
+
                 <Input
                   value={profile.username}
-                  onChange={(e) => {
-                    const val = e.target.value.slice(0, 25); // ✅ restrict added
-                    setProfile({ ...profile, username: val });
-                  }}
+                  maxLength={25}
                   placeholder="Your username"
-                  maxLength={25} // ✅ native safeguard
-                  className="bg-black/30 text-white border-white/10 placeholder:text-white/30"
+                  onChange={(e) =>
+                    setProfile({
+                      ...profile,
+                      username: e.target.value.slice(0, 25),
+                    })
+                  }
+                  className="bg-black/30 border-white/10 text-white
+                  placeholder:text-white/30"
                 />
+
                 <div className="text-right text-xs text-white/40">
                   {profile.username.length}/25
                 </div>
+
               </div>
 
               {/* Gender */}
               <div className="space-y-2">
-                <Label className="text-white/80">Gender</Label>
+
+                <Label>Gender</Label>
+
                 <Select
                   value={profile.gender}
                   onValueChange={(value) =>
                     setProfile({ ...profile, gender: value })
                   }
                 >
-                  <SelectTrigger className="bg-black/30 text-white border-white/10">
+                  <SelectTrigger
+                    className="bg-black/30 border-white/10 text-white"
+                  >
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
+
                   <SelectContent className="bg-[#111] border-white/10 text-white">
                     <SelectItem value="male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
@@ -262,32 +313,46 @@ export const Profile = () => {
                     </SelectItem>
                   </SelectContent>
                 </Select>
+
               </div>
 
               {/* Bio */}
               <div className="space-y-2">
-                <Label className="text-white/80">Bio</Label>
+
+                <Label>Bio</Label>
+
                 <Textarea
                   value={profile.bio}
-                  onChange={(e) => {
-                    const val = e.target.value.slice(0, 200); // ✅ restrict added
-                    setProfile({ ...profile, bio: val });
-                  }}
-                  placeholder="Write something cool..."
                   rows={4}
-                  maxLength={200} // ✅ native safeguard
-                  className="bg-black/30 text-white border-white/10 placeholder:text-white/30"
+                  maxLength={200}
+                  placeholder="Write something cool..."
+                  onChange={(e) =>
+                    setProfile({
+                      ...profile,
+                      bio: e.target.value.slice(0, 200),
+                    })
+                  }
+                  className="bg-black/30 border-white/10 text-white
+                  placeholder:text-white/30"
                 />
+
                 <div className="text-right text-xs text-white/40">
                   {profile.bio.length}/200
                 </div>
+
               </div>
 
-              {/* Save */}
+              {/* Save Button */}
               <Button
                 type="submit"
-                className="w-full bg-white text-black hover:bg-white/90 font-medium h-11"
                 disabled={loading}
+                className="w-full h-10 sm:h-11
+                font-semibold text-white
+                bg-gradient-to-r from-purple-600 to-purple-500
+                hover:from-purple-500 hover:to-purple-400
+                shadow-lg shadow-purple-600/30
+                transition-all duration-200
+                active:scale-95"
               >
                 {loading ? (
                   <>
@@ -300,8 +365,10 @@ export const Profile = () => {
               </Button>
 
             </form>
+
           </CardContent>
         </Card>
+
       </main>
     </div>
   );
