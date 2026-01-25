@@ -31,6 +31,11 @@ function Navbar() {
 
   const dropdownRef = useRef(null);
 
+  /* 🔒 CLOSE DROPDOWN ON AUTH CHANGE */
+  useEffect(() => {
+    setIsDropdownOpen(false);
+  }, [user]);
+
   /* Outside click */
   useEffect(() => {
     const handler = (e) => {
@@ -52,7 +57,8 @@ function Navbar() {
   return (
     <SearchProvider>
       <nav
-        className={`fixed top-0 left-0 w-full z-[1000000] transition-all duration-300 bg-[#0a0a0a]
+        className={`fixed top-0 left-0 w-full z-[1000000]
+        transition-all duration-300 bg-[#0a0a0a]
         ${isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : ""}`}
       >
         <div className="max-w-[1920px] mx-auto px-4 h-16 flex items-center justify-between">
@@ -89,13 +95,18 @@ function Navbar() {
             {user ? (
               <div className="relative" ref={dropdownRef}>
                 <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="h-10 w-10 rounded-md bg-[#2a2a2a]/70"
+                  onClick={() => setIsDropdownOpen((v) => !v)}
+                  className="
+                    h-10 w-10 rounded-full
+                    ring-1 ring-white/10
+                    hover:ring-purple-500
+                    transition
+                  "
                 >
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={profile?.avatar_url || undefined} />
-                    <AvatarFallback>
-                      <User className="h-5 w-5" />
+                    <AvatarFallback className="bg-[#2a2a2a]">
+                      <User className="h-5 w-5 text-white/70" />
                     </AvatarFallback>
                   </Avatar>
                 </button>
@@ -116,7 +127,10 @@ function Navbar() {
                     </div>
 
                     <button
-                      onClick={() => navigate("/profile")}
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        navigate("/profile");
+                      }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
                       <User className="h-4 w-4" />
@@ -124,7 +138,10 @@ function Navbar() {
                     </button>
 
                     <button
-                      onClick={() => navigate("/watchlist")}
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        navigate("/watchlist");
+                      }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
                       <Bookmark className="h-4 w-4" />
@@ -165,7 +182,6 @@ function Navbar() {
           </div>
         )}
 
-        {/* SIDEBAR (important for mobile) */}
         <Sidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
