@@ -23,7 +23,7 @@ import DMCA from "./pages/dmca/DMCA";
 import Contact from "./pages/contact/Contact";
 import Auth from "./pages/Auth/Auth"; 
 import Profile from "./pages/Profile/Profile";
-import Watchlist from "@/src/pages/Watchlist";
+import Watchlist from "@/src/pages/watchlist/Watchlist";
 
 // Auth-protected route wrapper
 const AuthRoute = ({ children }) => {
