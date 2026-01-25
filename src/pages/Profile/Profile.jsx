@@ -44,12 +44,12 @@ export const Profile = () => {
     avatar_url: "",
   });
 
-  /* Redirect if not logged in */
+  /* ---------- Redirect if not logged in ---------- */
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
-  }, [user, authLoading]);
+  }, [user, authLoading, navigate]);
 
-  /* Load profile */
+  /* ---------- Load profile ---------- */
   useEffect(() => {
     if (user) loadProfile();
   }, [user]);
@@ -71,11 +71,11 @@ export const Profile = () => {
         });
       }
     } catch (error) {
-      console.error(error);
+      console.error("Load profile error:", error);
     }
   };
 
-  /* Generate avatar */
+  /* ---------- Generate Avatar ---------- */
   const generateRandomAvatar = async () => {
     setGenerating(true);
 
@@ -100,6 +100,7 @@ export const Profile = () => {
       });
 
       const result = await response.json();
+
       const characters = result.data.Page.characters;
 
       const random =
@@ -111,9 +112,11 @@ export const Profile = () => {
       }));
 
       toast({
-        title: "Avatar Updated",
+        title: "Avatar Updated 💜",
       });
-    } catch {
+    } catch (error) {
+      console.error(error);
+
       toast({
         title: "Error",
         description: "Avatar generation failed",
@@ -124,7 +127,7 @@ export const Profile = () => {
     }
   };
 
-  /* Save */
+  /* ---------- Save Profile ---------- */
   const updateProfile = async (e) => {
     e.preventDefault();
 
@@ -138,6 +141,7 @@ export const Profile = () => {
         description: "Username ≤25, Bio ≤200",
         variant: "destructive",
       });
+
       setLoading(false);
       return;
     }
@@ -157,8 +161,7 @@ export const Profile = () => {
       if (error) throw error;
 
       toast({
-        title: "Saved",
-        description: "Profile updated",
+        title: "Profile Saved ✨",
       });
     } catch (error) {
       toast({
@@ -171,6 +174,7 @@ export const Profile = () => {
     }
   };
 
+  /* ---------- Loading ---------- */
   if (authLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -183,18 +187,23 @@ export const Profile = () => {
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       <Navbar />
 
-      <main className="flex justify-center px-4 pt-20 pb-10">
+      {/* Main */}
+      <main className="flex justify-center px-4 pt-20 pb-12">
 
-        <Card className="w-full max-w-lg bg-[#111] border border-white/15 shadow-xl rounded-xl">
-
+        <Card
+          className="w-full max-w-lg bg-[#111]
+          border border-white/25
+          shadow-xl shadow-black/60
+          rounded-xl"
+        >
           {/* Header */}
           <CardHeader className="pb-3 text-center">
 
-            <CardTitle className="text-xl font-semibold text-white">
+            <CardTitle className="text-2xl font-semibold">
               Profile
             </CardTitle>
 
-            <CardDescription className="text-white/60 text-sm">
+            <CardDescription className="text-white/60">
               Edit your profile
             </CardDescription>
 
@@ -210,7 +219,7 @@ export const Profile = () => {
               {/* Avatar */}
               <div className="flex flex-col items-center gap-3">
 
-                <Avatar className="h-24 w-24 border border-white/15">
+                <Avatar className="h-24 w-24 border border-white/20">
 
                   <AvatarImage
                     src={profile.avatar_url || "/default-avatar.png"}
@@ -226,12 +235,24 @@ export const Profile = () => {
                 <Button
                   type="button"
                   size="sm"
-                  variant="outline"
                   onClick={generateRandomAvatar}
                   disabled={generating}
-                  className="border-white/15 text-white/80 hover:bg-white/10"
+                  className="bg-purple-600 hover:bg-purple-500
+                  text-white font-medium
+                  px-4 py-2 rounded-lg
+                  shadow-md transition"
                 >
-                  {generating ? "Generating..." : "Random Avatar"}
+                  {generating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Generate Avatar
+                    </>
+                  )}
                 </Button>
 
               </div>
@@ -239,7 +260,7 @@ export const Profile = () => {
               {/* Username */}
               <div className="space-y-1">
 
-                <Label className="text-sm text-white/80">
+                <Label className="text-white/80 text-sm">
                   Username
                 </Label>
 
@@ -252,7 +273,11 @@ export const Profile = () => {
                       username: e.target.value,
                     })
                   }
-                  className="bg-black border-white/15 text-white"
+                  className="bg-[#0f0f0f]
+                  border-white/25
+                  text-white
+                  focus:border-purple-500
+                  focus:ring-purple-500"
                 />
 
                 <div className="text-right text-xs text-white/50">
@@ -264,7 +289,7 @@ export const Profile = () => {
               {/* Gender */}
               <div className="space-y-1">
 
-                <Label className="text-sm text-white/80">
+                <Label className="text-white/80 text-sm">
                   Gender
                 </Label>
 
@@ -274,14 +299,21 @@ export const Profile = () => {
                     setProfile({ ...profile, gender: value })
                   }
                 >
-                  <SelectTrigger className="bg-black border-white/15 text-white" />
+                  <SelectTrigger
+                    className="bg-[#0f0f0f]
+                    border-white/25
+                    text-white
+                    focus:border-purple-500
+                    focus:ring-purple-500
+                    [&>svg]:text-white/80"
+                  >
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
 
-                  <SelectContent className="bg-[#111] border-white/15 text-white">
+                  <SelectContent className="bg-[#111] border-white/25 text-white">
                     <SelectItem value="male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="non-binary">
-                      Non-binary
-                    </SelectItem>
+                    <SelectItem value="non-binary">Non-binary</SelectItem>
                     <SelectItem value="prefer-not-to-say">
                       Prefer not to say
                     </SelectItem>
@@ -294,7 +326,7 @@ export const Profile = () => {
               {/* Bio */}
               <div className="space-y-1">
 
-                <Label className="text-sm text-white/80">
+                <Label className="text-white/80 text-sm">
                   Bio
                 </Label>
 
@@ -308,7 +340,11 @@ export const Profile = () => {
                       bio: e.target.value,
                     })
                   }
-                  className="bg-black border-white/15 text-white"
+                  className="bg-[#0f0f0f]
+                  border-white/25
+                  text-white
+                  focus:border-purple-500
+                  focus:ring-purple-500"
                 />
 
                 <div className="text-right text-xs text-white/50">
@@ -326,13 +362,21 @@ export const Profile = () => {
                 text-white font-semibold
                 transition active:scale-95"
               >
-                {loading ? "Saving..." : "Save Profile"}
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Profile"
+                )}
               </Button>
 
             </form>
 
           </CardContent>
         </Card>
+
       </main>
     </div>
   );
