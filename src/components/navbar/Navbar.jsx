@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faRandom, faMagnifyingGlass, faXmark } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBars,
+  faRandom,
+  faMagnifyingGlass,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 import { useLanguage } from "../../context/LanguageContext";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "../sidebar/Sidebar";
@@ -10,7 +15,7 @@ import MobileSearch from "../searchbar/MobileSearch";
 
 import { useAuth } from "../../hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { User } from "lucide-react";
+import { User, LogOut, Bookmark } from "lucide-react";
 import { Button } from "../ui/button";
 
 function Navbar() {
@@ -24,163 +29,147 @@ function Navbar() {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const dropdownRef = useRef();
+  const dropdownRef = useRef(null);
 
-  // close dropdown on outside click
+  /* Outside click */
   useEffect(() => {
-    const handleClickOutside = (e) => {
+    const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setIsDropdownOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // navbar scroll effect
+  /* Scroll effect */
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 0);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleHamburgerClick = () => setIsSidebarOpen(true);
-  const handleCloseSidebar = () => setIsSidebarOpen(false);
-
-  const handleRandomClick = () => {
-    if (location.pathname === "/random") window.location.reload();
-  };
-
   return (
     <SearchProvider>
       <nav
         className={`fixed top-0 left-0 w-full z-[1000000] transition-all duration-300 bg-[#0a0a0a]
-          ${isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"}`}
+        ${isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : ""}`}
       >
         <div className="max-w-[1920px] mx-auto px-4 h-16 flex items-center justify-between">
 
           {/* LEFT */}
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-4">
-              <FontAwesomeIcon
-                icon={faBars}
-                className="text-xl text-gray-200 cursor-pointer hover:text-white transition-colors"
-                onClick={handleHamburgerClick}
-              />
-
-              <Link to="/home" className="flex items-center">
-                <img src="/logo.png" alt="An!meRealm Logo" className="h-9 w-auto" />
-              </Link>
-            </div>
+          <div className="flex items-center gap-4">
+            <FontAwesomeIcon
+              icon={faBars}
+              className="text-xl text-gray-200 cursor-pointer"
+              onClick={() => setIsSidebarOpen(true)}
+            />
+            <Link to="/home">
+              <img src="/logo.png" alt="Logo" className="h-9" />
+            </Link>
           </div>
 
-          {/* SEARCH */}
-          <div className="flex-1 flex justify-center items-center max-w-none mx-8 hidden md:flex">
-            <div className="flex items-center gap-2 w-[600px]">
+          {/* DESKTOP SEARCH */}
+          <div className="hidden md:flex flex-1 justify-center mx-8">
+            <div className="flex gap-2 w-[600px]">
               <WebSearch />
-
               <Link
-                to={location.pathname === "/random" ? "#" : "/random"}
-                onClick={handleRandomClick}
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition flex items-center justify-center"
-                title="Random Anime"
+                to="/random"
+                className="p-[10px] bg-[#2a2a2a]/75 rounded-lg text-white/50 hover:text-white"
               >
-                <FontAwesomeIcon icon={faRandom} className="text-lg" />
+                <FontAwesomeIcon icon={faRandom} />
               </Link>
             </div>
           </div>
 
           {/* RIGHT */}
-          <div className="flex items-center gap-4">
-
-            {/* LANG (IMPROVED) */}
-            <div className="hidden md:flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 backdrop-blur-md p-1">
-              {["EN", "JP"].map((lang) => (
-                <button
-                  key={lang}
-                  onClick={() => toggleLanguage(lang)}
-                  className={`
-                    px-3 py-1 text-xs font-semibold rounded-md transition-all duration-200
-                    ${
-                      language === lang
-                        ? "bg-white/10 text-white border border-white/20 shadow-sm"
-                        : "text-gray-400 hover:text-white hover:bg-white/5"
-                    }
-                  `}
-                >
-                  {lang}
-                </button>
-              ))}
-            </div>
+          <div className="flex items-center gap-3">
 
             {/* USER */}
             {user ? (
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="rounded-md h-10 w-10 overflow-hidden shadow-sm bg-[#2a2a2a]/70 hover:bg-[#3a3a3a] transition"
+                  className="h-10 w-10 rounded-md bg-[#2a2a2a]/70"
                 >
-                  <Avatar className="h-10 w-10 rounded-md">
-                    <AvatarImage
-                      src={profile?.avatar_url || undefined}
-                      className="object-cover rounded-md"
-                    />
-                    <AvatarFallback className="rounded-md bg-primary/10 text-primary flex items-center justify-center">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={profile?.avatar_url || undefined} />
+                    <AvatarFallback>
                       <User className="h-5 w-5" />
                     </AvatarFallback>
                   </Avatar>
                 </button>
 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-[#111111]/90 backdrop-blur-xl rounded-xl shadow-xl border border-white/10 overflow-hidden z-50 animate-fadeIn">
+                  <div
+                    className="
+                      absolute right-0 mt-2 w-56
+                      bg-[#111]/95 backdrop-blur-xl
+                      rounded-xl border border-white/10
+                      shadow-xl overflow-hidden
+                    "
+                  >
                     <div className="px-4 py-3 border-b border-white/10">
-                      <p className="text-sm text-gray-300 font-medium">
+                      <p className="text-sm text-gray-300 truncate">
                         {profile?.username || user.email}
                       </p>
                     </div>
 
                     <button
                       onClick={() => navigate("/profile")}
-                      className="flex items-center gap-3 w-full text-left px-4 py-3 text-gray-300 hover:bg-white/5 transition"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
                       <User className="h-4 w-4" />
                       Profile
                     </button>
 
                     <button
-                      onClick={signOut}
-                      className="flex items-center gap-3 w-full text-left px-4 py-3 text-red-400 hover:bg-red-500/10 transition"
+                      onClick={() => navigate("/watchlist")}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
+                      <Bookmark className="h-4 w-4" />
+                      Watchlist
+                    </button>
+
+                    <button
+                      onClick={signOut}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10"
+                    >
+                      <LogOut className="h-4 w-4" />
                       Logout
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              <Button size="sm" onClick={() => navigate("/auth")} className="bg-primary text-white hover:bg-primary/90">
+              <Button size="sm" onClick={() => navigate("/auth")}>
                 Login
               </Button>
             )}
 
             {/* MOBILE SEARCH */}
-            <div className="md:hidden flex items-center">
-              <button
-                onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition w-[38px] h-[38px]"
-              >
-                <FontAwesomeIcon icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass} className="w-[18px] h-[18px]" />
-              </button>
-            </div>
+            <button
+              className="md:hidden p-[10px] bg-[#2a2a2a]/75 rounded-lg text-white/60"
+              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+            >
+              <FontAwesomeIcon
+                icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
+              />
+            </button>
           </div>
         </div>
 
         {isMobileSearchOpen && (
-          <div className="md:hidden bg-[#18181B] shadow-lg">
+          <div className="md:hidden bg-[#18181B]">
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
           </div>
         )}
 
-        <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
+        {/* SIDEBAR (important for mobile) */}
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
       </nav>
     </SearchProvider>
   );
