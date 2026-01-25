@@ -4,6 +4,8 @@ import {
   faPlay,
   faClosedCaptioning,
   faMicrophone,
+  faBookmark,
+  faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -12,20 +14,18 @@ import CategoryCard from "@/src/components/categorycard/CategoryCard";
 import Loader from "@/src/components/Loader/Loader";
 import Error from "@/src/components/error/Error";
 import { useLanguage } from "@/src/context/LanguageContext";
-import { useHomeInfo } from "@/src/context/HomeInfoContext";
 import Voiceactor from "@/src/components/voiceactor/Voiceactor";
+import { supabase } from "@/src/integrations/supabase/client";
+import { useAuth } from "@/src/hooks/useAuth";
 
 /* ---------------- Info Row ---------------- */
-function InfoItem({ label, value, isProducer = true }) {
+function InfoItem({ label, value }) {
   if (!value) return null;
-
   return (
     <div className="text-[11px] sm:text-[14px]">
       <span className="text-white/50">{label}: </span>
-      <span className="text-white/90 hover:text-white transition">
-        {Array.isArray(value)
-          ? value.join(", ")
-          : value}
+      <span className="text-white/90">
+        {Array.isArray(value) ? value.join(", ") : value}
       </span>
     </div>
   );
@@ -46,6 +46,7 @@ function Tag({ icon, text }) {
 
 function AnimeInfo({ random = false }) {
   const { language } = useLanguage();
+  const { user } = useAuth();
   const { id: paramId } = useParams();
   const id = random ? null : paramId;
   const navigate = useNavigate();
@@ -56,8 +57,12 @@ function AnimeInfo({ random = false }) {
   const [error, setError] = useState(null);
   const [isFull, setIsFull] = useState(false);
 
+  const [inWatchlist, setInWatchlist] = useState(false);
+  const [watchlistLoading, setWatchlistLoading] = useState(false);
+
   const { id: currentId } = useParams();
 
+  /* ---------- Fetch anime ---------- */
   useEffect(() => {
     const fetchAnime = async () => {
       setLoading(true);
@@ -76,6 +81,7 @@ function AnimeInfo({ random = false }) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [id, random]);
 
+  /* ---------- Title ---------- */
   useEffect(() => {
     if (animeInfo) {
       document.title = `Watch ${animeInfo.title} on ${website_name}`;
@@ -84,6 +90,50 @@ function AnimeInfo({ random = false }) {
       document.title = `${website_name} | Free anime streaming`;
     };
   }, [animeInfo]);
+
+  /* ---------- Check watchlist ---------- */
+  useEffect(() => {
+    if (!user || !animeInfo) return;
+
+    supabase
+      .from("watchlists")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("anime_id", animeInfo.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setInWatchlist(!!data);
+      });
+  }, [user, animeInfo]);
+
+  /* ---------- Toggle watchlist ---------- */
+  const toggleWatchlist = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    setWatchlistLoading(true);
+
+    if (inWatchlist) {
+      await supabase
+        .from("watchlists")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("anime_id", animeInfo.id);
+      setInWatchlist(false);
+    } else {
+      await supabase.from("watchlists").insert({
+        user_id: user.id,
+        anime_id: animeInfo.id,
+        anime_title: animeInfo.title,
+        anime_poster: animeInfo.poster,
+      });
+      setInWatchlist(true);
+    }
+
+    setWatchlistLoading(false);
+  };
 
   if (loading) return <Loader type="animeInfo" />;
   if (error) return <Error />;
@@ -106,7 +156,6 @@ function AnimeInfo({ random = false }) {
 
       {/* ---------- MAIN ---------- */}
       <div className="container mx-auto py-10 animate-fadeIn">
-
         <div className="flex flex-col md:flex-row gap-8">
 
           {/* Poster */}
@@ -128,15 +177,9 @@ function AnimeInfo({ random = false }) {
           {/* Info */}
           <div className="flex-1 space-y-5">
 
-            {/* Title */}
-            <div>
-              <h1 className="text-3xl lg:text-4xl font-bold truncate">
-                {language === "EN" ? title : japanese_title}
-              </h1>
-              {language === "EN" && japanese_title && (
-                <p className="text-white/50 text-sm mt-1">🇯🇵 {japanese_title}</p>
-              )}
-            </div>
+            <h1 className="text-3xl lg:text-4xl font-bold truncate">
+              {language === "EN" ? title : japanese_title}
+            </h1>
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2">
@@ -149,9 +192,35 @@ function AnimeInfo({ random = false }) {
               )}
             </div>
 
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <Link
+                to={`/watch/${animeInfo.id}`}
+                className="inline-flex items-center px-6 py-2.5
+                bg-gradient-to-r from-purple-600 to-purple-500
+                rounded-xl font-semibold shadow-lg"
+              >
+                <FontAwesomeIcon icon={faPlay} className="mr-2" />
+                Watch Now
+              </Link>
+
+              <button
+                onClick={toggleWatchlist}
+                disabled={watchlistLoading}
+                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold
+                  ${inWatchlist
+                    ? "bg-green-600"
+                    : "bg-white/10 hover:bg-white/20"}
+                `}
+              >
+                <FontAwesomeIcon icon={inWatchlist ? faCheck : faBookmark} />
+                {inWatchlist ? "In Watchlist" : "Add to Watchlist"}
+              </button>
+            </div>
+
             {/* Overview */}
             {info?.Overview && (
-              <p className="text-gray-300 leading-[1.65] tracking-[0.01em] max-w-2xl">
+              <p className="text-gray-300 max-w-2xl">
                 {info.Overview.length > 270 && !isFull
                   ? `${info.Overview.slice(0, 270)}...`
                   : info.Overview}
@@ -166,33 +235,11 @@ function AnimeInfo({ random = false }) {
               </p>
             )}
 
-            {/* Watch Button */}
-            {info?.Status?.toLowerCase() !== "not-yet-aired" ? (
-              <Link
-                to={`/watch/${animeInfo.id}`}
-                className="inline-flex items-center px-6 py-2.5
-                bg-gradient-to-r from-purple-600 to-purple-500
-                hover:from-purple-500 hover:to-purple-400
-                rounded-xl text-white font-semibold
-                shadow-lg shadow-purple-500/30
-                transition hover:scale-[1.03]">
-                <FontAwesomeIcon icon={faPlay} className="mr-2 text-sm" />
-                Watch Now
-              </Link>
-            ) : (
-              <div className="px-6 py-2.5 bg-gray-700/50 rounded-xl">
-                Not released
-              </div>
-            )}
-
             {/* Details */}
-            <div className="grid grid-cols-2 gap-3 bg-white/5 backdrop-blur-md p-5 rounded-xl">
-              <InfoItem label="Japanese" value={info?.Japanese} />
-              <InfoItem label="Synonyms" value={info?.Synonyms} />
-              <InfoItem label="Aired" value={info?.Aired} />
-              <InfoItem label="Premiered" value={info?.Premiered} />
-              <InfoItem label="Duration" value={info?.Duration} />
+            <div className="grid grid-cols-2 gap-3 bg-white/5 p-5 rounded-xl">
               <InfoItem label="Status" value={info?.Status} />
+              <InfoItem label="Duration" value={info?.Duration} />
+              <InfoItem label="Aired" value={info?.Aired} />
               <InfoItem label="MAL Score" value={info?.["MAL Score"]} />
             </div>
           </div>
@@ -203,25 +250,21 @@ function AnimeInfo({ random = false }) {
       {seasons.length > 0 && (
         <div className="container mx-auto py-10">
           <h2 className="text-2xl font-bold mb-6">More Seasons</h2>
-
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {seasons.map((season) => (
               <Link
                 to={`/${season.id}`}
                 key={season.id}
                 className={`relative aspect-[3/1] rounded-lg overflow-hidden group
-                ${
-                  currentId === String(season.id)
-                    ? "ring-2 ring-purple-500 shadow-purple-500/30"
-                    : ""
-                }`}
+                ${currentId === String(season.id)
+                    ? "ring-2 ring-purple-500"
+                    : ""}`}
               >
                 <img
                   src={season.season_poster}
                   alt={season.season}
                   className="w-full h-full object-cover opacity-40 scale-150"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
                 <p className="absolute inset-0 flex items-center justify-center text-lg font-bold">
                   {season.season}
                 </p>
@@ -244,7 +287,6 @@ function AnimeInfo({ random = false }) {
           <CategoryCard
             label="Recommended for you"
             data={animeInfo.recommended_data}
-            limit={animeInfo.recommended_data.length}
             showViewMore={false}
           />
         </div>
