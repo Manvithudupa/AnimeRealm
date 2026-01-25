@@ -44,12 +44,12 @@ export const Profile = () => {
     avatar_url: "",
   });
 
-  /* ---------- Redirect if not logged in ---------- */
+  /* Redirect if not logged in */
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
   }, [user, authLoading]);
 
-  /* ---------- Load profile ---------- */
+  /* Load profile */
   useEffect(() => {
     if (user) loadProfile();
   }, [user]);
@@ -71,11 +71,11 @@ export const Profile = () => {
         });
       }
     } catch (error) {
-      console.error("Error loading profile:", error);
+      console.error(error);
     }
   };
 
-  /* ---------- Avatar Generator ---------- */
+  /* Generate avatar */
   const generateRandomAvatar = async () => {
     setGenerating(true);
 
@@ -100,27 +100,23 @@ export const Profile = () => {
       });
 
       const result = await response.json();
-
       const characters = result.data.Page.characters;
 
-      const randomCharacter =
+      const random =
         characters[Math.floor(Math.random() * characters.length)];
 
-      setProfile((prev) => ({
-        ...prev,
-        avatar_url: randomCharacter.image.large,
+      setProfile((p) => ({
+        ...p,
+        avatar_url: random.image.large,
       }));
 
       toast({
         title: "Avatar Updated",
-        description: "New anime avatar applied 💜",
       });
-    } catch (error) {
-      console.error(error);
-
+    } catch {
       toast({
         title: "Error",
-        description: "Failed to generate avatar",
+        description: "Avatar generation failed",
         variant: "destructive",
       });
     } finally {
@@ -128,7 +124,7 @@ export const Profile = () => {
     }
   };
 
-  /* ---------- Save Profile ---------- */
+  /* Save */
   const updateProfile = async (e) => {
     e.preventDefault();
 
@@ -138,11 +134,10 @@ export const Profile = () => {
 
     if (profile.username.length > 25 || profile.bio.length > 200) {
       toast({
-        title: "Limit Exceeded",
-        description: "Username ≤ 25, Bio ≤ 200 characters",
+        title: "Limit exceeded",
+        description: "Username ≤25, Bio ≤200",
         variant: "destructive",
       });
-
       setLoading(false);
       return;
     }
@@ -162,8 +157,8 @@ export const Profile = () => {
       if (error) throw error;
 
       toast({
-        title: "Profile Saved",
-        description: "Your changes were saved successfully ✨",
+        title: "Saved",
+        description: "Profile updated",
       });
     } catch (error) {
       toast({
@@ -176,11 +171,10 @@ export const Profile = () => {
     }
   };
 
-  /* ---------- Loading Screen ---------- */
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-white/60" />
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-white/70" />
       </div>
     );
   }
@@ -189,26 +183,19 @@ export const Profile = () => {
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       <Navbar />
 
-      {/* Main */}
-      <main className="flex justify-center px-3 sm:px-6 pt-20 sm:pt-24 pb-12">
+      <main className="flex justify-center px-4 pt-20 pb-10">
 
-        <Card
-          className="w-full max-w-md sm:max-w-xl
-          bg-white/5 backdrop-blur-xl
-          border border-white/10
-          shadow-2xl shadow-purple-900/20
-          rounded-2xl sm:rounded-3xl
-          transition"
-        >
+        <Card className="w-full max-w-lg bg-[#111] border border-white/15 shadow-xl rounded-xl">
+
           {/* Header */}
-          <CardHeader className="text-center pb-3">
+          <CardHeader className="pb-3 text-center">
 
-            <CardTitle className="text-2xl sm:text-3xl font-semibold">
-              Profile Settings
+            <CardTitle className="text-xl font-semibold text-white">
+              Profile
             </CardTitle>
 
-            <CardDescription className="text-white/40">
-              Customize your anime identity
+            <CardDescription className="text-white/60 text-sm">
+              Edit your profile
             </CardDescription>
 
           </CardHeader>
@@ -218,79 +205,68 @@ export const Profile = () => {
 
             <form
               onSubmit={updateProfile}
-              className="space-y-6 sm:space-y-8"
+              className="space-y-5"
             >
               {/* Avatar */}
-              <div className="flex flex-col items-center gap-4">
+              <div className="flex flex-col items-center gap-3">
 
-                <Avatar
-                  className="h-24 w-24 sm:h-32 sm:w-32
-                  rounded-xl sm:rounded-2xl
-                  border border-white/10
-                  shadow-lg shadow-black/40"
-                >
+                <Avatar className="h-24 w-24 border border-white/15">
+
                   <AvatarImage
                     src={profile.avatar_url || "/default-avatar.png"}
                     className="object-cover"
                   />
 
-                  <AvatarFallback className="bg-black/40 flex items-center justify-center">
-                    <User className="h-12 w-12 sm:h-16 sm:w-16 text-white/40" />
+                  <AvatarFallback className="bg-black/50">
+                    <User className="h-10 w-10 text-white/60" />
                   </AvatarFallback>
+
                 </Avatar>
 
                 <Button
                   type="button"
+                  size="sm"
                   variant="outline"
                   onClick={generateRandomAvatar}
                   disabled={generating}
-                  className="bg-black/30 text-white border-white/10
-                  hover:bg-black/50 transition"
+                  className="border-white/15 text-white/80 hover:bg-white/10"
                 >
-                  {generating ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Generate Avatar
-                    </>
-                  )}
+                  {generating ? "Generating..." : "Random Avatar"}
                 </Button>
 
               </div>
 
               {/* Username */}
-              <div className="space-y-2">
+              <div className="space-y-1">
 
-                <Label>Username</Label>
+                <Label className="text-sm text-white/80">
+                  Username
+                </Label>
 
                 <Input
                   value={profile.username}
                   maxLength={25}
-                  placeholder="Your username"
                   onChange={(e) =>
                     setProfile({
                       ...profile,
-                      username: e.target.value.slice(0, 25),
+                      username: e.target.value,
                     })
                   }
-                  className="bg-black/30 border-white/10 text-white
-                  placeholder:text-white/30"
+                  className="bg-black border-white/15 text-white"
                 />
 
-                <div className="text-right text-xs text-white/40">
+                <div className="text-right text-xs text-white/50">
                   {profile.username.length}/25
                 </div>
 
               </div>
 
               {/* Gender */}
-              <div className="space-y-2">
+              <div className="space-y-1">
 
-                <Label>Gender</Label>
+                <Label className="text-sm text-white/80">
+                  Gender
+                </Label>
 
                 <Select
                   value={profile.gender}
@@ -298,77 +274,65 @@ export const Profile = () => {
                     setProfile({ ...profile, gender: value })
                   }
                 >
-                  <SelectTrigger
-                    className="bg-black/30 border-white/10 text-white"
-                  >
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
+                  <SelectTrigger className="bg-black border-white/15 text-white" />
 
-                  <SelectContent className="bg-[#111] border-white/10 text-white">
+                  <SelectContent className="bg-[#111] border-white/15 text-white">
                     <SelectItem value="male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="non-binary">Non-binary</SelectItem>
+                    <SelectItem value="non-binary">
+                      Non-binary
+                    </SelectItem>
                     <SelectItem value="prefer-not-to-say">
                       Prefer not to say
                     </SelectItem>
                   </SelectContent>
+
                 </Select>
 
               </div>
 
               {/* Bio */}
-              <div className="space-y-2">
+              <div className="space-y-1">
 
-                <Label>Bio</Label>
+                <Label className="text-sm text-white/80">
+                  Bio
+                </Label>
 
                 <Textarea
-                  value={profile.bio}
-                  rows={4}
+                  rows={3}
                   maxLength={200}
-                  placeholder="Write something cool..."
+                  value={profile.bio}
                   onChange={(e) =>
                     setProfile({
                       ...profile,
-                      bio: e.target.value.slice(0, 200),
+                      bio: e.target.value,
                     })
                   }
-                  className="bg-black/30 border-white/10 text-white
-                  placeholder:text-white/30"
+                  className="bg-black border-white/15 text-white"
                 />
 
-                <div className="text-right text-xs text-white/40">
+                <div className="text-right text-xs text-white/50">
                   {profile.bio.length}/200
                 </div>
 
               </div>
 
-              {/* Save Button */}
+              {/* Save */}
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-10 sm:h-11
-                font-semibold text-white
-                bg-gradient-to-r from-purple-600 to-purple-500
-                hover:from-purple-500 hover:to-purple-400
-                shadow-lg shadow-purple-600/30
-                transition-all duration-200
-                active:scale-95"
+                className="w-full h-10
+                bg-purple-600 hover:bg-purple-500
+                text-white font-semibold
+                transition active:scale-95"
               >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save Profile"
-                )}
+                {loading ? "Saving..." : "Save Profile"}
               </Button>
 
             </form>
 
           </CardContent>
         </Card>
-
       </main>
     </div>
   );
