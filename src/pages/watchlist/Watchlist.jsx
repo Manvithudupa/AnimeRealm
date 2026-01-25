@@ -7,32 +7,40 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 function Watchlist() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   const [watchlist, setWatchlist] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  /* ---------- Auth Guard ---------- */
   useEffect(() => {
-    if (!user) {
+    if (!authLoading && !user) {
       navigate("/auth");
-      return;
     }
+  }, [authLoading, user, navigate]);
+
+  /* ---------- Fetch Watchlist ---------- */
+  useEffect(() => {
+    if (!user) return;
 
     const fetchWatchlist = async () => {
-      const { data } = await supabase
+      setLoading(true);
+
+      const { data, error } = await supabase
         .from("watchlists")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
-      setWatchlist(data || []);
+      if (!error) setWatchlist(data || []);
       setLoading(false);
     };
 
     fetchWatchlist();
-  }, [user, navigate]);
+  }, [user]);
 
+  /* ---------- Remove ---------- */
   const removeFromWatchlist = async (animeId) => {
     await supabase
       .from("watchlists")
@@ -45,12 +53,13 @@ function Watchlist() {
     );
   };
 
-  if (loading) return <Loader />;
+  if (loading || authLoading) return <Loader />;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white mt-[74px]">
-      <div className="container mx-auto py-10">
-        <h1 className="text-3xl font-bold mb-8">Your Watchlist</h1>
+    <div className="min-h-screen bg-[#0b0b0b] text-white mt-[74px]">
+      <div className="container mx-auto px-4 py-10">
+
+        <h1 className="text-3xl font-bold mb-8">My Watchlist</h1>
 
         {watchlist.length === 0 ? (
           <p className="text-white/60">Your watchlist is empty.</p>
@@ -59,27 +68,34 @@ function Watchlist() {
             {watchlist.map((anime) => (
               <div
                 key={anime.id}
-                className="group relative rounded-xl overflow-hidden bg-black/40"
+                className="relative rounded-xl overflow-hidden bg-black/50 hover:ring-2 hover:ring-purple-600 transition"
               >
-                <Link to={`/${anime.anime_id}`}>
+                {/* ✅ CORRECT LINK */}
+                <Link to={`/${anime.anime_id}`} className="block">
                   <img
                     src={anime.anime_poster}
                     alt={anime.anime_title}
-                    className="aspect-[2/3] object-cover w-full group-hover:scale-105 transition"
+                    className="aspect-[2/3] w-full object-cover"
                   />
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+
+                  <div className="absolute bottom-0 p-3">
+                    <p className="text-sm font-semibold line-clamp-2">
+                      {anime.anime_title}
+                    </p>
+                  </div>
                 </Link>
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition" />
-
-                <div className="absolute bottom-0 p-3">
-                  <p className="text-sm font-semibold line-clamp-2">
-                    {anime.anime_title}
-                  </p>
-                </div>
-
+                {/* Remove button */}
                 <button
-                  onClick={() => removeFromWatchlist(anime.anime_id)}
-                  className="absolute top-2 right-2 p-2 rounded-full bg-black/70 hover:bg-red-600 transition"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeFromWatchlist(anime.anime_id);
+                  }}
+                  className="absolute top-2 right-2 p-2 rounded-full
+                             bg-black/70 hover:bg-red-600 transition"
                 >
                   <FontAwesomeIcon icon={faTrash} size="sm" />
                 </button>
