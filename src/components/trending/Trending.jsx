@@ -50,13 +50,32 @@ const Trending = ({ trending }) => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
                   {/* BIG Rank Number */}
-                  <div className="absolute top-3 left-3 text-[#ffffff] text-[48px] font-extrabold leading-none drop-shadow-lg">
+                  <div
+                    className="
+                      absolute top-2 left-2
+                      text-white font-extrabold leading-none
+                      opacity-70
+                      drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]
+                      text-[28px]
+                      sm:text-[36px]
+                      md:text-[44px]
+                      lg:text-[48px]
+                    "
+                  >
                     {item.number}
                   </div>
 
                   {/* Title */}
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <p className="text-white text-sm font-medium truncate">
+                  <div className="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3">
+                    <p
+                      className="
+                        text-white font-medium
+                        truncate
+                        text-[12px]
+                        sm:text-sm
+                        md:text-[15px]
+                      "
+                    >
                       {language === "EN"
                         ? item.title
                         : item.japanese_title}
@@ -69,10 +88,11 @@ const Trending = ({ trending }) => {
 
         {/* Navigation buttons */}
         <div className="absolute top-0 right-0 bottom-0 w-[45px] flex flex-col space-y-2 max-[759px]:hidden">
-          <div className="btn-next bg-[#383747] h-[50%] flex justify-center items-center rounded-[8px] cursor-pointer transition-all duration-300 ease-out hover:bg-[#ffbade] hover:text-[#383747]">
+          <div className="btn-next bg-[#383747] h-[50%] flex justify-center items-center rounded-[8px] cursor-pointer transition-all duration-300 ease-out hover:bg-purple-400 hover:text-[#383747]">
             <FaChevronRight />
           </div>
-          <div className="btn-prev bg-[#383747] h-[50%] flex justify-center items-center rounded-[8px] cursor-pointer transition-all duration-300 ease-out hover:bg-[#ffbade] hover:text-[#383747]">
+
+          <div className="btn-prev bg-[#383747] h-[50%] flex justify-center items-center rounded-[8px] cursor-pointer transition-all duration-300 ease-out hover:bg-purple-400 hover:text-[#383747]">
             <FaChevronLeft />
           </div>
         </div>
