@@ -4,17 +4,6 @@ import { Link } from "react-router-dom";
 function Footer() {
   return (
     <footer className="w-full mt-16">
-      {/* Logo Section */}
-      <div className="max-w-[1920px] mx-auto px-4">
-        <div className="flex justify-center sm:justify-start items-center gap-6">
-          <img
-            src="/footer.png"
-            alt={logoTitle}
-            className="h-[100px] w-[200px] object-contain"
-          />
-        </div>
-      </div>
-
       <div className="bg-[#0a0a0a] border-t border-white/5">
         <div className="max-w-[1920px] mx-auto px-4 py-6">
           {/* A-Z List Section */}
