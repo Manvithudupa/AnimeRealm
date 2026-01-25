@@ -10,7 +10,7 @@
   background: #0b0b12;
   color: #e6e6ff;
 
-  /* 🔥 Layout control */
+  /* Page layout */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -22,9 +22,13 @@
   margin: 0 auto;
   padding: 32px 24px;
 
-  /* 🔥 Push footer down */
+  /* Center content vertically */
   flex: 1;
   width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 /* ================== NAVBAR ================== */
@@ -32,6 +36,7 @@
   display: flex;
   justify-content: center;
   position: relative;
+  margin-bottom: 20px;
 }
 
 .nav-links {
@@ -42,8 +47,8 @@
 
 .nav-links a {
   color: #c7c7ff;
-  transition: color 0.2s ease;
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .nav-links a:hover {
@@ -96,15 +101,18 @@
 
 /* ================== SPLASH ================== */
 .splashscreen {
-  margin-top: 24px;
+  margin: 0 auto;
+  width: 100%;
+
   border-radius: 32px;
   overflow: hidden;
   display: flex;
+
   background: linear-gradient(135deg, #141422, #0b0b12);
 
-  /* 🔥 Auto-fit */
-  min-height: 70vh;
-  max-height: 85vh;
+  /* Auto height */
+  min-height: 65vh;
+  max-height: 80vh;
 
   position: relative;
 }
@@ -253,9 +261,14 @@
 
 /* ================== MOBILE ================== */
 @media (max-width: 780px) {
+  .splash-wrapper {
+    justify-content: flex-start;
+  }
+
   .splashscreen {
     min-height: auto;
     max-height: none;
+    flex-direction: column;
   }
 
   .splash-content {
