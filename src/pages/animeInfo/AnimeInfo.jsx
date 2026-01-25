@@ -21,10 +21,11 @@ import { useAuth } from "@/src/hooks/useAuth";
 /* ---------------- Info Row ---------------- */
 function InfoItem({ label, value }) {
   if (!value) return null;
+
   return (
-    <div className="text-[12px] sm:text-[14px]">
+    <div className="text-[11px] sm:text-[14px]">
       <span className="text-white/50">{label}: </span>
-      <span className="text-white/90">
+      <span className="text-white/90 hover:text-white transition">
         {Array.isArray(value) ? value.join(", ") : value}
       </span>
     </div>
@@ -34,8 +35,11 @@ function InfoItem({ label, value }) {
 /* ---------------- Tags ---------------- */
 function Tag({ icon, text }) {
   return (
-    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-black/60 text-white text-[11px] font-semibold">
-      {icon && <FontAwesomeIcon icon={icon} />}
+    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5
+      rounded-md bg-black/60 backdrop-blur-md
+      text-white text-[11px] sm:text-[13px]
+      font-semibold hover:bg-black/80 transition">
+      {icon && <FontAwesomeIcon icon={icon} className="text-[11px]" />}
       <span>{text}</span>
     </div>
   );
@@ -45,8 +49,8 @@ function AnimeInfo({ random = false }) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { id: paramId } = useParams();
-  const navigate = useNavigate();
   const id = random ? null : paramId;
+  const navigate = useNavigate();
 
   const [animeInfo, setAnimeInfo] = useState(null);
   const [seasons, setSeasons] = useState([]);
@@ -56,7 +60,9 @@ function AnimeInfo({ random = false }) {
   const [inWatchlist, setInWatchlist] = useState(false);
   const [watchlistLoading, setWatchlistLoading] = useState(false);
 
-  /* ---------- Fetch anime ---------- */
+  const { id: currentId } = useParams();
+
+  /* ---------- Fetch Anime ---------- */
   useEffect(() => {
     const fetchAnime = async () => {
       setLoading(true);
@@ -72,10 +78,20 @@ function AnimeInfo({ random = false }) {
     };
 
     fetchAnime();
-    window.scrollTo({ top: 0 });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [id, random]);
 
-  /* ---------- Check watchlist ---------- */
+  /* ---------- Page Title ---------- */
+  useEffect(() => {
+    if (animeInfo) {
+      document.title = `Watch ${animeInfo.title} on ${website_name}`;
+    }
+    return () => {
+      document.title = `${website_name} | Free anime streaming`;
+    };
+  }, [animeInfo]);
+
+  /* ---------- Check Watchlist ---------- */
   useEffect(() => {
     if (!user || !animeInfo) return;
 
@@ -90,7 +106,7 @@ function AnimeInfo({ random = false }) {
       });
   }, [user, animeInfo]);
 
-  /* ---------- Add / Remove ---------- */
+  /* ---------- Toggle Watchlist ---------- */
   const toggleWatchlist = async () => {
     if (!user) {
       navigate("/auth");
@@ -131,29 +147,31 @@ function AnimeInfo({ random = false }) {
   const { title, japanese_title, poster, animeInfo: info } = animeInfo;
 
   const tags = [
-    info?.tvInfo?.rating,
-    info?.tvInfo?.quality,
-    info?.tvInfo?.sub && { icon: faClosedCaptioning, text: info.tvInfo.sub },
-    info?.tvInfo?.dub && { icon: faMicrophone, text: info.tvInfo.dub },
+    info.tvInfo?.rating,
+    info.tvInfo?.quality,
+    info.tvInfo?.sub && { icon: faClosedCaptioning, text: info.tvInfo.sub },
+    info.tvInfo?.dub && { icon: faMicrophone, text: info.tvInfo.dub },
   ].filter(Boolean);
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white mt-[74px]">
-      <div className="container mx-auto py-10">
+      <div className="container mx-auto py-10 animate-fadeIn">
         <div className="flex flex-col md:flex-row gap-8">
 
           {/* Poster */}
-          <div className="w-[220px] shrink-0">
-            <img
-              src={poster}
-              alt={title}
-              className="rounded-2xl shadow-lg"
-            />
+          <div className="group w-[220px] shrink-0">
+            <div className="relative aspect-[2/3] rounded-2xl overflow-hidden shadow-lg">
+              <img
+                src={poster}
+                alt={title}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+            </div>
           </div>
 
           {/* Info */}
           <div className="flex-1 space-y-5">
-            <h1 className="text-3xl font-bold">
+            <h1 className="text-3xl lg:text-4xl font-bold truncate">
               {language === "EN" ? title : japanese_title}
             </h1>
 
@@ -168,16 +186,16 @@ function AnimeInfo({ random = false }) {
               )}
             </div>
 
-            {/* Synopsis */}
+            {/* Overview */}
             {info?.Overview && (
-              <p className="text-gray-300 leading-relaxed max-w-2xl">
+              <p className="text-gray-300 leading-[1.65] tracking-[0.01em] max-w-2xl">
                 {info.Overview.length > 270 && !isFull
                   ? `${info.Overview.slice(0, 270)}...`
                   : info.Overview}
                 {info.Overview.length > 270 && (
                   <button
                     onClick={() => setIsFull(!isFull)}
-                    className="ml-2 text-purple-400 hover:underline"
+                    className="ml-2 text-white/70 hover:text-white"
                   >
                     {isFull ? "Show Less" : "Read More"}
                   </button>
@@ -185,25 +203,30 @@ function AnimeInfo({ random = false }) {
               </p>
             )}
 
-            {/* Buttons BELOW synopsis */}
-            <div className="flex gap-4 pt-2">
-              <Link
-                to={`/watch/${animeInfo.id}`}
-                className="px-6 py-2.5 bg-purple-600 rounded-xl font-semibold hover:bg-purple-500 transition"
-              >
-                <FontAwesomeIcon icon={faPlay} /> Watch Now
-              </Link>
+            {/* ✅ WATCHLIST + WATCH (ADDED HERE) */}
+            <div className="flex flex-wrap gap-4">
+              {info?.Status?.toLowerCase() !== "not-yet-aired" && (
+                <Link
+                  to={`/watch/${animeInfo.id}`}
+                  className="inline-flex items-center px-6 py-2.5
+                  bg-gradient-to-r from-purple-600 to-purple-500
+                  hover:from-purple-500 hover:to-purple-400
+                  rounded-xl font-semibold shadow-lg"
+                >
+                  <FontAwesomeIcon icon={faPlay} className="mr-2 text-sm" />
+                  Watch Now
+                </Link>
+              )}
 
               <button
                 onClick={toggleWatchlist}
                 disabled={watchlistLoading}
-                className={`px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2
+                className={`inline-flex items-center px-5 py-2.5 rounded-xl font-semibold gap-2
                   ${
                     inWatchlist
                       ? "bg-green-600 hover:bg-green-500"
                       : "bg-white/10 hover:bg-white/20"
-                  }
-                `}
+                  }`}
               >
                 <FontAwesomeIcon icon={inWatchlist ? faCheck : faBookmark} />
                 {inWatchlist ? "In Watchlist" : "Add to Watchlist"}
@@ -211,15 +234,48 @@ function AnimeInfo({ random = false }) {
             </div>
 
             {/* Details */}
-            <div className="grid grid-cols-2 gap-3 bg-white/5 p-5 rounded-xl">
-              <InfoItem label="Status" value={info?.Status} />
-              <InfoItem label="Duration" value={info?.Duration} />
+            <div className="grid grid-cols-2 gap-3 bg-white/5 backdrop-blur-md p-5 rounded-xl">
+              <InfoItem label="Japanese" value={info?.Japanese} />
+              <InfoItem label="Synonyms" value={info?.Synonyms} />
               <InfoItem label="Aired" value={info?.Aired} />
-              <InfoItem label="Score" value={info?.["MAL Score"]} />
+              <InfoItem label="Premiered" value={info?.Premiered} />
+              <InfoItem label="Duration" value={info?.Duration} />
+              <InfoItem label="Status" value={info?.Status} />
+              <InfoItem label="MAL Score" value={info?.["MAL Score"]} />
             </div>
           </div>
         </div>
       </div>
+
+      {/* Seasons */}
+      {seasons.length > 0 && (
+        <div className="container mx-auto py-10">
+          <h2 className="text-2xl font-bold mb-6">More Seasons</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {seasons.map((season) => (
+              <Link
+                to={`/${season.id}`}
+                key={season.id}
+                className={`relative aspect-[3/1] rounded-lg overflow-hidden group
+                ${currentId === String(season.id) ? "ring-2 ring-purple-500" : ""}`}
+              >
+                <img
+                  src={season.season_poster}
+                  alt={season.season}
+                  className="w-full h-full object-cover opacity-40 scale-150"
+                />
+                <p className="absolute inset-0 flex items-center justify-center text-lg font-bold">
+                  {season.season}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {animeInfo?.charactersVoiceActors?.length > 0 && (
+        <Voiceactor animeInfo={animeInfo} />
+      )}
 
       {animeInfo?.recommended_data?.length > 0 && (
         <CategoryCard
@@ -227,10 +283,6 @@ function AnimeInfo({ random = false }) {
           data={animeInfo.recommended_data}
           showViewMore={false}
         />
-      )}
-
-      {animeInfo?.charactersVoiceActors?.length > 0 && (
-        <Voiceactor animeInfo={animeInfo} />
       )}
     </div>
   );
