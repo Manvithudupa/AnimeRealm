@@ -6,8 +6,7 @@ import {
   faMagnifyingGlass,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import { useLanguage } from "../../context/LanguageContext";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Sidebar from "../sidebar/Sidebar";
 import { SearchProvider } from "../../context/SearchContext";
 import WebSearch from "../searchbar/WebSearch";
@@ -19,9 +18,7 @@ import { User, LogOut, Bookmark } from "lucide-react";
 import { Button } from "../ui/button";
 
 function Navbar() {
-  const location = useLocation();
   const navigate = useNavigate();
-  const { language, toggleLanguage } = useLanguage();
   const { user, profile, signOut } = useAuth();
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -31,7 +28,7 @@ function Navbar() {
 
   const dropdownRef = useRef(null);
 
-  /* 🔒 CLOSE DROPDOWN ON AUTH CHANGE */
+  /* 🔒 Close dropdown on auth change */
   useEffect(() => {
     setIsDropdownOpen(false);
   }, [user]);
@@ -97,15 +94,19 @@ function Navbar() {
                 <button
                   onClick={() => setIsDropdownOpen((v) => !v)}
                   className="
-                    h-10 w-10 rounded-full
+                    h-10 w-10
+                    rounded-md
                     ring-1 ring-white/10
                     hover:ring-purple-500
                     transition
                   "
                 >
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={profile?.avatar_url || undefined} />
-                    <AvatarFallback className="bg-[#2a2a2a]">
+                  <Avatar className="h-10 w-10 rounded-md">
+                    <AvatarImage
+                      src={profile?.avatar_url || undefined}
+                      className="rounded-md object-cover"
+                    />
+                    <AvatarFallback className="bg-[#2a2a2a] rounded-md flex items-center justify-center">
                       <User className="h-5 w-5 text-white/70" />
                     </AvatarFallback>
                   </Avatar>
