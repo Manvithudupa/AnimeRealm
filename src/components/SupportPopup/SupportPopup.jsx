@@ -10,7 +10,7 @@ function SupportPopup() {
     if (!seen) {
       setTimeout(() => {
         setShow(true);
-      }, 2000); // show after 2 sec
+      }, 2000); // Show after 2 seconds
     }
   }, []);
 
@@ -26,7 +26,7 @@ function SupportPopup() {
 
       <div className="bg-[#111] text-white rounded-xl max-w-md w-full p-6 shadow-2xl relative">
 
-        {/* Close */}
+        {/* Close Button */}
         <button
           onClick={closePopup}
           className="absolute top-3 right-3 text-gray-400 hover:text-white text-xl"
@@ -39,15 +39,15 @@ function SupportPopup() {
           💙 Support {website_name}
         </h2>
 
-        {/* Text */}
+        {/* Message */}
         <p className="text-gray-300 text-center mb-4">
           We’re growing and need your support!
         </p>
 
         <div className="space-y-2 text-sm text-gray-200 text-center">
-          <p>✅ Join our Discord</p>
-          <p>✅ Share this site with friends</p>
-          <p>✅ Help us grow together 🚀</p>
+          <p>✅ Join our Discord Community</p>
+          <p>✅ Recommend us to friends</p>
+          <p>✅ Help us grow 🚀</p>
         </div>
 
         {/* Buttons */}
@@ -74,7 +74,7 @@ function SupportPopup() {
             Copy Site Link 🔗
           </button>
 
-          {/* Later */}
+          {/* Close */}
           <button
             onClick={closePopup}
             className="text-gray-400 hover:text-white text-sm"
