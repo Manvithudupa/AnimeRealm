@@ -46,12 +46,12 @@ function SupportPopup() {
 
         {/* Message */}
         <p className="text-gray-300 text-center mb-4">
-          We’re growing and need your support!
+          We’re growing and need more users and your Support!
         </p>
 
         <div className="space-y-2 text-sm text-gray-200 text-center">
           <p>✅ Join our Discord Community</p>
-          <p>✅ Share with friends</p>
+          <p>✅ Recommend the site to your friends</p>
           <p>✅ Help us grow 🚀</p>
         </div>
 
@@ -60,7 +60,7 @@ function SupportPopup() {
 
           {/* Discord */}
           <a
-            href="https://discord.gg/YOUR_DISCORD_LINK"
+            href="https://discord.gg/be774snHsP"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full text-center bg-indigo-600 hover:bg-indigo-700 transition rounded-lg py-2 font-semibold"
