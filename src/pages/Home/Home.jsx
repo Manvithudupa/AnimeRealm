@@ -11,6 +11,9 @@ import { useHomeInfo } from "@/src/context/HomeInfoContext.jsx";
 import Schedule from "@/src/components/schedule/Schedule";
 import ContinueWatching from "@/src/components/continue/ContinueWatching";
 
+// 👉 Import Popup
+import SupportPopup from "@/src/components/SupportPopup/SupportPopup.jsx";
+
 function Home() {
   const { homeInfo, homeInfoLoading, error } = useHomeInfo();
 
@@ -19,65 +22,71 @@ function Home() {
   if (!homeInfo) return <Error error="404" />;
 
   return (
-    <div className="w-full px-4 max-[1200px]:px-0 text-white pt-16">
-      {/* pt-16 ensures content starts below the navbar */}
+    <>
+      {/* Support Popup */}
+      <SupportPopup />
 
-      {/* Spotlight */}
-      <div id="spotlight" className="mt-4">
-        <Spotlight spotlights={homeInfo.spotlights} />
-      </div>
+      <div className="w-full px-4 max-[1200px]:px-0 text-white pt-16">
 
-      {/* Genres */}
-      <div className="mt-6">
-        <Genre data={homeInfo.genres} />
-      </div>
-
-      {/* Continue Watching */}
-      <div className="mt-6">
-        <ContinueWatching />
-      </div>
-
-      {/* Trending */}
-      <div className="mt-6">
-        <Trending trending={homeInfo.trending} />
-      </div>
-
-      {/* Top Airing / Most Popular / Most Favorite / Latest Completed */}
-      <div className="mt-10 flex gap-6 max-[1200px]:px-4 max-[1200px]:grid max-[1200px]:grid-cols-2 max-[1200px]:mt-12 max-[1200px]:gap-y-10 max-[680px]:grid-cols-1">
-        <Cart label="Top Airing" data={homeInfo.top_airing} path="top-airing" />
-        <Cart label="Most Popular" data={homeInfo.most_popular} path="most-popular" />
-        <Cart label="Most Favorite" data={homeInfo.most_favorite} path="most-favorite" />
-        <Cart label="Latest Completed" data={homeInfo.latest_completed} path="completed" />
-      </div>
-
-      {/* Main Content + Sidebar */}
-      <div className="w-full grid grid-cols-[minmax(0,75%),minmax(0,25%)] gap-x-6 max-[1200px]:flex flex-col max-[1200px]:px-4 mt-10">
-        <div>
-          <CategoryCard
-            label="Latest Episode"
-            data={homeInfo.latest_episode}
-            className="mt-[60px]"
-            path="recently-updated"
-            limit={12}
-          />
-
-          <Schedule />
-
-          <CategoryCard
-            label="Top Upcoming"
-            data={homeInfo.top_upcoming}
-            className="mt-[30px]"
-            path="top-upcoming"
-            limit={12}
-          />
+        {/* Spotlight */}
+        <div id="spotlight" className="mt-4">
+          <Spotlight spotlights={homeInfo.spotlights} />
         </div>
 
-        {/* Right Sidebar */}
-        <div className="w-full mt-[60px] space-y-6">
-          <Topten data={homeInfo.topten} className="mt-12" />
+        {/* Genres */}
+        <div className="mt-6">
+          <Genre data={homeInfo.genres} />
+        </div>
+
+        {/* Continue Watching */}
+        <div className="mt-6">
+          <ContinueWatching />
+        </div>
+
+        {/* Trending */}
+        <div className="mt-6">
+          <Trending trending={homeInfo.trending} />
+        </div>
+
+        {/* Top Section */}
+        <div className="mt-10 flex gap-6 max-[1200px]:px-4 max-[1200px]:grid max-[1200px]:grid-cols-2 max-[1200px]:mt-12 max-[1200px]:gap-y-10 max-[680px]:grid-cols-1">
+          <Cart label="Top Airing" data={homeInfo.top_airing} path="top-airing" />
+          <Cart label="Most Popular" data={homeInfo.most_popular} path="most-popular" />
+          <Cart label="Most Favorite" data={homeInfo.most_favorite} path="most-favorite" />
+          <Cart label="Latest Completed" data={homeInfo.latest_completed} path="completed" />
+        </div>
+
+        {/* Main + Sidebar */}
+        <div className="w-full grid grid-cols-[minmax(0,75%),minmax(0,25%)] gap-x-6 max-[1200px]:flex flex-col max-[1200px]:px-4 mt-10">
+
+          <div>
+            <CategoryCard
+              label="Latest Episode"
+              data={homeInfo.latest_episode}
+              className="mt-[60px]"
+              path="recently-updated"
+              limit={12}
+            />
+
+            <Schedule />
+
+            <CategoryCard
+              label="Top Upcoming"
+              data={homeInfo.top_upcoming}
+              className="mt-[30px]"
+              path="top-upcoming"
+              limit={12}
+            />
+          </div>
+
+          {/* Sidebar */}
+          <div className="w-full mt-[60px] space-y-6">
+            <Topten data={homeInfo.topten} className="mt-12" />
+          </div>
+
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
