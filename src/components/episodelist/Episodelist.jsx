@@ -32,6 +32,7 @@ function Episodelist({
   // ✅ default to "list" view
   const [viewMode, setViewMode] = useState("list");
 
+  // --- FUNCTIONS ---
   const scrollToActiveEpisode = () => {
     if (activeEpisodeRef.current && listContainerRef.current) {
       const container = listContainerRef.current;
@@ -49,18 +50,23 @@ function Episodelist({
     }
   };
 
-  useEffect(() => setActiveEpisodeId(episodeNum), [episodeNum]);
-  useEffect(() => scrollToActiveEpisode(), [activeEpisodeId]);
+  function findRangeForEpisode(episodeNumber) {
+    const step = 100;
+    const start = Math.floor((episodeNumber - 1) / step) * step + 1;
+    const end = Math.min(start + step - 1, totalEpisodes);
+    return [start, end];
+  }
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropDownRef.current && !dropDownRef.current.contains(event.target)) {
-        setShowDropDown(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  function generateRangeOptions(totalEpisodes) {
+    const ranges = [];
+    const step = 100;
+    for (let i = 0; i < totalEpisodes; i += step) {
+      const start = i + 1;
+      const end = Math.min(i + step, totalEpisodes);
+      ranges.push(`${start}-${end}`);
+    }
+    return ranges;
+  }
 
   function handleChange(e) {
     const value = e.target.value.trim();
@@ -84,27 +90,42 @@ function Episodelist({
       setSelectedRange(newRange);
       setActiveRange(`${newRange[0]}-${newRange[1]}`);
       setSearchedEpisode(foundEpisode?.id);
+      setActiveEpisodeId(foundEpisode?.id.match(/ep=(\d+)/)?.[1]);
     }
   }
 
-  function findRangeForEpisode(episodeNumber) {
-    const step = 100;
-    const start = Math.floor((episodeNumber - 1) / step) * step + 1;
-    const end = Math.min(start + step - 1, totalEpisodes);
-    return [start, end];
-  }
+  // --- INITIALIZE RANGE BASED ON CURRENT EPISODE ---
+  useEffect(() => {
+    if (!episodes || episodes.length === 0) return;
 
-  function generateRangeOptions(totalEpisodes) {
-    const ranges = [];
-    const step = 100;
-    for (let i = 0; i < totalEpisodes; i += step) {
-      const start = i + 1;
-      const end = Math.min(i + step, totalEpisodes);
-      ranges.push(`${start}-${end}`);
-    }
-    return ranges;
-  }
+    const episodeNumber = parseInt(currentEpisode, 10);
+    if (!episodeNumber) return;
 
+    const range = findRangeForEpisode(episodeNumber);
+    setSelectedRange(range);
+    setActiveRange(`${range[0]}-${range[1]}`);
+    setActiveEpisodeId(currentEpisode);
+    setEpisodeNum(episodeNumber);
+  }, [currentEpisode, episodes]);
+
+  // --- SCROLL TO ACTIVE EPISODE WHEN RANGE OR ACTIVE EP CHANGES ---
+  useEffect(() => {
+    const timer = setTimeout(scrollToActiveEpisode, 50);
+    return () => clearTimeout(timer);
+  }, [selectedRange, activeEpisodeId]);
+
+  // --- CLOSE DROPDOWN WHEN CLICKING OUTSIDE ---
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropDownRef.current && !dropDownRef.current.contains(event.target)) {
+        setShowDropDown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Update episodeNum when activeEpisodeId changes
   useEffect(() => {
     const activeEpisode = episodes.find(
       (item) => item?.id.match(/ep=(\d+)/)?.[1] === activeEpisodeId
