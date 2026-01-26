@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import website_name from "@/src/config/website.js";
 
+const ONE_WEEK = 7 * 24 * 60 * 60 * 1000; // 7 days in ms
+
 function SupportPopup() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    const seen = localStorage.getItem("supportPopupSeen");
+    const lastSeen = localStorage.getItem("supportPopupLastSeen");
 
-    if (!seen) {
+    const now = Date.now();
+
+    // If never seen OR 7 days passed
+    if (!lastSeen || now - lastSeen > ONE_WEEK) {
       setTimeout(() => {
         setShow(true);
       }, 2000); // Show after 2 seconds
@@ -16,7 +21,7 @@ function SupportPopup() {
 
   const closePopup = () => {
     setShow(false);
-    localStorage.setItem("supportPopupSeen", "true");
+    localStorage.setItem("supportPopupLastSeen", Date.now());
   };
 
   if (!show) return null;
@@ -26,7 +31,7 @@ function SupportPopup() {
 
       <div className="bg-[#111] text-white rounded-xl max-w-md w-full p-6 shadow-2xl relative">
 
-        {/* Close Button */}
+        {/* Close */}
         <button
           onClick={closePopup}
           className="absolute top-3 right-3 text-gray-400 hover:text-white text-xl"
@@ -46,7 +51,7 @@ function SupportPopup() {
 
         <div className="space-y-2 text-sm text-gray-200 text-center">
           <p>✅ Join our Discord Community</p>
-          <p>✅ Recommend us to friends</p>
+          <p>✅ Share with friends</p>
           <p>✅ Help us grow 🚀</p>
         </div>
 
@@ -55,7 +60,7 @@ function SupportPopup() {
 
           {/* Discord */}
           <a
-            href="https://discord.gg/be774snHsP"
+            href="https://discord.gg/YOUR_DISCORD_LINK"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full text-center bg-indigo-600 hover:bg-indigo-700 transition rounded-lg py-2 font-semibold"
@@ -74,7 +79,7 @@ function SupportPopup() {
             Copy Site Link 🔗
           </button>
 
-          {/* Close */}
+          {/* Later */}
           <button
             onClick={closePopup}
             className="text-gray-400 hover:text-white text-sm"
