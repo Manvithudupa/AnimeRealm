@@ -26,23 +26,26 @@ function Banner({ item, index }) {
       <div className="spotlight-overlay absolute inset-0 z-[1] rounded-2xl" />
 
       {/* Info Section */}
-      <div className="absolute left-0 bottom-[80px] w-[55%] p-6 z-[2]
-        max-[1390px]:w-[45%]
-        max-[1300px]:w-[600px]
-        max-[1120px]:w-[60%]
-        max-md:w-[90%]
-        max-md:bottom-[40px]
-        max-[300px]:w-full">
-
+      <div
+        className="absolute left-0 bottom-[80px] w-[55%] p-6 z-[2]
+          max-[1390px]:w-[45%]
+          max-[1300px]:w-[600px]
+          max-[1120px]:w-[60%]
+          max-md:w-[90%]
+          max-md:bottom-[40px]
+          max-[300px]:w-full"
+      >
         <p className="text-[#ffbade] font-semibold text-[18px] w-fit">
           #{index + 1} Spotlight
         </p>
 
-        <h3 className="text-white text-5xl font-bold mt-3 line-clamp-2
+        <h3
+          className="text-white text-5xl font-bold mt-3 line-clamp-2
           drop-shadow-[0_6px_30px_rgba(0,0,0,0.7)]
           max-[1390px]:text-[44px]
           max-[1300px]:text-3xl
-          max-md:text-2xl">
+          max-md:text-2xl"
+        >
           {language === "EN" ? item.title : item.japanese_title}
         </h3>
 
@@ -54,7 +57,8 @@ function Banner({ item, index }) {
               hover:from-purple-500 hover:to-purple-400
               text-white font-semibold px-5 py-1.5 rounded-lg
               flex items-center gap-x-2 text-sm
-              shadow-md shadow-purple-500/30 transition-all">
+              shadow-md shadow-purple-500/30 transition-all"
+          >
             <FontAwesomeIcon icon={faPlay} className="text-[10px]" />
             Watch Now
           </Link>
@@ -64,7 +68,8 @@ function Banner({ item, index }) {
             className="bg-white/10 hover:bg-white/20
               border border-white/20
               text-white font-medium px-5 py-1.5 rounded-lg
-              text-sm transition-all">
+              text-sm transition-all"
+          >
             Details
           </Link>
         </div>
@@ -72,7 +77,6 @@ function Banner({ item, index }) {
         {/* TV Info */}
         {item.tvInfo && (
           <div className="flex items-center gap-x-5 mt-5 max-md:hidden">
-
             {item.tvInfo.showType && (
               <div className="info-pill">
                 <FontAwesomeIcon icon={faPlay} className="info-icon" />
@@ -96,9 +100,7 @@ function Banner({ item, index }) {
 
             <div className="flex gap-x-2">
               {item.tvInfo.quality && (
-                <span className="quality-pill">
-                  {item.tvInfo.quality}
-                </span>
+                <span className="quality-pill">{item.tvInfo.quality}</span>
               )}
 
               <div className="flex overflow-hidden rounded-md">
@@ -134,7 +136,8 @@ function Banner({ item, index }) {
             text-white font-semibold px-7 py-2 rounded-lg
             flex items-center gap-x-2.5
             shadow-lg shadow-purple-500/30
-            transition-all hover:-translate-y-1">
+            transition-all hover:-translate-y-1"
+        >
           <FontAwesomeIcon icon={faPlay} className="text-[10px]" />
           Watch Now
         </Link>
@@ -144,7 +147,8 @@ function Banner({ item, index }) {
           className="bg-white/10 hover:bg-white/20
             border border-white/20
             text-white font-medium px-7 py-2 rounded-lg
-            transition-all hover:-translate-y-1">
+            transition-all hover:-translate-y-1"
+        >
           Details
         </Link>
       </div>
