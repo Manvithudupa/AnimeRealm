@@ -1,5 +1,3 @@
-/* Spotlight.css */
-
 /* Swiper container */
 .swiper {
   width: 100%;
@@ -14,6 +12,19 @@
   position: relative;
   overflow: hidden;
   border-radius: 16px;
+}
+
+/* Slide image zoom */
+.swiper-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+  transition: transform 0.5s ease-in-out;
+}
+
+.swiper-slide img:hover {
+  transform: scale(1.05);
 }
 
 /* Prev / Next Buttons */
@@ -86,34 +97,6 @@
 
 .swiper-pagination {
   bottom: 20px !important;
-}
-
-/* Slide image zoom effect */
-.swiper-slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 16px;
-  transition: transform 0.5s ease-in-out;
-}
-
-.swiper-slide img:hover {
-  transform: scale(1.05);
-}
-
-/* Gradient overlays */
-.swiper-slide::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.95) 0%,
-    rgba(0, 0, 0, 0.6) 50%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  border-radius: 16px;
-  pointer-events: none;
 }
 
 /* Mobile responsiveness */
