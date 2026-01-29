@@ -90,7 +90,7 @@ const CategoryCard = React.memo(
                   style={{ height: "fit-content" }}
                 >
                   {/* Same default card design */}
-                  <div className="w-full h-auto pb-[140%] relative inline-block overflow-hidden rounded-lg shadow-lg group">
+                  <div className="w-full h-auto pb-[133.33%] relative inline-block overflow-hidden rounded-lg shadow-lg group">
                     <div
                       className="inline-block bg-gray-900 absolute left-0 top-0 w-full h-full group hover:cursor-pointer"
                       onClick={() =>
@@ -142,7 +142,7 @@ const CategoryCard = React.memo(
                   style={{ height: "fit-content" }}
                 >
                   {/* Default Card */}
-                  <div className="w-full h-auto pb-[140%] relative inline-block overflow-hidden rounded-lg shadow-lg group">
+                  <div className="w-full h-auto pb-[133.33%] relative inline-block overflow-hidden rounded-lg shadow-lg group">
                     <div
                       className="inline-block bg-gray-900 absolute left-0 top-0 w-full h-full group hover:cursor-pointer"
                       onClick={() =>
@@ -165,12 +165,14 @@ const CategoryCard = React.memo(
                         />
                       </div>
                     </div>
+
                     {(item.tvInfo?.rating === "18+" ||
                       item?.adultContent === true) && (
                       <div className="text-white px-2 py-0.5 rounded-lg bg-red-600 absolute top-3 left-3 flex items-center justify-center text-[12px] font-bold">
                         18+
                       </div>
                     )}
+
                     <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 via-black/50 to-transparent">
                       <div className="flex items-center justify-start w-full space-x-1 flex-wrap gap-y-1">
                         {item.tvInfo?.sub && (
@@ -184,6 +186,7 @@ const CategoryCard = React.memo(
                             </p>
                           </div>
                         )}
+
                         {item.tvInfo?.dub && (
                           <div className="flex space-x-0.5 justify-center items-center bg-[#2a2a2a] rounded-[2px] px-1.5 text-white py-0.5">
                             <FontAwesomeIcon
@@ -198,6 +201,7 @@ const CategoryCard = React.memo(
                       </div>
                     </div>
                   </div>
+
                   <Link
                     to={`/${item.id}`}
                     className="text-white font-semibold mt-3 item-title hover:text-white hover:cursor-pointer line-clamp-1"
