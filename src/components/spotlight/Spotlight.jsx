@@ -9,7 +9,7 @@ import Banner from "../banner/Banner";
 
 const Spotlight = ({ spotlights }) => {
   return (
-    <div className="relative h-[600px] max-[1390px]:h-[500px] max-[1300px]:h-[450px] max-md:h-[400px] pt-[20px]">
+    <div className="spotlight-fullwidth">
       {spotlights && spotlights.length > 0 ? (
         <Swiper
           spaceBetween={0}
@@ -17,13 +17,13 @@ const Spotlight = ({ spotlights }) => {
           loop={true}
           allowTouchMove={false}
           navigation={{ nextEl: ".button-next", prevEl: ".button-prev" }}
-          pagination={{ clickable: true, dynamicBullets: false }}
+          pagination={{ clickable: true }}
           autoplay={{ delay: 4000, disableOnInteraction: false }}
           modules={[Navigation, Autoplay, Pagination]}
-          className="h-full rounded-2xl overflow-hidden relative"
+          className="h-full relative"
         >
           {/* Navigation Buttons */}
-          <div className="absolute right-[20px] top-[20px] flex space-x-2 z-10">
+          <div className="absolute right-6 top-6 flex space-x-2 z-10">
             <div className="button-prev" />
             <div className="button-next" />
           </div>
@@ -36,7 +36,7 @@ const Spotlight = ({ spotlights }) => {
           ))}
         </Swiper>
       ) : (
-        <p>No spotlights to show.</p>
+        <p className="text-center text-white py-10">No spotlights to show.</p>
       )}
     </div>
   );
