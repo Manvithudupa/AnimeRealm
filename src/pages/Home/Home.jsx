@@ -26,7 +26,7 @@ function Home() {
       {/* Support Popup */}
       <SupportPopup />
 
-      <div className="w-full px-4 max-[1200px]:px-0 text-white pt-16">
+      <div className="w-full min-h-screen bg-black px-4 max-[1200px]:px-0 text-white pt-16">
 
         {/* Spotlight */}
         <div id="spotlight" className="mt-4">
