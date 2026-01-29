@@ -53,7 +53,7 @@ function Banner({ item, index }) {
         <Link to={`/watch/${item.id}`} className="btn-watch flex items-center gap-2">
           <FontAwesomeIcon icon={faPlay} /> Watch Now
         </Link>
-        <Link to={`/anime/${item.id}`} className="btn-details">Details</Link>
+        <Link to={`/${item.id}`} className="btn-details">Details</Link>
       </div>
     </section>
   );
