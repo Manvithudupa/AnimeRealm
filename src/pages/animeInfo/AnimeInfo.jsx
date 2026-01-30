@@ -141,7 +141,7 @@ function AnimeInfo({ random = false }) {
     );
     const item = continueWatching.find((i) => i.id === animeInfo.id);
     if (item) {
-      setLastWatchedEpisode(item.episodeNum || item.episodeId);
+      setLastWatchedEpisode(item); // store full item to get episodeId and episodeNum
     }
   }, [animeInfo]);
 
@@ -220,7 +220,7 @@ function AnimeInfo({ random = false }) {
                   <Link
                     to={
                       lastWatchedEpisode
-                        ? `/watch/${animeInfo.id}?ep=${lastWatchedEpisode}`
+                        ? `/watch/${animeInfo.id}?ep=${lastWatchedEpisode.episodeId}`
                         : `/watch/${animeInfo.id}`
                     }
                     className="inline-flex items-center gap-2 px-5 py-2.5
@@ -229,7 +229,7 @@ function AnimeInfo({ random = false }) {
                   >
                     <FontAwesomeIcon icon={faPlay} />
                     {lastWatchedEpisode
-                      ? `Continue Watching Ep ${lastWatchedEpisode}`
+                      ? `Continue Watching Ep ${lastWatchedEpisode.episodeNum}`
                       : "Watch"}
                   </Link>
                 )}
