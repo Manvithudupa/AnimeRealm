@@ -33,35 +33,21 @@ const ContinueWatching = () => {
   useEffect(() => {
     loadWatchList();
 
-    // Listen for changes from other tabs
     const handleStorage = () => loadWatchList();
-
     window.addEventListener("storage", handleStorage);
 
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-    };
+    return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
-  const memoizedWatchList = useMemo(
-    () => watchList,
-    [watchList]
-  );
+  const memoizedWatchList = useMemo(() => watchList, [watchList]);
 
   /* ===========================
      Remove Item
   =========================== */
   const removeFromWatchList = (episodeId) => {
     setWatchList((prev) => {
-      const updated = prev.filter(
-        (item) => item.episodeId !== episodeId
-      );
-
-      localStorage.setItem(
-        "continueWatching",
-        JSON.stringify(updated)
-      );
-
+      const updated = prev.filter((item) => item.episodeId !== episodeId);
+      localStorage.setItem("continueWatching", JSON.stringify(updated));
       return updated;
     });
   };
@@ -114,10 +100,7 @@ const ContinueWatching = () => {
           {memoizedWatchList.map((item, index) => {
             const progress =
               item?.leftAt && item?.duration
-                ? Math.min(
-                    (item.leftAt / item.duration) * 100,
-                    100
-                  )
+                ? Math.min((item.leftAt / item.duration) * 100, 100)
                 : 0;
 
             return (
@@ -130,9 +113,7 @@ const ContinueWatching = () => {
                   {/* Remove Button */}
                   <button
                     className="absolute top-3 right-3 bg-black/70 text-gray-300 w-8 h-8 flex items-center justify-center rounded-lg text-sm z-10 font-medium hover:bg-white hover:text-black transition-all duration-300"
-                    onClick={() =>
-                      removeFromWatchList(item.episodeId)
-                    }
+                    onClick={() => removeFromWatchList(item.episodeId)}
                   >
                     ✖
                   </button>
@@ -162,7 +143,7 @@ const ContinueWatching = () => {
                   </Link>
 
                   {/* 18+ Badge */}
-                  {item?.adultContent === true && (
+                  {item?.adultContent && (
                     <div className="text-white px-2 py-0.5 rounded-lg bg-red-600 absolute top-3 left-3 text-[12px] font-bold">
                       18+
                     </div>
@@ -173,9 +154,7 @@ const ContinueWatching = () => {
                     <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-700 z-20">
                       <div
                         className="h-full bg-red-600 transition-all"
-                        style={{
-                          width: `${progress}%`,
-                        }}
+                        style={{ width: `${progress}%` }}
                       />
                     </div>
                   )}
@@ -183,9 +162,7 @@ const ContinueWatching = () => {
                   {/* Info */}
                   <div className="absolute bottom-0 left-0 right-0 p-3 pb-2 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
                     <p className="text-white text-[15px] font-bold text-left truncate mb-1.5 max-[450px]:text-sm drop-shadow-lg">
-                      {language === "EN"
-                        ? item?.title
-                        : item?.japanese_title}
+                      {language === "EN" ? item?.title : item?.japanese_title}
                     </p>
 
                     <p className="text-gray-200 text-[13px] font-semibold text-left max-[450px]:text-[12px] drop-shadow-md">
