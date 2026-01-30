@@ -59,6 +59,7 @@ function AnimeInfo({ random = false }) {
   const [inWatchlist, setInWatchlist] = useState(false);
   const [watchlistLoading, setWatchlistLoading] = useState(false);
 
+  const [lastWatchedEpisode, setLastWatchedEpisode] = useState(null);
   const { id: currentId } = useParams();
 
   /* ---------- Fetch Anime ---------- */
@@ -131,6 +132,18 @@ function AnimeInfo({ random = false }) {
 
     setWatchlistLoading(false);
   };
+
+  /* ---------- Load Continue Watching ---------- */
+  useEffect(() => {
+    if (!animeInfo) return;
+    const continueWatching = JSON.parse(
+      localStorage.getItem("continueWatching") || "[]"
+    );
+    const item = continueWatching.find((i) => i.id === animeInfo.id);
+    if (item) {
+      setLastWatchedEpisode(item.episodeNum || item.episodeId);
+    }
+  }, [animeInfo]);
 
   if (loading) return <Loader type="animeInfo" />;
   if (error) return <Error />;
@@ -205,13 +218,19 @@ function AnimeInfo({ random = false }) {
               <div className="flex items-center gap-3 mb-6">
                 {info?.Status?.toLowerCase() !== "not-yet-aired" && (
                   <Link
-                    to={`/watch/${animeInfo.id}`}
+                    to={
+                      lastWatchedEpisode
+                        ? `/watch/${animeInfo.id}?ep=${lastWatchedEpisode}`
+                        : `/watch/${animeInfo.id}`
+                    }
                     className="inline-flex items-center gap-2 px-5 py-2.5
-                    rounded-lg bg-white text-black text-sm font-medium
-                    hover:bg-white/90 transition"
+                      rounded-lg bg-white text-black text-sm font-medium
+                      hover:bg-white/90 transition"
                   >
                     <FontAwesomeIcon icon={faPlay} />
-                    Watch
+                    {lastWatchedEpisode
+                      ? `Continue Watching Ep ${lastWatchedEpisode}`
+                      : "Watch"}
                   </Link>
                 )}
 
@@ -219,8 +238,8 @@ function AnimeInfo({ random = false }) {
                   onClick={toggleWatchlist}
                   disabled={watchlistLoading}
                   className="inline-flex items-center gap-2 px-5 py-2.5
-                  rounded-lg bg-white/10 hover:bg-white/20
-                  text-sm font-medium transition"
+                    rounded-lg bg-white/10 hover:bg-white/20
+                    text-sm font-medium transition"
                 >
                   <FontAwesomeIcon icon={inWatchlist ? faCheck : faBookmark} />
                   {inWatchlist ? "Saved" : "Save"}
