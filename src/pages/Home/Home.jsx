@@ -26,12 +26,14 @@ function Home() {
       {/* Support Popup */}
       <SupportPopup />
 
-      <div className="w-full min-h-screen bg-black px-4 max-[1200px]:px-0 text-white pt-16">
+      {/* ================= SPOTLIGHT (FULL WIDTH) ================= */}
+      {/* pt-16 = space for navbar */}
+      <div className="w-full bg-black pt-16">
+        <Spotlight spotlights={homeInfo.spotlights} />
+      </div>
 
-        {/* Spotlight */}
-        <div id="spotlight" className="mt-4">
-          <Spotlight spotlights={homeInfo.spotlights} />
-        </div>
+      {/* ================= MAIN CONTENT ================= */}
+      <div className="w-full min-h-screen bg-black px-4 max-[1200px]:px-0 text-white">
 
         {/* Genres */}
         <div className="mt-6">
@@ -59,6 +61,7 @@ function Home() {
         {/* Main + Sidebar */}
         <div className="w-full grid grid-cols-[minmax(0,75%),minmax(0,25%)] gap-x-6 max-[1200px]:flex flex-col max-[1200px]:px-4 mt-10">
 
+          {/* Main */}
           <div>
             <CategoryCard
               label="Latest Episode"
