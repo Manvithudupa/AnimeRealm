@@ -1,11 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import CategoryCard from "@/src/components/categorycard/CategoryCard.jsx";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FaChevronRight } from "react-icons/fa";
-
-import useToolTipPosition from "@/src/hooks/useToolTipPosition";
-import Qtip from "@/src/components/qtip/Qtip.jsx";
 
 function TabbedAnimeSection({
   topAiring,
@@ -14,16 +11,6 @@ function TabbedAnimeSection({
   className = "",
 }) {
   const [activeTab, setActiveTab] = useState("airing");
-  const [hoveredItem, setHoveredItem] = useState(null);
-
-  const navigate = useNavigate();
-
-  /* Tooltip timers */
-  const showTimerRef = useRef(null);
-  const hideTimerRef = useRef(null);
-
-  /* Refs for each card */
-  const cardRefs = useRef({});
 
   const tabs = [
     { id: "airing", label: "Top Airing", data: topAiring, path: "top-airing" },
@@ -43,62 +30,6 @@ function TabbedAnimeSection({
 
   const activeTabData = tabs.find((tab) => tab.id === activeTab);
 
-  /* Tooltip position */
-  const { tooltipPosition, tooltipHorizontalPosition } =
-    useToolTipPosition(
-      hoveredItem,
-      activeTabData?.data,
-      cardRefs
-    );
-
-  /* Hover handlers */
-  const handleMouseEnter = (item) => {
-    if (hideTimerRef.current) {
-      clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = null;
-    }
-
-    if (showTimerRef.current) {
-      clearTimeout(showTimerRef.current);
-      showTimerRef.current = null;
-    }
-
-    showTimerRef.current = setTimeout(() => {
-      setHoveredItem(item.id);
-      showTimerRef.current = null;
-    }, 200);
-  };
-
-  const handleMouseLeave = () => {
-    if (showTimerRef.current) {
-      clearTimeout(showTimerRef.current);
-      showTimerRef.current = null;
-    }
-
-    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-
-    hideTimerRef.current = setTimeout(() => {
-      setHoveredItem(null);
-      hideTimerRef.current = null;
-    }, 200);
-  };
-
-  const handleTooltipMouseEnter = () => {
-    if (hideTimerRef.current) {
-      clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = null;
-    }
-  };
-
-  const handleTooltipMouseLeave = () => {
-    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-
-    hideTimerRef.current = setTimeout(() => {
-      setHoveredItem(null);
-      hideTimerRef.current = null;
-    }, 200);
-  };
-
   return (
     <div className={`w-full ${className}`}>
 
@@ -106,7 +37,6 @@ function TabbedAnimeSection({
       <div className="flex justify-between items-center border-b border-[#ffffff1a] relative">
 
         <div className="flex">
-
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -128,7 +58,6 @@ function TabbedAnimeSection({
               </span>
             </button>
           ))}
-
         </div>
 
         {/* View All */}
@@ -139,7 +68,6 @@ function TabbedAnimeSection({
             transition-all duration-300 group"
         >
           View all
-
           <FaChevronRight
             className="text-[10px] transition-transform duration-300 group-hover:translate-x-0.5"
           />
@@ -147,38 +75,13 @@ function TabbedAnimeSection({
 
       </div>
 
-      {/* Cards + Tooltip Wrapper */}
-      <div className="relative">
-
-        {/* Category Cards */}
-        <CategoryCard
-          data={activeTabData?.data || []}
-          path={activeTabData?.path}
-          limit={12}
-          showViewMore={false}
-
-          /* Pass refs + hover handlers */
-          cardRefs={cardRefs}
-          onItemHover={handleMouseEnter}
-          onItemLeave={handleMouseLeave}
-        />
-
-        {/* Tooltips */}
-        {hoveredItem && window.innerWidth > 1024 && (
-          <div
-            className={`absolute ${tooltipPosition || "top-full"} ${
-              tooltipHorizontalPosition || "left-0"
-            }
-            z-[100000] transition-all duration-200 ease-in-out`}
-            onMouseEnter={handleTooltipMouseEnter}
-            onMouseLeave={handleTooltipMouseLeave}
-            style={{ pointerEvents: "auto" }}
-          >
-            <Qtip id={hoveredItem} />
-          </div>
-        )}
-
-      </div>
+      {/* Category Cards */}
+      <CategoryCard
+        data={activeTabData?.data || []}
+        path={activeTabData?.path}
+        limit={12}
+        showViewMore={false}
+      />
 
     </div>
   );
