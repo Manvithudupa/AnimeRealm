@@ -1,37 +1,50 @@
-/* ================== GLOBAL ================== */
+/* ================= GLOBAL ================= */
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: Inter, system-ui, sans-serif;
 }
 
-/* ================== ROOT ================== */
+/* ================= ROOT ================= */
+
 .splash-root {
   min-height: 100vh;
   background: radial-gradient(circle at top, #0f172a, #020617);
-  color: #f1f5f9;
+  color: #f8fafc;
 
   display: flex;
   flex-direction: column;
 }
 
-/* ================== WRAPPER ================== */
+/* ================= WRAPPER ================= */
+
 .splash-wrapper {
   max-width: 1200px;
   margin: auto;
-  padding: 32px 20px;
+  padding: 28px 20px;
 
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 32px;
 }
 
-/* ================== NAV ================== */
+/* ================= NAV ================= */
+
 .splash-nav {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.nav-logo {
+  color: white;
+  font-weight: 800;
+  font-size: 22px;
+  text-decoration: none;
 }
 
 .nav-links {
@@ -46,41 +59,52 @@
 }
 
 .nav-links a:hover {
-  color: #38bdf8;
+  color: white;
 }
+
+/* Mobile */
 
 .mobile-menu {
   display: none;
 }
 
-/* ================== HERO ================== */
+.mobile-menu button {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  color: #e5e7eb;
+  cursor: pointer;
+}
+
+/* ================= HERO ================= */
+
 .splashscreen {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 40px;
+  gap: 36px;
 
-  padding: 48px;
+  padding: 44px;
+
   border-radius: 28px;
 
   background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(18px);
 
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* ================== CONTENT ================== */
+/* ================= CONTENT ================= */
+
 .splash-content {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 22px;
+  gap: 20px;
 }
 
 .splash-logo {
   font-size: 44px;
   font-weight: 900;
-  text-decoration: none;
-  color: white;
 }
 
 .splash-logo span {
@@ -89,10 +113,11 @@
   color: transparent;
 }
 
-/* ================== SEARCH ================== */
+/* ================= SEARCH ================= */
+
 .search-box {
   display: flex;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 999px;
   padding: 6px;
 }
@@ -103,7 +128,6 @@
   border: none;
   padding: 12px 16px;
   color: white;
-  font-size: 15px;
 }
 
 .search-box input::placeholder {
@@ -119,12 +143,22 @@
   border: none;
   padding: 10px 22px;
   border-radius: 999px;
-  font-weight: 600;
   cursor: pointer;
-  color: black;
 }
 
-/* ================== TAGS ================== */
+/* Neutral Icons */
+
+svg.svg-inline--fa {
+  color: #020617;
+  opacity: 0.9;
+}
+
+/* ================= TAGS ================= */
+
+.top-search strong {
+  color: #c7d2fe;
+}
+
 .top-search-items {
   display: flex;
   flex-wrap: wrap;
@@ -134,45 +168,49 @@
 .splashitem {
   padding: 6px 14px;
   border-radius: 999px;
-  font-size: 13px;
 
-  background: rgba(56, 189, 248, 0.12);
+  background: rgba(56, 189, 248, 0.15);
   color: #e0f2fe;
+
+  font-size: 13px;
   text-decoration: none;
 }
 
-.splashitem:hover {
-  background: rgba(56, 189, 248, 0.25);
-}
+/* ================= CTA ================= */
 
-/* ================== CTA ================== */
 .cta-btn {
-  margin-top: 20px;
-  padding: 14px 32px;
+  margin-top: 18px;
 
+  padding: 14px 32px;
   background: linear-gradient(135deg, #38bdf8, #818cf8);
-  color: black;
+
+  color: #020617;
 
   border-radius: 999px;
+
   font-size: 17px;
   font-weight: 700;
 
   text-decoration: none;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
   width: fit-content;
-
-  transition: transform 0.2s;
 }
 
-.cta-btn:hover {
-  transform: translateY(-2px);
+.cta-btn svg {
+  color: #020617;
 }
 
-/* ================== IMAGE ================== */
+/* ================= IMAGE ================= */
+
 .splash-image-wrapper {
   border-radius: 22px;
   overflow: hidden;
 
-  box-shadow: 0 30px 60px rgba(56, 189, 248, 0.25);
+  box-shadow: 0 25px 50px rgba(56, 189, 248, 0.25);
 }
 
 .splash-image-wrapper img {
@@ -181,7 +219,49 @@
   object-fit: cover;
 }
 
-/* ================== FOOTER ================== */
+/* ================= MOBILE MODAL ================= */
+
+.mobile-modal {
+  position: absolute;
+  top: 50px;
+  right: 0;
+
+  background: #020617;
+
+  border-radius: 14px;
+
+  padding: 22px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  width: 220px;
+
+  z-index: 100;
+}
+
+.mobile-modal a {
+  color: white;
+  text-decoration: none;
+}
+
+.close-btn {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+
+  background: transparent;
+  border: none;
+
+  color: #94a3b8;
+
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* ================= FOOTER ================= */
+
 .splash-footer {
   text-align: center;
   font-size: 13px;
@@ -189,11 +269,27 @@
   padding: 18px 0;
 }
 
-/* ================== MOBILE ================== */
+/* ================= MOBILE MODE ================= */
+
 @media (max-width: 850px) {
+  /* Background Image */
+
+  .splash-root {
+    background: linear-gradient(
+        rgba(2, 6, 23, 0.85),
+        rgba(2, 6, 23, 0.85)
+      ),
+      var(--mobile-bg) center / cover no-repeat;
+  }
+
   .splashscreen {
     grid-template-columns: 1fr;
-    padding: 28px;
+
+    background: transparent;
+    backdrop-filter: none;
+    border: none;
+
+    padding: 20px;
   }
 
   .splash-image-wrapper {
@@ -210,6 +306,6 @@
 
   .cta-btn {
     width: 100%;
-    text-align: center;
+    justify-content: center;
   }
 }
