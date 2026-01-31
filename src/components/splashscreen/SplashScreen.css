@@ -104,20 +104,21 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* ================= CONTENT ================= */
+/* ================= HERO CONTENT ================= */
 
 .hero-title {
-  font-size: 40px;
+  font-size: 42px;
   font-weight: 900;
   line-height: 1.2;
   color: #f8fafc;
 }
 
 .hero-subtitle {
-  font-size: 15px;
-  color: #cbd5f5; /* improved readability */
-  max-width: 420px;
+  font-size: 16px;
+  color: #cbd5f5;
+  max-width: 450px;
   margin-top: 12px;
+  line-height: 1.5;
 }
 
 /* ================= SEARCH ================= */
@@ -162,10 +163,10 @@
   background: #f1f5f9;
 }
 
-/* ================= TAGS ================= */
+/* ================= TOP SEARCH TAGS ================= */
 
 .top-search strong {
-  color: #c7d2fe;
+  color: #cbd5f5;
 }
 
 .top-search-items {
@@ -190,7 +191,7 @@
   color: #ffffff;
 }
 
-/* ================= CTA ================= */
+/* ================= CTA BUTTON ================= */
 
 .cta-btn {
   margin-top: 24px;
