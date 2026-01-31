@@ -1,4 +1,5 @@
 import website_name from "@/src/config/website.js";
+
 import Spotlight from "@/src/components/spotlight/Spotlight.jsx";
 import Trending from "@/src/components/trending/Trending.jsx";
 import Cart from "@/src/components/cart/Cart.jsx";
@@ -7,12 +8,15 @@ import Genre from "@/src/components/genres/Genre.jsx";
 import Topten from "@/src/components/topten/Topten.jsx";
 import Loader from "@/src/components/Loader/Loader.jsx";
 import Error from "@/src/components/error/Error.jsx";
-import { useHomeInfo } from "@/src/context/HomeInfoContext.jsx";
 import Schedule from "@/src/components/schedule/Schedule";
 import ContinueWatching from "@/src/components/continue/ContinueWatching";
 
-// 👉 Import Popup
+import TabbedAnimeSection from "@/src/components/tabbed/TabbedAnimeSection.jsx";
+
+// 👉 Popup
 import SupportPopup from "@/src/components/SupportPopup/SupportPopup.jsx";
+
+import { useHomeInfo } from "@/src/context/HomeInfoContext.jsx";
 
 function Home() {
   const { homeInfo, homeInfoLoading, error } = useHomeInfo();
@@ -26,8 +30,7 @@ function Home() {
       {/* Support Popup */}
       <SupportPopup />
 
-      {/* ================= SPOTLIGHT (FULL WIDTH) ================= */}
-      {/* pt-16 = space for navbar */}
+      {/* ================= SPOTLIGHT ================= */}
       <div className="w-full bg-black pt-16">
         <Spotlight spotlights={homeInfo.spotlights} />
       </div>
@@ -63,6 +66,8 @@ function Home() {
 
           {/* Main */}
           <div>
+
+            {/* Latest Episodes */}
             <CategoryCard
               label="Latest Episode"
               data={homeInfo.latest_episode}
@@ -73,13 +78,14 @@ function Home() {
 
             <Schedule />
 
-            <CategoryCard
-              label="Top Upcoming"
-              data={homeInfo.top_upcoming}
+            {/* ✅ Tabbed Section (Replaces Top Upcoming) */}
+            <TabbedAnimeSection
+              topAiring={homeInfo.top_airing}
+              mostFavorite={homeInfo.most_favorite}
+              latestCompleted={homeInfo.latest_completed}
               className="mt-[30px]"
-              path="top-upcoming"
-              limit={12}
             />
+
           </div>
 
           {/* Sidebar */}
