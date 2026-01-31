@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClosedCaptioning, faMicrophone, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
@@ -26,7 +26,7 @@ const CategoryCard = React.memo(
 
     if (limit) data = data.slice(0, limit);
 
-    const [itemsToRender, setItemsToRender] = useState({ firstRow: [], remainingItems: [] });
+    const [itemsToRender, setItemsToRender] = React.useState({ firstRow: [], remainingItems: [] });
     const [localHoverId, setLocalHoverId] = useState(null);
 
     const getItemsToRender = useCallback(() => {
@@ -82,13 +82,15 @@ const CategoryCard = React.memo(
               <div className="overlay"></div>
               <FontAwesomeIcon icon={faPlay} className="play-icon" />
             </div>
-          </div>
 
-          {/* Badges (18+, sub/dub) below poster */}
-          <div className="flex items-center gap-1 mt-2">
+            {/* 18+ Badge on top-left of poster */}
             {(item.tvInfo?.rating === "18+" || item?.adultContent) && (
               <div className="adult-badge">18+</div>
             )}
+          </div>
+
+          {/* Sub / Dub info below poster */}
+          <div className="flex items-center gap-1 mt-2">
             {item.tvInfo?.sub && (
               <div className="meta-badge">
                 <FontAwesomeIcon icon={faClosedCaptioning} />
