@@ -1,48 +1,68 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./SplashScreen.css";
+
 import logoTitle from "@/src/config/logoTitle";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleArrowRight,
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
-import getTopSearch from "@/src/utils/getTopSearch.utils";
-import splashImage from "/splash.jpg"; // ✅ image import
 
-// Static data
+import getTopSearch from "@/src/utils/getTopSearch.utils";
+
+import splashImage from "/splash.jpg";
+
+/* ================= NAV LINKS ================= */
+
 const NAV_LINKS = [
   { to: "/home", label: "Home" },
   { to: "/movie", label: "Movies" },
   { to: "/tv", label: "TV Series" },
-  { to: "/most-popular", label: "Most Popular" },
+  { to: "/most-popular", label: "Popular" },
   { to: "/top-airing", label: "Top Airing" },
 ];
+
+/* ================= HOOK ================= */
 
 const useTopSearch = () => {
   const [topSearch, setTopSearch] = useState([]);
 
   useEffect(() => {
     const fetchTopSearch = async () => {
-      const data = await getTopSearch();
-      if (data) setTopSearch(data);
+      try {
+        const data = await getTopSearch();
+        if (data) setTopSearch(data);
+      } catch (err) {
+        console.error(err);
+      }
     };
+
     fetchTopSearch();
   }, []);
 
   return topSearch;
 };
 
+/* ================= COMPONENT ================= */
+
 function SplashScreen() {
   const navigate = useNavigate();
+
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const topSearch = useTopSearch();
 
+  /* Search Submit */
+
   const handleSearchSubmit = useCallback(() => {
-    const trimmedSearch = search.trim();
-    if (!trimmedSearch) return;
-    navigate(`/search?keyword=${encodeURIComponent(trimmedSearch)}`);
+    const trimmed = search.trim();
+
+    if (!trimmed) return;
+
+    navigate(`/search?keyword=${encodeURIComponent(trimmed)}`);
   }, [search, navigate]);
 
   const handleKeyDown = useCallback(
@@ -53,10 +73,20 @@ function SplashScreen() {
   );
 
   return (
-    <div className="w-full splash-root">
+    <div
+      className="splash-root"
+      style={{
+        "--mobile-bg": `url(${splashImage})`,
+      }}
+    >
       <div className="splash-wrapper">
-        {/* NAVBAR */}
+        {/* ================= NAV ================= */}
+
         <nav className="splash-nav">
+          <Link to="/home" className="nav-logo">
+            {logoTitle}
+          </Link>
+
           <div className="nav-links">
             {NAV_LINKS.map((link) => (
               <Link key={link.to} to={link.to}>
@@ -65,14 +95,14 @@ function SplashScreen() {
             ))}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu */}
+
           <div className="mobile-menu">
-            <button onClick={() => setIsModalOpen(true)}>
-              ☰ <span>Menu</span>
-            </button>
+            <button onClick={() => setIsModalOpen(true)}>☰</button>
           </div>
 
           {/* Mobile Modal */}
+
           {isModalOpen && (
             <div className="mobile-modal">
               <button
@@ -81,6 +111,7 @@ function SplashScreen() {
               >
                 ×
               </button>
+
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.to}
@@ -94,17 +125,20 @@ function SplashScreen() {
           )}
         </nav>
 
-        {/* SPLASH */}
+        {/* ================= HERO ================= */}
+
         <div className="splashscreen">
-          {/* LEFT CONTENT */}
+          {/* LEFT */}
+
           <div className="splash-content">
-            <Link to="/home" className="splash-logo">
+            <h1 className="splash-logo">
               {logoTitle.slice(0, 3)}
               <span>{logoTitle.slice(3, 4)}</span>
               {logoTitle.slice(4)}
-            </Link>
+            </h1>
 
             {/* Search */}
+
             <div className="search-box">
               <input
                 type="text"
@@ -113,17 +147,24 @@ function SplashScreen() {
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={handleKeyDown}
               />
+
               <button onClick={handleSearchSubmit}>
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
               </button>
             </div>
 
             {/* Top Search */}
+
             <div className="top-search">
-              <strong>Top search:</strong>
+              <strong>Trending:</strong>
+
               <div className="top-search-items">
-                {topSearch.map((item, index) => (
-                  <Link key={index} to={item.link} className="splashitem">
+                {topSearch.map((item) => (
+                  <Link
+                    key={item.id || item.title}
+                    to={item.link}
+                    className="splashitem"
+                  >
                     {item.title}
                   </Link>
                 ))}
@@ -131,22 +172,25 @@ function SplashScreen() {
             </div>
 
             {/* CTA */}
+
             <Link to="/home" className="cta-btn">
-              Watch anime
+              Watch Now
               <FontAwesomeIcon icon={faCircleArrowRight} />
             </Link>
           </div>
 
           {/* RIGHT IMAGE */}
+
           <div className="splash-image-wrapper">
-            <div className="splashoverlay" />
-            <img src={splashImage} alt="Splash" />
+            <img src={splashImage} alt="Anime" />
           </div>
         </div>
       </div>
 
+      {/* ================= FOOTER ================= */}
+
       <footer className="splash-footer">
-        © {logoTitle} All rights reserved.
+        © {new Date().getFullYear()} {logoTitle}. All rights reserved.
       </footer>
     </div>
   );
