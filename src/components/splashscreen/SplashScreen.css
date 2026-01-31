@@ -10,7 +10,7 @@
 /* ================= ROOT ================= */
 
 :root {
-  --mobile-bg: url('https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.Wl2P4wOdsnfCQbpVnWbHmAHaEK%3Fpid%3DApi&f=1&ipt=505ede0b3492e7102c9b2b7b7c3c94821002d41862590f242d534bf1bb8a870a&ipo=images'); /* Replace with your mobile image */
+  --mobile-bg: url('/splash.jpg'); /* Mobile background image */
 }
 
 /* ================= SPLASH ROOT ================= */
@@ -39,33 +39,32 @@
 
 .splash-nav {
   display: grid;
-  grid-template-columns: auto 1fr auto; /* logo | links | menu */
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   position: relative;
 }
 
 .nav-logo {
-  color: white;
-  font-weight: 900; /* Extra bold */
-  font-size: 28px; /* Slightly bigger for emphasis */
+  color: #f8fafc;
+  font-weight: 900;
+  font-size: 28px;
   letter-spacing: 0.5px;
   text-decoration: none;
   opacity: 0.95;
 }
 
 .nav-logo span {
-  color: #e5e7eb;
-  font-weight: 900; /* make the “!meRealm” part bold */
+  color: #94a3b8; /* subtle highlight */
 }
 
 .nav-logo:hover {
   opacity: 1;
 }
 
-/* Keep nav-links centered */
+/* Centered nav links */
 .nav-links {
   display: flex;
-  justify-content: center; /* keeps them centered in middle column */
+  justify-content: center;
   gap: 32px;
 }
 
@@ -76,7 +75,7 @@
 }
 
 .nav-links a:hover {
-  color: white;
+  color: #ffffff;
 }
 
 /* Mobile Button */
@@ -88,7 +87,7 @@
   background: transparent;
   border: none;
   font-size: 22px;
-  color: #e5e7eb;
+  color: #f8fafc;
   cursor: pointer;
 }
 
@@ -100,42 +99,35 @@
   gap: 36px;
   padding: 44px;
   border-radius: 28px;
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(18px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* ================= CONTENT ================= */
 
-.splash-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 18px;
-}
-
-/* Hero Text */
-
 .hero-title {
   font-size: 40px;
   font-weight: 900;
   line-height: 1.2;
+  color: #f8fafc;
 }
 
 .hero-subtitle {
   font-size: 15px;
-  color: #94a3b8;
+  color: #cbd5f5; /* improved readability */
   max-width: 420px;
+  margin-top: 12px;
 }
 
 /* ================= SEARCH ================= */
 
 .search-box {
   display: flex;
-  background: rgba(255, 255, 255, 0.08);
+  background: #1e293b; /* darker neutral for contrast */
   border-radius: 999px;
   padding: 6px;
-  margin-top: 6px;
+  margin-top: 16px;
 }
 
 .search-box input {
@@ -143,7 +135,8 @@
   background: transparent;
   border: none;
   padding: 12px 16px;
-  color: white;
+  color: #f8fafc;
+  font-size: 16px;
 }
 
 .search-box input::placeholder {
@@ -156,28 +149,17 @@
 
 .search-box button {
   background: #e5e7eb;
+  color: #020617;
   border: none;
   padding: 10px 22px;
   border-radius: 999px;
   cursor: pointer;
+  font-weight: 700;
   transition: background 0.2s ease;
 }
 
 .search-box button:hover {
   background: #f1f5f9;
-}
-
-/* ================= NEUTRAL ICONS ================= */
-
-.svg-inline--fa {
-  color: #e5e7eb !important;
-  opacity: 0.85;
-}
-
-.search-box button .svg-inline--fa,
-.cta-btn .svg-inline--fa {
-  color: #020617 !important;
-  opacity: 1;
 }
 
 /* ================= TAGS ================= */
@@ -190,21 +172,28 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  margin-top: 12px;
 }
 
 .splashitem {
   padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(56, 189, 248, 0.15);
-  color: #e0f2fe;
+  background: rgba(203, 213, 245, 0.15);
+  color: #f8fafc;
   font-size: 13px;
   text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.splashitem:hover {
+  background: rgba(203, 213, 245, 0.3);
+  color: #ffffff;
 }
 
 /* ================= CTA ================= */
 
 .cta-btn {
-  margin-top: 18px;
+  margin-top: 24px;
   padding: 14px 32px;
   background: #e5e7eb;
   color: #020617;
@@ -215,7 +204,6 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  width: fit-content;
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
@@ -255,7 +243,7 @@
 }
 
 .mobile-modal a {
-  color: white;
+  color: #f8fafc;
   text-decoration: none;
 }
 
@@ -275,7 +263,7 @@
 .splash-footer {
   text-align: center;
   font-size: 13px;
-  color: #64748b;
+  color: #94a3b8;
   padding: 18px 0;
 }
 
