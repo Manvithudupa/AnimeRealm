@@ -6,7 +6,6 @@ import {
   faPlay,
 } from "@fortawesome/free-solid-svg-icons";
 import { FaChevronRight } from "react-icons/fa";
-
 import "./CategoryCard.css";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { Link, useNavigate } from "react-router-dom";
@@ -22,11 +21,6 @@ const CategoryCard = React.memo(
     cardStyle,
     path,
     limit,
-
-    /* ✅ Tooltip Props */
-    cardRefs,
-    onItemHover,
-    onItemLeave,
   }) => {
     const { language } = useLanguage();
     const navigate = useNavigate();
@@ -41,22 +35,15 @@ const CategoryCard = React.memo(
     const getItemsToRender = useCallback(() => {
       if (categoryPage) {
         const firstRow =
-          window.innerWidth > 758 && data.length > 4
-            ? data.slice(0, 4)
-            : [];
-
+          window.innerWidth > 758 && data.length > 4 ? data.slice(0, 4) : [];
         const remainingItems =
           window.innerWidth > 758 && data.length > 4
             ? data.slice(4)
             : data.slice(0);
-
         return { firstRow, remainingItems };
       }
 
-      return {
-        firstRow: [],
-        remainingItems: data.slice(0),
-      };
+      return { firstRow: [], remainingItems: data.slice(0) };
     }, [categoryPage, data]);
 
     useEffect(() => {
@@ -66,44 +53,32 @@ const CategoryCard = React.memo(
 
       window.addEventListener("resize", handleResize);
 
-      return () =>
-        window.removeEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
     }, [getItemsToRender]);
-
-    /* Helper: safe hover */
-    const handleEnter = (item) => {
-      if (onItemHover) onItemHover(item);
-    };
-
-    const handleLeave = () => {
-      if (onItemLeave) onItemLeave();
-    };
 
     return (
       <div className={`w-full ${className}`}>
 
         {/* Header */}
-        {label && (
-          <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6">
 
-            <h1 className="font-semibold text-xl text-white max-[478px]:text-[17px] capitalize tracking-wide">
-              {label}
-            </h1>
+          <h1 className="font-semibold text-xl text-white max-[478px]:text-[17px] capitalize tracking-wide">
+            {label}
+          </h1>
 
-            {showViewMore && (
-              <Link
-                to={`/${path}`}
-                className="flex items-center gap-x-1 py-1 px-2 -mr-2 rounded-md
-                text-[13px] font-medium text-[#ffffff80] hover:text-white
-                transition-all duration-300 group"
-              >
-                View all
-                <FaChevronRight className="text-[10px] transition-transform duration-300 group-hover:translate-x-0.5" />
-              </Link>
-            )}
+          {showViewMore && (
+            <Link
+              to={`/${path}`}
+              className="flex items-center gap-x-1 py-1 px-2 -mr-2 rounded-md
+              text-[13px] font-medium text-[#ffffff80] hover:text-white
+              transition-all duration-300 group"
+            >
+              View all
+              <FaChevronRight className="text-[10px] transition-transform duration-300 group-hover:translate-x-0.5" />
+            </Link>
+          )}
 
-          </div>
-        )}
+        </div>
 
         {/* FIRST ROW (Category Page) */}
         {categoryPage && (
@@ -114,15 +89,11 @@ const CategoryCard = React.memo(
                 : ""
             }`}
           >
+
             {itemsToRender.firstRow.map((item, index) => (
               <div
                 key={index}
-                ref={(el) =>
-                  cardRefs && (cardRefs.current[item.id] = el)
-                }
                 className="flex flex-col category-card-container"
-                onMouseEnter={() => handleEnter(item)}
-                onMouseLeave={handleLeave}
               >
 
                 {/* Poster */}
@@ -142,7 +113,6 @@ const CategoryCard = React.memo(
                     <img
                       src={item.poster}
                       alt={item.title}
-                      loading="lazy"
                     />
 
                     <div className="overlay"></div>
@@ -166,6 +136,7 @@ const CategoryCard = React.memo(
 
               </div>
             ))}
+
           </div>
         )}
 
@@ -180,22 +151,13 @@ const CategoryCard = React.memo(
           {itemsToRender.remainingItems.map((item, index) =>
             label === "Latest Episode" ? (
 
-              <LatestEpisodeCard
-                key={index}
-                item={item}
-                path={path}
-              />
+              <LatestEpisodeCard key={index} item={item} path={path} />
 
             ) : (
 
               <div
                 key={index}
-                ref={(el) =>
-                  cardRefs && (cardRefs.current[item.id] = el)
-                }
                 className="flex flex-col category-card-container"
-                onMouseEnter={() => handleEnter(item)}
-                onMouseLeave={handleLeave}
               >
 
                 {/* Poster */}
@@ -215,7 +177,6 @@ const CategoryCard = React.memo(
                     <img
                       src={item.poster}
                       alt={item.title}
-                      loading="lazy"
                     />
 
                     <div className="overlay"></div>
@@ -230,9 +191,11 @@ const CategoryCard = React.memo(
                   {/* Adult */}
                   {(item.tvInfo?.rating === "18+" ||
                     item?.adultContent) && (
+
                     <div className="adult-badge">
                       18+
                     </div>
+
                   )}
 
                   {/* Sub / Dub */}
@@ -242,18 +205,14 @@ const CategoryCard = React.memo(
 
                       {item.tvInfo?.sub && (
                         <div className="meta-badge">
-                          <FontAwesomeIcon
-                            icon={faClosedCaptioning}
-                          />
+                          <FontAwesomeIcon icon={faClosedCaptioning} />
                           <span>{item.tvInfo.sub}</span>
                         </div>
                       )}
 
                       {item.tvInfo?.dub && (
                         <div className="meta-badge">
-                          <FontAwesomeIcon
-                            icon={faMicrophone}
-                          />
+                          <FontAwesomeIcon icon={faMicrophone} />
                           <span>{item.tvInfo.dub}</span>
                         </div>
                       )}
