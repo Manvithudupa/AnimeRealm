@@ -1,22 +1,16 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import CategoryCard from "@/src/components/categorycard/CategoryCard.jsx";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FaChevronRight } from "react-icons/fa";
-import useToolTipPosition from "@/src/hooks/useToolTipPosition";
 import Qtip from "@/src/components/qtip/Qtip.jsx";
 
 function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, className = "" }) {
   const [activeTab, setActiveTab] = useState("airing");
   const [hoveredItem, setHoveredItem] = useState(null);
 
-  const navigate = useNavigate();
-
-  /* Tooltip timers */
   const showTimerRef = useRef(null);
   const hideTimerRef = useRef(null);
-
-  /* Refs for each card */
   const cardRefs = useRef({});
 
   const tabs = [
@@ -27,24 +21,10 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
 
   const activeTabData = tabs.find((tab) => tab.id === activeTab);
 
-  /* Tooltip position */
-  const { tooltipPosition, tooltipHorizontalPosition } = useToolTipPosition(
-    hoveredItem,
-    activeTabData?.data,
-    cardRefs
-  );
-
-  /* Hover handlers */
+  // Hover handlers
   const handleMouseEnter = (item) => {
-    if (hideTimerRef.current) {
-      clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = null;
-    }
-
-    if (showTimerRef.current) {
-      clearTimeout(showTimerRef.current);
-      showTimerRef.current = null;
-    }
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    if (showTimerRef.current) clearTimeout(showTimerRef.current);
 
     showTimerRef.current = setTimeout(() => {
       setHoveredItem(item.id);
@@ -53,11 +33,7 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
   };
 
   const handleMouseLeave = () => {
-    if (showTimerRef.current) {
-      clearTimeout(showTimerRef.current);
-      showTimerRef.current = null;
-    }
-
+    if (showTimerRef.current) clearTimeout(showTimerRef.current);
     if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
 
     hideTimerRef.current = setTimeout(() => {
@@ -67,10 +43,7 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
   };
 
   const handleTooltipMouseEnter = () => {
-    if (hideTimerRef.current) {
-      clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = null;
-    }
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
   };
 
   const handleTooltipMouseLeave = () => {
@@ -82,6 +55,23 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
     }, 200);
   };
 
+  // Dynamic tooltip position
+  const [tooltipStyle, setTooltipStyle] = useState({ top: 0, left: 0 });
+
+  useEffect(() => {
+    if (!hoveredItem || !cardRefs.current[hoveredItem]) return;
+
+    const card = cardRefs.current[hoveredItem];
+    const parentRect = card.parentElement.getBoundingClientRect();
+    const cardRect = card.getBoundingClientRect();
+
+    // Position tooltip to the right of card
+    const top = card.offsetTop;
+    const left = card.offsetLeft + card.offsetWidth + 12; // 12px gap
+
+    setTooltipStyle({ top, left });
+  }, [hoveredItem]);
+
   return (
     <div className={`w-full ${className}`}>
       {/* Tabs Header */}
@@ -91,10 +81,8 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`relative px-6 py-4 text-[15px] font-medium transition-all duration-300 
-                ${activeTab === tab.id
-                  ? "text-white after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-primary after:rounded-t-full"
-                  : "text-[#ffffff80] hover:text-white"}
+              className={`relative px-6 py-4 text-[15px] font-medium transition-all duration-300
+                ${activeTab === tab.id ? "text-white after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-primary after:rounded-t-full" : "text-[#ffffff80] hover:text-white"}
                 before:absolute before:bottom-0 before:left-1/2 before:w-0 before:h-[2px] before:bg-[#ffffff40]
                 before:transition-all before:duration-300 before:-translate-x-1/2
                 hover:before:w-full
@@ -111,9 +99,7 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
         {/* View All */}
         <Link
           to={`/${activeTabData?.path}`}
-          className="flex items-center gap-x-1 py-1 px-2 -mr-2 rounded-md
-            text-[13px] font-medium text-[#ffffff80] hover:text-white
-            transition-all duration-300 group"
+          className="flex items-center gap-x-1 py-1 px-2 -mr-2 rounded-md text-[13px] font-medium text-[#ffffff80] hover:text-white transition-all duration-300 group"
         >
           View all
           <FaChevronRight className="text-[10px] transition-transform duration-300 group-hover:translate-x-0.5" />
@@ -133,12 +119,16 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
         />
 
         {/* Tooltip */}
-        {hoveredItem && window.innerWidth > 1024 && (
+        {hoveredItem && cardRefs.current[hoveredItem] && window.innerWidth > 1024 && (
           <div
-            className={`absolute ${tooltipPosition || "top-full"} ${tooltipHorizontalPosition || "left-0"} z-[100000] transition-all duration-200 ease-in-out`}
+            className="absolute z-[100000] transition-all duration-200 ease-in-out"
+            style={{
+              top: tooltipStyle.top,
+              left: tooltipStyle.left,
+              pointerEvents: "auto",
+            }}
             onMouseEnter={handleTooltipMouseEnter}
             onMouseLeave={handleTooltipMouseLeave}
-            style={{ pointerEvents: "auto" }}
           >
             <Qtip id={hoveredItem} />
           </div>
