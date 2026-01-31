@@ -11,7 +11,7 @@ import Banner from "../banner/Banner";
 
 const Spotlight = ({ spotlights }) => {
   return (
-    <div className="relative w-full h-[450px] max-[1390px]:h-[400px] max-[1300px]:h-[350px] max-md:h-[300px]">
+    <div className="spotlight-wrapper">
 
       {spotlights && spotlights.length > 0 ? (
 
@@ -38,8 +38,7 @@ const Spotlight = ({ spotlights }) => {
 
           modules={[Navigation, Autoplay, Pagination]}
 
-          // 🔥 IMPORTANT CHANGES
-          className="w-full h-full relative"
+          className="spotlight-swiper"
 
           style={{
             "--swiper-pagination-bullet-inactive-color":
@@ -49,7 +48,7 @@ const Spotlight = ({ spotlights }) => {
         >
 
           {/* Navigation Buttons */}
-          <div className="absolute right-[20px] top-[20px] flex space-x-1.5 z-[5]">
+          <div className="spotlight-nav">
             <div className="button-prev"></div>
             <div className="button-next"></div>
           </div>
@@ -58,7 +57,7 @@ const Spotlight = ({ spotlights }) => {
           {spotlights.map((item, index) => (
             <SwiperSlide
               key={index}
-              className="relative w-full h-full"
+              className="spotlight-slide"
             >
               <Banner item={item} index={index} />
             </SwiperSlide>
