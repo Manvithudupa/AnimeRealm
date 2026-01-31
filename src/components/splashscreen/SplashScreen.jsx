@@ -35,6 +35,7 @@ const useTopSearch = () => {
 
 function SplashScreen() {
   const navigate = useNavigate();
+
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -56,181 +57,181 @@ function SplashScreen() {
   );
 
   return (
-    <div className="w-full">
+    <div className="page-wrapper">
 
-      {/* Container */}
-      <div className="w-[1300px] mx-auto pt-12 relative overflow-hidden max-[1350px]:w-full max-[1350px]:px-8 max-[1200px]:pt-8 max-[780px]:px-4 max-[520px]:px-0">
+      {/* MAIN CONTENT */}
+      <div className="w-full flex-grow">
 
-        {/* NAV */}
-        <nav className="relative w-full">
+        <div className="w-[1300px] mx-auto pt-12 relative overflow-hidden max-[1350px]:w-full max-[1350px]:px-8 max-[1200px]:pt-8 max-[780px]:px-4 max-[520px]:px-0">
 
-          {/* Desktop */}
-          <div className="w-fit flex gap-x-12 mx-auto font-semibold max-[780px]:hidden">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="hover:text-slate-300 transition"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
+          {/* NAV */}
+          <nav className="relative w-full">
 
-          {/* Mobile Menu Button */}
-          <div className="max-[780px]:block hidden">
-
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="p-2 flex items-center gap-x-2 group"
-            >
-              <svg
-                className="w-6 h-6 text-white group-hover:text-slate-300 transition"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-
-              <span className="font-semibold group-hover:text-slate-300 transition">
-                Menu
-              </span>
-            </button>
-
-          </div>
-
-          {/* Mobile Menu */}
-          {isModalOpen && (
-            <div className="max-[780px]:block hidden absolute z-50 top-10 w-full">
-
-              <div className="bg-[#101010fa] p-6 rounded-2xl flex flex-col gap-y-6 items-center">
-
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="absolute top-0 right-0 bg-white px-3 py-1 rounded-bl-xl font-bold"
+            {/* Desktop */}
+            <div className="w-fit flex gap-x-12 mx-auto font-semibold max-[780px]:hidden">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="hover:text-slate-300 transition"
                 >
-                  ×
-                </button>
-
-                {NAV_LINKS.map((link) => (
-                  <Link
-                    key={link.to}
-                    to={link.to}
-                    onClick={() => setIsModalOpen(false)}
-                    className="text-white text-lg hover:text-slate-300"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-
-              </div>
+                  {link.label}
+                </Link>
+              ))}
             </div>
-          )}
-        </nav>
 
-        {/* SPLASH */}
-        <div className="splashscreen min-h-[480px] bg-[#2B2A3C] rounded-[40px] flex relative mt-7 max-[780px]:rounded-[30px] max-[520px]:rounded-none">
-
-          {/* LEFT */}
-          <div className="flex flex-col w-[700px] relative z-40 px-20 py-20 max-[1200px]:py-12 max-[780px]:px-12 max-[520px]:px-8 max-[520px]:py-6">
-
-            {/* LOGO */}
-            <Link
-              to="/home"
-              className="text-[45px] font-extrabold tracking-wide max-[520px]:text-[36px] max-[520px]:text-center"
-            >
-              {logoTitle.slice(0, 3)}
-              <span className="text-slate-400">
-                {logoTitle.slice(3, 4)}
-              </span>
-              {logoTitle.slice(4)}
-            </Link>
-
-            {/* SEARCH */}
-            <div className="w-full flex gap-x-3 mt-6">
-
-              <input
-                type="text"
-                placeholder="Search anime..."
-                className="w-full py-3 px-6 rounded-xl bg-white text-[18px] text-black outline-none focus:ring-2 focus:ring-slate-400"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onKeyDown={handleKeyDown}
-              />
+            {/* Mobile */}
+            <div className="max-[780px]:block hidden">
 
               <button
-                onClick={handleSearchSubmit}
-                className="bg-slate-700 hover:bg-slate-600 text-white py-3 px-4 rounded-xl transition"
+                onClick={() => setIsModalOpen(true)}
+                className="p-2 flex items-center gap-x-2 group"
               >
-                <FontAwesomeIcon
-                  icon={faMagnifyingGlass}
-                  className="text-lg"
-                />
+                <svg
+                  className="w-6 h-6 text-white group-hover:text-slate-300 transition"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+
+                <span className="font-semibold group-hover:text-slate-300 transition">
+                  Menu
+                </span>
               </button>
 
             </div>
 
-            {/* TOP SEARCH */}
-            <div className="mt-8">
+            {/* Mobile Menu */}
+            {isModalOpen && (
+              <div className="max-[780px]:block hidden absolute z-50 top-10 w-full">
 
-              <p className="text-sm font-semibold mb-3 text-slate-300">
-                Top Searches
-              </p>
+                <div className="bg-[#101010fa] p-6 rounded-2xl flex flex-col gap-y-6 items-center">
 
-              <div className="flex flex-wrap gap-2">
-
-                {topSearch.map((item, index) => (
-                  <Link
-                    key={index}
-                    to={item.link}
-                    className="splash-chip"
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="absolute top-0 right-0 bg-white px-3 py-1 rounded-bl-xl font-bold"
                   >
-                    {item.title}
-                  </Link>
-                ))}
+                    ×
+                  </button>
+
+                  {NAV_LINKS.map((link) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      onClick={() => setIsModalOpen(false)}
+                      className="text-white text-lg hover:text-slate-300"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+
+                </div>
+              </div>
+            )}
+          </nav>
+
+          {/* SPLASH */}
+          <div className="splashscreen min-h-[480px] bg-[#2B2A3C] rounded-[40px] flex relative mt-7 max-[780px]:rounded-[30px] max-[520px]:rounded-none">
+
+            {/* LEFT */}
+            <div className="flex flex-col w-[700px] relative z-40 px-20 py-20 max-[1200px]:py-12 max-[780px]:px-12 max-[520px]:px-8 max-[520px]:py-6">
+
+              {/* LOGO */}
+              <Link
+                to="/home"
+                className="text-[45px] font-extrabold tracking-wide text-white max-[520px]:text-[36px] max-[520px]:text-center"
+              >
+                {logoTitle}
+              </Link>
+
+              {/* SEARCH */}
+              <div className="w-full flex gap-x-3 mt-6">
+
+                <input
+                  type="text"
+                  placeholder="Search anime..."
+                  className="w-full py-3 px-6 rounded-xl bg-white text-[18px] text-black outline-none focus:ring-2 focus:ring-slate-400"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                />
+
+                <button
+                  onClick={handleSearchSubmit}
+                  className="bg-white hover:bg-slate-100 text-black py-3 px-4 rounded-xl transition"
+                >
+                  <FontAwesomeIcon
+                    icon={faMagnifyingGlass}
+                    className="text-lg"
+                  />
+                </button>
+
+              </div>
+
+              {/* TOP SEARCH */}
+              <div className="mt-8">
+
+                <p className="text-sm font-semibold mb-3 text-slate-300">
+                  Top Searches
+                </p>
+
+                <div className="flex flex-wrap gap-2">
+
+                  {topSearch.map((item, index) => (
+                    <Link
+                      key={index}
+                      to={item.link}
+                      className="splash-chip"
+                    >
+                      {item.title}
+                    </Link>
+                  ))}
+
+                </div>
+
+              </div>
+
+              {/* BUTTON */}
+              <div className="mt-10">
+
+                <Link to="/home" className="block max-[520px]:w-full">
+
+                  <div className="bg-white hover:bg-slate-100 transition text-black py-4 px-10 rounded-xl font-bold text-[18px] text-center">
+
+                    Watch Anime
+
+                    <FontAwesomeIcon
+                      icon={faCircleArrowRight}
+                      className="ml-4"
+                    />
+
+                  </div>
+
+                </Link>
 
               </div>
 
             </div>
 
-            {/* BUTTON */}
-            <div className="mt-10">
+            {/* RIGHT IMAGE */}
+            <div className="h-full w-[600px] absolute right-0 max-[780px]:hidden">
 
-              <Link to="/home" className="block max-[520px]:w-full">
+              <div className="splashoverlay"></div>
 
-                <div className="bg-slate-700 hover:bg-slate-600 transition text-white py-4 px-10 rounded-xl font-bold text-[18px] text-center">
-
-                  Watch Anime
-
-                  <FontAwesomeIcon
-                    icon={faCircleArrowRight}
-                    className="ml-4"
-                  />
-
-                </div>
-
-              </Link>
+              <img
+                src="/splash.jpg"
+                alt="Splash"
+                className="rounded-r-[40px] w-full h-full object-cover"
+              />
 
             </div>
-
-          </div>
-
-          {/* RIGHT IMAGE */}
-          <div className="h-full w-[600px] absolute right-0 max-[780px]:hidden">
-
-            <div className="splashoverlay"></div>
-
-            <img
-              src="/splash.jpg"
-              alt="Splash"
-              className="rounded-r-[40px] w-full h-full object-cover"
-            />
 
           </div>
 
@@ -239,9 +240,9 @@ function SplashScreen() {
       </div>
 
       {/* FOOTER */}
-      <div className="mt-10 text-[14px] text-center pb-4 text-slate-400">
+      <footer className="main-footer">
         © {logoTitle} All rights reserved.
-      </div>
+      </footer>
 
     </div>
   );
