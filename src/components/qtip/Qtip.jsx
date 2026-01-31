@@ -88,10 +88,10 @@ function Qtip({ id }) {
               )}
             </div>
 
-            {/* Type */}
+            {/* Type Badge - now neutral */}
             {qtip?.type && (
-              <div className="absolute right-0 top-0 rounded-sm bg-purple-500 px-[6px] text-black">
-                <p className="font-semibold text-[12px]">{qtip.type}</p>
+              <div className="absolute right-0 top-0 rounded-sm bg-white/90 px-[6px]">
+                <p className="font-semibold text-black text-[12px]">{qtip.type}</p>
               </div>
             )}
           </div>
@@ -107,18 +107,14 @@ function Qtip({ id }) {
           <div className="flex flex-col mt-1 gap-y-[2px]">
             {qtip?.japaneseTitle && (
               <div className="leading-4">
-                <span className="text-[#b7b7b8] text-[13px]">
-                  Japanese:&nbsp;
-                </span>
+                <span className="text-[#b7b7b8] text-[13px]">Japanese:&nbsp;</span>
                 <span className="text-[13px]">{qtip.japaneseTitle}</span>
               </div>
             )}
 
             {qtip?.Synonyms && (
               <div className="leading-4">
-                <span className="text-[#b7b7b8] text-[13px]">
-                  Synonyms:&nbsp;
-                </span>
+                <span className="text-[#b7b7b8] text-[13px]">Synonyms:&nbsp;</span>
                 <span className="text-[13px]">{qtip.Synonyms}</span>
               </div>
             )}
@@ -132,19 +128,14 @@ function Qtip({ id }) {
 
             {qtip?.status && (
               <div className="leading-4">
-                <span className="text-[#b7b7b8] text-[13px]">
-                  Status:&nbsp;
-                </span>
+                <span className="text-[#b7b7b8] text-[13px]">Status:&nbsp;</span>
                 <span className="text-[13px]">{qtip.status}</span>
               </div>
             )}
 
             {qtip?.genres && (
               <div className="leading-4 flex flex-wrap">
-                <span className="text-[#b7b7b8] text-[13px]">
-                  Genres:&nbsp;
-                </span>
-
+                <span className="text-[#b7b7b8] text-[13px]">Genres:&nbsp;</span>
                 {qtip.genres.map((genre, index) => (
                   <Link
                     to={`/genre/${genre}`}
@@ -161,22 +152,22 @@ function Qtip({ id }) {
             )}
           </div>
 
-          {/* Watch Button */}
+          {/* Watch Button - now neutral */}
           <Link
             to={qtip.watchLink}
             className="w-[85%] mx-auto mt-4 flex justify-center items-center gap-x-2
-                       bg-gradient-to-r from-purple-500 via-violet-500 to-fuchsia-500
+                       bg-white/90
                        py-[10px] rounded-full
-                       shadow-lg shadow-purple-500/30
-                       hover:shadow-purple-500/60
+                       shadow-md shadow-black/30
+                       hover:shadow-black/50
                        hover:scale-105
                        transition-all duration-300"
           >
             <FontAwesomeIcon
               icon={faPlay}
-              className="text-[14px] text-white"
+              className="text-black text-[14px]"
             />
-            <p className="text-[14px] font-semibold text-white tracking-wide">
+            <p className="text-[14px] font-semibold text-black tracking-wide">
               Watch Now
             </p>
           </Link>
