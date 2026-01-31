@@ -55,7 +55,7 @@ function SplashScreen() {
 
   const topSearch = useTopSearch();
 
-  /* Search Submit */
+  /* Search */
 
   const handleSearchSubmit = useCallback(() => {
     const trimmed = search.trim();
@@ -95,13 +95,13 @@ function SplashScreen() {
             ))}
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Button */}
 
           <div className="mobile-menu">
             <button onClick={() => setIsModalOpen(true)}>☰</button>
           </div>
 
-          {/* Mobile Modal */}
+          {/* Mobile Menu */}
 
           {isModalOpen && (
             <div className="mobile-modal">
@@ -131,11 +131,15 @@ function SplashScreen() {
           {/* LEFT */}
 
           <div className="splash-content">
-            <h1 className="splash-logo">
-              {logoTitle.slice(0, 3)}
-              <span>{logoTitle.slice(3, 4)}</span>
-              {logoTitle.slice(4)}
+            {/* Hero Text */}
+
+            <h1 className="hero-title">
+              Stream Your Favorite Anime
             </h1>
+
+            <p className="hero-subtitle">
+              Watch thousands of episodes in HD. Anytime. Anywhere.
+            </p>
 
             {/* Search */}
 
@@ -153,7 +157,7 @@ function SplashScreen() {
               </button>
             </div>
 
-            {/* Top Search */}
+            {/* Trending */}
 
             <div className="top-search">
               <strong>Trending:</strong>
