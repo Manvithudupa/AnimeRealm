@@ -11,7 +11,7 @@ import Error from "@/src/components/error/Error.jsx";
 import Schedule from "@/src/components/schedule/Schedule";
 import ContinueWatching from "@/src/components/continue/ContinueWatching";
 
-import TabbedAnimeSection from "@/src/components/tabbed/TabbedAnimeSection.jsx";
+import TabbedAnimeSection from "@/src/components/tabbed-anime/TabbedAnimeSection.jsx";
 
 // 👉 Popup
 import SupportPopup from "@/src/components/SupportPopup/SupportPopup.jsx";
