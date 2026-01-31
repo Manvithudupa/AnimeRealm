@@ -1,8 +1,26 @@
+/* Page Layout */
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Footer */
+.main-footer {
+  margin-top: auto;
+  padding: 16px 0;
+  text-align: center;
+  font-size: 14px;
+  color: #94a3b8;
+  background: #0f172a;
+}
+
+/* Splash */
 .splashscreen {
   overflow: hidden;
 }
 
-/* New pill-style top search chips */
+/* Top Search Pills */
 .splash-chip {
   display: inline-block;
   padding: 6px 14px;
