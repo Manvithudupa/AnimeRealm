@@ -10,8 +10,10 @@
 /* ================= ROOT ================= */
 
 :root {
-  --mobile-bg: url('path-to-your-mobile-background.jpg'); /* Replace with your mobile image */
+  --mobile-bg: url('https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.Wl2P4wOdsnfCQbpVnWbHmAHaEK%3Fpid%3DApi&f=1&ipt=505ede0b3492e7102c9b2b7b7c3c94821002d41862590f242d534bf1bb8a870a&ipo=images'); /* Replace with your mobile image */
 }
+
+/* ================= SPLASH ROOT ================= */
 
 .splash-root {
   min-height: 100vh;
@@ -37,15 +39,15 @@
 
 .splash-nav {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto; /* logo | links | menu */
   align-items: center;
   position: relative;
 }
 
 .nav-logo {
   color: white;
-  font-weight: 900;
-  font-size: 24px;
+  font-weight: 900; /* Extra bold */
+  font-size: 28px; /* Slightly bigger for emphasis */
   letter-spacing: 0.5px;
   text-decoration: none;
   opacity: 0.95;
@@ -53,15 +55,17 @@
 
 .nav-logo span {
   color: #e5e7eb;
+  font-weight: 900; /* make the “!meRealm” part bold */
 }
 
 .nav-logo:hover {
   opacity: 1;
 }
 
+/* Keep nav-links centered */
 .nav-links {
   display: flex;
-  justify-content: center;
+  justify-content: center; /* keeps them centered in middle column */
   gap: 32px;
 }
 
@@ -76,7 +80,6 @@
 }
 
 /* Mobile Button */
-
 .mobile-menu {
   display: none;
 }
