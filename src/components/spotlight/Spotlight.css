@@ -1,45 +1,72 @@
-/* Swiper Base */
-.swiper {
+/* Wrapper - Full Width */
+.spotlight-wrapper {
+  width: 100vw;
+  height: 600px;
+  margin-left: calc(-50vw + 50%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Swiper */
+.spotlight-swiper {
   width: 100%;
   height: 100%;
 }
 
-.swiper-slide {
+/* Slides */
+.spotlight-slide {
   width: 100%;
   height: 100%;
-  font-size: 18px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+/* Navigation Position */
+.spotlight-nav {
+  position: absolute;
+  right: 30px;
+  top: 30px;
+
+  display: flex;
+  gap: 8px;
+
+  z-index: 10;
+}
+
 /* Navigation Buttons */
 .button-prev,
 .button-next {
-  width: 36px;
-  height: 36px;
-  background-color: #1a1a1a;
-  border-radius: 6px;
+  width: 40px;
+  height: 40px;
+
+  background-color: rgba(0, 0, 0, 0.6);
+
+  border-radius: 8px;
   cursor: pointer;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
+  backdrop-filter: blur(6px);
+
   transition: all 0.2s ease;
 }
 
 .button-prev:hover,
 .button-next:hover {
-  background-color: #2a2a2a;
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
+/* Arrows */
 .button-prev::after,
 .button-next::after {
   content: "";
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
+
   border: 2px solid #ffffff;
   border-left: 0;
   border-bottom: 0;
@@ -57,67 +84,68 @@
 
 /* Pagination */
 .swiper-horizontal > .swiper-pagination-bullets {
-  bottom: 20px !important;
+  bottom: 30px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
 
   width: auto !important;
 
   display: flex !important;
-  gap: 8px;
+  gap: 10px;
 
   align-items: center;
   justify-content: center;
 }
 
 .swiper-pagination {
-  bottom: 20px !important;
+  bottom: 30px !important;
 }
 
+/* Bullets */
 .swiper-pagination-bullet {
   width: 8px !important;
   height: 8px !important;
 
   border-radius: 50% !important;
 
-  background-color: rgba(255, 255, 255, 0.5) !important;
+  background-color: rgba(255, 255, 255, 0.4) !important;
 
   opacity: 1 !important;
+
+  transition: all 0.25s ease;
 }
 
+/* Active Bullet - Neutral */
 .swiper-pagination-bullet-active {
-  background-color: #ffbade !important;
+  background-color: #ffffff !important;
 
-  width: 24px !important;
-  border-radius: 12px !important;
+  width: 26px !important;
+  border-radius: 13px !important;
+}
 
-  opacity: 1 !important;
+/* Tablet */
+@media (max-width: 1024px) {
+  .spotlight-wrapper {
+    height: 480px;
+  }
 }
 
 /* Mobile */
-@media only screen and (max-width: 575px) {
+@media (max-width: 640px) {
 
-  .swiper-horizontal > .swiper-pagination-bullets {
-    bottom: 20px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
+  .spotlight-wrapper {
+    height: 340px;
+  }
 
-    width: auto !important;
-
-    display: flex !important;
-    gap: 4px;
-
-    align-items: center;
-    justify-content: center;
-
-    flex-direction: row !important;
-    height: auto !important;
+  .spotlight-nav {
+    right: 16px;
+    top: 16px;
   }
 
   .button-prev,
   .button-next {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
   }
 
   .swiper-pagination-bullet {
@@ -126,7 +154,7 @@
   }
 
   .swiper-pagination-bullet-active {
-    width: 16px !important;
-    border-radius: 8px !important;
+    width: 18px !important;
+    border-radius: 9px !important;
   }
 }
