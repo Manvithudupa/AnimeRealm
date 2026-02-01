@@ -123,10 +123,18 @@ const CategoryCard = React.memo(
       );
     };
 
+    // Automatically pluralize "Latest Episode" -> "Latest Episodes"
+    const displayLabel =
+      label === "Latest Episode" ? "Latest Episodes" : label;
+
     return (
       <>
         {/* Section Heading */}
-        {label && <h2 className="text-white text-2xl font-bold mb-4">{label}</h2>}
+        {displayLabel && (
+          <h2 className="text-white text-2xl font-bold mb-4">
+            {displayLabel}
+          </h2>
+        )}
 
         {/* First Row */}
         {categoryPage && itemsToRender.firstRow.length > 0 && (
