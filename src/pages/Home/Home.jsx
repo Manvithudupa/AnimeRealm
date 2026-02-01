@@ -74,6 +74,7 @@ function Home() {
               topAiring={homeInfo.top_airing}
               mostFavorite={homeInfo.most_favorite}
               latestCompleted={homeInfo.latest_completed}
+              topUpcoming={homeInfo.top_upcoming}
               className="mt-[30px]"
             />
 
