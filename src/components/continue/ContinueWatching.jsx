@@ -21,63 +21,87 @@ const ContinueWatching = () => {
      MIGRATE localStorage → Supabase
   =============================== */
   const migrateFromLocalStorage = async (userId) => {
-    const old = JSON.parse(localStorage.getItem("continueWatching") || "[]");
-    if (!old.length) return;
+    try {
+      const old = JSON.parse(localStorage.getItem("continueWatching") || "[]");
+      if (!old.length) return;
 
-    for (const item of old) {
-      await supabase.from("continue_watching").upsert({
-        user_id: userId,
-        anime_id: item.id,
-        episode_id: item.episodeId,
-        episode_num: item.episodeNum,
-        title: item.title,
-        japanese_title: item.japanese_title,
-        poster: item.poster,
-        duration: item.duration,
-        left_at: item.leftAt,
-        adult_content: item.adultContent,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: ['user_id', 'episode_id'] });
+      // Use Promise.all to migrate in parallel
+      await Promise.all(
+        old.map((item) =>
+          supabase.from("continue_watching").upsert(
+            {
+              user_id: userId,
+              anime_id: item.id,
+              episode_id: item.episodeId,
+              episode_num: item.episodeNum,
+              title: item.title,
+              japanese_title: item.japanese_title,
+              poster: item.poster,
+              duration: Number(item.duration) || 0,
+              left_at: Number(item.leftAt) || 0,
+              adult_content: !!item.adultContent,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: ["user_id", "episode_id"] }
+          )
+        )
+      );
+
+      // Remove localStorage to avoid repeated migration
+      localStorage.removeItem("continueWatching");
+    } catch (err) {
+      console.error("Migration error:", err);
     }
-    localStorage.removeItem("continueWatching");
   };
 
   /* ===============================
-     LOAD WATCHLIST
+     LOAD WATCHLIST FROM SUPABASE
   =============================== */
   const loadWatchList = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    await migrateFromLocalStorage(user.id);
+      // Migrate localStorage first
+      await migrateFromLocalStorage(user.id);
 
-    const { data, error } = await supabase
-      .from("continue_watching")
-      .select("*")
-      .order("updated_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("continue_watching")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false });
 
-    if (error) console.error("Load watchlist error:", error);
-    else setWatchList(data || []);
+      if (error) console.error("Load watchlist error:", error);
+      else setWatchList(data || []);
+    } catch (err) {
+      console.error("Error loading watchlist:", err);
+    }
   };
 
-  useEffect(() => { loadWatchList(); }, []);
+  useEffect(() => {
+    loadWatchList();
+  }, []);
 
   const memoizedWatchList = useMemo(() => watchList, [watchList]);
 
   /* ===============================
-     REMOVE ITEM (USING PRIMARY KEY!)
+     REMOVE ITEM
   =============================== */
   const removeFromWatchList = async (rowId) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    const { error } = await supabase
-      .from("continue_watching")
-      .delete()
-      .eq("id", rowId);
+      const { error } = await supabase
+        .from("continue_watching")
+        .delete()
+        .eq("id", rowId);
 
-    if (error) console.error("Delete failed:", error);
-    else loadWatchList();
+      if (error) console.error("Delete failed:", error);
+      else loadWatchList();
+    } catch (err) {
+      console.error("Remove error:", err);
+    }
   };
 
   if (!memoizedWatchList.length) return null;
@@ -142,7 +166,7 @@ const ContinueWatching = () => {
 
                   {/* CARD */}
                   <Link
-                    to={`/watch/${item.anime_id}?ep=${item.episode_id}`}
+                    to={`/watch/${item.anime_id}?ep=${item.episode_id}`} // URL uses episode_id
                     className="absolute inset-0"
                   >
                     <img
@@ -176,7 +200,9 @@ const ContinueWatching = () => {
                     <p className="text-white font-bold truncate">
                       {language === "EN" ? item.title : item.japanese_title}
                     </p>
-                    <p className="text-gray-300 text-sm">Episode {item.episode_num}</p>
+                    <p className="text-gray-300 text-sm">
+                      Episode {item.episode_num} {/* Show episode number, not ID */}
+                    </p>
                   </div>
                 </div>
               </SwiperSlide>
