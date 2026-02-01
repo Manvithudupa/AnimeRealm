@@ -64,15 +64,18 @@ function Navbar() {
         bg-[#0a0a0a] transition-all duration-300
         ${isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"}`}
       >
+        {/* MAIN CONTAINER */}
         <div
           className="
-          w-full max-w-screen-xl mx-auto
-          h-16 px-2 sm:px-4
+          w-full max-w-[1920px]
+          mx-auto
+          h-16
+          px-3 sm:px-6 lg:px-10
           flex items-center justify-between
           overflow-hidden"
         >
           {/* LEFT */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-3 flex-shrink-0">
             <FontAwesomeIcon
               icon={faBars}
               onClick={() => setIsSidebarOpen(true)}
@@ -83,16 +86,18 @@ function Navbar() {
             </Link>
           </div>
 
-          {/* CENTER – DESKTOP */}
-          <div className="hidden md:flex flex-1 min-w-0 justify-center px-4">
-            <div className="flex items-center gap-2 w-full max-w-[560px] min-w-0">
+          {/* CENTER – DESKTOP SEARCH */}
+          <div className="hidden md:flex flex-1 min-w-0 justify-center">
+            <div className="flex items-center gap-2 w-full max-w-[720px] min-w-0">
               <WebSearch />
               <Link
                 to={location.pathname === "/random" ? "#" : "/random"}
                 onClick={handleRandomClick}
                 className="flex-shrink-0 p-[10px] aspect-square
                 bg-[#2a2a2a]/75 text-white/50
-                hover:text-white rounded-lg flex items-center justify-center"
+                hover:text-white rounded-lg
+                flex items-center justify-center"
+                title="Random Anime"
               >
                 <FontAwesomeIcon icon={faRandom} />
               </Link>
@@ -100,14 +105,14 @@ function Navbar() {
           </div>
 
           {/* RIGHT */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             {/* Language */}
-            <div className="hidden md:flex bg-[#27272A] p-1 rounded-md">
+            <div className="hidden md:flex items-center bg-[#27272A] p-1 rounded-md">
               {["EN", "JP"].map((lang) => (
                 <button
                   key={lang}
                   onClick={() => toggleLanguage(lang)}
-                  className={`px-2 py-1 text-sm rounded whitespace-nowrap ${
+                  className={`px-3 py-1 text-sm rounded whitespace-nowrap ${
                     language === lang
                       ? "bg-[#3F3F46] text-white"
                       : "text-gray-400 hover:text-white"
@@ -118,10 +123,10 @@ function Navbar() {
               ))}
             </div>
 
-            {/* User */}
+            {/* User / Login */}
             {user ? (
               <div className="relative flex-shrink-0" ref={dropdownRef}>
-                <button className="flex-shrink-0" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                <button onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
                   <Avatar className="h-9 w-9 rounded-md">
                     <AvatarImage src={profile?.avatar_url || undefined} />
                     <AvatarFallback className="bg-[#2a2a2a]">
@@ -131,43 +136,55 @@ function Navbar() {
                 </button>
 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 z-50
-                  bg-[#111]/95 backdrop-blur-xl
-                  rounded-xl border border-white/10 shadow-xl">
+                  <div
+                    className="absolute right-0 mt-2 w-56 z-50
+                    bg-[#111]/95 backdrop-blur-xl
+                    rounded-xl border border-white/10 shadow-xl"
+                  >
                     <div className="px-4 py-3 border-b border-white/10 text-sm text-gray-300 truncate">
                       {profile?.username || user.email}
                     </div>
 
                     <button
                       onClick={() => navigate("/profile")}
-                      className="w-full px-4 py-3 flex items-center gap-3 text-gray-300 hover:bg-white/5"
+                      className="w-full flex items-center gap-3 px-4 py-3
+                      text-gray-300 hover:bg-white/5"
                     >
-                      <User className="h-4 w-4" /> Profile
+                      <User className="h-4 w-4" />
+                      Profile
                     </button>
 
                     <button
                       onClick={() => navigate("/watchlist")}
-                      className="w-full px-4 py-3 flex items-center gap-3 text-gray-300 hover:bg-white/5"
+                      className="w-full flex items-center gap-3 px-4 py-3
+                      text-gray-300 hover:bg-white/5"
                     >
-                      <Bookmark className="h-4 w-4" /> Watchlist
+                      <Bookmark className="h-4 w-4" />
+                      Watchlist
                     </button>
 
                     <button
                       onClick={signOut}
-                      className="w-full px-4 py-3 flex items-center gap-3 text-red-400 hover:bg-red-500/10"
+                      className="w-full flex items-center gap-3 px-4 py-3
+                      text-red-400 hover:bg-red-500/10"
                     >
-                      <LogOut className="h-4 w-4" /> Logout
+                      <LogOut className="h-4 w-4" />
+                      Logout
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              <Button size="sm" className="flex-shrink-0 whitespace-nowrap" onClick={() => navigate("/auth")}>
+              <Button
+                size="sm"
+                className="flex-shrink-0 whitespace-nowrap"
+                onClick={() => navigate("/auth")}
+              >
                 Login
               </Button>
             )}
 
-            {/* Mobile Search */}
+            {/* MOBILE SEARCH */}
             <button
               onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
               className="md:hidden flex-shrink-0
@@ -175,19 +192,25 @@ function Navbar() {
               bg-[#2a2a2a]/75 text-white/60
               hover:text-white flex items-center justify-center"
             >
-              <FontAwesomeIcon icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass} />
+              <FontAwesomeIcon
+                icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
+              />
             </button>
           </div>
         </div>
 
-        {/* Mobile Search */}
+        {/* MOBILE SEARCH DROPDOWN */}
         {isMobileSearchOpen && (
           <div className="md:hidden bg-[#18181B] shadow-lg">
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
           </div>
         )}
 
-        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        {/* SIDEBAR */}
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
       </nav>
     </SearchProvider>
   );
