@@ -3,177 +3,248 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Link } from "react-router-dom";
 import { useEffect, useState, useRef, useMemo } from "react";
 import "swiper/css";
-import "swiper/css/pagination";
 import "swiper/css/navigation";
-
 import { FaHistory, FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { useLanguage } from "@/src/context/LanguageContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay } from "@fortawesome/free-solid-svg-icons";
+import { useLanguage } from "@/src/context/LanguageContext";
+import { supabase } from "@/src/integrations/supabase/client";
 
 const ContinueWatching = () => {
   const [watchList, setWatchList] = useState([]);
+
   const { language } = useLanguage();
   const swiperRef = useRef(null);
 
-  /* ===========================
-     Load From Storage
-  =========================== */
-  const loadWatchList = () => {
-    const data = JSON.parse(
+  /* ===============================
+     MIGRATE localStorage → Supabase
+  =============================== */
+
+  const migrateFromLocalStorage = async (userId) => {
+    const old = JSON.parse(
       localStorage.getItem("continueWatching") || "[]"
     );
 
-    // Sort by last watched
-    data.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    if (!old.length) return;
 
-    setWatchList(data);
+    for (const item of old) {
+      await supabase.from("continue_watching").upsert({
+        user_id: userId,
+
+        anime_id: item.id,
+        episode_id: item.episodeId,
+        episode_num: item.episodeNum,
+
+        title: item.title,
+        japanese_title: item.japanese_title,
+
+        poster: item.poster,
+
+        duration: item.duration,
+        left_at: item.leftAt,
+
+        adult_content: item.adultContent,
+
+        updated_at: new Date().toISOString(),
+      });
+    }
+
+    // Remove after migration
+    localStorage.removeItem("continueWatching");
   };
+
+  /* ===============================
+     LOAD FROM SUPABASE
+  =============================== */
+
+  const loadWatchList = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    // Migrate once
+    await migrateFromLocalStorage(user.id);
+
+    const { data, error } = await supabase
+      .from("continue_watching")
+      .select("*")
+      .order("updated_at", { ascending: false });
+
+    if (!error) {
+      setWatchList(data || []);
+    }
+  };
+
+  /* ===============================
+     INIT
+  =============================== */
 
   useEffect(() => {
     loadWatchList();
-
-    const handleStorage = () => loadWatchList();
-    window.addEventListener("storage", handleStorage);
-
-    return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
   const memoizedWatchList = useMemo(() => watchList, [watchList]);
 
-  /* ===========================
-     Remove Item
-  =========================== */
-  const removeFromWatchList = (episodeId) => {
-    setWatchList((prev) => {
-      const updated = prev.filter((item) => item.episodeId !== episodeId);
-      localStorage.setItem("continueWatching", JSON.stringify(updated));
-      return updated;
-    });
+  /* ===============================
+     REMOVE
+  =============================== */
+
+  const removeFromWatchList = async (episodeId) => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    await supabase
+      .from("continue_watching")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("episode_id", episodeId);
+
+    loadWatchList();
   };
 
-  if (memoizedWatchList.length === 0) return null;
+  if (!memoizedWatchList.length) return null;
 
   return (
     <div className="mt-8">
-      {/* ================= Header ================= */}
+
+      {/* ============ HEADER ============ */}
       <div className="flex items-center justify-between max-md:pl-4 mb-6">
-        <div className="flex items-center gap-x-3 justify-center">
+
+        <div className="flex items-center gap-x-3">
           <FaHistory className="text-gray-200 text-xl" />
 
-          <h1 className="text-gray-200 text-2xl font-bold tracking-tight max-[450px]:text-xl max-[350px]:text-lg">
+          <h1 className="text-gray-200 text-2xl font-bold tracking-tight">
             Continue Watching
           </h1>
         </div>
 
         <div className="flex gap-x-3 pr-2 max-[350px]:hidden">
-          <button className="continue-btn-prev bg-gray-800 text-gray-300 p-3 rounded-lg hover:bg-gray-700 hover:text-white transition-all duration-300 shadow-lg">
+
+          <button className="continue-btn-prev bg-gray-800 text-gray-300 p-3 rounded-lg">
             <FaChevronLeft className="text-sm" />
           </button>
 
-          <button className="continue-btn-next bg-gray-800 text-gray-300 p-3 rounded-lg hover:bg-gray-700 hover:text-white transition-all duration-300 shadow-lg">
+          <button className="continue-btn-next bg-gray-800 text-gray-300 p-3 rounded-lg">
             <FaChevronRight className="text-sm" />
           </button>
+
         </div>
       </div>
 
-      {/* ================= Slider ================= */}
+      {/* ============ SLIDER ============ */}
+
       <div className="relative mx-auto overflow-hidden z-[1]">
+
         <Swiper
           ref={swiperRef}
-          className="w-full h-full"
           slidesPerView={3}
           spaceBetween={20}
+
           breakpoints={{
-            640: { slidesPerView: 4, spaceBetween: 20 },
-            768: { slidesPerView: 4, spaceBetween: 20 },
-            1024: { slidesPerView: 5, spaceBetween: 24 },
-            1300: { slidesPerView: 6, spaceBetween: 24 },
-            1600: { slidesPerView: 7, spaceBetween: 28 },
+            640: { slidesPerView: 4 },
+            768: { slidesPerView: 4 },
+            1024: { slidesPerView: 5 },
+            1300: { slidesPerView: 6 },
+            1600: { slidesPerView: 7 },
           }}
+
           modules={[Navigation]}
+
           navigation={{
             nextEl: ".continue-btn-next",
             prevEl: ".continue-btn-prev",
           }}
         >
-          {memoizedWatchList.map((item, index) => {
+
+          {memoizedWatchList.map((item) => {
             const progress =
-              item?.leftAt && item?.duration
-                ? Math.min((item.leftAt / item.duration) * 100, 100)
+              item?.left_at && item?.duration
+                ? Math.min((item.left_at / item.duration) * 100, 100)
                 : 0;
 
             return (
               <SwiperSlide
-                key={index}
-                className="text-center flex justify-center items-center"
+                key={item.id}
+                className="flex justify-center"
               >
-                <div className="w-full h-auto pb-[140%] relative inline-block overflow-hidden rounded-lg shadow-lg group">
+                <div className="w-full pb-[140%] relative rounded-lg overflow-hidden group">
 
-                  {/* Remove Button */}
+                  {/* REMOVE */}
                   <button
-                    className="absolute top-3 right-3 bg-black/70 text-gray-300 w-8 h-8 flex items-center justify-center rounded-lg text-sm z-10 font-medium hover:bg-white hover:text-black transition-all duration-300"
-                    onClick={() => removeFromWatchList(item.episodeId)}
+                    className="absolute top-3 right-3 bg-black/70 text-white w-8 h-8 rounded"
+                    onClick={() =>
+                      removeFromWatchList(item.episode_id)
+                    }
                   >
                     ✖
                   </button>
 
-                  {/* Card */}
+                  {/* CARD */}
                   <Link
-                    to={`/watch/${item?.id}?ep=${item.episodeId}`}
-                    className="inline-block bg-gray-900 absolute left-0 top-0 w-full h-full group"
+                    to={`/watch/${item.anime_id}?ep=${item.episode_id}`}
+                    className="absolute inset-0"
                   >
                     <img
-                      src={item?.poster}
-                      alt={item?.title}
-                      className="block w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-105 group-hover:blur-sm"
-                      title={item?.title}
-                      loading="lazy"
+                      src={item.poster}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition"
                     />
 
-                    {/* Hover Play */}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                      <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                        <FontAwesomeIcon
-                          icon={faPlay}
-                          className="text-[50px] text-white drop-shadow-lg max-[450px]:text-[36px]"
-                        />
-                      </div>
+                    {/* PLAY */}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex justify-center items-center">
+
+                      <FontAwesomeIcon
+                        icon={faPlay}
+                        className="text-white text-4xl"
+                      />
+
                     </div>
                   </Link>
 
-                  {/* 18+ Badge */}
-                  {item?.adultContent && (
-                    <div className="text-white px-2 py-0.5 rounded-lg bg-red-600 absolute top-3 left-3 text-[12px] font-bold">
+                  {/* 18+ */}
+                  {item.adult_content && (
+                    <div className="absolute top-3 left-3 bg-red-600 px-2 text-sm rounded">
                       18+
                     </div>
                   )}
 
-                  {/* Progress Bar */}
+                  {/* PROGRESS */}
                   {progress > 0 && (
-                    <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-700 z-20">
+                    <div className="absolute bottom-0 w-full h-1 bg-gray-700">
                       <div
-                        className="h-full bg-red-600 transition-all"
+                        className="h-full bg-red-600"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
                   )}
 
-                  {/* Info */}
-                  <div className="absolute bottom-0 left-0 right-0 p-3 pb-2 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
-                    <p className="text-white text-[15px] font-bold text-left truncate mb-1.5 max-[450px]:text-sm drop-shadow-lg">
-                      {language === "EN" ? item?.title : item?.japanese_title}
+                  {/* INFO */}
+                  <div className="absolute bottom-0 w-full p-3 bg-gradient-to-t from-black">
+
+                    <p className="text-white font-bold truncate">
+                      {language === "EN"
+                        ? item.title
+                        : item.japanese_title}
                     </p>
 
-                    <p className="text-gray-200 text-[13px] font-semibold text-left max-[450px]:text-[12px] drop-shadow-md">
-                      Episode {item.episodeNum}
+                    <p className="text-gray-300 text-sm">
+                      Episode {item.episode_num}
                     </p>
+
                   </div>
+
                 </div>
               </SwiperSlide>
             );
           })}
+
         </Swiper>
+
       </div>
     </div>
   );
