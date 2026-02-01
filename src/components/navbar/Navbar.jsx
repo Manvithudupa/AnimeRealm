@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBars,
@@ -6,40 +6,57 @@ import {
   faMagnifyingGlass,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/src/context/LanguageContext";
-import { Link, useLocation } from "react-router-dom";
 import Sidebar from "../sidebar/Sidebar";
 import { SearchProvider } from "@/src/context/SearchContext";
 import WebSearch from "../searchbar/WebSearch";
 import MobileSearch from "../searchbar/MobileSearch";
 
+import { useAuth } from "../../hooks/useAuth";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { User, LogOut, Bookmark } from "lucide-react";
+import { Button } from "../ui/button";
+
 function Navbar() {
+  const navigate = useNavigate();
   const location = useLocation();
+  const { user, profile, signOut } = useAuth();
   const { language, toggleLanguage } = useLanguage();
-  const [isNotHomePage, setIsNotHomePage] = useState(
-    location.pathname !== "/" && location.pathname !== "/home"
-  );
+
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  const dropdownRef = useRef(null);
+
+  // Close dropdown on auth change
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
+    setIsDropdownOpen(false);
+  }, [user]);
+
+  // Scroll effect & outside click
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 0);
+
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
     };
+
     window.addEventListener("scroll", handleScroll);
+    document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  const handleHamburgerClick = () => {
-    setIsSidebarOpen(true);
-  };
-
-  const handleCloseSidebar = () => {
-    setIsSidebarOpen(false);
-  };
+  const handleHamburgerClick = () => setIsSidebarOpen(true);
+  const handleCloseSidebar = () => setIsSidebarOpen(false);
 
   const handleRandomClick = () => {
     if (location.pathname === "/random") {
@@ -47,35 +64,29 @@ function Navbar() {
     }
   };
 
-  useEffect(() => {
-    setIsNotHomePage(
-      location.pathname !== "/" && location.pathname !== "/home"
-    );
-  }, [location.pathname]);
-
   return (
     <SearchProvider>
       <nav
-        className={`fixed top-0 left-0 w-full z-[1000000] transition-all duration-300 ease-in-out bg-[#0a0a0a]
-          ${isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"}`}
+        className={`fixed top-0 left-0 w-full z-[1000000] transition-all duration-300 ease-in-out bg-[#0a0a0a] ${
+          isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"
+        }`}
       >
         <div className="max-w-[1920px] mx-auto px-4 h-16 flex items-center justify-between">
-          {/* Left Section */}
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-4">
-              <FontAwesomeIcon
-                icon={faBars}
-                className="text-xl text-gray-200 cursor-pointer hover:text-white transition-colors"
-                onClick={handleHamburgerClick}
-              />
-              <Link to="/home" className="flex items-center">
-                <img src="/logo.png" alt="JustAnime Logo" className="h-9 w-auto" />
-              </Link>
-            </div>
+
+          {/* LEFT: Hamburger + Logo */}
+          <div className="flex items-center gap-4">
+            <FontAwesomeIcon
+              icon={faBars}
+              className="text-xl text-gray-200 cursor-pointer hover:text-white transition-colors"
+              onClick={handleHamburgerClick}
+            />
+            <Link to="/home">
+              <img src="/logo.png" alt="Logo" className="h-9 w-auto" />
+            </Link>
           </div>
 
-          {/* Center Section - Search */}
-          <div className="flex-1 flex justify-center items-center max-w-none mx-8 hidden md:flex">
+          {/* CENTER: Desktop Search */}
+          <div className="hidden md:flex flex-1 justify-center mx-8">
             <div className="flex items-center gap-2 w-[600px]">
               <WebSearch />
               <Link
@@ -89,7 +100,10 @@ function Navbar() {
             </div>
           </div>
 
-          {/* Language Toggle - Desktop */}
+          {/* RIGHT: User + Language + Mobile Search */}
+          <div className="flex items-center gap-3">
+
+            {/* Language Toggle - Desktop */}
             <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
               {["EN", "JP"].map((lang) => (
                 <button
@@ -106,19 +120,75 @@ function Navbar() {
               ))}
             </div>
 
-          {/* Mobile Search Icon */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center w-[38px] h-[38px]"
-              title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
-            >
-              <FontAwesomeIcon 
-                icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass} 
-                className="w-[18px] h-[18px] transition-transform duration-200"
-                style={{ transform: isMobileSearchOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
-              />
-            </button>
+            {/* User Dropdown */}
+            {user ? (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsDropdownOpen((prev) => !prev)}
+                  className="flex items-center gap-2"
+                >
+                  <Avatar className="h-10 w-10 rounded-md">
+                    <AvatarImage
+                      src={profile?.avatar_url || undefined}
+                      className="rounded-md object-cover"
+                    />
+                    <AvatarFallback className="bg-[#2a2a2a] rounded-md flex items-center justify-center">
+                      <User className="h-5 w-5 text-white/70" />
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-[#111]/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-xl overflow-hidden">
+                    <div className="px-4 py-3 border-b border-white/10">
+                      <p className="text-sm text-gray-300 truncate">
+                        {profile?.username || user.email}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => { setIsDropdownOpen(false); navigate("/profile"); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
+                    >
+                      <User className="h-4 w-4" />
+                      Profile
+                    </button>
+                    <button
+                      onClick={() => { setIsDropdownOpen(false); navigate("/watchlist"); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
+                    >
+                      <Bookmark className="h-4 w-4" />
+                      Watchlist
+                    </button>
+                    <button
+                      onClick={signOut}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Button size="sm" onClick={() => navigate("/auth")}>
+                Login
+              </Button>
+            )}
+
+            {/* Mobile Search */}
+            <div className="md:hidden flex items-center">
+              <button
+                onClick={() => setIsMobileSearchOpen((prev) => !prev)}
+                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center w-[38px] h-[38px]"
+                title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
+              >
+                <FontAwesomeIcon
+                  icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
+                  className="w-[18px] h-[18px] transition-transform duration-200"
+                  style={{ transform: isMobileSearchOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -126,7 +196,7 @@ function Navbar() {
         {isMobileSearchOpen && (
           <div className="md:hidden bg-[#18181B] shadow-lg">
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
-        </div>
+          </div>
         )}
 
         {/* Sidebar */}
