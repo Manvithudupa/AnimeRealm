@@ -52,9 +52,10 @@ const LatestEpisodeCard = ({ item, path }) => {
           {language === "EN" ? item.title : item.japanese_title}
         </p>
 
-        <p className="text-xs text-white/70 mt-1">
+        {/* Removed the TV/showType line */}
+        {/* <p className="text-xs text-white/70 mt-1">
           {item.tvInfo?.showType || item.type || "TV"}
-        </p>
+        </p> */}
       </div>
     </div>
   );
