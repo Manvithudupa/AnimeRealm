@@ -1,4 +1,4 @@
-/* -------------------------- Watch Button using Supabase -------------------------- */
+/* -------------------------- AnimeInfo with Supabase Watch Button -------------------------- */
 
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -57,7 +57,8 @@ function AnimeInfo({ random = false }) {
   const [inWatchlist, setInWatchlist] = useState(false);
   const [watchlistLoading, setWatchlistLoading] = useState(false);
 
-  const [lastWatchedEpisode, setLastWatchedEpisode] = useState(null);
+  const [lastWatchedEpisode, setLastWatchedEpisode] = useState(null); // {id, num}
+  const [isFullOverview, setIsFullOverview] = useState(false);
 
   /* ---------- Fetch Anime ---------- */
   useEffect(() => {
@@ -73,7 +74,6 @@ function AnimeInfo({ random = false }) {
         setLoading(false);
       }
     };
-
     fetchAnime();
     window.scrollTo(0, 0);
   }, [id, random]);
@@ -137,7 +137,7 @@ function AnimeInfo({ random = false }) {
     const fetchLastWatched = async () => {
       const { data, error } = await supabase
         .from("continue_watching")
-        .select("episode_id")
+        .select("episode_id, episode_num")
         .eq("user_id", user.id)
         .eq("anime_id", animeInfo.id)
         .order("updated_at", { ascending: false })
@@ -148,7 +148,7 @@ function AnimeInfo({ random = false }) {
         console.error("Error fetching last watched episode:", error);
         setLastWatchedEpisode(null);
       } else if (data) {
-        setLastWatchedEpisode(data.episode_id);
+        setLastWatchedEpisode({ id: data.episode_id, num: data.episode_num });
       } else {
         setLastWatchedEpisode(null);
       }
@@ -159,7 +159,6 @@ function AnimeInfo({ random = false }) {
 
   if (loading) return <Loader type="animeInfo" />;
   if (error) return <Error />;
-
   if (!animeInfo) {
     navigate("/404-not-found-page");
     return null;
@@ -180,11 +179,7 @@ function AnimeInfo({ random = false }) {
       {/* ================= HERO ================= */}
       <section className="relative pt-14">
         <div className="relative h-[50vh] overflow-hidden">
-          <img
-            src={poster}
-            alt={title}
-            className="absolute inset-0 w-full h-full object-cover blur-sm scale-105"
-          />
+          <img src={poster} alt={title} className="absolute inset-0 w-full h-full object-cover blur-sm scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
         </div>
 
@@ -194,16 +189,11 @@ function AnimeInfo({ random = false }) {
 
             {/* Poster */}
             <div className="relative w-40 md:w-52 aspect-[3/4] rounded-xl overflow-hidden shadow-xl shrink-0">
-              <img
-                src={poster}
-                alt={title}
-                className="w-full h-full object-cover"
-              />
+              <img src={poster} alt={title} className="w-full h-full object-cover" />
             </div>
 
             {/* Details */}
             <div className="flex-1 pt-4 md:pt-20">
-
               <p className="text-xs uppercase tracking-wider text-white/50 mb-2">
                 {info?.Status} · {info?.Premiered} · {info?.Duration}
               </p>
@@ -212,18 +202,10 @@ function AnimeInfo({ random = false }) {
                 {language === "EN" ? title : japanese_title}
               </h1>
 
-              {japanese_title && (
-                <p className="text-sm text-white/40 mb-4">
-                  {japanese_title}
-                </p>
-              )}
+              {japanese_title && <p className="text-sm text-white/40 mb-4">{japanese_title}</p>}
 
               <div className="flex flex-wrap items-center gap-4 text-sm text-white/60 mb-6">
-                {info?.["MAL Score"] && (
-                  <span className="text-yellow-400">
-                    ⭐ {info["MAL Score"]}
-                  </span>
-                )}
+                {info?.["MAL Score"] && <span className="text-yellow-400">⭐ {info["MAL Score"]}</span>}
               </div>
 
               {/* Buttons */}
@@ -232,16 +214,14 @@ function AnimeInfo({ random = false }) {
                   <Link
                     to={
                       lastWatchedEpisode
-                        ? `/watch/${animeInfo.id}?ep=${lastWatchedEpisode}`
+                        ? `/watch/${animeInfo.id}?ep=${lastWatchedEpisode.id}`
                         : `/watch/${animeInfo.id}`
                     }
-                    className="inline-flex items-center gap-2 px-5 py-2.5
-                      rounded-lg bg-white text-black text-sm font-medium
-                      hover:bg-white/90 transition"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 transition"
                   >
                     <FontAwesomeIcon icon={faPlay} />
                     {lastWatchedEpisode
-                      ? `Continue Watching Ep ${lastWatchedEpisode}`
+                      ? `Continue Watching Ep ${lastWatchedEpisode.num}`
                       : "Watch"}
                   </Link>
                 )}
@@ -249,9 +229,7 @@ function AnimeInfo({ random = false }) {
                 <button
                   onClick={toggleWatchlist}
                   disabled={watchlistLoading}
-                  className="inline-flex items-center gap-2 px-5 py-2.5
-                    rounded-lg bg-white/10 hover:bg-white/20
-                    text-sm font-medium transition"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-medium transition"
                 >
                   <FontAwesomeIcon icon={inWatchlist ? faCheck : faBookmark} />
                   {inWatchlist ? "Saved" : "Save"}
@@ -261,21 +239,96 @@ function AnimeInfo({ random = false }) {
               {/* Tags */}
               <div className="flex flex-wrap gap-2">
                 {tags.map((tag, i) =>
-                  typeof tag === "string" ? (
-                    <Tag key={i} text={tag} />
-                  ) : (
-                    <Tag key={i} icon={tag.icon} text={tag.text} />
-                  )
+                  typeof tag === "string"
+                    ? <Tag key={i} text={tag} />
+                    : <Tag key={i} icon={tag.icon} text={tag.text} />
                 )}
               </div>
-
             </div>
           </div>
         </div>
       </section>
 
-      {/* SYNOPSIS + INFO */}
-      {/* ...rest of your component remains the same... */}
+      {/* ================= SYNOPSIS + INFO ================= */}
+      <section className="py-10 px-5">
+        <div className="mx-auto max-w-7xl grid lg:grid-cols-3 gap-8">
+
+          {/* Synopsis */}
+          <div className="lg:col-span-2">
+            <h2 className="text-sm uppercase tracking-wider text-white/50 mb-4">Synopsis</h2>
+            <p className="text-white/70 leading-relaxed">
+              {animeInfo?.animeInfo?.Overview ? (
+                animeInfo.animeInfo.Overview.length > 270 ? (
+                  <>
+                    {isFullOverview
+                      ? animeInfo.animeInfo.Overview
+                      : `${animeInfo.animeInfo.Overview.slice(0, 270)}...`}
+                    <button
+                      className="ml-2 text-gray-300 hover:text-white transition-colors"
+                      onClick={() => setIsFullOverview(!isFullOverview)}
+                    >
+                      {isFullOverview ? "Show Less" : "Read More"}
+                    </button>
+                  </>
+                ) : (
+                  animeInfo.animeInfo.Overview
+                )
+              ) : (
+                "No description available."
+              )}
+            </p>
+          </div>
+
+          {/* Sidebar Info */}
+          <div className="lg:col-span-1">
+            <div className="bg-white/[0.05] rounded-xl p-5 border border-white/10">
+              <h3 className="text-sm uppercase tracking-wider text-white/50 mb-4">Information</h3>
+              <dl className="space-y-3">
+                <InfoItem label="Japanese" value={info?.Japanese} />
+                <InfoItem label="Synonyms" value={info?.Synonyms} />
+                <InfoItem label="Aired" value={info?.Aired} />
+                <InfoItem label="Premiered" value={info?.Premiered} />
+                <InfoItem label="Duration" value={info?.Duration} />
+                <InfoItem label="Status" value={info?.Status} />
+                <InfoItem label="MAL Score" value={info?.["MAL Score"]} />
+              </dl>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= SEASONS ================= */}
+      {seasons.length > 0 && (
+        <section className="py-10 px-5 border-t border-white/10">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="text-sm uppercase tracking-wider text-white/50 mb-6">More Seasons</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {seasons.map((season) => (
+                <Link
+                  key={season.id}
+                  to={`/${season.id}`}
+                  className="relative h-[90px] rounded-xl overflow-hidden group"
+                >
+                  <img
+                    src={season.season_poster}
+                    alt={season.season}
+                    className="w-full h-full object-cover scale-125 opacity-40 group-hover:opacity-50 transition"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center font-medium text-sm text-white">{season.season}</div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ================= VOICE ACTORS ================= */}
+      {animeInfo?.charactersVoiceActors?.length > 0 && <Voiceactor animeInfo={animeInfo} />}
+
+      {/* ================= RECOMMENDATIONS ================= */}
+      {animeInfo?.recommended_data?.length > 0 && (
+        <CategoryCard label="You may also like" data={animeInfo.recommended_data} showViewMore={false} />
+      )}
     </div>
   );
 }
