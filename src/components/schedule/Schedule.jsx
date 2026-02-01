@@ -6,10 +6,12 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import BouncingLoader from "../ui/bouncingloader/Bouncingloader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay } from "@fortawesome/free-solid-svg-icons";
-import "./schedule.css";
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/src/context/LanguageContext";
+import "./schedule.css";
 
 const Schedule = () => {
+  const { language } = useLanguage(); // ✅ Language context
   const [dates, setDates] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -125,6 +127,7 @@ const Schedule = () => {
           </p>
         </div>
       </div>
+
       <div className="w-full overflow-x-scroll space-x-4 scrollbar-hide pt-6 px-4 max-[480px]:px-2 max-[478px]:pt-4">
         <div className="relative w-full">
           <Swiper
@@ -172,6 +175,7 @@ const Schedule = () => {
                 </SwiperSlide>
               ))}
           </Swiper>
+
           <button className="next absolute top-1/2 right-[-12px] transform -translate-y-1/2 flex justify-center items-center cursor-pointer">
             <FaChevronRight className="text-[12px]" />
           </button>
@@ -180,6 +184,7 @@ const Schedule = () => {
           </button>
         </div>
       </div>
+
       {loading ? (
         <div className="w-full h-[60px] flex justify-center items-center">
           <BouncingLoader />
@@ -210,7 +215,7 @@ const Schedule = () => {
                   {item.time || "N/A"}
                 </div>
                 <h3 className="text-[16px] font-medium line-clamp-1 group-hover:text-white transition-all duration-200 max-[600px]:text-[14px] max-[275px]:text-[12px]">
-                  {item.title || "N/A"}
+                  {language === "EN" ? item.title : item.japanese_title || item.title || "N/A"}
                 </h3>
               </div>
               <div className="flex items-center gap-x-2 py-1 px-3 rounded-md bg-zinc-800 group-hover:bg-white transition-all duration-200">
