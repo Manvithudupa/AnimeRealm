@@ -189,7 +189,6 @@ export const Profile = () => {
 
       {/* Main */}
       <main className="flex justify-center px-4 pt-20 pb-12">
-
         <Card
           className="w-full max-w-lg bg-[#111]
           border border-white/25
@@ -198,7 +197,6 @@ export const Profile = () => {
         >
           {/* Header */}
           <CardHeader className="pb-3 text-center">
-
             <CardTitle className="text-2xl font-semibold">
               Profile
             </CardTitle>
@@ -206,21 +204,17 @@ export const Profile = () => {
             <CardDescription className="text-white/60">
               Edit your profile
             </CardDescription>
-
           </CardHeader>
 
           {/* Content */}
           <CardContent>
-
             <form
               onSubmit={updateProfile}
               className="space-y-5"
             >
               {/* Avatar */}
               <div className="flex flex-col items-center gap-3">
-
                 <Avatar className="h-24 w-24 border border-white/20">
-
                   <AvatarImage
                     src={profile.avatar_url || "/default-avatar.png"}
                     className="object-cover"
@@ -229,7 +223,6 @@ export const Profile = () => {
                   <AvatarFallback className="bg-black/50">
                     <User className="h-10 w-10 text-white/60" />
                   </AvatarFallback>
-
                 </Avatar>
 
                 <Button
@@ -237,10 +230,12 @@ export const Profile = () => {
                   size="sm"
                   onClick={generateRandomAvatar}
                   disabled={generating}
-                  className="bg-purple-600 hover:bg-purple-500
-                  text-white font-medium
+                  className="bg-white hover:bg-gray-200
+                  text-black font-medium
                   px-4 py-2 rounded-lg
-                  shadow-md transition"
+                  shadow-md transition
+                  disabled:opacity-60
+                  disabled:cursor-not-allowed"
                 >
                   {generating ? (
                     <>
@@ -254,12 +249,10 @@ export const Profile = () => {
                     </>
                   )}
                 </Button>
-
               </div>
 
               {/* Username */}
               <div className="space-y-1">
-
                 <Label className="text-white/80 text-sm">
                   Username
                 </Label>
@@ -283,12 +276,10 @@ export const Profile = () => {
                 <div className="text-right text-xs text-white/50">
                   {profile.username.length}/25
                 </div>
-
               </div>
 
               {/* Gender */}
               <div className="space-y-1">
-
                 <Label className="text-white/80 text-sm">
                   Gender
                 </Label>
@@ -318,14 +309,11 @@ export const Profile = () => {
                       Prefer not to say
                     </SelectItem>
                   </SelectContent>
-
                 </Select>
-
               </div>
 
               {/* Bio */}
               <div className="space-y-1">
-
                 <Label className="text-white/80 text-sm">
                   Bio
                 </Label>
@@ -350,7 +338,6 @@ export const Profile = () => {
                 <div className="text-right text-xs text-white/50">
                   {profile.bio.length}/200
                 </div>
-
               </div>
 
               {/* Save */}
@@ -358,9 +345,11 @@ export const Profile = () => {
                 type="submit"
                 disabled={loading}
                 className="w-full h-10
-                bg-purple-600 hover:bg-purple-500
-                text-white font-semibold
-                transition active:scale-95"
+                bg-white hover:bg-gray-200
+                text-black font-semibold
+                transition active:scale-95
+                disabled:opacity-60
+                disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <>
@@ -371,12 +360,9 @@ export const Profile = () => {
                   "Save Profile"
                 )}
               </Button>
-
             </form>
-
           </CardContent>
         </Card>
-
       </main>
     </div>
   );
