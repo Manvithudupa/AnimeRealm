@@ -42,15 +42,19 @@ const CategoryCard = React.memo(
           window.innerWidth > 758 && data.length > 4
             ? data.slice(4)
             : data.slice(0);
+
         return { firstRow, remainingItems };
       }
+
       return { firstRow: [], remainingItems: data.slice(0) };
     }, [categoryPage, data]);
 
     useEffect(() => {
       const handleResize = () => setItemsToRender(getItemsToRender());
+
       setItemsToRender(getItemsToRender());
       window.addEventListener("resize", handleResize);
+
       return () => window.removeEventListener("resize", handleResize);
     }, [getItemsToRender]);
 
@@ -63,7 +67,7 @@ const CategoryCard = React.memo(
         <div
           key={index}
           ref={(el) => cardRefs && (cardRefs.current[item.id] = el)}
-          className="relative flex flex-col category-card-container"
+          className="relative category-card-container"
           onMouseEnter={() => onItemHover && onItemHover(item)}
           onMouseLeave={() => onItemLeave && onItemLeave()}
         >
@@ -80,10 +84,12 @@ const CategoryCard = React.memo(
               }
             >
               <img src={item.poster} alt={item.title} />
+
               <div className="overlay"></div>
+
               <FontAwesomeIcon icon={faPlay} className="play-icon" />
 
-              {/* Sub/Dub overlay badges */}
+              {/* Sub / Dub overlay */}
               <div className="absolute bottom-2 left-2 right-2 flex gap-1 z-10">
                 {item.tvInfo?.sub && (
                   <div className="meta-badge bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
@@ -108,7 +114,7 @@ const CategoryCard = React.memo(
           </div>
 
           {/* Title */}
-          <Link to={`/${item.id}`} className="item-title mt-2 line-clamp-1">
+          <Link to={`/${item.id}`} className="item-title mt-1 line-clamp-1">
             {language === "EN" ? item.title : item.japanese_title}
           </Link>
         </div>
