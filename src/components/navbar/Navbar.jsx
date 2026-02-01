@@ -71,7 +71,7 @@ function Navbar() {
           isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"
         }`}
       >
-        <div className="w-screen h-16 flex items-center justify-between px-2 sm:px-4 max-w-full overflow-x-hidden">
+        <div className="w-full h-16 flex items-center justify-between px-2 sm:px-4 max-w-[1920px] mx-auto">
           
           {/* LEFT: Hamburger + Logo */}
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
@@ -149,7 +149,7 @@ function Navbar() {
                 </button>
 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-[#111]/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-xl overflow-hidden">
+                  <div className="absolute right-0 mt-2 w-56 bg-[#111]/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-xl overflow-hidden z-[1000001]">
                     <div className="px-4 py-3 border-b border-white/10">
                       <p className="text-sm text-gray-300 truncate">
                         {profile?.username || user.email}
