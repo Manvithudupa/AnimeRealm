@@ -71,17 +71,17 @@ function Navbar() {
           isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"
         }`}
       >
-        <div className="max-w-[1920px] mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-[1920px] mx-auto px-3 sm:px-4 h-16 flex items-center justify-between gap-2 sm:gap-4">
 
           {/* LEFT: Hamburger + Logo */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
             <FontAwesomeIcon
               icon={faBars}
-              className="text-xl text-gray-200 cursor-pointer hover:text-white transition-colors"
+              className="text-lg sm:text-xl text-gray-200 cursor-pointer hover:text-white transition-colors"
               onClick={handleHamburgerClick}
             />
-            <Link to="/home">
-              <img src="/logo.png" alt="Logo" className="h-9 w-auto" />
+            <Link to="/home" className="flex-shrink-0">
+              <img src="/logo.png" alt="Logo" className="h-7 sm:h-9 w-auto" />
             </Link>
           </div>
 
@@ -101,7 +101,7 @@ function Navbar() {
           </div>
 
           {/* RIGHT: User + Language + Mobile Search */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
 
             {/* Language Toggle - Desktop */}
             <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
@@ -127,13 +127,13 @@ function Navbar() {
                   onClick={() => setIsDropdownOpen((prev) => !prev)}
                   className="flex items-center gap-2"
                 >
-                  <Avatar className="h-10 w-10 rounded-md">
+                  <Avatar className="h-8 w-8 sm:h-10 sm:w-10 rounded-md">
                     <AvatarImage
                       src={profile?.avatar_url || undefined}
                       className="rounded-md object-cover"
                     />
                     <AvatarFallback className="bg-[#2a2a2a] rounded-md flex items-center justify-center">
-                      <User className="h-5 w-5 text-white/70" />
+                      <User className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
                     </AvatarFallback>
                   </Avatar>
                 </button>
@@ -170,7 +170,7 @@ function Navbar() {
                 )}
               </div>
             ) : (
-              <Button size="sm" onClick={() => navigate("/auth")}>
+              <Button size="sm" className="text-xs sm:text-sm px-3 sm:px-4 h-8 sm:h-9" onClick={() => navigate("/auth")}>
                 Login
               </Button>
             )}
@@ -179,12 +179,12 @@ function Navbar() {
             <div className="md:hidden flex items-center">
               <button
                 onClick={() => setIsMobileSearchOpen((prev) => !prev)}
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center w-[38px] h-[38px]"
+                className="p-2 sm:p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center w-8 h-8 sm:w-[38px] sm:h-[38px]"
                 title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
               >
                 <FontAwesomeIcon
                   icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
-                  className="w-[18px] h-[18px] transition-transform duration-200"
+                  className="w-4 h-4 sm:w-[18px] sm:h-[18px] transition-transform duration-200"
                   style={{ transform: isMobileSearchOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
                 />
               </button>
