@@ -10,6 +10,7 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
+
   public: {
     Tables: {
       profiles: {
@@ -23,6 +24,7 @@ export type Database = {
           created_at: string
           updated_at: string
         }
+
         Insert: {
           id: string
           user_id: string
@@ -33,6 +35,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+
         Update: {
           id?: string
           user_id?: string
@@ -43,6 +46,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+
         Relationships: []
       }
 
@@ -55,13 +59,85 @@ export type Database = {
           anime_poster: string | null
           created_at: string
         }
+
         Insert: {
           user_id: string
           anime_id: string
           anime_title: string
           anime_poster?: string | null
         }
+
         Update: {}
+
+        Relationships: []
+      }
+
+      --------------------------------------------------
+      -- CONTINUE WATCHING
+      --------------------------------------------------
+
+      continue_watching: {
+        Row: {
+          id: string
+          user_id: string
+
+          anime_id: string
+          episode_id: string
+          episode_num: number | null
+
+          title: string | null
+          japanese_title: string | null
+
+          poster: string | null
+
+          duration: number | null
+          left_at: number | null
+
+          adult_content: boolean | null
+
+          created_at: string
+          updated_at: string
+        }
+
+        Insert: {
+          user_id: string
+
+          anime_id: string
+          episode_id: string
+          episode_num?: number | null
+
+          title?: string | null
+          japanese_title?: string | null
+
+          poster?: string | null
+
+          duration?: number | null
+          left_at?: number | null
+
+          adult_content?: boolean | null
+
+          created_at?: string
+          updated_at?: string
+        }
+
+        Update: {
+          anime_id?: string
+          episode_id?: string
+          episode_num?: number | null
+
+          title?: string | null
+          japanese_title?: string | null
+
+          poster?: string | null
+
+          duration?: number | null
+          left_at?: number | null
+
+          adult_content?: boolean | null
+
+          updated_at?: string
+        }
+
         Relationships: []
       }
     }
@@ -84,7 +160,7 @@ export type Database = {
   }
 }
 
-/* ------------------ Helper Types ------------------ */
+/* ------------------ Helpers ------------------ */
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
@@ -157,34 +233,6 @@ export type TablesUpdate<
         }
         ? U
         : never
-      : never
-
-export type Enums<
-  EnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends EnumNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
-    ? keyof DatabaseWithoutInternals[EnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> =
-  EnumNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
-    ? DatabaseWithoutInternals[EnumNameOrOptions["schema"]]["Enums"][EnumName]
-    : EnumNameOrOptions extends keyof DefaultSchema["Enums"]
-      ? DefaultSchema["Enums"][EnumNameOrOptions]
-      : never
-
-export type CompositeTypes<
-  CompositeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
-  CompositeName extends CompositeNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
-    ? keyof DatabaseWithoutInternals[CompositeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> =
-  CompositeNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
-    ? DatabaseWithoutInternals[CompositeNameOrOptions["schema"]]["CompositeTypes"][CompositeName]
-    : CompositeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-      ? DefaultSchema["CompositeTypes"][CompositeNameOrOptions]
       : never
 
 export const Constants = {
