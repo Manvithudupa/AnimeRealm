@@ -10,7 +10,6 @@ import Error from "@/src/components/error/Error.jsx";
 import Schedule from "@/src/components/schedule/Schedule";
 import ContinueWatching from "@/src/components/continue/ContinueWatching";
 import TabbedAnimeSection from "@/src/components/tabbed-anime/TabbedAnimeSection.jsx";
-import SupportPopup from "@/src/components/SupportPopup/SupportPopup.jsx";
 import { useHomeInfo } from "@/src/context/HomeInfoContext.jsx";
 import MiniSupportCard from "@/src/components/minisupportcard/MiniSupportCard.jsx";
 
@@ -23,8 +22,6 @@ function Home() {
 
   return (
     <>
-      {/* Support Popup */}
-      <SupportPopup />
 
       {/* ================= SPOTLIGHT ================= */}
       <div className="w-full bg-black pt-16">
