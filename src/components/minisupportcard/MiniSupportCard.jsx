@@ -23,6 +23,9 @@ const MiniSupportCard = () => {
           <span className="font-semibold text-white">Share your favorite episodes</span> online.
         </li>
         <li>
+          <span className="font-semibold text-white">Give us feedback</span> to help improve the site experience.
+        </li>
+        <li>
           <span className="font-semibold text-white">Use the site regularly</span> — every visit supports us and keeps the community alive.
         </li>
         <li>
