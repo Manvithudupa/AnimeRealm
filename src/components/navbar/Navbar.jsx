@@ -37,23 +37,25 @@ function Navbar() {
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 0);
-    const onOutsideClick = (e) => {
+    const onClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setIsDropdownOpen(false);
       }
     };
 
     window.addEventListener("scroll", onScroll);
-    document.addEventListener("mousedown", onOutsideClick);
+    document.addEventListener("mousedown", onClickOutside);
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      document.removeEventListener("mousedown", onOutsideClick);
+      document.removeEventListener("mousedown", onClickOutside);
     };
   }, []);
 
   const handleRandomClick = () => {
-    if (location.pathname === "/random") window.location.reload();
+    if (location.pathname === "/random") {
+      window.location.reload();
+    }
   };
 
   return (
@@ -64,29 +66,30 @@ function Navbar() {
         bg-[#0a0a0a] transition-all duration-300
         ${isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"}`}
       >
-        {/* MAIN CONTAINER */}
+        {/* MAIN BAR */}
         <div
           className="
-          w-full max-w-[1920px]
-          mx-auto
-          h-16
-          px-3 sm:px-6 lg:px-10
-          flex items-center justify-between
-          overflow-hidden"
+            w-full max-w-[1920px]
+            mx-auto
+            h-16
+            px-3 sm:px-6 lg:px-10
+            flex items-center justify-between
+            overflow-x-hidden
+          "
         >
           {/* LEFT */}
           <div className="flex items-center gap-3 flex-shrink-0">
             <FontAwesomeIcon
               icon={faBars}
-              onClick={() => setIsSidebarOpen(true)}
               className="text-xl text-gray-200 cursor-pointer hover:text-white"
+              onClick={() => setIsSidebarOpen(true)}
             />
             <Link to="/home" className="flex-shrink-0">
               <img src="/logo.png" alt="Logo" className="h-8 w-auto" />
             </Link>
           </div>
 
-          {/* CENTER – DESKTOP SEARCH */}
+          {/* CENTER – DESKTOP */}
           <div className="hidden md:flex flex-1 min-w-0 justify-center">
             <div className="flex items-center gap-2 w-full max-w-[720px] min-w-0">
               <WebSearch />
@@ -126,7 +129,7 @@ function Navbar() {
             {/* User / Login */}
             {user ? (
               <div className="relative flex-shrink-0" ref={dropdownRef}>
-                <button onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                <button onClick={() => setIsDropdownOpen((p) => !p)}>
                   <Avatar className="h-9 w-9 rounded-md">
                     <AvatarImage src={profile?.avatar_url || undefined} />
                     <AvatarFallback className="bg-[#2a2a2a]">
@@ -186,7 +189,7 @@ function Navbar() {
 
             {/* MOBILE SEARCH */}
             <button
-              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+              onClick={() => setIsMobileSearchOpen((p) => !p)}
               className="md:hidden flex-shrink-0
               w-9 h-9 rounded-lg
               bg-[#2a2a2a]/75 text-white/60
