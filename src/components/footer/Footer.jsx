@@ -4,21 +4,18 @@ import { Link } from "react-router-dom";
 
 function Footer() {
   return (
-    <footer className="w-full bg-[#070707] border-t border-white/5 mt-16">
-      <div className="max-w-[1920px] mx-auto px-4 py-12 flex flex-col items-center gap-8">
+    <footer className="w-full bg-[#070707] border-t border-white/5 mt-12">
+      <div className="max-w-[1920px] mx-auto px-4 py-8 flex flex-col items-center gap-6">
 
         {/* Branding */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-extrabold text-white tracking-wide">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white tracking-wide">
             {logoTitle || "An!meRealm"}
           </h1>
-          <p className="text-sm text-white/50">
-            Your ultimate hub for anime streaming and discovery
-          </p>
         </div>
 
         {/* A-Z List */}
-        <div className="flex flex-wrap justify-center gap-2 max-w-xl">
+        <div className="w-full max-w-4xl flex flex-wrap justify-center gap-1">
           {[
             "All",
             "#",
@@ -30,7 +27,7 @@ function Footer() {
             <Link
               key={index}
               to={`az-list/${item === "All" ? "" : item}`}
-              className="px-3 py-1 text-xs bg-white/5 hover:bg-white/15 text-white/60 hover:text-white rounded-md transition-all duration-200"
+              className="flex-1 min-w-[28px] text-center px-2 py-1 text-xs bg-white/5 hover:bg-white/15 text-white/60 hover:text-white rounded-md transition-colors"
             >
               {item}
             </Link>
@@ -60,13 +57,13 @@ function Footer() {
         </div>
 
         {/* Legal Text */}
-        <p className="text-center text-xs text-white/40 max-w-2xl leading-relaxed">
+        <p className="text-center text-xs text-white/40 max-w-3xl leading-relaxed">
           {website_name} does not host any files, it merely pulls streams from third-party
           services. Legal issues should be taken up with the file hosts and providers.
           {website_name} is not responsible for any media files shown by the video providers.
         </p>
 
-        <p className="text-center text-xs text-white/40 mt-2">
+        <p className="text-center text-xs text-white/40 mt-1">
           © {new Date().getFullYear()} {website_name}. All rights reserved.
         </p>
       </div>
