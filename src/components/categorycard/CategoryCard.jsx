@@ -68,54 +68,55 @@ const CategoryCard = React.memo(
         <div
           key={index}
           ref={(el) => cardRefs && (cardRefs.current[item.id] = el)}
-          className="category-card-container"
           onMouseEnter={() => onItemHover && onItemHover(item)}
           onMouseLeave={() => onItemLeave && onItemLeave()}
         >
-          {/* Poster */}
-          <div className="card-poster group">
-            <div
-              className="poster-wrapper"
-              onClick={() =>
-                navigate(
-                  path === "top-upcoming"
-                    ? `/${item.id}`
-                    : `/watch/${item.id}`
-                )
-              }
-            >
-              <img src={item.poster} alt={item.title} />
+          {/* Poster Card */}
+          <div className="category-card-container">
+            <div className="card-poster group">
+              <div
+                className="poster-wrapper"
+                onClick={() =>
+                  navigate(
+                    path === "top-upcoming"
+                      ? `/${item.id}`
+                      : `/watch/${item.id}`
+                  )
+                }
+              >
+                <img src={item.poster} alt={item.title} />
 
-              <div className="overlay"></div>
+                <div className="overlay"></div>
 
-              <FontAwesomeIcon icon={faPlay} className="play-icon" />
+                <FontAwesomeIcon icon={faPlay} className="play-icon" />
 
-              {/* Sub / Dub overlay */}
-              <div className="subdub-overlay">
-                {item.tvInfo?.sub && (
-                  <div className="meta-badge">
-                    <FontAwesomeIcon icon={faClosedCaptioning} />
-                    <span>{item.tvInfo.sub}</span>
-                  </div>
-                )}
+                {/* Sub/Dub Overlay */}
+                <div className="subdub-overlay">
+                  {item.tvInfo?.sub && (
+                    <div className="meta-badge">
+                      <FontAwesomeIcon icon={faClosedCaptioning} />
+                      <span>{item.tvInfo.sub}</span>
+                    </div>
+                  )}
 
-                {item.tvInfo?.dub && (
-                  <div className="meta-badge">
-                    <FontAwesomeIcon icon={faMicrophone} />
-                    <span>{item.tvInfo.dub}</span>
-                  </div>
-                )}
+                  {item.tvInfo?.dub && (
+                    <div className="meta-badge">
+                      <FontAwesomeIcon icon={faMicrophone} />
+                      <span>{item.tvInfo.dub}</span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* 18+ Badge */}
-            {(item.tvInfo?.rating === "18+" || item?.adultContent) && (
-              <div className="adult-badge">18+</div>
-            )}
+              {/* 18+ Badge */}
+              {(item.tvInfo?.rating === "18+" || item?.adultContent) && (
+                <div className="adult-badge">18+</div>
+              )}
+            </div>
           </div>
 
-          {/* Title */}
-          <Link to={`/${item.id}`} className="item-title line-clamp-1">
+          {/* Title (Outside Card) */}
+          <Link to={`/${item.id}`} className="item-title line-clamp-1 mt-2">
             {language === "EN" ? item.title : item.japanese_title}
           </Link>
         </div>
