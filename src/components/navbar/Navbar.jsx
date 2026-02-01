@@ -89,8 +89,7 @@ function Navbar() {
               <img 
                 src="/logo.png" 
                 alt="Logo" 
-                className="h-7 sm:h-9 w-auto object-contain" 
-                style={{ maxWidth: '40px' }}
+                className="h-7 sm:h-9 w-auto object-contain max-w-[40px] sm:max-w-none" 
               />
             </Link>
           </div>
