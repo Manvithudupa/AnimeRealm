@@ -31,66 +31,68 @@ function Navbar() {
 
   const dropdownRef = useRef(null);
 
-  // close dropdown when auth changes
   useEffect(() => {
     setIsDropdownOpen(false);
   }, [user]);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 0);
-
-    const handleClickOutside = (e) => {
+    const onScroll = () => setIsScrolled(window.scrollY > 0);
+    const onOutsideClick = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setIsDropdownOpen(false);
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
-    document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", onScroll);
+    document.addEventListener("mousedown", onOutsideClick);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("mousedown", onOutsideClick);
     };
   }, []);
 
   const handleRandomClick = () => {
-    if (location.pathname === "/random") {
-      window.location.reload();
-    }
+    if (location.pathname === "/random") window.location.reload();
   };
 
   return (
     <SearchProvider>
       <nav
-        className={`fixed top-0 left-0 w-full z-[1000000]
+        className={`fixed top-0 inset-x-0 z-[1000000]
+        w-screen max-w-[100vw]
         bg-[#0a0a0a] transition-all duration-300
         ${isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"}`}
       >
-        <div className="max-w-[1920px] mx-auto px-3 sm:px-4 h-16 flex items-center justify-between min-w-0">
-
+        <div
+          className="
+          w-full max-w-screen-xl mx-auto
+          h-16 px-2 sm:px-4
+          flex items-center justify-between
+          overflow-hidden"
+        >
           {/* LEFT */}
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <FontAwesomeIcon
               icon={faBars}
-              className="text-xl text-gray-200 cursor-pointer hover:text-white"
               onClick={() => setIsSidebarOpen(true)}
+              className="text-xl text-gray-200 cursor-pointer hover:text-white"
             />
-            <Link to="/home">
+            <Link to="/home" className="flex-shrink-0">
               <img src="/logo.png" alt="Logo" className="h-8 w-auto" />
             </Link>
           </div>
 
-          {/* CENTER – desktop only */}
-          <div className="hidden md:flex flex-1 justify-center px-6 min-w-0">
-            <div className="flex items-center gap-2 w-full max-w-[600px]">
+          {/* CENTER – DESKTOP */}
+          <div className="hidden md:flex flex-1 min-w-0 justify-center px-4">
+            <div className="flex items-center gap-2 w-full max-w-[560px] min-w-0">
               <WebSearch />
               <Link
                 to={location.pathname === "/random" ? "#" : "/random"}
                 onClick={handleRandomClick}
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75
-                text-white/50 hover:text-white rounded-lg
-                flex items-center justify-center"
+                className="flex-shrink-0 p-[10px] aspect-square
+                bg-[#2a2a2a]/75 text-white/50
+                hover:text-white rounded-lg flex items-center justify-center"
               >
                 <FontAwesomeIcon icon={faRandom} />
               </Link>
@@ -98,15 +100,14 @@ function Navbar() {
           </div>
 
           {/* RIGHT */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-
-            {/* Language toggle */}
-            <div className="hidden md:flex items-center gap-1 bg-[#27272A] rounded-md p-1">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Language */}
+            <div className="hidden md:flex bg-[#27272A] p-1 rounded-md">
               {["EN", "JP"].map((lang) => (
                 <button
                   key={lang}
                   onClick={() => toggleLanguage(lang)}
-                  className={`px-2 py-1 text-sm rounded ${
+                  className={`px-2 py-1 text-sm rounded whitespace-nowrap ${
                     language === lang
                       ? "bg-[#3F3F46] text-white"
                       : "text-gray-400 hover:text-white"
@@ -117,10 +118,10 @@ function Navbar() {
               ))}
             </div>
 
-            {/* User / Login */}
+            {/* User */}
             {user ? (
-              <div className="relative" ref={dropdownRef}>
-                <button onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+              <div className="relative flex-shrink-0" ref={dropdownRef}>
+                <button className="flex-shrink-0" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
                   <Avatar className="h-9 w-9 rounded-md">
                     <AvatarImage src={profile?.avatar_url || undefined} />
                     <AvatarFallback className="bg-[#2a2a2a]">
@@ -131,75 +132,62 @@ function Navbar() {
 
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-56 z-50
-                    bg-[#111]/95 backdrop-blur-xl
-                    rounded-xl border border-white/10 shadow-xl"
-                  >
-                    <div className="px-4 py-3 border-b border-white/10
-                      text-sm text-gray-300 truncate">
+                  bg-[#111]/95 backdrop-blur-xl
+                  rounded-xl border border-white/10 shadow-xl">
+                    <div className="px-4 py-3 border-b border-white/10 text-sm text-gray-300 truncate">
                       {profile?.username || user.email}
                     </div>
 
                     <button
-                      onClick={() => { setIsDropdownOpen(false); navigate("/profile"); }}
-                      className="w-full flex items-center gap-3 px-4 py-3
-                      text-gray-300 hover:bg-white/5"
+                      onClick={() => navigate("/profile")}
+                      className="w-full px-4 py-3 flex items-center gap-3 text-gray-300 hover:bg-white/5"
                     >
-                      <User className="h-4 w-4" />
-                      Profile
+                      <User className="h-4 w-4" /> Profile
                     </button>
 
                     <button
-                      onClick={() => { setIsDropdownOpen(false); navigate("/watchlist"); }}
-                      className="w-full flex items-center gap-3 px-4 py-3
-                      text-gray-300 hover:bg-white/5"
+                      onClick={() => navigate("/watchlist")}
+                      className="w-full px-4 py-3 flex items-center gap-3 text-gray-300 hover:bg-white/5"
                     >
-                      <Bookmark className="h-4 w-4" />
-                      Watchlist
+                      <Bookmark className="h-4 w-4" /> Watchlist
                     </button>
 
                     <button
                       onClick={signOut}
-                      className="w-full flex items-center gap-3 px-4 py-3
-                      text-red-400 hover:bg-red-500/10"
+                      className="w-full px-4 py-3 flex items-center gap-3 text-red-400 hover:bg-red-500/10"
                     >
-                      <LogOut className="h-4 w-4" />
-                      Logout
+                      <LogOut className="h-4 w-4" /> Logout
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              <Button size="sm" onClick={() => navigate("/auth")}>
+              <Button size="sm" className="flex-shrink-0 whitespace-nowrap" onClick={() => navigate("/auth")}>
                 Login
               </Button>
             )}
 
-            {/* Mobile search */}
+            {/* Mobile Search */}
             <button
               onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="md:hidden p-[10px] bg-[#2a2a2a]/75
-              text-white/60 hover:text-white
-              rounded-lg w-9 h-9 flex items-center justify-center"
+              className="md:hidden flex-shrink-0
+              w-9 h-9 rounded-lg
+              bg-[#2a2a2a]/75 text-white/60
+              hover:text-white flex items-center justify-center"
             >
-              <FontAwesomeIcon
-                icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
-                className="w-4 h-4"
-              />
+              <FontAwesomeIcon icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass} />
             </button>
           </div>
         </div>
 
-        {/* Mobile search dropdown */}
+        {/* Mobile Search */}
         {isMobileSearchOpen && (
           <div className="md:hidden bg-[#18181B] shadow-lg">
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
           </div>
         )}
 
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-        />
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       </nav>
     </SearchProvider>
   );
