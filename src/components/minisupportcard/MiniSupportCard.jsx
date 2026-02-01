@@ -42,7 +42,7 @@ const MiniSupportCard = () => {
       {/* Discord Button */}
       <div className="flex justify-center mt-2">
         <a
-          href="https://discord.gg/be774snHsP"
+          href="https://discord.gg/Ax2c4ZgSkh"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors"
