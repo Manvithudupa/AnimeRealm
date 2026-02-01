@@ -125,6 +125,9 @@ const CategoryCard = React.memo(
 
     return (
       <>
+        {/* Section Heading */}
+        {label && <h2 className="text-white text-2xl font-bold mb-4">{label}</h2>}
+
         {/* First Row */}
         {categoryPage && itemsToRender.firstRow.length > 0 && (
           <div className="grid grid-cols-4 gap-x-3 gap-y-6 mt-6 max-[758px]:hidden">
