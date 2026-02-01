@@ -67,11 +67,11 @@ function Navbar() {
   return (
     <SearchProvider>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[1000000] transition-all duration-300 ease-in-out bg-[#0a0a0a] overflow-x-hidden ${
+        className={`fixed top-0 left-0 right-0 z-[1000000] transition-all duration-300 ease-in-out bg-[#0a0a0a] ${
           isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"
         }`}
       >
-        <div className="w-screen h-16 flex items-center justify-between px-2 sm:px-4 max-w-full">
+        <div className="w-screen h-16 flex items-center justify-between px-2 sm:px-4 max-w-full overflow-x-hidden">
           
           {/* LEFT: Hamburger + Logo */}
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
