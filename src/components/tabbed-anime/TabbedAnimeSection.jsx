@@ -5,7 +5,13 @@ import { Link } from "react-router-dom";
 import { FaChevronRight } from "react-icons/fa";
 import Qtip from "@/src/components/qtip/Qtip.jsx";
 
-function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, className = "" }) {
+function TabbedAnimeSection({
+  topAiring,
+  mostFavorite,
+  latestCompleted,
+  topUpcoming, // <-- new prop
+  className = "",
+}) {
   const [activeTab, setActiveTab] = useState("airing");
   const [hoveredItem, setHoveredItem] = useState(null);
 
@@ -17,6 +23,7 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
     { id: "airing", label: "Top Airing", data: topAiring, path: "top-airing" },
     { id: "favorite", label: "Most Favorite", data: mostFavorite, path: "most-favorite" },
     { id: "completed", label: "Latest Completed", data: latestCompleted, path: "completed" },
+    { id: "upcoming", label: "Top Upcoming", data: topUpcoming, path: "top-upcoming" }, // <-- new tab
   ];
 
   const activeTabData = tabs.find((tab) => tab.id === activeTab);
@@ -62,10 +69,6 @@ function TabbedAnimeSection({ topAiring, mostFavorite, latestCompleted, classNam
     if (!hoveredItem || !cardRefs.current[hoveredItem]) return;
 
     const card = cardRefs.current[hoveredItem];
-    const parentRect = card.parentElement.getBoundingClientRect();
-    const cardRect = card.getBoundingClientRect();
-
-    // Position tooltip to the right of card
     const top = card.offsetTop;
     const left = card.offsetLeft + card.offsetWidth + 12; // 12px gap
 
@@ -142,6 +145,7 @@ TabbedAnimeSection.propTypes = {
   topAiring: PropTypes.array.isRequired,
   mostFavorite: PropTypes.array.isRequired,
   latestCompleted: PropTypes.array.isRequired,
+  topUpcoming: PropTypes.array, // <-- new prop
   className: PropTypes.string,
 };
 
