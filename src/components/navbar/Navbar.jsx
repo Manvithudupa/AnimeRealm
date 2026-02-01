@@ -71,25 +71,25 @@ function Navbar() {
           isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"
         }`}
       >
-        <div className="w-full h-16 flex items-center justify-between px-2 sm:px-4 max-w-[1920px] mx-auto">
+        <div className="w-full h-16 flex items-center justify-between px-1.5 sm:px-4 max-w-[1920px] mx-auto">
           
           {/* LEFT: Hamburger + Logo */}
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink min-w-0">
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink min-w-0">
             <button
               onClick={handleHamburgerClick}
-              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center flex-shrink-0"
+              className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center flex-shrink-0"
               aria-label="Menu"
             >
               <FontAwesomeIcon
                 icon={faBars}
-                className="text-sm sm:text-xl text-gray-200 hover:text-white transition-colors"
+                className="text-xs sm:text-xl text-gray-200 hover:text-white transition-colors"
               />
             </button>
             <Link to="/home" className="flex-shrink min-w-0 block overflow-hidden">
               <img 
                 src="/logo.png" 
                 alt="Logo" 
-                className="h-6 sm:h-9 w-auto max-w-[70px] sm:max-w-none object-contain" 
+                className="h-5 sm:h-9 w-auto max-w-[50px] sm:max-w-none object-contain" 
               />
             </Link>
           </div>
@@ -110,7 +110,7 @@ function Navbar() {
           </div>
 
           {/* RIGHT: User + Language + Mobile Search */}
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
 
             {/* Language Toggle - Desktop */}
             <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
@@ -137,13 +137,13 @@ function Navbar() {
                   className="flex items-center"
                   aria-label="User menu"
                 >
-                  <Avatar className="h-7 w-7 sm:h-10 sm:w-10 rounded-md flex-shrink-0">
+                  <Avatar className="h-6 w-6 sm:h-10 sm:w-10 rounded-md flex-shrink-0">
                     <AvatarImage
                       src={profile?.avatar_url || undefined}
                       className="rounded-md object-cover"
                     />
                     <AvatarFallback className="bg-[#2a2a2a] rounded-md flex items-center justify-center">
-                      <User className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-white/70" />
+                      <User className="h-3 w-3 sm:h-5 sm:w-5 text-white/70" />
                     </AvatarFallback>
                   </Avatar>
                 </button>
@@ -182,7 +182,7 @@ function Navbar() {
             ) : (
               <Button 
                 size="sm" 
-                className="text-xs h-7 px-2.5 sm:text-sm sm:h-9 sm:px-4 flex-shrink-0" 
+                className="text-[10px] h-6 px-2 sm:text-sm sm:h-9 sm:px-4 flex-shrink-0 leading-none" 
                 onClick={() => navigate("/auth")}
               >
                 Login
@@ -192,13 +192,13 @@ function Navbar() {
             {/* Mobile Search */}
             <button
               onClick={() => setIsMobileSearchOpen((prev) => !prev)}
-              className="md:hidden w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex-shrink-0"
+              className="md:hidden w-6 h-6 sm:w-9 sm:h-9 flex items-center justify-center bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex-shrink-0"
               title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
               aria-label={isMobileSearchOpen ? "Close Search" : "Search Anime"}
             >
               <FontAwesomeIcon
                 icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
-                className="text-xs sm:text-base transition-transform duration-200"
+                className="text-[10px] sm:text-base transition-transform duration-200"
                 style={{ transform: isMobileSearchOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
               />
             </button>
