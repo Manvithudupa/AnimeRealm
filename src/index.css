@@ -2,17 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* =========================
-   ROOT & GLOBAL LOCK
-========================= */
-html,
-body,
-#root {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
 /* Root Settings */
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -27,41 +16,23 @@ body,
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* =========================
-   RESET
-========================= */
-*,
-*::before,
-*::after {
+/* Reset */
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Prevent media overflow */
-img,
-video,
-canvas,
-svg {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-/* =========================
-   BODY
-========================= */
+/* Body */
 body {
   background-color: #000000;
   overflow-y: auto;
   -ms-overflow-style: none;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) #000000;
+  scrollbar-color: rgba(255,255,255,0.15) #000000;
 }
 
-/* =========================
-   SCROLLBAR – CHROME / SAFARI
-========================= */
+/* Scrollbar - Chrome / Safari */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -76,7 +47,7 @@ body {
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 10px;
-  transition: background 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -91,9 +62,7 @@ body {
   background-color: #000000;
 }
 
-/* =========================
-   SCROLLBAR UTILITIES
-========================= */
+/* Hide scrollbar */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -103,38 +72,38 @@ body {
   display: none;
 }
 
+/* Scrollbar visible */
 .scrollbar-visible {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) #000000;
+  scrollbar-color: rgba(255,255,255,0.15) #000000;
 }
 
 .scrollbar-visible::-webkit-scrollbar {
   width: 6px;
   height: 6px;
+  background-color: #000000;
 }
 
 .scrollbar-visible::-webkit-scrollbar-track {
   background-color: #000000;
+  border-radius: 10px;
 }
 
 .scrollbar-visible::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
 }
 
 .scrollbar-visible::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255,255,255,0.25);
 }
 
-/* =========================
-   VISIBILITY HELPERS
-========================= */
+/* Visibility */
 .is-visible {
   opacity: 1;
 }
 
-/* =========================
-   TAILWIND THEME VARIABLES
-========================= */
+/* Tailwind Theme Variables */
 @layer base {
   :root {
     --background: 0 0% 0%;
@@ -199,9 +168,7 @@ body {
   }
 }
 
-/* =========================
-   DOT UTILITY
-========================= */
+/* Dot */
 .dot {
   width: 4px;
   height: 4px;
