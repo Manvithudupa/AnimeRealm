@@ -32,6 +32,9 @@ const MiniSupportCard = () => {
           <span className="font-semibold text-white">Tell more people about the site</span> and help us grow the anime community!
         </li>
         <li>
+          <span className="font-semibold text-white">We have not put up ads</span> just for you to have a good/nice experience.
+        </li>
+        <li>
           <span className="font-semibold text-white">Join our Discord</span> to connect with other anime fans!
         </li>
       </ul>
@@ -51,7 +54,7 @@ const MiniSupportCard = () => {
 
       {/* Contact Email */}
       <p className="text-gray-300 text-sm text-center mt-2">
-        Contact us:{" "}
+        Contact me at:{" "}
         <a
           href="mailto:manvithudupa073@gmail.com"
           className="text-indigo-400 hover:underline"
