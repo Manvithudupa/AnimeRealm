@@ -31,6 +31,7 @@ function Navbar() {
 
   const dropdownRef = useRef(null);
 
+  // close dropdown when auth changes
   useEffect(() => {
     setIsDropdownOpen(false);
   }, [user]);
@@ -64,7 +65,6 @@ function Navbar() {
       <nav
         className={`fixed top-0 left-0 w-full z-[1000000]
         bg-[#0a0a0a] transition-all duration-300
-        overflow-x-hidden
         ${isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"}`}
       >
         <div className="max-w-[1920px] mx-auto px-3 sm:px-4 h-16 flex items-center justify-between min-w-0">
@@ -81,14 +81,16 @@ function Navbar() {
             </Link>
           </div>
 
-          {/* CENTER (DESKTOP ONLY) */}
+          {/* CENTER – desktop only */}
           <div className="hidden md:flex flex-1 justify-center px-6 min-w-0">
             <div className="flex items-center gap-2 w-full max-w-[600px]">
               <WebSearch />
               <Link
                 to={location.pathname === "/random" ? "#" : "/random"}
                 onClick={handleRandomClick}
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg flex items-center justify-center"
+                className="p-[10px] aspect-square bg-[#2a2a2a]/75
+                text-white/50 hover:text-white rounded-lg
+                flex items-center justify-center"
               >
                 <FontAwesomeIcon icon={faRandom} />
               </Link>
@@ -98,7 +100,7 @@ function Navbar() {
           {/* RIGHT */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
 
-            {/* Language Toggle */}
+            {/* Language toggle */}
             <div className="hidden md:flex items-center gap-1 bg-[#27272A] rounded-md p-1">
               {["EN", "JP"].map((lang) => (
                 <button
@@ -115,7 +117,7 @@ function Navbar() {
               ))}
             </div>
 
-            {/* User */}
+            {/* User / Login */}
             {user ? (
               <div className="relative" ref={dropdownRef}>
                 <button onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
@@ -128,27 +130,40 @@ function Navbar() {
                 </button>
 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-[#111]/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-xl">
-                    <div className="px-4 py-3 border-b border-white/10 text-sm text-gray-300 truncate">
+                  <div className="absolute right-0 mt-2 w-56 z-50
+                    bg-[#111]/95 backdrop-blur-xl
+                    rounded-xl border border-white/10 shadow-xl"
+                  >
+                    <div className="px-4 py-3 border-b border-white/10
+                      text-sm text-gray-300 truncate">
                       {profile?.username || user.email}
                     </div>
+
                     <button
-                      onClick={() => navigate("/profile")}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
+                      onClick={() => { setIsDropdownOpen(false); navigate("/profile"); }}
+                      className="w-full flex items-center gap-3 px-4 py-3
+                      text-gray-300 hover:bg-white/5"
                     >
-                      <User className="h-4 w-4" /> Profile
+                      <User className="h-4 w-4" />
+                      Profile
                     </button>
+
                     <button
-                      onClick={() => navigate("/watchlist")}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
+                      onClick={() => { setIsDropdownOpen(false); navigate("/watchlist"); }}
+                      className="w-full flex items-center gap-3 px-4 py-3
+                      text-gray-300 hover:bg-white/5"
                     >
-                      <Bookmark className="h-4 w-4" /> Watchlist
+                      <Bookmark className="h-4 w-4" />
+                      Watchlist
                     </button>
+
                     <button
                       onClick={signOut}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10"
+                      className="w-full flex items-center gap-3 px-4 py-3
+                      text-red-400 hover:bg-red-500/10"
                     >
-                      <LogOut className="h-4 w-4" /> Logout
+                      <LogOut className="h-4 w-4" />
+                      Logout
                     </button>
                   </div>
                 )}
@@ -159,10 +174,12 @@ function Navbar() {
               </Button>
             )}
 
-            {/* Mobile Search */}
+            {/* Mobile search */}
             <button
               onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="md:hidden p-[10px] bg-[#2a2a2a]/75 text-white/60 hover:text-white rounded-lg flex items-center justify-center w-9 h-9"
+              className="md:hidden p-[10px] bg-[#2a2a2a]/75
+              text-white/60 hover:text-white
+              rounded-lg w-9 h-9 flex items-center justify-center"
             >
               <FontAwesomeIcon
                 icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
@@ -172,14 +189,17 @@ function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Search */}
+        {/* Mobile search dropdown */}
         {isMobileSearchOpen && (
           <div className="md:hidden bg-[#18181B] shadow-lg">
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
           </div>
         )}
 
-        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
       </nav>
     </SearchProvider>
   );
