@@ -67,29 +67,30 @@ function Navbar() {
   return (
     <SearchProvider>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[1000000] transition-all duration-300 ease-in-out bg-[#0a0a0a] ${
+        className={`fixed top-0 left-0 right-0 z-[1000000] transition-all duration-300 ease-in-out bg-[#0a0a0a] overflow-x-hidden ${
           isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"
         }`}
       >
-        <div className="w-full h-16 flex items-center justify-between px-1.5 sm:px-4 max-w-[1920px] mx-auto">
+        <div className="w-screen h-16 flex items-center justify-between px-2 sm:px-4 max-w-full">
           
           {/* LEFT: Hamburger + Logo */}
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink min-w-0">
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             <button
               onClick={handleHamburgerClick}
-              className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center flex-shrink-0"
+              className="w-8 h-8 flex items-center justify-center flex-shrink-0"
               aria-label="Menu"
             >
               <FontAwesomeIcon
                 icon={faBars}
-                className="text-xs sm:text-xl text-gray-200 hover:text-white transition-colors"
+                className="text-base sm:text-xl text-gray-200 hover:text-white transition-colors"
               />
             </button>
-            <Link to="/home" className="flex-shrink min-w-0 block overflow-hidden">
+            <Link to="/home" className="flex-shrink-0 block">
               <img 
                 src="/logo.png" 
                 alt="Logo" 
-                className="h-5 sm:h-9 w-auto max-w-[50px] sm:max-w-none object-contain" 
+                className="h-7 sm:h-9 w-auto object-contain" 
+                style={{ maxWidth: '40px' }}
               />
             </Link>
           </div>
@@ -110,7 +111,7 @@ function Navbar() {
           </div>
 
           {/* RIGHT: User + Language + Mobile Search */}
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-2 flex-shrink-0">
 
             {/* Language Toggle - Desktop */}
             <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
@@ -137,13 +138,13 @@ function Navbar() {
                   className="flex items-center"
                   aria-label="User menu"
                 >
-                  <Avatar className="h-6 w-6 sm:h-10 sm:w-10 rounded-md flex-shrink-0">
+                  <Avatar className="h-8 w-8 sm:h-10 sm:w-10 rounded-md flex-shrink-0">
                     <AvatarImage
                       src={profile?.avatar_url || undefined}
                       className="rounded-md object-cover"
                     />
                     <AvatarFallback className="bg-[#2a2a2a] rounded-md flex items-center justify-center">
-                      <User className="h-3 w-3 sm:h-5 sm:w-5 text-white/70" />
+                      <User className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
                     </AvatarFallback>
                   </Avatar>
                 </button>
@@ -182,7 +183,7 @@ function Navbar() {
             ) : (
               <Button 
                 size="sm" 
-                className="text-[10px] h-6 px-2 sm:text-sm sm:h-9 sm:px-4 flex-shrink-0 leading-none" 
+                className="text-xs h-8 px-3 sm:text-sm sm:h-9 sm:px-4 flex-shrink-0" 
                 onClick={() => navigate("/auth")}
               >
                 Login
@@ -192,13 +193,13 @@ function Navbar() {
             {/* Mobile Search */}
             <button
               onClick={() => setIsMobileSearchOpen((prev) => !prev)}
-              className="md:hidden w-6 h-6 sm:w-9 sm:h-9 flex items-center justify-center bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex-shrink-0"
+              className="md:hidden w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex-shrink-0"
               title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
               aria-label={isMobileSearchOpen ? "Close Search" : "Search Anime"}
             >
               <FontAwesomeIcon
                 icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
-                className="text-[10px] sm:text-base transition-transform duration-200"
+                className="text-sm sm:text-base transition-transform duration-200"
                 style={{ transform: isMobileSearchOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
               />
             </button>
