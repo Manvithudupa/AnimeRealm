@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClosedCaptioning, faMicrophone, faPlay } from "@fortawesome/free-solid-svg-icons";
+import {
+  faClosedCaptioning,
+  faMicrophone,
+  faPlay,
+} from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
 import LatestEpisodeCard from "./LatestEpisodeCard.jsx";
 import { useLanguage } from "@/src/context/LanguageContext";
@@ -23,12 +27,21 @@ const CategoryCard = React.memo(
 
     if (limit) data = data.slice(0, limit);
 
-    const [itemsToRender, setItemsToRender] = useState({ firstRow: [], remainingItems: [] });
+    const [itemsToRender, setItemsToRender] = useState({
+      firstRow: [],
+      remainingItems: [],
+    });
 
     const getItemsToRender = useCallback(() => {
       if (categoryPage) {
-        const firstRow = window.innerWidth > 758 && data.length > 4 ? data.slice(0, 4) : [];
-        const remainingItems = window.innerWidth > 758 && data.length > 4 ? data.slice(4) : data.slice(0);
+        const firstRow =
+          window.innerWidth > 758 && data.length > 4
+            ? data.slice(0, 4)
+            : [];
+        const remainingItems =
+          window.innerWidth > 758 && data.length > 4
+            ? data.slice(4)
+            : data.slice(0);
         return { firstRow, remainingItems };
       }
       return { firstRow: [], remainingItems: data.slice(0) };
@@ -50,7 +63,7 @@ const CategoryCard = React.memo(
         <div
           key={index}
           ref={(el) => cardRefs && (cardRefs.current[item.id] = el)}
-          className="relative flex flex-col category-card-container"
+          className="relative flex flex-col category-card-container h-full"
           onMouseEnter={() => onItemHover && onItemHover(item)}
           onMouseLeave={() => onItemLeave && onItemLeave()}
         >
@@ -59,7 +72,11 @@ const CategoryCard = React.memo(
             <div
               className="poster-wrapper"
               onClick={() =>
-                navigate(path === "top-upcoming" ? `/${item.id}` : `/watch/${item.id}`)
+                navigate(
+                  path === "top-upcoming"
+                    ? `/${item.id}`
+                    : `/watch/${item.id}`
+                )
               }
             >
               <img src={item.poster} alt={item.title} />
@@ -73,14 +90,15 @@ const CategoryCard = React.memo(
             )}
           </div>
 
-          {/* Sub/Dub badges below poster */}
-          <div className="flex items-center gap-1 mt-2">
+          {/* Sub/Dub badges at bottom inside card */}
+          <div className="flex items-center gap-1 mt-auto pt-2">
             {item.tvInfo?.sub && (
               <div className="meta-badge">
                 <FontAwesomeIcon icon={faClosedCaptioning} />
                 <span>{item.tvInfo.sub}</span>
               </div>
             )}
+
             {item.tvInfo?.dub && (
               <div className="meta-badge">
                 <FontAwesomeIcon icon={faMicrophone} />
