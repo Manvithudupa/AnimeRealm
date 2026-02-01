@@ -9,13 +9,10 @@ import Loader from "@/src/components/Loader/Loader.jsx";
 import Error from "@/src/components/error/Error.jsx";
 import Schedule from "@/src/components/schedule/Schedule";
 import ContinueWatching from "@/src/components/continue/ContinueWatching";
-
 import TabbedAnimeSection from "@/src/components/tabbed-anime/TabbedAnimeSection.jsx";
-
-// 👉 Popup
 import SupportPopup from "@/src/components/SupportPopup/SupportPopup.jsx";
-
 import { useHomeInfo } from "@/src/context/HomeInfoContext.jsx";
+import MiniSupportCard from "@/src/components/minisupportcard/MiniSupportCard.jsx";
 
 function Home() {
   const { homeInfo, homeInfoLoading, error } = useHomeInfo();
@@ -83,6 +80,7 @@ function Home() {
           {/* Sidebar */}
           <div className="w-full mt-[60px] space-y-6">
             <Topten data={homeInfo.topten} className="mt-12" />
+            <MiniSupportCard />
           </div>
 
         </div>
