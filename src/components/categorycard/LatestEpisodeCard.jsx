@@ -1,14 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/src/context/LanguageContext";
 
 const LatestEpisodeCard = ({ item, path }) => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
 
   const episodeNum =
-    item.latestEpisode ??
-    item.tvInfo?.sub ??
-    item.tvInfo?.eps ??
-    null;
+    item.latestEpisode ?? item.tvInfo?.sub ?? item.tvInfo?.eps ?? null;
 
   return (
     <div
@@ -50,7 +49,7 @@ const LatestEpisodeCard = ({ item, path }) => {
       {/* Bottom Info */}
       <div className="absolute bottom-3 left-3 right-3">
         <p className="text-white text-sm font-semibold leading-snug line-clamp-2">
-          {item.title}
+          {language === "EN" ? item.title : item.japanese_title}
         </p>
 
         <p className="text-xs text-white/70 mt-1">
