@@ -63,14 +63,14 @@ const CategoryCard = React.memo(
         <div
           key={index}
           ref={(el) => cardRefs && (cardRefs.current[item.id] = el)}
-          className="relative flex flex-col category-card-container h-full"
+          className="relative flex flex-col category-card-container"
           onMouseEnter={() => onItemHover && onItemHover(item)}
           onMouseLeave={() => onItemLeave && onItemLeave()}
         >
           {/* Poster */}
           <div className="card-poster group">
             <div
-              className="poster-wrapper"
+              className="poster-wrapper relative"
               onClick={() =>
                 navigate(
                   path === "top-upcoming"
@@ -82,6 +82,23 @@ const CategoryCard = React.memo(
               <img src={item.poster} alt={item.title} />
               <div className="overlay"></div>
               <FontAwesomeIcon icon={faPlay} className="play-icon" />
+
+              {/* Sub/Dub overlay badges */}
+              <div className="absolute bottom-2 left-2 right-2 flex gap-1 z-10">
+                {item.tvInfo?.sub && (
+                  <div className="meta-badge bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                    <FontAwesomeIcon icon={faClosedCaptioning} />
+                    <span className="ml-1">{item.tvInfo.sub}</span>
+                  </div>
+                )}
+
+                {item.tvInfo?.dub && (
+                  <div className="meta-badge bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                    <FontAwesomeIcon icon={faMicrophone} />
+                    <span className="ml-1">{item.tvInfo.dub}</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* 18+ Badge */}
@@ -90,25 +107,8 @@ const CategoryCard = React.memo(
             )}
           </div>
 
-          {/* Sub/Dub badges at bottom inside card */}
-          <div className="flex items-center gap-1 mt-auto pt-2">
-            {item.tvInfo?.sub && (
-              <div className="meta-badge">
-                <FontAwesomeIcon icon={faClosedCaptioning} />
-                <span>{item.tvInfo.sub}</span>
-              </div>
-            )}
-
-            {item.tvInfo?.dub && (
-              <div className="meta-badge">
-                <FontAwesomeIcon icon={faMicrophone} />
-                <span>{item.tvInfo.dub}</span>
-              </div>
-            )}
-          </div>
-
           {/* Title */}
-          <Link to={`/${item.id}`} className="item-title mt-1 line-clamp-1">
+          <Link to={`/${item.id}`} className="item-title mt-2 line-clamp-1">
             {language === "EN" ? item.title : item.japanese_title}
           </Link>
         </div>
