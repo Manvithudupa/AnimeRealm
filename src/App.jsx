@@ -3,10 +3,8 @@ import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
-
 import { HomeInfoProvider } from "./context/HomeInfoContext";
 import { useAuth } from "./hooks/useAuth";
-
 import Home from "./pages/Home/Home";
 import AnimeInfo from "./pages/animeInfo/AnimeInfo";
 import Navbar from "./components/navbar/Navbar";
@@ -17,6 +15,7 @@ import AtoZ from "./pages/a2z/AtoZ";
 import { azRoute, categoryRoutes } from "./utils/category.utils";
 import "./App.css";
 import Search from "./pages/search/Search";
+import Filter from "./pages/filter/Filter";
 import Watch from "./pages/watch/Watch";
 import Producer from "./components/producer/Producer";
 import SplashScreen from "./components/splashscreen/SplashScreen";
@@ -111,6 +110,7 @@ function App() {
             {/* Misc */}
             <Route path="/producer/:id" element={<Producer />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/filter" element={<Filter />} />
             <Route path="/terms-of-service" element={<Terms />} />
             <Route path="/dmca" element={<DMCA />} />
             <Route path="/contact" element={<Contact />} />
