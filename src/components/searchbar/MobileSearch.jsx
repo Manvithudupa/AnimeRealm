@@ -8,7 +8,6 @@ function MobileSearch({ onClose }) {
     const navigate = useNavigate();
     const location = useLocation();
     const {
-        isSearchVisible,
         searchValue,
         setSearchValue,
         isFocused,
@@ -40,20 +39,20 @@ function MobileSearch({ onClose }) {
     return (
         <div className="w-full p-4 flex flex-col gap-4">
             <div className="flex items-center gap-2">
-                {/* Filter Button */}
-                <button
-                    onClick={handleFilterClick}
-                    className="flex items-center justify-center px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors shrink-0"
-                    title="Filter Anime"
-                >
-                    <FontAwesomeIcon icon={faSliders} className="mr-2" />
-                    Filter
-                </button>
+                <div className="relative flex-1 flex items-center">
+                    {/* Filter button inside sidebar, left to input/search */}
+                    <button
+                        className="px-3 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center mr-2"
+                        onClick={handleFilterClick}
+                        title="Filter Anime"
+                    >
+                        <FontAwesomeIcon icon={faSliders} className="mr-1" />
+                        Filter
+                    </button>
 
-                <div className="relative flex-1">
                     <input
                         type="text"
-                        className="w-full px-5 py-2 bg-[#2a2a2a]/75 text-white rounded-lg focus:outline-none transition-colors placeholder-white/50"
+                        className="flex-1 px-5 py-2 bg-[#2a2a2a]/75 text-white rounded-lg focus:outline-none transition-colors placeholder-white/50"
                         placeholder="Search anime..."
                         value={searchValue}
                         onChange={(e) => setSearchValue(e.target.value)}
@@ -74,8 +73,9 @@ function MobileSearch({ onClose }) {
                             }
                         }}
                     />
+                    {/* Search Icon */}
                     <button 
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+                        className="absolute right-12 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
                         onClick={handleSearchClick}
                     >
                         <FontAwesomeIcon
@@ -85,6 +85,7 @@ function MobileSearch({ onClose }) {
                     </button>
                 </div>
 
+                {/* Random Button */}
                 <Link
                     to={location.pathname === "/random" ? "#" : "/random"}
                     onClick={handleRandomClick}
