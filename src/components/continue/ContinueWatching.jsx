@@ -42,7 +42,7 @@ const ContinueWatching = () => {
               adult_content: !!item.adultContent,
               updated_at: new Date().toISOString(),
             },
-            { onConflict: ["user_id", "episode_id"] }
+            { onConflict: ["user_id", "anime_id"] } // <-- overwrite same anime
           )
         )
       );
@@ -62,9 +62,9 @@ const ContinueWatching = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Migrate localStorage first
       await migrateFromLocalStorage(user.id);
 
+      // Fetch latest episode per anime
       const { data, error } = await supabase
         .from("continue_watching")
         .select("*")
@@ -72,7 +72,18 @@ const ContinueWatching = () => {
         .order("updated_at", { ascending: false });
 
       if (error) console.error("Load watchlist error:", error);
-      else setWatchList(data || []);
+      else {
+        // Deduplicate by anime_id, keep latest updated
+        const latestPerAnime = [];
+        const seen = new Set();
+        for (const item of data) {
+          if (!seen.has(item.anime_id)) {
+            latestPerAnime.push(item);
+            seen.add(item.anime_id);
+          }
+        }
+        setWatchList(latestPerAnime);
+      }
     } catch (err) {
       console.error("Error loading watchlist:", err);
     }
@@ -87,7 +98,7 @@ const ContinueWatching = () => {
   /* ===============================
      REMOVE ITEM
   =============================== */
-  const removeFromWatchList = async (rowId) => {
+  const removeFromWatchList = async (animeId) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -95,7 +106,8 @@ const ContinueWatching = () => {
       const { error } = await supabase
         .from("continue_watching")
         .delete()
-        .eq("id", rowId);
+        .eq("user_id", user.id)
+        .eq("anime_id", animeId);
 
       if (error) console.error("Delete failed:", error);
       else loadWatchList();
@@ -153,20 +165,19 @@ const ContinueWatching = () => {
                 : 0;
 
             return (
-              <SwiperSlide key={item.id} className="flex justify-center">
+              <SwiperSlide key={item.anime_id} className="flex justify-center">
                 <div className="w-full pb-[140%] relative rounded-lg overflow-hidden group">
-
                   {/* REMOVE BUTTON */}
                   <button
                     className="absolute top-3 right-3 z-50 bg-black/70 text-white w-8 h-8 rounded flex items-center justify-center font-bold hover:bg-white hover:text-black transition"
-                    onClick={() => removeFromWatchList(item.id)}
+                    onClick={() => removeFromWatchList(item.anime_id)}
                   >
                     ✖
                   </button>
 
                   {/* CARD */}
                   <Link
-                    to={`/watch/${item.anime_id}?ep=${item.episode_id}`} // URL uses episode_id
+                    to={`/watch/${item.anime_id}?ep=${item.episode_id}`}
                     className="absolute inset-0"
                   >
                     <img
@@ -174,7 +185,6 @@ const ContinueWatching = () => {
                       alt={item.title || item.japanese_title}
                       className="w-full h-full object-cover group-hover:scale-105 transition"
                     />
-
                     {/* PLAY HOVER */}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex justify-center items-center transition">
                       <FontAwesomeIcon icon={faPlay} className="text-white text-4xl" />
@@ -201,7 +211,7 @@ const ContinueWatching = () => {
                       {language === "EN" ? item.title : item.japanese_title}
                     </p>
                     <p className="text-gray-300 text-sm">
-                      Episode {item.episode_num} {/* Show episode number, not ID */}
+                      Episode {item.episode_num}
                     </p>
                   </div>
                 </div>
