@@ -12,26 +12,63 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import website_name from "@/src/config/website";
 import CategoryCard from "@/src/components/categorycard/CategoryCard";
 import Sidecard from "@/src/components/sidecard/Sidecard";
-import Voiceactor from "@/src/components/voiceactor/Voiceactor";
 import Loader from "@/src/components/Loader/Loader";
 import Error from "@/src/components/error/Error";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { useHomeInfo } from "@/src/context/HomeInfoContext";
+import Voiceactor from "@/src/components/voiceactor/Voiceactor";
 import { supabase } from "@/src/integrations/supabase/client";
 import { useAuth } from "@/src/hooks/useAuth";
 
 /* ---------------- Info Row ---------------- */
-function InfoItem({ label, value }) {
+function InfoItem({ label, value, isProducer = true }) {
   if (!value) return null;
   return (
-    <div className="flex justify-between text-sm">
-      <dt className="text-white/50">{label}</dt>
-      <dd className="text-white/90 text-right max-w-[60%] truncate">{value}</dd>
+    <div className="text-[11px] sm:text-[14px] font-medium transition-all duration-300">
+      <span className="text-gray-400">{`${label}: `}</span>
+      <span className="font-light text-white/90">
+        {Array.isArray(value)
+          ? value.map((item, index) =>
+              isProducer ? (
+                <Link
+                  to={`/producer/${item
+                    .replace(/[&'"^%$#@!()+=<>:;,.?/\\|{}[\]`~*_]/g, "")
+                    .split(" ")
+                    .join("-")
+                    .replace(/-+/g, "-")}`}
+                  key={index}
+                  className="cursor-pointer transition-colors duration-300 hover:text-gray-300"
+                >
+                  {item}
+                  {index < value.length - 1 && ", "}
+                </Link>
+              ) : (
+                <span key={index}>
+                  {item}
+                  {index < value.length - 1 && ", "}
+                </span>
+              )
+            )
+          : isProducer ? (
+              <Link
+                to={`/producer/${value
+                  .replace(/[&'"^%$#@!()+=<>:;,.?/\\|{}[\]`~*_]/g, "")
+                  .split(" ")
+                  .join("-")
+                  .replace(/-+/g, "-")}`}
+                className="cursor-pointer transition-colors duration-300 hover:text-gray-300"
+              >
+                {value}
+              </Link>
+            ) : (
+              <span>{value}</span>
+            )}
+      </span>
     </div>
   );
 }
 
-/* ---------------- Genre / Tag ---------------- */
+/* ---------------- Tag ---------------- */
 function Tag({ icon, text }) {
   return (
     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 text-xs text-white/70">
@@ -45,25 +82,27 @@ function AnimeInfo({ random = false }) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { id: paramId } = useParams();
+  const { homeInfo } = useHomeInfo();
   const navigate = useNavigate();
 
   const id = random ? null : paramId;
-  const currentId = paramId; // for seasons highlight
+  const currentId = paramId;
 
   const [animeInfo, setAnimeInfo] = useState(null);
   const [seasons, setSeasons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isFullOverview, setIsFullOverview] = useState(false);
 
   const [inWatchlist, setInWatchlist] = useState(false);
   const [watchlistLoading, setWatchlistLoading] = useState(false);
-
   const [lastWatchedEpisode, setLastWatchedEpisode] = useState(null);
-  const [isFullOverview, setIsFullOverview] = useState(false);
 
   /* ---------- Fetch Anime ---------- */
   useEffect(() => {
-    const fetchAnime = async () => {
+    if (id === "404-not-found-page") return;
+
+    const fetchAnimeInfo = async () => {
       setLoading(true);
       try {
         const data = await getAnimeInfo(id, random);
@@ -76,8 +115,9 @@ function AnimeInfo({ random = false }) {
         setLoading(false);
       }
     };
-    fetchAnime();
-    window.scrollTo(0, 0);
+
+    fetchAnimeInfo();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [id, random]);
 
   /* ---------- Page Title ---------- */
@@ -86,7 +126,7 @@ function AnimeInfo({ random = false }) {
       document.title = `Watch ${animeInfo.title} on ${website_name}`;
     }
     return () => {
-      document.title = `${website_name} | Free anime streaming`;
+      document.title = `${website_name} | Free anime streaming platform`;
     };
   }, [animeInfo]);
 
@@ -101,6 +141,7 @@ function AnimeInfo({ random = false }) {
         .eq("user_id", user.id)
         .eq("anime_id", animeInfo.id)
         .single();
+
       if (!error) setInWatchlist(!!data);
     };
 
@@ -109,13 +150,9 @@ function AnimeInfo({ random = false }) {
 
   /* ---------- Toggle Watchlist ---------- */
   const toggleWatchlist = async () => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
+    if (!user) return navigate("/auth");
 
     setWatchlistLoading(true);
-
     if (inWatchlist) {
       await supabase
         .from("watchlists")
@@ -132,7 +169,6 @@ function AnimeInfo({ random = false }) {
       });
       setInWatchlist(true);
     }
-
     setWatchlistLoading(false);
   };
 
@@ -150,9 +186,7 @@ function AnimeInfo({ random = false }) {
         .limit(1)
         .single();
 
-      if (!error && data) {
-        setLastWatchedEpisode({ id: data.episode_id, num: data.episode_num });
-      }
+      if (!error && data) setLastWatchedEpisode({ id: data.episode_id, num: data.episode_num });
     };
 
     fetchLastWatched();
@@ -160,9 +194,7 @@ function AnimeInfo({ random = false }) {
 
   /* ---------- Handle missing anime ---------- */
   useEffect(() => {
-    if (!loading && !animeInfo) {
-      navigate("/404-not-found-page");
-    }
+    if (!loading && !animeInfo) navigate("/404-not-found-page");
   }, [loading, animeInfo, navigate]);
 
   if (loading) return <Loader type="animeInfo" />;
@@ -172,134 +204,63 @@ function AnimeInfo({ random = false }) {
   const { title, japanese_title, poster, animeInfo: info } = animeInfo;
 
   const tags = [
-    info?.tvInfo?.rating,
-    info?.tvInfo?.quality,
+    info?.tvInfo?.rating && { text: info.tvInfo.rating },
+    info?.tvInfo?.quality && { text: info.tvInfo.quality },
     info?.tvInfo?.sub && { icon: faClosedCaptioning, text: info.tvInfo.sub },
     info?.tvInfo?.dub && { icon: faMicrophone, text: info.tvInfo.dub },
   ].filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      <div className="relative w-full overflow-hidden mt-[74px] max-md:mt-[60px]">
+        {/* Main Content */}
+        <div className="relative z-10 container mx-auto py-4 sm:py-6 lg:py-12">
+          {/* Mobile Layout */}
+          <div className="block md:hidden">
+            <div className="flex flex-row gap-4">
+              {/* Poster Section */}
+              <div className="flex-shrink-0">
+                <div className="relative w-[130px] xs:w-[150px] aspect-[2/3] rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+                  <img src={poster} alt={`${title} Poster`} className="w-full h-full object-cover" />
+                  {animeInfo.adultContent && (
+                    <div className="absolute top-2 left-2 px-2 py-0.5 bg-red-500/90 backdrop-blur-sm rounded-md text-[10px] font-medium">
+                      18+
+                    </div>
+                  )}
+                </div>
+              </div>
 
-      {/* ================= HERO ================= */}
-      <section className="relative pt-14">
-        <div className="relative h-[50vh] overflow-hidden">
-          <img src={poster} alt={title} className="absolute inset-0 w-full h-full object-cover blur-sm scale-105" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
-        </div>
-
-        {/* Info */}
-        <div className="relative -mt-32 mx-auto max-w-7xl px-5">
-          <div className="flex flex-col md:flex-row gap-6">
-
-            {/* Poster */}
-            <div className="relative w-40 md:w-52 aspect-[3/4] rounded-xl overflow-hidden shadow-xl shrink-0">
-              <img src={poster} alt={title} className="w-full h-full object-cover" />
+              {/* Info Section */}
+              <div className="flex-1 min-w-0 space-y-2">
+                <h1 className="text-lg xs:text-xl font-bold tracking-tight truncate">
+                  {language === "EN" ? title : japanese_title}
+                </h1>
+                {language === "EN" && japanese_title && (
+                  <p className="text-white/50 text-[11px] xs:text-xs truncate">JP Title: {japanese_title}</p>
+                )}
+                <div className="flex flex-wrap gap-1.5">
+                  {tags.map((tag, index) => (
+                    <Tag key={index} icon={tag.icon} text={tag.text} />
+                  ))}
+                </div>
+              </div>
             </div>
 
-            {/* Details */}
-            <div className="flex-1 pt-4 md:pt-20">
-              <p className="text-xs uppercase tracking-wider text-white/50 mb-2">
-                {info?.Status} · {info?.Premiered} · {info?.Duration}
-              </p>
-
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2">
-                {language === "EN" ? title : japanese_title}
-              </h1>
-
-              {japanese_title && <p className="text-sm text-white/40 mb-4">{japanese_title}</p>}
-
-              <div className="flex flex-wrap items-center gap-4 text-sm text-white/60 mb-6">
-                {info?.["MAL Score"] && <span className="text-yellow-400">⭐ {info["MAL Score"]}</span>}
-              </div>
-
-              {/* Buttons */}
-              <div className="flex items-center gap-3 mb-6">
-                {info?.Status?.toLowerCase() !== "not-yet-aired" && (
-                  <Link
-                    to={
-                      lastWatchedEpisode
-                        ? `/watch/${animeInfo.id}?ep=${lastWatchedEpisode.id}`
-                        : `/watch/${animeInfo.id}`
-                    }
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 transition"
-                  >
-                    <FontAwesomeIcon icon={faPlay} />
-                    {lastWatchedEpisode
-                      ? `Continue Watching Ep ${lastWatchedEpisode.num}`
-                      : "Watch"}
-                  </Link>
-                )}
-
-                <button
-                  onClick={toggleWatchlist}
-                  disabled={watchlistLoading}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-medium transition"
-                >
-                  <FontAwesomeIcon icon={inWatchlist ? faCheck : faBookmark} />
-                  {inWatchlist ? "Saved" : "Save"}
-                </button>
-              </div>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag, i) =>
-                  typeof tag === "string"
-                    ? <Tag key={i} text={tag} />
-                    : <Tag key={i} icon={tag.icon} text={tag.text} />
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================= SYNOPSIS + INFO ================= */}
-      <section className="py-10 px-5">
-        <div className="mx-auto max-w-7xl grid lg:grid-cols-3 gap-8">
-
-          {/* Synopsis */}
-          <div className="lg:col-span-2">
-            <h2 className="text-sm uppercase tracking-wider text-white/50 mb-4">Synopsis</h2>
-            <p className="text-white/70 leading-relaxed">
-              {info?.Overview ? (
-                info.Overview.length > 270 ? (
-                  <>
-                    {isFullOverview ? info.Overview : `${info.Overview.slice(0, 270)}...`}
-                    <button
-                      className="ml-2 text-gray-300 hover:text-white transition-colors"
-                      onClick={() => setIsFullOverview(!isFullOverview)}
-                    >
-                      {isFullOverview ? "Show Less" : "Read More"}
-                    </button>
-                  </>
-                ) : info.Overview
-              ) : (
-                "No description available."
+            {/* Watch Button */}
+            <div className="mt-6">
+              {info?.Status?.toLowerCase() !== "not-yet-aired" && (
+                <Link to={`/watch/${animeInfo.id}`} className="flex justify-center items-center w-full px-4 py-3 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20 transition">
+                  <FontAwesomeIcon icon={faPlay} className="mr-2 text-xs" />
+                  Watch Now
+                </Link>
               )}
-            </p>
-          </div>
-
-          {/* Sidebar Info */}
-          <div className="lg:col-span-1">
-            <div className="bg-white/[0.05] rounded-xl p-5 border border-white/10">
-              <h3 className="text-sm uppercase tracking-wider text-white/50 mb-4">Information</h3>
-              <dl className="space-y-3">
-                <InfoItem label="Japanese" value={info?.Japanese} />
-                <InfoItem label="Synonyms" value={info?.Synonyms} />
-                <InfoItem label="Aired" value={info?.Aired} />
-                <InfoItem label="Premiered" value={info?.Premiered} />
-                <InfoItem label="Duration" value={info?.Duration} />
-                <InfoItem label="Status" value={info?.Status} />
-                <InfoItem label="MAL Score" value={info?.["MAL Score"]} />
-              </dl>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* ================= SEASONS ================= */}
-      {seasons?.length > 0 && (
+      {/* Seasons Section */}
+      {seasons.length > 0 && (
         <div className="container mx-auto py-8 sm:py-12">
           <h2 className="text-2xl font-bold mb-6 sm:mb-8 px-1">More Seasons</h2>
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
@@ -308,9 +269,7 @@ function AnimeInfo({ random = false }) {
                 to={`/${season.id}`}
                 key={index}
                 className={`relative w-full aspect-[3/1] sm:aspect-[3/1] rounded-lg overflow-hidden cursor-pointer group ${
-                  currentId === String(season.id)
-                    ? "ring-2 ring-white/40 shadow-lg shadow-white/10"
-                    : ""
+                  currentId === String(season.id) ? "ring-2 ring-white/40 shadow-lg shadow-white/10" : ""
                 }`}
               >
                 <img
@@ -320,28 +279,10 @@ function AnimeInfo({ random = false }) {
                     currentId === String(season.id) ? "opacity-50" : "opacity-40"
                   }`}
                 />
-                <div
-                  className="absolute inset-0 z-10"
-                  style={{
-                    backgroundImage: `url('data:image/svg+xml,<svg width="3" height="3" viewBox="0 0 3 3" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="1.5" cy="1.5" r="0.5" fill="white" fill-opacity="0.25"/></svg>')`,
-                    backgroundSize: "3px 3px",
-                  }}
-                />
-                <div
-                  className={`absolute inset-0 z-20 bg-gradient-to-r ${
-                    currentId === String(season.id)
-                      ? "from-black/50 to-transparent"
-                      : "from-black/40 to-transparent"
-                  }`}
-                />
+                <div className="absolute inset-0 z-10" style={{ backgroundImage: `url('data:image/svg+xml,<svg width="3" height="3" viewBox="0 0 3 3" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="1.5" cy="1.5" r="0.5" fill="white" fill-opacity="0.25"/></svg>')`, backgroundSize: '3px 3px' }} />
+                <div className={`absolute inset-0 z-20 bg-gradient-to-r ${currentId === String(season.id) ? "from-black/50 to-transparent" : "from-black/40 to-transparent"}`} />
                 <div className="absolute inset-0 z-30 flex items-center justify-center">
-                  <p
-                    className={`text-[14px] sm:text-[16px] md:text-[18px] font-bold text-center px-2 sm:px-4 transition-colors duration-300 ${
-                      currentId === String(season.id)
-                        ? "text-white"
-                        : "text-white/90 group-hover:text-white"
-                    }`}
-                  >
+                  <p className={`text-[14px] sm:text-[16px] md:text-[18px] font-bold text-center px-2 sm:px-4 ${currentId === String(season.id) ? "text-white" : "text-white/90 group-hover:text-white"}`}>
                     {season.season}
                   </p>
                 </div>
@@ -351,18 +292,18 @@ function AnimeInfo({ random = false }) {
         </div>
       )}
 
-      {/* ================= VOICE ACTORS ================= */}
+      {/* Voice Actors */}
       {animeInfo?.charactersVoiceActors?.length > 0 && (
         <div className="container mx-auto py-12">
           <Voiceactor animeInfo={animeInfo} />
         </div>
       )}
 
-      {/* ================= RECOMMENDATIONS ================= */}
+      {/* Recommendations */}
       {animeInfo?.recommended_data?.length > 0 && (
         <div className="container mx-auto py-12">
           <CategoryCard
-            label="You may also like"
+            label="Recommended for you"
             data={animeInfo.recommended_data}
             showViewMore={false}
           />
