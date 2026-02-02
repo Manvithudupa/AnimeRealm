@@ -6,9 +6,15 @@ import artplayerPluginChapter from "./artPlayerPluinChaper";
 import autoSkip from "./autoSkip";
 import artplayerPluginVttThumbnail from "./artPlayerPluginVttThumbnail";
 import {
+  backward10Icon,
+  backwardIcon,
+  captionIcon,
+  forward10Icon,
+  forwardIcon,
   fullScreenOffIcon,
   fullScreenOnIcon,
   loadingIcon,
+  logo,
   muteIcon,
   pauseIcon,
   pipIcon,
@@ -22,7 +28,6 @@ import website_name from "@/src/config/website";
 import getChapterStyles from "./getChapterStyle";
 import artplayerPluginHlsControl from "artplayer-plugin-hls-control";
 import artplayerPluginUploadSubtitle from "./artplayerPluginUploadSubtitle";
-import { supabase } from "@/src/integrations/supabase/client";
 
 Artplayer.LOG_VERSION = false;
 Artplayer.CONTEXTMENU = false;
@@ -44,45 +49,59 @@ export default function Player({
   streamInfo,
 }) {
   const artRef = useRef(null);
+  const leftAtRef = useRef(0);
   const saveIntervalRef = useRef(null);
 
   const proxy = import.meta.env.VITE_PROXY_URL;
   const m3u8proxy = import.meta.env.VITE_M3U8_PROXY_URL?.split(",") || [];
 
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(
-    episodes?.findIndex((ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId)
+    episodes?.findIndex(
+      (episode) => episode.id.match(/ep=(\d+)/)?.[1] === episodeId
+    )
   );
 
   /* ===========================
-     Episode Sync
+     Episode Index Sync
   =========================== */
   useEffect(() => {
-    if (!episodes?.length) return;
-
-    const index = episodes.findIndex(
-      (ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId
-    );
-
-    setCurrentEpisodeIndex(index);
+    if (episodes?.length > 0) {
+      const newIndex = episodes.findIndex(
+        (episode) => episode.id.match(/ep=(\d+)/)?.[1] === episodeId
+      );
+      setCurrentEpisodeIndex(newIndex);
+    }
   }, [episodeId, episodes]);
 
   /* ===========================
      Chapter Styles
   =========================== */
   useEffect(() => {
-    if (!streamUrl) return;
+    const applyChapterStyles = () => {
+      const existingStyles = document.querySelectorAll(
+        "style[data-chapter-styles]"
+      );
+      existingStyles.forEach((style) => style.remove());
 
-    const style = document.createElement("style");
-    style.dataset.chapterStyles = "true";
-    style.textContent = getChapterStyles(intro, outro);
+      const styleElement = document.createElement("style");
+      styleElement.setAttribute("data-chapter-styles", "true");
 
-    document.head.appendChild(style);
+      const styles = getChapterStyles(intro, outro);
+      styleElement.textContent = styles;
 
-    return () => style.remove();
+      document.head.appendChild(styleElement);
+
+      return () => styleElement.remove();
+    };
+
+    if (streamUrl || intro || outro) {
+      const cleanup = applyChapterStyles();
+      return cleanup;
+    }
   }, [streamUrl, intro, outro]);
 
   /* ===========================
-     HLS
+     HLS Handler
   =========================== */
   const playM3u8 = (video, url, art) => {
     if (Hls.isSupported()) {
@@ -105,20 +124,12 @@ export default function Player({
   const createChapters = () => {
     const chapters = [];
 
-    if (intro?.start || intro?.end) {
-      chapters.push({
-        start: intro.start,
-        end: intro.end,
-        title: "Intro",
-      });
+    if (intro?.start !== 0 || intro?.end !== 0) {
+      chapters.push({ start: intro.start, end: intro.end, title: "Intro" });
     }
 
-    if (outro?.start || outro?.end) {
-      chapters.push({
-        start: outro.start,
-        end: outro.end,
-        title: "Outro",
-      });
+    if (outro?.start !== 0 || outro?.end !== 0) {
+      chapters.push({ start: outro.start, end: outro.end, title: "Outro" });
     }
 
     return chapters;
@@ -130,292 +141,228 @@ export default function Player({
   useEffect(() => {
     if (!streamUrl || !artRef.current) return;
 
-    let art;
+    const iframeUrl = streamInfo?.streamingLink?.iframe;
+    const headers = {};
 
-    const init = async () => {
-      /* ---------- Get User ---------- */
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+    if (iframeUrl) {
+      headers.referer = new URL(iframeUrl).origin + "/";
+    }
 
-      /* ---------- Load Resume Time ---------- */
-      let resumeTime = 0;
+    const art = new Artplayer({
+      url:
+        m3u8proxy[Math.floor(Math.random() * m3u8proxy.length)] +
+        encodeURIComponent(streamUrl) +
+        "&headers=" +
+        encodeURIComponent(JSON.stringify(headers)),
 
-      if (user) {
-        const { data } = await supabase
-          .from("continue_watching")
-          .select("left_at")
-          .eq("user_id", user.id)
-          .eq("episode_id", episodeId)
-          .single();
+      container: artRef.current,
+      type: "m3u8",
+      autoplay: autoPlay,
+      volume: 1,
+      setting: true,
+      playbackRate: true,
+      pip: true,
+      fullscreen: true,
+      mutex: true,
+      playsInline: true,
 
-        if (data?.left_at) resumeTime = data.left_at;
-      }
-
-      // fallback
-      if (!resumeTime) {
-        const local =
-          JSON.parse(localStorage.getItem("continueWatching")) || [];
-
-        const saved = local.find((i) => i.episodeId === episodeId);
-
-        if (saved?.leftAt) resumeTime = saved.leftAt;
-      }
-
-      /* ---------- Headers ---------- */
-      const iframeUrl = streamInfo?.streamingLink?.iframe;
-      const headers = {};
-
-      if (iframeUrl) {
-        headers.referer = new URL(iframeUrl).origin + "/";
-      }
-
-      /* ---------- Init Player ---------- */
-      art = new Artplayer({
-        url:
-          m3u8proxy[Math.floor(Math.random() * m3u8proxy.length)] +
-          encodeURIComponent(streamUrl) +
-          "&headers=" +
-          encodeURIComponent(JSON.stringify(headers)),
-
-        container: artRef.current,
-        type: "m3u8",
-        autoplay: autoPlay,
-        volume: 1,
-
-        setting: true,
-        playbackRate: true,
-        pip: true,
-        fullscreen: true,
-        mutex: true,
+      moreVideoAttr: {
+        crossOrigin: "anonymous",
+        preload: "none",
         playsInline: true,
+      },
 
-        moreVideoAttr: {
-          crossOrigin: "anonymous",
-          preload: "none",
-        },
+      plugins: [
+        artplayerPluginHlsControl({
+          quality: {
+            setting: true,
+            getName: (level) => level.height + "P",
+            title: "Quality",
+            auto: "Auto",
+          },
+        }),
 
-        plugins: [
-          artplayerPluginHlsControl({
-            quality: {
-              setting: true,
-              getName: (l) => l.height + "P",
-              title: "Quality",
-              auto: "Auto",
-            },
-          }),
+        artplayerPluginUploadSubtitle(),
 
-          artplayerPluginUploadSubtitle(),
+        artplayerPluginChapter({
+          chapters: createChapters(),
+        }),
+      ],
 
-          artplayerPluginChapter({
-            chapters: createChapters(),
-          }),
-        ],
+      icons: {
+        play: playIcon,
+        pause: pauseIcon,
+        setting: settingsIcon,
+        volume: volumeIcon,
+        pip: pipIcon,
+        volumeClose: muteIcon,
+        state: playIconLg,
+        loading: loadingIcon,
+        fullscreenOn: fullScreenOnIcon,
+        fullscreenOff: fullScreenOffIcon,
+      },
 
-        icons: {
-          play: playIcon,
-          pause: pauseIcon,
-          setting: settingsIcon,
-          volume: volumeIcon,
-          pip: pipIcon,
-          volumeClose: muteIcon,
-          state: playIconLg,
-          loading: loadingIcon,
-          fullscreenOn: fullScreenOnIcon,
-          fullscreenOff: fullScreenOffIcon,
-        },
+      customType: {
+        m3u8: playM3u8,
+      },
+    });
 
-        customType: {
-          m3u8: playM3u8,
-        },
-      });
+    /* ===========================
+       When Ready
+    =========================== */
+    art.on("ready", () => {
+      /* ---------- Restore Progress ---------- */
+      const list =
+        JSON.parse(localStorage.getItem("continueWatching")) || [];
 
-      /* ===========================
-         Ready
-      =========================== */
-      art.on("ready", () => {
-        /* Resume */
-        if (resumeTime) {
-          art.once("video:loadedmetadata", () => {
-            if (resumeTime < art.duration - 10) {
-              art.currentTime = resumeTime;
-            }
-          });
-        }
+      const saved = list.find(
+        (item) => item.episodeId === episodeId
+      );
 
-        /* Default Subtitle */
-        const def = subtitles?.find(
-          (s) => s.label.toLowerCase() === "english"
-        );
+      if (saved?.leftAt) {
+        const resumeTime = saved.leftAt;
 
-        if (def) {
-          art.subtitle.switch(def.file, {
-            name: def.label,
-            default: true,
-          });
-        }
-
-        /* Auto Skip */
-        const skipRanges = [
-          ...(intro?.start != null && intro?.end != null
-            ? [[intro.start + 1, intro.end - 1]]
-            : []),
-
-          ...(outro?.start != null && outro?.end != null
-            ? [[outro.start + 1, outro.end]]
-            : []),
-        ];
-
-        autoSkipIntro && art.plugins.add(autoSkip(skipRanges));
-
-        /* Thumbnails */
-        if (thumbnail) {
-          art.plugins.add(
-            artplayerPluginVttThumbnail({
-              vtt: `${proxy}${thumbnail}`,
-            })
-          );
-        }
-
-        /* Logo */
-        setTimeout(() => {
-          if (art.layers[website_name]) {
-            art.layers[website_name].style.opacity = 0;
-          }
-        }, 2000);
-
-        /* ===========================
-           Save Progress
-        =========================== */
-        const saveProgress = async () => {
-          const time = Math.floor(art.currentTime);
-          const duration = Math.floor(art.duration);
-
-          if (!time || time < 5) return;
-
-          /* ---------- Local Backup ---------- */
-          let list =
-            JSON.parse(localStorage.getItem("continueWatching")) || [];
-
-          const entry = {
-            id: animeInfo?.id,
-            episodeId,
-            episodeNum,
-            leftAt: time,
-            duration,
-          };
-
-          const i = list.findIndex((x) => x.episodeId === episodeId);
-
-          if (i >= 0) list[i] = entry;
-          else list.push(entry);
-
-          localStorage.setItem("continueWatching", JSON.stringify(list));
-
-          /* ---------- Supabase Sync ---------- */
-          if (!user) return;
-
-          // Check if the anime already exists for this user
-          const { data: existing } = await supabase
-            .from("continue_watching")
-            .select("*")
-            .eq("user_id", user.id)
-            .eq("anime_id", animeInfo?.id)
-            .single();
-
-          if (existing) {
-            // Update existing row
-            await supabase
-              .from("continue_watching")
-              .update({
-                episode_id: episodeId,
-                episode_num: episodeNum,
-                left_at: time,
-                duration,
-                title: animeInfo?.title,
-                japanese_title: animeInfo?.japanese_title,
-                poster: animeInfo?.poster,
-                adult_content: !!animeInfo?.adultContent,
-                updated_at: new Date().toISOString(),
-              })
-              .eq("id", existing.id);
-          } else {
-            // Insert new row
-            await supabase.from("continue_watching").insert({
-              user_id: user.id,
-              anime_id: animeInfo?.id,
-              episode_id: episodeId,
-              episode_num: episodeNum,
-              left_at: time,
-              duration,
-              title: animeInfo?.title,
-              japanese_title: animeInfo?.japanese_title,
-              poster: animeInfo?.poster,
-              adult_content: !!animeInfo?.adultContent,
-              updated_at: new Date().toISOString(),
-            });
-          }
-        };
-
-        saveIntervalRef.current = setInterval(saveProgress, 5000);
-
-        /* ===========================
-           Ended
-        =========================== */
-        art.on("video:ended", async () => {
-          /* Remove Local */
-          let list =
-            JSON.parse(localStorage.getItem("continueWatching")) || [];
-
-          list = list.filter((i) => i.episodeId !== episodeId);
-
-          localStorage.setItem(
-            "continueWatching",
-            JSON.stringify(list)
-          );
-
-          /* Remove DB */
-          if (user) {
-            await supabase
-              .from("continue_watching")
-              .delete()
-              .eq("user_id", user.id)
-              .eq("episode_id", episodeId);
-          }
-
-          /* Auto Next */
-          if (
-            currentEpisodeIndex < episodes?.length - 1 &&
-            autoNext
-          ) {
-            playNext(
-              episodes[currentEpisodeIndex + 1].id.match(
-                /ep=(\d+)/
-              )?.[1]
-            );
+        art.once("video:loadedmetadata", () => {
+          if (resumeTime < art.duration - 10) {
+            art.currentTime = resumeTime;
           }
         });
+      }
+
+      /* ---------- Track Current Time ---------- */
+      art.on("video:timeupdate", () => {
+        leftAtRef.current = Math.floor(art.currentTime);
       });
-    };
 
-    init();
+      /* ---------- Auto Save Every 5s ---------- */
+      const saveProgress = () => {
+        const currentTime = Math.floor(art.currentTime);
+        const duration = Math.floor(art.duration);
 
-    /* Cleanup */
+        if (!currentTime || currentTime < 5) return;
+
+        let list =
+          JSON.parse(localStorage.getItem("continueWatching")) || [];
+
+        const entry = {
+          id: animeInfo?.id,
+          data_id: animeInfo?.data_id,
+          episodeId,
+          episodeNum,
+          adultContent: animeInfo?.adultContent,
+          poster: animeInfo?.poster,
+          title: animeInfo?.title,
+          japanese_title: animeInfo?.japanese_title,
+
+          leftAt: currentTime,
+          duration,
+          updatedAt: Date.now(),
+        };
+
+        const index = list.findIndex(
+          (item) => item.episodeId === episodeId
+        );
+
+        if (index !== -1) {
+          list[index] = entry;
+        } else {
+          list.push(entry);
+        }
+
+        localStorage.setItem(
+          "continueWatching",
+          JSON.stringify(list)
+        );
+      };
+
+      saveIntervalRef.current = setInterval(saveProgress, 5000);
+
+      /* ---------- Auto Remove On Finish ---------- */
+      art.on("video:ended", () => {
+        let list =
+          JSON.parse(localStorage.getItem("continueWatching")) || [];
+
+        list = list.filter(
+          (item) => item.episodeId !== episodeId
+        );
+
+        localStorage.setItem(
+          "continueWatching",
+          JSON.stringify(list)
+        );
+
+        if (currentEpisodeIndex < episodes?.length - 1 && autoNext) {
+          playNext(
+            episodes[currentEpisodeIndex + 1].id.match(/ep=(\d+)/)?.[1]
+          );
+        }
+      });
+
+      /* ---------- Default Subtitle ---------- */
+      const defaultSubtitle = subtitles?.find(
+        (sub) => sub.label.toLowerCase() === "english"
+      );
+
+      if (defaultSubtitle) {
+        art.subtitle.switch(defaultSubtitle.file, {
+          name: defaultSubtitle.label,
+          default: true,
+        });
+      }
+
+      /* ---------- Auto Skip ---------- */
+      const skipRanges = [
+        ...(intro?.start != null && intro?.end != null
+          ? [[intro.start + 1, intro.end - 1]]
+          : []),
+
+        ...(outro?.start != null && outro?.end != null
+          ? [[outro.start + 1, outro.end]]
+          : []),
+      ];
+
+      autoSkipIntro && art.plugins.add(autoSkip(skipRanges));
+
+      /* ---------- Thumbnails ---------- */
+      if (thumbnail) {
+        art.plugins.add(
+          artplayerPluginVttThumbnail({
+            vtt: `${proxy}${thumbnail}`,
+          })
+        );
+      }
+
+      /* ---------- Logo Fade ---------- */
+      setTimeout(() => {
+        if (art.layers[website_name]) {
+          art.layers[website_name].style.opacity = 0;
+        }
+      }, 2000);
+    });
+
+    /* ===========================
+       Cleanup
+    =========================== */
     return () => {
-      if (saveIntervalRef.current) clearInterval(saveIntervalRef.current);
-      if (art?.destroy) art.destroy(false);
+      if (saveIntervalRef.current) {
+        clearInterval(saveIntervalRef.current);
+      }
+
+      if (art && art.destroy) {
+        art.destroy(false);
+      }
     };
   }, [
     streamUrl,
-    episodeId,
     subtitles,
     intro,
     outro,
-    autoPlay,
-    autoNext,
-    episodes,
+    episodeId,
     animeInfo,
+    autoNext,
+    autoPlay,
+    episodes,
   ]);
 
-  return <div ref={artRef} className="w-full h-full" />;
+  return <div ref={artRef} className="w-full h-full"></div>;
 }
