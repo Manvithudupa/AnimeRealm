@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CategoryCard from "../../components/categorycard/CategoryCard";
+import CategoryCardLoader from "../../components/loaders/CategoryCardLoader";
 import getFilter from "../../utils/getFilter.utils";
 import "./Filter.css";
 
@@ -131,7 +132,7 @@ const Filter = () => {
 
       {/* Anime Grid */}
       {loading ? (
-        <p className="text-white">Loading...</p>
+        <CategoryCardLoader />
       ) : (
         <CategoryCard
           data={animeList}
