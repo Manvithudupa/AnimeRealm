@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CategoryCard from "../../components/categorycard/CategoryCard";
-import CategoryCardLoader from "../../components/Loader/Category.loader";
+import CategoryCardLoader from "../../components/loaders/CategoryCardLoader";
 import getFilter from "../../utils/getFilter.utils";
 import "./Filter.css";
 
@@ -49,10 +49,10 @@ const Filter = () => {
     });
   };
 
-  const fetchData = async (page = 1) => {
+  const fetchData = async (page = 1, activeFilters = filters) => {
     setLoading(true);
     try {
-      const data = await getFilter(filters, page);
+      const data = await getFilter(activeFilters, page);
       setAnimeList(data.data || []);
       setCurrentPage(data.currentPage || 1);
       setTotalPages(data.totalPage || 1);
@@ -67,7 +67,7 @@ const Filter = () => {
 
   const applyFilter = () => {
     setFilters({ ...tempFilters });
-    fetchData(1);
+    fetchData(1, tempFilters); // pass tempFilters directly to avoid double click issue
   };
 
   const getPageNumbers = () => {
