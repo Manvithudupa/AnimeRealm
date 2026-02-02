@@ -2,23 +2,28 @@
   background-color: #1a1a1a;
 }
 
-.filter-select {
-  width: 100%;
-}
-
 .genre-btn {
-  padding: 6px 10px;
+  padding: 4px 8px;
+  margin: 2px;
   border: 1px solid #888;
-  border-radius: 6px;
+  border-radius: 4px;
   color: white;
   background-color: transparent;
   cursor: pointer;
   font-size: 0.875rem;
-  text-align: center;
 }
 
 .genre-btn.selected {
   background-color: white;
   color: black;
   border-color: white;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 6px;
+  background-color: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: white;
 }
