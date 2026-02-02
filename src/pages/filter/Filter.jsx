@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import CategoryCard from "../../components/categorycard/CategoryCard";
+import FilterCard from "../../components/filtercard/FilterCard";
 import "./Filter.css";
 
 const Filter = () => {
@@ -29,15 +29,16 @@ const Filter = () => {
     "Super Power","Supernatural","Thriller","Vampire"
   ];
 
-  // Dropdown options
-  const typeOptions = ["", "TV", "Movie", "OVA", "ONA", "Special"];
-  const statusOptions = ["", "Finished", "Currently Airing", "Not Yet Aired"];
-  const ratedOptions = ["", "G", "PG", "PG-13", "R", "R+", "Rx"];
-  const scoreOptions = ["", 10,9,8,7,6,5,4,3,2,1];
-  const seasonOptions = ["", "Winter", "Spring", "Summer", "Fall"];
-  const languageOptions = ["", "Japanese", "English", "Other"];
-  const yearOptions = ["", 2026,2025,2024,2023,2022,2021,2020];
-  const sortOptions = ["default", "score", "popularity", "newest"];
+  const dropdowns = {
+    type: ["", "TV", "Movie", "OVA", "ONA", "Special"],
+    status: ["", "Finished", "Currently Airing", "Not Yet Aired"],
+    rated: ["", "G", "PG", "PG-13", "R", "R+", "Rx"],
+    score: ["", 10,9,8,7,6,5,4,3,2,1],
+    season: ["", "Winter", "Spring", "Summer", "Fall"],
+    language: ["", "Japanese", "English", "Other"],
+    year: ["", 2026,2025,2024,2023,2022,2021,2020],
+    sort: ["default", "score", "popularity", "newest"],
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -59,7 +60,7 @@ const Filter = () => {
       const params = {
         ...filters,
         page,
-        genres: filters.genres.join(",")
+        genres: filters.genres.join(","),
       };
 
       const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/filter`, { params });
@@ -110,32 +111,21 @@ const Filter = () => {
     <div className="filter-page p-6">
       <h2 className="text-white text-xl font-bold mb-4">Filter Anime</h2>
 
-      {/* Dropdown Filters */}
+      {/* Dropdowns */}
       <div className="filters grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <select name="type" value={filters.type} onChange={handleInputChange} className="filter-select">
-          {typeOptions.map((t, idx) => <option key={idx} value={t}>{t || "Type"}</option>)}
-        </select>
-        <select name="status" value={filters.status} onChange={handleInputChange} className="filter-select">
-          {statusOptions.map((s, idx) => <option key={idx} value={s}>{s || "Status"}</option>)}
-        </select>
-        <select name="rated" value={filters.rated} onChange={handleInputChange} className="filter-select">
-          {ratedOptions.map((r, idx) => <option key={idx} value={r}>{r || "Rated"}</option>)}
-        </select>
-        <select name="score" value={filters.score} onChange={handleInputChange} className="filter-select">
-          {scoreOptions.map((s, idx) => <option key={idx} value={s}>{s || "Score"}</option>)}
-        </select>
-        <select name="season" value={filters.season} onChange={handleInputChange} className="filter-select">
-          {seasonOptions.map((s, idx) => <option key={idx} value={s}>{s || "Season"}</option>)}
-        </select>
-        <select name="language" value={filters.language} onChange={handleInputChange} className="filter-select">
-          {languageOptions.map((l, idx) => <option key={idx} value={l}>{l || "Language"}</option>)}
-        </select>
-        <select name="year" value={filters.year} onChange={handleInputChange} className="filter-select">
-          {yearOptions.map((y, idx) => <option key={idx} value={y}>{y || "Year"}</option>)}
-        </select>
-        <select name="sort" value={filters.sort} onChange={handleInputChange} className="filter-select">
-          {sortOptions.map((s, idx) => <option key={idx} value={s}>{s}</option>)}
-        </select>
+        {Object.keys(dropdowns).map((key) => (
+          <select
+            key={key}
+            name={key}
+            value={filters[key]}
+            onChange={handleInputChange}
+            className="filter-select"
+          >
+            {dropdowns[key].map((val, idx) => (
+              <option key={idx} value={val}>{val || key.charAt(0).toUpperCase() + key.slice(1)}</option>
+            ))}
+          </select>
+        ))}
       </div>
 
       {/* Genre Buttons */}
@@ -151,8 +141,10 @@ const Filter = () => {
         ))}
       </div>
 
-      {/* Apply Filter Button */}
-      <button onClick={() => fetchData(1)} className="bg-white text-black px-6 py-2 rounded font-bold mb-6">
+      <button
+        onClick={() => fetchData(1)}
+        className="bg-white text-black px-6 py-2 rounded font-bold mb-6"
+      >
         Apply Filter
       </button>
 
@@ -161,8 +153,8 @@ const Filter = () => {
         <p className="text-white">Loading...</p>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {animeList?.length > 0 ? (
-            animeList.map((anime) => <CategoryCard key={anime.id} anime={anime} />)
+          {animeList.length > 0 ? (
+            animeList.map((anime) => <FilterCard key={anime.id} anime={anime} />)
           ) : (
             <p className="text-white col-span-full text-center">No anime found.</p>
           )}
