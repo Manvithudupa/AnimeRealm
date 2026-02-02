@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CategoryCard from "../../components/categorycard/CategoryCard";
-import CategoryCardLoader from "../../components/loaders/CategoryCardLoader";
+import CategoryCardLoader from "../../components/Loader/Category.loader";
 import getFilter from "../../utils/getFilter.utils";
 import "./Filter.css";
 
