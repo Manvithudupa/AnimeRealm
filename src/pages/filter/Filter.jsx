@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import FilterCard from "../../components/filtercard/FilterCard";
+import getFilter from "../../utils/getFilter.utils";
 import "./Filter.css";
 
 const Filter = () => {
@@ -41,13 +41,11 @@ const Filter = () => {
     sort: ["default", "score", "popularity", "newest"],
   };
 
-  // Update temp filters when dropdown changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setTempFilters({ ...tempFilters, [name]: value });
   };
 
-  // Toggle genres in tempFilters
   const handleGenreToggle = (genre) => {
     setTempFilters((prev) => {
       const genres = prev.genres.includes(genre)
@@ -57,29 +55,14 @@ const Filter = () => {
     });
   };
 
-  // Fetch data from API using filters
   const fetchData = async (page = 1) => {
     setLoading(true);
     try {
-      const params = {
-        ...filters,
-        page,
-        genres: filters.genres.join(","),
-      };
-
-      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/filter`, { params });
-
-      if (data?.success && data.results?.data) {
-        setAnimeList(data.results.data);
-        setTotalPages(data.results.totalPage || 1);
-        setCurrentPage(data.results.currentPage || 1);
-      } else {
-        setAnimeList([]);
-        setTotalPages(1);
-        setCurrentPage(1);
-      }
-    } catch (error) {
-      console.error("Error fetching anime:", error);
+      const data = await getFilter(filters, page);
+      setAnimeList(data.data || []);
+      setTotalPages(data.totalPage || 1);
+      setCurrentPage(data.currentPage || 1);
+    } catch (err) {
       setAnimeList([]);
       setTotalPages(1);
       setCurrentPage(1);
@@ -88,15 +71,9 @@ const Filter = () => {
     }
   };
 
-  // Initial fetch (without filters)
-  useEffect(() => {
-    fetchData(1);
-  }, []);
-
-  // Apply filter button
   const applyFilter = () => {
     setFilters({ ...tempFilters });
-    fetchData(1); // reset to page 1
+    fetchData(1);
   };
 
   const getPageNumbers = () => {
@@ -113,6 +90,10 @@ const Filter = () => {
     for (let i = start; i <= end; i++) pages.push(i);
     return pages;
   };
+
+  useEffect(() => {
+    fetchData(1); // initial fetch
+  }, []);
 
   return (
     <div className="filter-page p-6">
