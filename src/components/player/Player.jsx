@@ -54,9 +54,7 @@ export default function Player({
     episodes?.findIndex((ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId)
   );
 
-  /* ===========================
-     Episode Sync
-  =========================== */
+  /* =========================== Episode Sync =========================== */
   useEffect(() => {
     if (!episodes?.length) return;
     const index = episodes.findIndex(
@@ -65,9 +63,7 @@ export default function Player({
     setCurrentEpisodeIndex(index);
   }, [episodeId, episodes]);
 
-  /* ===========================
-     Chapter Styles
-  =========================== */
+  /* =========================== Chapter Styles =========================== */
   useEffect(() => {
     if (!streamUrl) return;
     const style = document.createElement("style");
@@ -77,9 +73,7 @@ export default function Player({
     return () => style.remove();
   }, [streamUrl, intro, outro]);
 
-  /* ===========================
-     HLS
-  =========================== */
+  /* =========================== HLS Handler =========================== */
   const playM3u8 = (video, url, art) => {
     if (Hls.isSupported()) {
       if (art.hls) art.hls.destroy();
@@ -93,37 +87,26 @@ export default function Player({
     }
   };
 
-  /* ===========================
-     Chapters
-  =========================== */
+  /* =========================== Chapters =========================== */
   const createChapters = () => {
     const chapters = [];
-    if (intro?.start || intro?.end) {
-      chapters.push({ start: intro.start, end: intro.end, title: "Intro" });
-    }
-    if (outro?.start || outro?.end) {
-      chapters.push({ start: outro.start, end: outro.end, title: "Outro" });
-    }
+    if (intro?.start || intro?.end) chapters.push({ start: intro.start, end: intro.end, title: "Intro" });
+    if (outro?.start || outro?.end) chapters.push({ start: outro.start, end: outro.end, title: "Outro" });
     return chapters;
   };
 
-  /* ===========================
-     Main Player
-  =========================== */
+  /* =========================== Main Player =========================== */
   useEffect(() => {
     if (!streamUrl || !artRef.current) return;
 
     let art;
 
     const init = async () => {
-      // Get user
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      // Load resume time
+      // Get logged-in user
+      const { data: { user } } = await supabase.auth.getUser();
       let resumeTime = 0;
 
+      // Fetch resume time from Supabase
       if (user) {
         const { data } = await supabase
           .from("continue_watching")
@@ -131,24 +114,22 @@ export default function Player({
           .eq("user_id", user.id)
           .eq("anime_id", animeInfo?.id)
           .single();
-
         if (data?.left_at) resumeTime = data.left_at;
       }
 
-      // Fallback localStorage
+      // Fallback to localStorage
       if (!resumeTime) {
-        const local =
-          JSON.parse(localStorage.getItem("continueWatching")) || [];
+        const local = JSON.parse(localStorage.getItem("continueWatching")) || [];
         const saved = local.find((i) => i.episodeId === episodeId);
         if (saved?.leftAt) resumeTime = saved.leftAt;
       }
 
-      // Headers
+      // Headers for proxied streams
       const iframeUrl = streamInfo?.streamingLink?.iframe;
       const headers = {};
       if (iframeUrl) headers.referer = new URL(iframeUrl).origin + "/";
 
-      // Init player
+      // Initialize Artplayer
       art = new Artplayer({
         url:
           m3u8proxy[Math.floor(Math.random() * m3u8proxy.length)] +
@@ -165,18 +146,10 @@ export default function Player({
         fullscreen: true,
         mutex: true,
         playsInline: true,
-        moreVideoAttr: {
-          crossOrigin: "anonymous",
-          preload: "none",
-        },
+        moreVideoAttr: { crossOrigin: "anonymous", preload: "none" },
         plugins: [
           artplayerPluginHlsControl({
-            quality: {
-              setting: true,
-              getName: (l) => l.height + "P",
-              title: "Quality",
-              auto: "Auto",
-            },
+            quality: { setting: true, getName: (l) => l.height + "P", title: "Quality", auto: "Auto" },
           }),
           artplayerPluginUploadSubtitle(),
           artplayerPluginChapter({ chapters: createChapters() }),
@@ -196,11 +169,9 @@ export default function Player({
         customType: { m3u8: playM3u8 },
       });
 
-      /* ===========================
-         Ready
-      =========================== */
+      /* =========================== Ready =========================== */
       art.on("ready", () => {
-        // Resume
+        // Resume playback
         if (resumeTime) {
           art.once("video:loadedmetadata", () => {
             if (resumeTime < art.duration - 10) art.currentTime = resumeTime;
@@ -211,7 +182,7 @@ export default function Player({
         const def = subtitles?.find((s) => s.label.toLowerCase() === "english");
         if (def) art.subtitle.switch(def.file, { name: def.label, default: true });
 
-        // Auto skip
+        // Auto skip intro/outro
         const skipRanges = [
           ...(intro?.start != null && intro?.end != null ? [[intro.start + 1, intro.end - 1]] : []),
           ...(outro?.start != null && outro?.end != null ? [[outro.start + 1, outro.end]] : []),
@@ -226,16 +197,12 @@ export default function Player({
           if (art.layers[website_name]) art.layers[website_name].style.opacity = 0;
         }, 2000);
 
-        /* ===========================
-           Save progress
-        =========================== */
+        /* =========================== Save Progress =========================== */
         const saveProgress = async () => {
           const time = Math.floor(art.currentTime);
           const duration = Math.floor(art.duration);
           if (!time || time < 5) return;
-
-          // Only save if at least 30s passed since last save
-          if (time - lastSavedTimeRef.current < 30) return;
+          if (time - lastSavedTimeRef.current < 30) return; // save every 30s
           lastSavedTimeRef.current = time;
 
           // LocalStorage
@@ -245,7 +212,7 @@ export default function Player({
           if (i >= 0) list[i] = entry; else list.push(entry);
           localStorage.setItem("continueWatching", JSON.stringify(list));
 
-          // Supabase: upsert one row per anime per user
+          // Supabase: upsert one row per anime
           if (user) {
             await supabase.from("continue_watching").upsert(
               {
@@ -261,23 +228,23 @@ export default function Player({
                 adult_content: !!animeInfo?.adultContent,
                 updated_at: new Date().toISOString(),
               },
-              { onConflict: ["user_id", "anime_id"] } // important: single row per anime
+              { onConflict: ["user_id", "anime_id"] } // <-- ensures single row per anime
             );
           }
         };
 
-        saveIntervalRef.current = setInterval(saveProgress, 30000); // save every 30s
+        saveIntervalRef.current = setInterval(saveProgress, 30000);
         art.on("video:pause", saveProgress);
         art.on("video:seeked", saveProgress);
 
-        /* ===========================
-           Video ended
-        =========================== */
+        /* =========================== Video Ended =========================== */
         art.on("video:ended", async () => {
+          // Remove localStorage
           let list = JSON.parse(localStorage.getItem("continueWatching")) || [];
           list = list.filter((i) => i.episodeId !== episodeId);
           localStorage.setItem("continueWatching", JSON.stringify(list));
 
+          // Remove from Supabase
           if (user) {
             await supabase
               .from("continue_watching")
@@ -286,6 +253,7 @@ export default function Player({
               .eq("episode_id", episodeId);
           }
 
+          // Auto next episode
           if (currentEpisodeIndex < episodes?.length - 1 && autoNext) {
             playNext(episodes[currentEpisodeIndex + 1].id.match(/ep=(\d+)/)?.[1]);
           }
