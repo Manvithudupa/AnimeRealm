@@ -178,35 +178,148 @@ const Filter = () => {
       )}
 
       {/* Pagination */}
-      <div className="pagination flex justify-center mt-6 gap-2 flex-wrap">
+      <div className="pagination flex justify-center items-center mt-6 gap-2 flex-wrap">
+        {/* First Page Button */}
+        <button
+          disabled={currentPage <= 1}
+          onClick={() => fetchData(1)}
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '8px',
+            backgroundColor: currentPage <= 1 ? '#2a2a2a' : '#3a3a3a',
+            color: currentPage <= 1 ? '#555' : '#fff',
+            border: 'none',
+            cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
+            fontSize: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            if (currentPage > 1) e.target.style.backgroundColor = '#4a4a4a';
+          }}
+          onMouseLeave={(e) => {
+            if (currentPage > 1) e.target.style.backgroundColor = '#3a3a3a';
+          }}
+        >
+          ≪
+        </button>
+
+        {/* Previous Page Button */}
         <button
           disabled={currentPage <= 1}
           onClick={() => fetchData(currentPage - 1)}
-          className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50 hover:bg-gray-600 transition-colors"
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '8px',
+            backgroundColor: currentPage <= 1 ? '#2a2a2a' : '#3a3a3a',
+            color: currentPage <= 1 ? '#555' : '#fff',
+            border: 'none',
+            cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
+            fontSize: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            if (currentPage > 1) e.target.style.backgroundColor = '#4a4a4a';
+          }}
+          onMouseLeave={(e) => {
+            if (currentPage > 1) e.target.style.backgroundColor = '#3a3a3a';
+          }}
         >
-          Prev
+          ‹
         </button>
 
+        {/* Page Numbers */}
         {getPageNumbers().map((page) => (
           <button
             key={page}
             onClick={() => fetchData(page)}
-            className={`px-3 py-1 rounded transition-colors ${
-              page === currentPage 
-                ? "bg-white text-black" 
-                : "bg-gray-700 text-white hover:bg-gray-600"
-            }`}
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '8px',
+              backgroundColor: page === currentPage ? '#fff' : '#3a3a3a',
+              color: page === currentPage ? '#000' : '#fff',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: page === currentPage ? 'bold' : 'normal',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              if (page !== currentPage) e.target.style.backgroundColor = '#4a4a4a';
+            }}
+            onMouseLeave={(e) => {
+              if (page !== currentPage) e.target.style.backgroundColor = '#3a3a3a';
+            }}
           >
             {page}
           </button>
         ))}
 
+        {/* Next Page Button */}
         <button
           disabled={currentPage >= totalPages}
           onClick={() => fetchData(currentPage + 1)}
-          className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50 hover:bg-gray-600 transition-colors"
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '8px',
+            backgroundColor: currentPage >= totalPages ? '#2a2a2a' : '#3a3a3a',
+            color: currentPage >= totalPages ? '#555' : '#fff',
+            border: 'none',
+            cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
+            fontSize: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            if (currentPage < totalPages) e.target.style.backgroundColor = '#4a4a4a';
+          }}
+          onMouseLeave={(e) => {
+            if (currentPage < totalPages) e.target.style.backgroundColor = '#3a3a3a';
+          }}
         >
-          Next
+          ›
+        </button>
+
+        {/* Last Page Button */}
+        <button
+          disabled={currentPage >= totalPages}
+          onClick={() => fetchData(totalPages)}
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '8px',
+            backgroundColor: currentPage >= totalPages ? '#2a2a2a' : '#3a3a3a',
+            color: currentPage >= totalPages ? '#555' : '#fff',
+            border: 'none',
+            cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
+            fontSize: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            if (currentPage < totalPages) e.target.style.backgroundColor = '#4a4a4a';
+          }}
+          onMouseLeave={(e) => {
+            if (currentPage < totalPages) e.target.style.backgroundColor = '#3a3a3a';
+          }}
+        >
+          ≫
         </button>
       </div>
     </div>
