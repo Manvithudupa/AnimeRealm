@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClosedCaptioning, faMicrophone } from "@fortawesome/free-solid-svg-icons";
 import { useLanguage } from "@/src/context/LanguageContext";
@@ -14,7 +15,7 @@ function Sidecard({ data, label, className }) {
   const handleMouseEnter = (item, index) => {
     const timeout = setTimeout(() => {
       setHoveredItem(item.id + index);
-    }, 400); // 400ms delay before showing tooltip
+    }, 400);
     setHoverTimeout(timeout);
   };
 
@@ -28,6 +29,29 @@ function Sidecard({ data, label, className }) {
     data
   );
 
+  // Render tooltip in a portal
+  const renderTooltip = (item, index) => {
+    if (hoveredItem !== item.id + index || window.innerWidth <= 1024) return null;
+
+    const card = cardRefs.current[index];
+    if (!card) return null;
+
+    const rect = card.getBoundingClientRect(); // get card position
+    const style = {
+      position: "absolute",
+      top: rect.bottom + window.scrollY + 5 + "px", // 5px gap below card
+      left: rect.left + window.scrollX + "px",
+      zIndex: 100000,
+    };
+
+    return createPortal(
+      <div style={style} className="transition-all duration-300">
+        <Qtip id={item.id} />
+      </div>,
+      document.body
+    );
+  };
+
   return (
     <div className={`flex flex-col ${className}`}>
       {label && <h2 className="font-medium text-lg text-neutral-200 mb-4">{label}</h2>}
@@ -37,7 +61,7 @@ function Sidecard({ data, label, className }) {
           data.map((item, index) => (
             <div
               key={index}
-              className="group relative" // make this relative so tooltip positions correctly
+              className="group relative"
               ref={(el) => (cardRefs.current[index] = el)}
               onMouseEnter={() => handleMouseEnter(item, index)}
               onMouseLeave={handleMouseLeave}
@@ -48,17 +72,6 @@ function Sidecard({ data, label, className }) {
                 className="block"
               >
                 <div className="flex items-start gap-3 p-2 rounded-lg transition-colors hover:bg-[#1f1f1f]">
-                  {/* Tooltip */}
-                  {hoveredItem === item.id + index && window.innerWidth > 1024 && (
-                    <div
-                      className={`absolute z-[100000] transform transition-all duration-300 ease-in-out
-                        ${tooltipHorizontalPosition} ${tooltipPosition} 
-                        ${hoveredItem === item.id + index ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
-                    >
-                      <Qtip id={item.id} />
-                    </div>
-                  )}
-
                   <img
                     src={item.poster}
                     alt={item.title}
@@ -77,14 +90,12 @@ function Sidecard({ data, label, className }) {
                           <span className="text-[10px] font-medium">{item.tvInfo.sub}</span>
                         </div>
                       )}
-
                       {item.tvInfo?.dub && (
                         <div className="flex items-center gap-1 px-1.5 py-0.5 bg-[#2a2a2a] rounded text-gray-300">
                           <FontAwesomeIcon icon={faMicrophone} className="text-[10px]" />
                           <span className="text-[10px] font-medium">{item.tvInfo.dub}</span>
                         </div>
                       )}
-
                       {item.tvInfo?.showType && (
                         <span className="text-xs text-gray-400">{item.tvInfo.showType}</span>
                       )}
@@ -92,6 +103,9 @@ function Sidecard({ data, label, className }) {
                   </div>
                 </div>
               </Link>
+
+              {/* Tooltip rendered in portal */}
+              {renderTooltip(item, index)}
             </div>
           ))}
       </div>
