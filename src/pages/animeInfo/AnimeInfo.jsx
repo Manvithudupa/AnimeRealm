@@ -297,7 +297,7 @@ function AnimeInfo({ random = false }) {
       </section>
 
       {/* Seasons Section */}
-      {seasons.length > 0 && (
+      {seasons?.length > 0 && (
         <div className="container mx-auto py-8 sm:py-12">
           <h2 className="text-2xl font-bold mb-6 sm:mb-8 px-1">More Seasons</h2>
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
@@ -306,20 +306,41 @@ function AnimeInfo({ random = false }) {
                 to={`/${season.id}`}
                 key={index}
                 className={`relative w-full aspect-[3/1] sm:aspect-[3/1] rounded-lg overflow-hidden cursor-pointer group ${
-                  currentId === String(season.id) ? "ring-2 ring-white/40 shadow-lg shadow-white/10" : ""
+                  currentId === String(season.id)
+                    ? "ring-2 ring-white/40 shadow-lg shadow-white/10"
+                    : ""
                 }`}
               >
                 <img
                   src={season.season_poster}
                   alt={season.season}
                   className={`w-full h-full object-cover scale-150 ${
-                    currentId === String(season.id) ? "opacity-50" : "opacity-40"
+                    currentId === String(season.id)
+                      ? "opacity-50"
+                      : "opacity-40"
                   }`}
                 />
-                <div className="absolute inset-0 z-10" style={{ backgroundImage: `url('data:image/svg+xml,<svg width="3" height="3" viewBox="0 0 3 3" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="1.5" cy="1.5" r="0.5" fill="white" fill-opacity="0.25"/></svg>')`, backgroundSize: '3px 3px' }} />
-                <div className={`absolute inset-0 z-20 bg-gradient-to-r ${currentId === String(season.id) ? "from-black/50 to-transparent" : "from-black/40 to-transparent"}`} />
+                {/* Dots Pattern Overlay */}
+                <div 
+                  className="absolute inset-0 z-10" 
+                  style={{ 
+                    backgroundImage: `url('data:image/svg+xml,<svg width="3" height="3" viewBox="0 0 3 3" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="1.5" cy="1.5" r="0.5" fill="white" fill-opacity="0.25"/></svg>')`,
+                    backgroundSize: '3px 3px'
+                  }}
+                />
+                {/* Dark Gradient Overlay */}
+                <div className={`absolute inset-0 z-20 bg-gradient-to-r ${
+                  currentId === String(season.id)
+                    ? "from-black/50 to-transparent"
+                    : "from-black/40 to-transparent"
+                }`} />
+                {/* Title Container */}
                 <div className="absolute inset-0 z-30 flex items-center justify-center">
-                  <p className={`text-[14px] sm:text-[16px] md:text-[18px] font-bold text-center px-2 sm:px-4 ${currentId === String(season.id) ? "text-white" : "text-white/90 group-hover:text-white"}`}>
+                  <p className={`text-[14px] sm:text-[16px] md:text-[18px] font-bold text-center px-2 sm:px-4 transition-colors duration-300 ${
+                    currentId === String(season.id)
+                      ? "text-white"
+                      : "text-white/90 group-hover:text-white"
+                  }`}>
                     {season.season}
                   </p>
                 </div>
@@ -328,6 +349,7 @@ function AnimeInfo({ random = false }) {
           </div>
         </div>
       )}
+
 
       {/* Voice Actors */}
       {animeInfo?.charactersVoiceActors?.length > 0 && (
