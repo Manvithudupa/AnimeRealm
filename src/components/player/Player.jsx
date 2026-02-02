@@ -50,9 +50,7 @@ export default function Player({
   const m3u8proxy = import.meta.env.VITE_M3U8_PROXY_URL?.split(",") || [];
 
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(
-    episodes?.findIndex(
-      (ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId
-    )
+    episodes?.findIndex((ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId)
   );
 
   /* ===========================
@@ -295,7 +293,7 @@ export default function Player({
 
           if (!time || time < 5) return;
 
-          /* Local Backup */
+          /* ---------- Local Backup ---------- */
           let list =
             JSON.parse(localStorage.getItem("continueWatching")) || [];
 
@@ -307,37 +305,56 @@ export default function Player({
             duration,
           };
 
-          const i = list.findIndex(
-            (x) => x.episodeId === episodeId
-          );
+          const i = list.findIndex((x) => x.episodeId === episodeId);
 
           if (i >= 0) list[i] = entry;
           else list.push(entry);
 
-          localStorage.setItem(
-            "continueWatching",
-            JSON.stringify(list)
-          );
+          localStorage.setItem("continueWatching", JSON.stringify(list));
 
-          /* Supabase Sync */
+          /* ---------- Supabase Sync ---------- */
           if (!user) return;
 
-          await supabase.from("continue_watching").upsert(
-            {
+          // Check if the anime already exists for this user
+          const { data: existing } = await supabase
+            .from("continue_watching")
+            .select("*")
+            .eq("user_id", user.id)
+            .eq("anime_id", animeInfo?.id)
+            .single();
+
+          if (existing) {
+            // Update existing row
+            await supabase
+              .from("continue_watching")
+              .update({
+                episode_id: episodeId,
+                episode_num: episodeNum,
+                left_at: time,
+                duration,
+                title: animeInfo?.title,
+                japanese_title: animeInfo?.japanese_title,
+                poster: animeInfo?.poster,
+                adult_content: !!animeInfo?.adultContent,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", existing.id);
+          } else {
+            // Insert new row
+            await supabase.from("continue_watching").insert({
               user_id: user.id,
               anime_id: animeInfo?.id,
               episode_id: episodeId,
               episode_num: episodeNum,
+              left_at: time,
+              duration,
               title: animeInfo?.title,
               japanese_title: animeInfo?.japanese_title,
               poster: animeInfo?.poster,
-              duration,
-              left_at: time,
               adult_content: !!animeInfo?.adultContent,
               updated_at: new Date().toISOString(),
-            },
-            { onConflict: ["user_id", "episode_id"] }
-          );
+            });
+          }
         };
 
         saveIntervalRef.current = setInterval(saveProgress, 5000);
@@ -385,13 +402,8 @@ export default function Player({
 
     /* Cleanup */
     return () => {
-      if (saveIntervalRef.current) {
-        clearInterval(saveIntervalRef.current);
-      }
-
-      if (art?.destroy) {
-        art.destroy(false);
-      }
+      if (saveIntervalRef.current) clearInterval(saveIntervalRef.current);
+      if (art?.destroy) art.destroy(false);
     };
   }, [
     streamUrl,
