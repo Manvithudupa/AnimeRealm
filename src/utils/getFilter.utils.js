@@ -9,7 +9,7 @@ import axios from "axios";
 const getFilter = async (filters = {}, page = 1) => {
   const api_url = import.meta.env.VITE_API_URL;
 
-  // Ensure genres is a string
+  // Ensure genres is a comma-separated string
   const params = {
     ...filters,
     page,
