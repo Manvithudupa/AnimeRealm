@@ -11,10 +11,10 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import website_name from "@/src/config/website";
 import CategoryCard from "@/src/components/categorycard/CategoryCard";
+import Voiceactor from "@/src/components/voiceactor/Voiceactor";
 import Loader from "@/src/components/Loader/Loader";
 import Error from "@/src/components/error/Error";
 import { useLanguage } from "@/src/context/LanguageContext";
-import Voiceactor from "@/src/components/voiceactor/Voiceactor";
 import { supabase } from "@/src/integrations/supabase/client";
 import { useAuth } from "@/src/hooks/useAuth";
 
@@ -46,6 +46,7 @@ function AnimeInfo({ random = false }) {
   const navigate = useNavigate();
 
   const id = random ? null : paramId;
+  const currentId = paramId; // for seasons highlight
 
   const [animeInfo, setAnimeInfo] = useState(null);
   const [seasons, setSeasons] = useState([]);
@@ -64,9 +65,10 @@ function AnimeInfo({ random = false }) {
       setLoading(true);
       try {
         const data = await getAnimeInfo(id, random);
-        setAnimeInfo(data.data);
-        setSeasons(data.seasons || []); // ✅ FIXED: fetch from top-level data
+        setAnimeInfo(data?.data || null);
+        setSeasons(data?.seasons || []);
       } catch (err) {
+        console.error("Error fetching anime info:", err);
         setError(err);
       } finally {
         setLoading(false);
@@ -90,13 +92,17 @@ function AnimeInfo({ random = false }) {
   useEffect(() => {
     if (!user || !animeInfo) return;
 
-    supabase
-      .from("watchlists")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("anime_id", animeInfo.id)
-      .single()
-      .then(({ data }) => setInWatchlist(!!data));
+    const checkWatchlist = async () => {
+      const { data, error } = await supabase
+        .from("watchlists")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("anime_id", animeInfo.id)
+        .single();
+      if (!error) setInWatchlist(!!data);
+    };
+
+    checkWatchlist();
   }, [user, animeInfo]);
 
   /* ---------- Toggle Watchlist ---------- */
@@ -142,25 +148,24 @@ function AnimeInfo({ random = false }) {
         .limit(1)
         .single();
 
-      if (error) {
-        console.error("Error fetching last watched episode:", error);
-        setLastWatchedEpisode(null);
-      } else if (data) {
+      if (!error && data) {
         setLastWatchedEpisode({ id: data.episode_id, num: data.episode_num });
-      } else {
-        setLastWatchedEpisode(null);
       }
     };
 
     fetchLastWatched();
   }, [user, animeInfo]);
 
+  /* ---------- Handle missing anime ---------- */
+  useEffect(() => {
+    if (!loading && !animeInfo) {
+      navigate("/404-not-found-page");
+    }
+  }, [loading, animeInfo, navigate]);
+
   if (loading) return <Loader type="animeInfo" />;
   if (error) return <Error />;
-  if (!animeInfo) {
-    navigate("/404-not-found-page");
-    return null;
-  }
+  if (!animeInfo) return null;
 
   const { title, japanese_title, poster, animeInfo: info } = animeInfo;
 
@@ -291,7 +296,7 @@ function AnimeInfo({ random = false }) {
         </div>
       </section>
 
-      {/* Seasons Section */}
+      {/* ================= SEASONS ================= */}
       {seasons?.length > 0 && (
         <div className="container mx-auto py-8 sm:py-12">
           <h2 className="text-2xl font-bold mb-6 sm:mb-8 px-1">More Seasons</h2>
@@ -310,32 +315,31 @@ function AnimeInfo({ random = false }) {
                   src={season.season_poster}
                   alt={season.season}
                   className={`w-full h-full object-cover scale-150 ${
-                    currentId === String(season.id)
-                      ? "opacity-50"
-                      : "opacity-40"
+                    currentId === String(season.id) ? "opacity-50" : "opacity-40"
                   }`}
                 />
-                {/* Dots Pattern Overlay */}
-                <div 
-                  className="absolute inset-0 z-10" 
-                  style={{ 
+                <div
+                  className="absolute inset-0 z-10"
+                  style={{
                     backgroundImage: `url('data:image/svg+xml,<svg width="3" height="3" viewBox="0 0 3 3" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="1.5" cy="1.5" r="0.5" fill="white" fill-opacity="0.25"/></svg>')`,
-                    backgroundSize: '3px 3px'
+                    backgroundSize: "3px 3px",
                   }}
                 />
-                {/* Dark Gradient Overlay */}
-                <div className={`absolute inset-0 z-20 bg-gradient-to-r ${
-                  currentId === String(season.id)
-                    ? "from-black/50 to-transparent"
-                    : "from-black/40 to-transparent"
-                }`} />
-                {/* Title Container */}
-                <div className="absolute inset-0 z-30 flex items-center justify-center">
-                  <p className={`text-[14px] sm:text-[16px] md:text-[18px] font-bold text-center px-2 sm:px-4 transition-colors duration-300 ${
+                <div
+                  className={`absolute inset-0 z-20 bg-gradient-to-r ${
                     currentId === String(season.id)
-                      ? "text-white"
-                      : "text-white/90 group-hover:text-white"
-                  }`}>
+                      ? "from-black/50 to-transparent"
+                      : "from-black/40 to-transparent"
+                  }`}
+                />
+                <div className="absolute inset-0 z-30 flex items-center justify-center">
+                  <p
+                    className={`text-[14px] sm:text-[16px] md:text-[18px] font-bold text-center px-2 sm:px-4 transition-colors duration-300 ${
+                      currentId === String(season.id)
+                        ? "text-white"
+                        : "text-white/90 group-hover:text-white"
+                    }`}
+                  >
                     {season.season}
                   </p>
                 </div>
@@ -344,17 +348,23 @@ function AnimeInfo({ random = false }) {
           </div>
         </div>
       )}
-      
-      {/* Voice Actors Section */}
-      {animeInfo?.charactersVoiceActors.length > 0 && (
+
+      {/* ================= VOICE ACTORS ================= */}
+      {animeInfo?.charactersVoiceActors?.length > 0 && (
         <div className="container mx-auto py-12">
           <Voiceactor animeInfo={animeInfo} />
         </div>
       )}
-      
+
       {/* ================= RECOMMENDATIONS ================= */}
       {animeInfo?.recommended_data?.length > 0 && (
-        <CategoryCard label="You may also like" data={animeInfo.recommended_data} showViewMore={false} />
+        <div className="container mx-auto py-12">
+          <CategoryCard
+            label="You may also like"
+            data={animeInfo.recommended_data}
+            showViewMore={false}
+          />
+        </div>
       )}
     </div>
   );
