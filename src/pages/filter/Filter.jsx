@@ -69,7 +69,7 @@ const Filter = () => {
         year: filters.year === "All" ? "" : filters.year,
       };
 
-      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/filter`, { params });
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/filter`, { params });
       if (data.success) {
         setAnimeList(data.results.data);
         setTotalPages(data.results.totalPage);
