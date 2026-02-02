@@ -65,8 +65,9 @@ function AnimeInfo({ random = false }) {
       try {
         const data = await getAnimeInfo(id, random);
         setAnimeInfo(data.data);
-        setSeasons(data?.seasons || []);
+        setSeasons(data.data?.seasons || []); // <-- FIXED here
       } catch (err) {
+        console.error(err);
         setError(err);
       } finally {
         setLoading(false);
@@ -128,7 +129,7 @@ function AnimeInfo({ random = false }) {
     setWatchlistLoading(false);
   };
 
-  /* ---------- Load Last Watched Episode from Supabase ---------- */
+  /* ---------- Load Last Watched Episode ---------- */
   useEffect(() => {
     if (!user || !animeInfo) return;
 
@@ -255,12 +256,12 @@ function AnimeInfo({ random = false }) {
           <div className="lg:col-span-2">
             <h2 className="text-sm uppercase tracking-wider text-white/50 mb-4">Synopsis</h2>
             <p className="text-white/70 leading-relaxed">
-              {animeInfo?.animeInfo?.Overview ? (
-                animeInfo.animeInfo.Overview.length > 270 ? (
+              {info?.Overview ? (
+                info.Overview.length > 270 ? (
                   <>
                     {isFullOverview
-                      ? animeInfo.animeInfo.Overview
-                      : `${animeInfo.animeInfo.Overview.slice(0, 270)}...`}
+                      ? info.Overview
+                      : `${info.Overview.slice(0, 270)}...`}
                     <button
                       className="ml-2 text-gray-300 hover:text-white transition-colors"
                       onClick={() => setIsFullOverview(!isFullOverview)}
@@ -269,7 +270,7 @@ function AnimeInfo({ random = false }) {
                     </button>
                   </>
                 ) : (
-                  animeInfo.animeInfo.Overview
+                  info.Overview
                 )
               ) : (
                 "No description available."
