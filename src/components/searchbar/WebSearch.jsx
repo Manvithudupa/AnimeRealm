@@ -1,4 +1,4 @@
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faSliders } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Suggestion from "../suggestion/Suggestion";
 import useSearch from "@/src/hooks/useSearch";
@@ -26,8 +26,22 @@ function WebSearch() {
         }
     };
 
+    const handleFilterClick = () => {
+        navigate("/filter");
+    };
+
     return (
-        <div className="flex items-center relative w-[450px] max-[600px]:w-fit">
+        <div className="flex items-center relative w-[450px] max-[600px]:w-fit gap-2">
+            {/* Filter Button */}
+            <button
+                onClick={handleFilterClick}
+                className="flex items-center justify-center px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            >
+                <FontAwesomeIcon icon={faSliders} className="mr-2" />
+                Filter
+            </button>
+
+            {/* Search Input */}
             <input
                 type="text"
                 className="w-full px-5 py-2 bg-[#2a2a2a]/75 text-white rounded-lg focus:outline-none transition-colors placeholder-white/50 max-[600px]:hidden"
@@ -38,7 +52,7 @@ function WebSearch() {
                 onBlur={() => {
                     setTimeout(() => {
                         const isInsideSuggestionBox = suggestionRefs.current.some(
-                            (ref) => ref && ref.contains(document.activeElement),
+                            (ref) => ref && ref.contains(document.activeElement)
                         );
                         if (!isInsideSuggestionBox) {
                             setIsFocused(false);
@@ -53,6 +67,8 @@ function WebSearch() {
                     }
                 }}
             />
+
+            {/* Search Icon */}
             <button
                 className="absolute right-4 text-white/50 hover:text-white transition-colors max-[600px]:static max-[600px]:bg-transparent focus:outline-none max-[600px]:p-0"
                 onClick={handleSearchClick}
@@ -62,6 +78,8 @@ function WebSearch() {
                     className="text-lg max-[600px]:text-white max-[600px]:text-2xl max-[575px]:text-xl max-[600px]:mt-[7px]"
                 />
             </button>
+
+            {/* Suggestions */}
             {searchValue.trim() && isFocused && (
                 <div
                     ref={addSuggestionRef}
