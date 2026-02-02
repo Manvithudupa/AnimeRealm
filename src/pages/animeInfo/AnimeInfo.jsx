@@ -55,7 +55,7 @@ function AnimeInfo({ random = false }) {
   const [inWatchlist, setInWatchlist] = useState(false);
   const [watchlistLoading, setWatchlistLoading] = useState(false);
 
-  const [lastWatchedEpisode, setLastWatchedEpisode] = useState(null); // {id, num}
+  const [lastWatchedEpisode, setLastWatchedEpisode] = useState(null);
   const [isFullOverview, setIsFullOverview] = useState(false);
 
   /* ---------- Fetch Anime ---------- */
@@ -65,9 +65,8 @@ function AnimeInfo({ random = false }) {
       try {
         const data = await getAnimeInfo(id, random);
         setAnimeInfo(data.data);
-        setSeasons(data.data?.seasons || []); // <-- FIXED here
+        setSeasons(data.seasons || []); // ✅ FIXED: fetch from top-level data
       } catch (err) {
-        console.error(err);
         setError(err);
       } finally {
         setLoading(false);
@@ -259,9 +258,7 @@ function AnimeInfo({ random = false }) {
               {info?.Overview ? (
                 info.Overview.length > 270 ? (
                   <>
-                    {isFullOverview
-                      ? info.Overview
-                      : `${info.Overview.slice(0, 270)}...`}
+                    {isFullOverview ? info.Overview : `${info.Overview.slice(0, 270)}...`}
                     <button
                       className="ml-2 text-gray-300 hover:text-white transition-colors"
                       onClick={() => setIsFullOverview(!isFullOverview)}
@@ -269,9 +266,7 @@ function AnimeInfo({ random = false }) {
                       {isFullOverview ? "Show Less" : "Read More"}
                     </button>
                   </>
-                ) : (
-                  info.Overview
-                )
+                ) : info.Overview
               ) : (
                 "No description available."
               )}
