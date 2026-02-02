@@ -182,7 +182,7 @@ function Navbar() {
             ) : (
               <Button 
                 size="sm" 
-                className="text-xs h-8 px-3 sm:text-sm sm:h-9 sm:px-4 flex-shrink-0" 
+                className="text-xs h-8 px-3 sm:text-sm sm:h-9 sm:px-4 flex-shrink-0 bg-[#2a2a2a]/75 text-white border border-white/20 hover:bg-[#3a3a3a]/75 hover:border-white/30 transition-all" 
                 onClick={() => navigate("/auth")}
               >
                 Login
