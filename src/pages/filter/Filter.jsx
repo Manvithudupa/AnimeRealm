@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import CategoryCard from "../../components/categorycard/CategoryCard";
 import CategoryCardLoader from "../../components/Loader/CategoryCard.loader";
 import getFilter from "../../utils/getFilter.utils";
-import "./Filter.css";
 
 const Filter = () => {
   const [filters, setFilters] = useState({
@@ -67,7 +66,7 @@ const Filter = () => {
 
   const applyFilter = () => {
     setFilters({ ...tempFilters });
-    fetchData(1, tempFilters); // pass tempFilters directly to avoid double click issue
+    fetchData(1, tempFilters);
   };
 
   const getPageNumbers = () => {
@@ -86,11 +85,48 @@ const Filter = () => {
   };
 
   useEffect(() => {
-    fetchData(1); // initial load
+    fetchData(1);
   }, []);
 
+  const styles = {
+    filterPage: {
+      backgroundColor: '#1a1a1a',
+      minHeight: '100vh',
+      paddingTop: '80px', // Add top padding to account for navbar
+      padding: '80px 1.5rem 1.5rem 1.5rem',
+    },
+    genreBtn: {
+      padding: '4px 8px',
+      margin: '2px',
+      border: '1px solid #888',
+      borderRadius: '4px',
+      color: 'white',
+      backgroundColor: 'transparent',
+      cursor: 'pointer',
+      fontSize: '0.875rem',
+    },
+    genreBtnSelected: {
+      padding: '4px 8px',
+      margin: '2px',
+      border: '1px solid white',
+      borderRadius: '4px',
+      color: 'black',
+      backgroundColor: 'white',
+      cursor: 'pointer',
+      fontSize: '0.875rem',
+    },
+    filterSelect: {
+      width: '100%',
+      padding: '6px',
+      backgroundColor: '#2a2a2a',
+      border: '1px solid #555',
+      borderRadius: '4px',
+      color: 'white',
+    },
+  };
+
   return (
-    <div className="filter-page p-6">
+    <div style={styles.filterPage}>
       <h2 className="text-white text-xl font-bold mb-4">Filter Anime</h2>
 
       {/* Dropdowns */}
@@ -101,7 +137,7 @@ const Filter = () => {
             name={key}
             value={tempFilters[key]}
             onChange={handleInputChange}
-            className="filter-select"
+            style={styles.filterSelect}
           >
             {dropdowns[key].map((val, idx) => (
               <option key={idx} value={val}>{val || key.charAt(0).toUpperCase() + key.slice(1)}</option>
@@ -115,7 +151,7 @@ const Filter = () => {
         {genresList.map((genre) => (
           <button
             key={genre}
-            className={`genre-btn ${tempFilters.genres.includes(genre) ? "selected" : ""}`}
+            style={tempFilters.genres.includes(genre) ? styles.genreBtnSelected : styles.genreBtn}
             onClick={() => handleGenreToggle(genre)}
           >
             {genre}
@@ -125,7 +161,7 @@ const Filter = () => {
 
       <button
         onClick={applyFilter}
-        className="bg-white text-black px-6 py-2 rounded font-bold mb-6"
+        className="bg-white text-black px-6 py-2 rounded font-bold mb-6 hover:bg-gray-200 transition-colors"
       >
         Apply Filter
       </button>
@@ -146,7 +182,7 @@ const Filter = () => {
         <button
           disabled={currentPage <= 1}
           onClick={() => fetchData(currentPage - 1)}
-          className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50"
+          className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50 hover:bg-gray-600 transition-colors"
         >
           Prev
         </button>
@@ -155,7 +191,11 @@ const Filter = () => {
           <button
             key={page}
             onClick={() => fetchData(page)}
-            className={`px-3 py-1 rounded ${page === currentPage ? "bg-white text-black" : "bg-gray-700 text-white"}`}
+            className={`px-3 py-1 rounded transition-colors ${
+              page === currentPage 
+                ? "bg-white text-black" 
+                : "bg-gray-700 text-white hover:bg-gray-600"
+            }`}
           >
             {page}
           </button>
@@ -164,7 +204,7 @@ const Filter = () => {
         <button
           disabled={currentPage >= totalPages}
           onClick={() => fetchData(currentPage + 1)}
-          className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50"
+          className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50 hover:bg-gray-600 transition-colors"
         >
           Next
         </button>
