@@ -15,6 +15,7 @@ const Filter = () => {
     sort: "default",
     genres: [],
   });
+  const [tempFilters, setTempFilters] = useState({ ...filters });
   const [animeList, setAnimeList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,13 +41,15 @@ const Filter = () => {
     sort: ["default", "score", "popularity", "newest"],
   };
 
+  // Update temp filters when dropdown changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFilters({ ...filters, [name]: value });
+    setTempFilters({ ...tempFilters, [name]: value });
   };
 
+  // Toggle genres in tempFilters
   const handleGenreToggle = (genre) => {
-    setFilters((prev) => {
+    setTempFilters((prev) => {
       const genres = prev.genres.includes(genre)
         ? prev.genres.filter((g) => g !== genre)
         : [...prev.genres, genre];
@@ -54,6 +57,7 @@ const Filter = () => {
     });
   };
 
+  // Fetch data from API using filters
   const fetchData = async (page = 1) => {
     setLoading(true);
     try {
@@ -84,13 +88,16 @@ const Filter = () => {
     }
   };
 
+  // Initial fetch (without filters)
   useEffect(() => {
     fetchData(1);
   }, []);
 
-  useEffect(() => {
-    fetchData(1);
-  }, [filters]);
+  // Apply filter button
+  const applyFilter = () => {
+    setFilters({ ...tempFilters });
+    fetchData(1); // reset to page 1
+  };
 
   const getPageNumbers = () => {
     const pages = [];
@@ -117,7 +124,7 @@ const Filter = () => {
           <select
             key={key}
             name={key}
-            value={filters[key]}
+            value={tempFilters[key]}
             onChange={handleInputChange}
             className="filter-select"
           >
@@ -133,7 +140,7 @@ const Filter = () => {
         {genresList.map((genre) => (
           <button
             key={genre}
-            className={`genre-btn ${filters.genres.includes(genre) ? "selected" : ""}`}
+            className={`genre-btn ${tempFilters.genres.includes(genre) ? "selected" : ""}`}
             onClick={() => handleGenreToggle(genre)}
           >
             {genre}
@@ -142,7 +149,7 @@ const Filter = () => {
       </div>
 
       <button
-        onClick={() => fetchData(1)}
+        onClick={applyFilter}
         className="bg-white text-black px-6 py-2 rounded font-bold mb-6"
       >
         Apply Filter
