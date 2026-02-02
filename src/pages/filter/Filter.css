@@ -1,5 +1,14 @@
 .filter-page {
-  background-color: #1a1a1a; /* Dark background */
+  background-color: #1a1a1a;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background-color: #2a2a2a;
+  color: white;
+  border: 1px solid #555;
 }
 
 .genre-btn {
@@ -11,6 +20,7 @@
   background-color: transparent;
   cursor: pointer;
   font-size: 0.875rem;
+  transition: all 0.2s;
 }
 
 .genre-btn.selected {
@@ -19,6 +29,14 @@
   border-color: white;
 }
 
-.filter-select {
-  width: 100%;
+.genre-btn:hover {
+  opacity: 0.8;
+}
+
+.pagination button {
+  transition: all 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  opacity: 0.8;
 }
