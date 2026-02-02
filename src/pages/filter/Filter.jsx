@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import FilterCard from "../../components/filtercard/FilterCard";
+import CategoryCard from "../../components/categorycard/CategoryCard";
 import getFilter from "../../utils/getFilter.utils";
 import "./Filter.css";
 
@@ -7,14 +7,11 @@ const Filter = () => {
   const [filters, setFilters] = useState({
     type: "",
     status: "",
-    rated: "",
     score: "",
-    season: "",
-    language: "",
-    year: "",
     sort: "default",
     genres: [],
   });
+
   const [tempFilters, setTempFilters] = useState({ ...filters });
   const [animeList, setAnimeList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -33,11 +30,7 @@ const Filter = () => {
   const dropdowns = {
     type: ["", "TV", "Movie", "OVA", "ONA", "Special"],
     status: ["", "Finished", "Currently Airing", "Not Yet Aired"],
-    rated: ["", "G", "PG", "PG-13", "R", "R+", "Rx"],
     score: ["", 10,9,8,7,6,5,4,3,2,1],
-    season: ["", "Winter", "Spring", "Summer", "Fall"],
-    language: ["", "Japanese", "English", "Other"],
-    year: ["", 2026,2025,2024,2023,2022,2021,2020],
     sort: ["default", "score", "popularity", "newest"],
   };
 
@@ -60,12 +53,12 @@ const Filter = () => {
     try {
       const data = await getFilter(filters, page);
       setAnimeList(data.data || []);
-      setTotalPages(data.totalPage || 1);
       setCurrentPage(data.currentPage || 1);
+      setTotalPages(data.totalPage || 1);
     } catch (err) {
       setAnimeList([]);
-      setTotalPages(1);
       setCurrentPage(1);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -92,7 +85,7 @@ const Filter = () => {
   };
 
   useEffect(() => {
-    fetchData(1); // initial fetch
+    fetchData(1); // initial load
   }, []);
 
   return (
@@ -140,13 +133,11 @@ const Filter = () => {
       {loading ? (
         <p className="text-white">Loading...</p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {animeList.length > 0 ? (
-            animeList.map((anime) => <FilterCard key={anime.id} anime={anime} />)
-          ) : (
-            <p className="text-white col-span-full text-center">No anime found.</p>
-          )}
-        </div>
+        <CategoryCard
+          data={animeList}
+          label="Filtered Anime"
+          categoryPage={false}
+        />
       )}
 
       {/* Pagination */}
