@@ -11,10 +11,12 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import website_name from "@/src/config/website";
 import CategoryCard from "@/src/components/categorycard/CategoryCard";
+import Sidecard from "@/src/components/sidecard/Sidecard";
 import Voiceactor from "@/src/components/voiceactor/Voiceactor";
 import Loader from "@/src/components/Loader/Loader";
 import Error from "@/src/components/error/Error";
 import { useLanguage } from "@/src/context/LanguageContext";
+import { useHomeInfo } from "@/src/context/HomeInfoContext";
 import { supabase } from "@/src/integrations/supabase/client";
 import { useAuth } from "@/src/hooks/useAuth";
 
