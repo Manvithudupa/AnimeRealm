@@ -1,7 +1,0 @@
-.filter-card {
-  transition: transform 0.2s;
-}
-
-.filter-card:hover {
-  transform: scale(1.05);
-}
