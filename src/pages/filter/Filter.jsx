@@ -82,15 +82,34 @@ const Filter = () => {
     }
   };
 
-  // Fetch on first render
   useEffect(() => {
     fetchData();
   }, []);
 
-  // Fetch when filters change
   useEffect(() => {
     fetchData(1);
   }, [filters]);
+
+  // Generate page numbers for numbered pagination
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 7; // show current ±3 pages
+    let start = Math.max(currentPage - 3, 1);
+    let end = Math.min(currentPage + 3, totalPages);
+
+    if (end - start < maxVisible - 1) {
+      if (start === 1) {
+        end = Math.min(start + maxVisible - 1, totalPages);
+      } else if (end === totalPages) {
+        start = Math.max(end - maxVisible + 1, 1);
+      }
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
 
   return (
     <div className="filter-page p-6">
@@ -160,16 +179,26 @@ const Filter = () => {
         </div>
       )}
 
-      {/* Pagination */}
-      <div className="pagination flex justify-center mt-6 gap-3">
+      {/* Numbered Pagination */}
+      <div className="pagination flex justify-center mt-6 gap-2 flex-wrap">
         <button
           disabled={currentPage <= 1}
           onClick={() => fetchData(currentPage - 1)}
           className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50"
         >
-          Previous
+          Prev
         </button>
-        <span className="text-white px-3 py-1">{currentPage} / {totalPages}</span>
+
+        {getPageNumbers().map((page) => (
+          <button
+            key={page}
+            onClick={() => fetchData(page)}
+            className={`px-3 py-1 rounded ${page === currentPage ? "bg-white text-black" : "bg-gray-700 text-white"}`}
+          >
+            {page}
+          </button>
+        ))}
+
         <button
           disabled={currentPage >= totalPages}
           onClick={() => fetchData(currentPage + 1)}
