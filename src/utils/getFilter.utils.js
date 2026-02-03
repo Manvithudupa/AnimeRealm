@@ -6,11 +6,10 @@ const getFilter = async (filters, page = 1) => {
   try {
     const params = {};
 
-    // Always send sort + page
+    // Always send
     params.sort = filters.sort || "default";
     params.page = page;
 
-    // Optional filters (only if selected)
     if (filters.type) params.type = filters.type;
     if (filters.status) params.status = filters.status;
     if (filters.rated) params.rated = filters.rated;
@@ -19,8 +18,7 @@ const getFilter = async (filters, page = 1) => {
     if (filters.language) params.language = filters.language;
     if (filters.year) params.year = filters.year;
 
-    // Genres (multiple)
-    if (filters.genres && filters.genres.length > 0) {
+    if (filters.genres?.length > 0) {
       params.genres = filters.genres.join(",");
     }
 
@@ -28,9 +26,11 @@ const getFilter = async (filters, page = 1) => {
       params,
     });
 
-    return response.data;
+    // ✅ RETURN ONLY results
+    return response.data.results;
+
   } catch (err) {
-    console.error("Error fetching filter data:", err);
+    console.error("Filter API Error:", err);
 
     return {
       data: [],
