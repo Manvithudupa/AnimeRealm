@@ -40,10 +40,10 @@ function WebSearch() {
                 onClick={handleFilterClick}
                 className="
                     flex items-center justify-center px-4 py-2
-                    border border-black
-                    bg-black/30 text-black
+                    border border-white/40
+                    bg-black/40 text-white
                     rounded-lg
-                    hover:bg-black/60 hover:text-white
+                    hover:bg-black/70
                     transition-colors
                     backdrop-blur-sm
                 "
@@ -57,12 +57,12 @@ function WebSearch() {
                 type="text"
                 className="
                     w-full px-5 py-2
-                    bg-black/20 text-black
-                    border border-black/30
+                    bg-black/40 text-white
+                    border border-white/30
                     rounded-lg
-                    focus:outline-none focus:ring-1 focus:ring-black
+                    focus:outline-none focus:ring-1 focus:ring-white/50
                     transition-colors
-                    placeholder-black/50
+                    placeholder-white/50
                     max-[600px]:hidden
                 "
                 placeholder="Search anime..."
@@ -95,7 +95,7 @@ function WebSearch() {
             <button
                 className="
                     absolute right-4
-                    text-black/60 hover:text-black
+                    text-white/60 hover:text-white
                     transition-colors
                     max-[600px]:static
                     max-[600px]:bg-transparent
