@@ -27,7 +27,7 @@ const Auth = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user) navigate("/");
+    if (user) navigate("/home");
   }, [user, navigate]);
 
   const handleAuth = async (e) => {
@@ -79,7 +79,11 @@ const Auth = () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/home`,
+        },
       });
+
       if (error) throw error;
     } catch (error) {
       toast({
