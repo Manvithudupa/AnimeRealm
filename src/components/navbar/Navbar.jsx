@@ -5,43 +5,76 @@ import {
   faRandom,
   faMagnifyingGlass,
   faXmark,
+  faBell
 } from "@fortawesome/free-solid-svg-icons";
+
 import { Link, useNavigate, useLocation } from "react-router-dom";
+
 import { useLanguage } from "@/src/context/LanguageContext";
 import Sidebar from "../sidebar/Sidebar";
+
 import { SearchProvider } from "@/src/context/SearchContext";
 import WebSearch from "../searchbar/WebSearch";
 import MobileSearch from "../searchbar/MobileSearch";
+
 import { useAuth } from "../../hooks/useAuth";
+
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+
 import { User, LogOut, Bookmark } from "lucide-react";
 import { Button } from "../ui/button";
+
+import Notifications from "../notifications/Notifications";
+import { useNotificationCount } from "../../hooks/useNotificationCount";
 
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
+
   const { user, profile, signOut } = useAuth();
   const { language, toggleLanguage } = useLanguage();
+
+  /* ---------------- STATES ---------------- */
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const dropdownRef = useRef(null);
+  const [showNotifications, setShowNotifications] =
+    useState(false);
 
-  // Close dropdown on auth change
+  const dropdownRef = useRef(null);
+  const notifRef = useRef(null);
+
+  /* ---------------- NOTIFICATION COUNT ---------------- */
+
+  const unreadCount = useNotificationCount(user?.id);
+
+  /* ---------------- EFFECTS ---------------- */
+
   useEffect(() => {
     setIsDropdownOpen(false);
+    setShowNotifications(false);
   }, [user]);
 
-  // Scroll effect & outside click
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 0);
+    const handleScroll = () =>
+      setIsScrolled(window.scrollY > 0);
 
     const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target)
+      ) {
         setIsDropdownOpen(false);
+      }
+
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(e.target)
+      ) {
+        setShowNotifications(false);
       }
     };
 
@@ -54,8 +87,13 @@ function Navbar() {
     };
   }, []);
 
-  const handleHamburgerClick = () => setIsSidebarOpen(true);
-  const handleCloseSidebar = () => setIsSidebarOpen(false);
+  /* ---------------- HANDLERS ---------------- */
+
+  const handleHamburgerClick = () =>
+    setIsSidebarOpen(true);
+
+  const handleCloseSidebar = () =>
+    setIsSidebarOpen(false);
 
   const handleRandomClick = () => {
     if (location.pathname === "/random") {
@@ -63,156 +101,240 @@ function Navbar() {
     }
   };
 
+  /* ---------------- RENDER ---------------- */
+
   return (
     <SearchProvider>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[1000000] transition-all duration-300 ease-in-out bg-[#0a0a0a] ${
-          isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"
+        className={`fixed top-0 left-0 right-0 z-[1000000]
+        transition-all duration-300 ease-in-out bg-[#0a0a0a]
+        ${
+          isScrolled
+            ? "bg-opacity-80 backdrop-blur-md shadow-lg"
+            : "bg-opacity-100"
         }`}
       >
         <div className="w-full h-16 flex items-center justify-between px-2 sm:px-4 max-w-[1920px] mx-auto">
-          
-          {/* LEFT: Hamburger + Logo */}
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+
+          {/* ---------------- LEFT ---------------- */}
+
+          <div className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={handleHamburgerClick}
-              className="w-8 h-8 flex items-center justify-center flex-shrink-0"
-              aria-label="Menu"
+              className="w-8 h-8 flex items-center justify-center"
             >
               <FontAwesomeIcon
                 icon={faBars}
-                className="text-base sm:text-xl text-gray-200 hover:text-white transition-colors"
+                className="text-base sm:text-xl text-gray-200 hover:text-white"
               />
             </button>
-            <Link to="/home" className="flex-shrink-0 block">
-              <img 
-                src="/logo.png" 
-                alt="Logo" 
-                className="h-7 sm:h-9 w-auto object-contain max-w-[40px] sm:max-w-none" 
+
+            <Link to="/home">
+              <img
+                src="/logo.png"
+                alt="Logo"
+                className="h-7 sm:h-9 w-auto"
               />
             </Link>
           </div>
 
-          {/* CENTER: Desktop Search */}
+          {/* ---------------- CENTER ---------------- */}
+
           <div className="hidden md:flex flex-1 justify-center mx-8">
             <div className="flex items-center gap-2 w-full max-w-[600px]">
+
               <WebSearch />
+
               <Link
-                to={location.pathname === "/random" ? "#" : "/random"}
+                to={
+                  location.pathname === "/random"
+                    ? "#"
+                    : "/random"
+                }
                 onClick={handleRandomClick}
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center flex-shrink-0"
-                title="Random Anime"
+                className="p-[10px] bg-[#2a2a2a]/75 rounded-lg"
               >
-                <FontAwesomeIcon icon={faRandom} className="text-lg" />
+                <FontAwesomeIcon
+                  icon={faRandom}
+                  className="text-lg text-white/70"
+                />
               </Link>
+
             </div>
           </div>
 
-          {/* RIGHT: User + Language + Mobile Search */}
-          <div className="flex items-center gap-2 sm:gap-2 flex-shrink-0">
+          {/* ---------------- RIGHT ---------------- */}
 
-            {/* Language Toggle - Desktop */}
-            <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
+          <div className="flex items-center gap-2">
+
+            {/* -------- LANGUAGE -------- */}
+
+            <div className="hidden md:flex gap-2 bg-[#27272A] p-1 rounded-md">
+
               {["EN", "JP"].map((lang) => (
                 <button
                   key={lang}
                   onClick={() => toggleLanguage(lang)}
-                  className={`px-3 py-1 text-sm font-medium rounded ${
+                  className={`px-3 py-1 rounded text-sm ${
                     language === lang
                       ? "bg-[#3F3F46] text-white"
-                      : "text-gray-400 hover:text-white"
+                      : "text-gray-400"
                   }`}
                 >
                   {lang}
                 </button>
               ))}
+
             </div>
 
-            {/* User Dropdown */}
-            {user ? (
-              <div className="relative flex-shrink-0" ref={dropdownRef}>
+            {/* -------- NOTIFICATIONS -------- */}
+
+            {user && (
+              <div
+                className="relative"
+                ref={notifRef}
+              >
                 <button
-                  onClick={() => setIsDropdownOpen((prev) => !prev)}
-                  className="flex items-center"
-                  aria-label="User menu"
+                  onClick={() =>
+                    setShowNotifications((p) => !p)
+                  }
+                  className="relative w-9 h-9 flex items-center justify-center bg-[#2a2a2a]/75 rounded-lg hover:bg-[#3a3a3a]/75"
                 >
-                  <Avatar className="h-8 w-8 sm:h-10 sm:w-10 rounded-md flex-shrink-0">
+                  <FontAwesomeIcon
+                    icon={faBell}
+                    className="text-white/80"
+                  />
+
+                  {/* Badge */}
+                  {unreadCount > 0 && (
+                    <span
+                      className="absolute -top-1 -right-1
+                      min-w-[18px] h-[18px]
+                      bg-red-600 text-white text-[11px]
+                      rounded-full flex items-center justify-center px-1"
+                    >
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Panel */}
+                {showNotifications && <Notifications />}
+              </div>
+            )}
+
+            {/* -------- USER -------- */}
+
+            {user ? (
+              <div
+                className="relative"
+                ref={dropdownRef}
+              >
+                <button
+                  onClick={() =>
+                    setIsDropdownOpen((p) => !p)
+                  }
+                >
+                  <Avatar className="h-9 w-9 rounded-md">
                     <AvatarImage
-                      src={profile?.avatar_url || undefined}
-                      className="rounded-md object-cover"
+                      src={profile?.avatar_url}
                     />
-                    <AvatarFallback className="bg-[#2a2a2a] rounded-md flex items-center justify-center">
-                      <User className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
+                    <AvatarFallback>
+                      <User className="h-4 w-4" />
                     </AvatarFallback>
                   </Avatar>
                 </button>
 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-[#111]/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-xl overflow-hidden z-[1000001]">
+                  <div
+                    className="absolute right-0 mt-2 w-56
+                    bg-[#111]/95 rounded-xl border border-white/10"
+                  >
+
                     <div className="px-4 py-3 border-b border-white/10">
-                      <p className="text-sm text-gray-300 truncate">
+                      <p className="text-sm truncate">
                         {profile?.username || user.email}
                       </p>
                     </div>
+
                     <button
-                      onClick={() => { setIsDropdownOpen(false); navigate("/profile"); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        navigate("/profile");
+                      }}
+                      className="w-full px-4 py-3 text-left"
                     >
-                      <User className="h-4 w-4" />
                       Profile
                     </button>
+
                     <button
-                      onClick={() => { setIsDropdownOpen(false); navigate("/watchlist"); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        navigate("/watchlist");
+                      }}
+                      className="w-full px-4 py-3 text-left"
                     >
-                      <Bookmark className="h-4 w-4" />
                       Watchlist
                     </button>
+
                     <button
                       onClick={signOut}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10"
+                      className="w-full px-4 py-3 text-left text-red-400"
                     >
-                      <LogOut className="h-4 w-4" />
                       Logout
                     </button>
+
                   </div>
                 )}
               </div>
             ) : (
-              <Button 
-                size="sm" 
-                className="text-xs h-8 px-3 sm:text-sm sm:h-9 sm:px-4 flex-shrink-0 bg-[#2a2a2a]/75 text-white border border-white/20 hover:bg-[#3a3a3a]/75 hover:border-white/30 transition-all" 
+              <Button
+                size="sm"
                 onClick={() => navigate("/auth")}
               >
                 Login
               </Button>
             )}
 
-            {/* Mobile Search */}
+            {/* -------- MOBILE SEARCH -------- */}
+
             <button
-              onClick={() => setIsMobileSearchOpen((prev) => !prev)}
-              className="md:hidden w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex-shrink-0"
-              title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
-              aria-label={isMobileSearchOpen ? "Close Search" : "Search Anime"}
+              onClick={() =>
+                setIsMobileSearchOpen((p) => !p)
+              }
+              className="md:hidden w-9 h-9 bg-[#2a2a2a]/75 rounded-lg"
             >
               <FontAwesomeIcon
-                icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
-                className="text-sm sm:text-base transition-transform duration-200"
-                style={{ transform: isMobileSearchOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                icon={
+                  isMobileSearchOpen
+                    ? faXmark
+                    : faMagnifyingGlass
+                }
               />
             </button>
+
           </div>
         </div>
 
-        {/* Mobile Search Dropdown */}
+        {/* MOBILE SEARCH */}
+
         {isMobileSearchOpen && (
-          <div className="md:hidden bg-[#18181B] shadow-lg">
-            <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
+          <div className="md:hidden bg-[#18181B]">
+            <MobileSearch
+              onClose={() =>
+                setIsMobileSearchOpen(false)
+              }
+            />
           </div>
         )}
 
-        {/* Sidebar */}
-        <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
+        {/* SIDEBAR */}
+
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={handleCloseSidebar}
+        />
+
       </nav>
     </SearchProvider>
   );
