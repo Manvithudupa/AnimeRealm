@@ -10,7 +10,7 @@ import { HomeInfoProvider } from "./context/HomeInfoContext";
 import { useAuth } from "./hooks/useAuth";
 
 /* ---------------- NOTIFICATION CHECKER ---------------- */
-import { checkNewEpisodes } from "./utils/checkNewEpisodes";
+import { checkNewEpisodes } from "./utils/checkNewEpisodes.utils";
 
 /* ---------------- PAGES ---------------- */
 
