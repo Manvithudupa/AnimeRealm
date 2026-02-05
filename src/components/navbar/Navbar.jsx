@@ -25,7 +25,7 @@ import { User, LogOut, Bookmark } from "lucide-react";
 import { Button } from "../ui/button";
 
 import Notifications from "../notifications/Notifications";
-import { useNotificationCount } from "../../hooks/useNotificationCount";
+import { useNotificationCount } from "../../hooks/useNotifications";
 
 function Navbar() {
   const navigate = useNavigate();
