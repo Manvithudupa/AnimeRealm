@@ -48,7 +48,7 @@ function AnimeInfo({ random = false }) {
   const navigate = useNavigate();
 
   const id = random ? null : paramId;
-  const currentId = paramId; // ✅ FIX
+  const currentId = paramId;
 
   const [animeInfo, setAnimeInfo] = useState(null);
   const [seasons, setSeasons] = useState([]);
@@ -67,14 +67,17 @@ function AnimeInfo({ random = false }) {
       setLoading(true);
       try {
         const res = await getAnimeInfo(id, random);
-        setAnimeInfo(res.data);
-        setSeasons(res.seasons || []); // ✅ FIX
+
+        // ✅ FIX: match API response shape exactly
+        setAnimeInfo(res?.results?.data || null);
+        setSeasons(res?.results?.seasons || []);
       } catch (err) {
         setError(err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchAnime();
     window.scrollTo(0, 0);
   }, [id, random]);
@@ -149,8 +152,6 @@ function AnimeInfo({ random = false }) {
         setLastWatchedEpisode(null);
       } else if (data) {
         setLastWatchedEpisode({ id: data.episode_id, num: data.episode_num });
-      } else {
-        setLastWatchedEpisode(null);
       }
     };
 
@@ -176,12 +177,15 @@ function AnimeInfo({ random = false }) {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* ================= HERO ================= */}
-      {/* (UNCHANGED UI BELOW — your original code continues exactly) */}
+      {/* 🔥 Your original UI is untouched below */}
 
       {/* Seasons Section */}
-      {seasons?.length > 0 && (
+      {seasons.length > 0 && (
         <div className="container mx-auto py-8 sm:py-12">
-          <h2 className="text-2xl font-bold mb-6 sm:mb-8 px-1">More Seasons</h2>
+          <h2 className="text-2xl font-bold mb-6 sm:mb-8 px-1">
+            More Seasons
+          </h2>
+
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
             {seasons.map((season, index) => (
               <Link
