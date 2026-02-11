@@ -373,4 +373,4 @@ function AnimeInfo({ random = false }) {
   );
 }
 
-export default AnimeInfo; wait 
+export default AnimeInfo;
