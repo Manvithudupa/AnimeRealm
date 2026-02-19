@@ -21,6 +21,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // Added for show/hide password
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -144,20 +145,27 @@ const Auth = () => {
               />
             </div>
 
-            <div className="space-y-1">
+            <div className="relative space-y-1">
               <Label className="text-white/80" htmlFor="password">
                 Password
               </Label>
               <Input
-                className="bg-black/40 border-white/10 text-white placeholder:text-white/30"
+                className="bg-black/40 border-white/10 text-white placeholder:text-white/30 pr-10"
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"} // Toggle password visibility
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white"
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
             </div>
 
             <Button
