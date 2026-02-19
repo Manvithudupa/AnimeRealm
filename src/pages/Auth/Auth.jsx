@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 import { useToast } from "@/src/hooks/use-toast.js";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react"; // Eye icons imported
 import { useAuth } from "@/src/hooks/useAuth";
 
 const Auth = () => {
@@ -21,7 +21,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // Added for show/hide password
+  const [showPassword, setShowPassword] = useState(false); // toggle password visibility
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -145,6 +145,7 @@ const Auth = () => {
               />
             </div>
 
+            {/* Password Input with Eye Icon */}
             <div className="relative space-y-1">
               <Label className="text-white/80" htmlFor="password">
                 Password
@@ -152,7 +153,7 @@ const Auth = () => {
               <Input
                 className="bg-black/40 border-white/10 text-white placeholder:text-white/30 pr-10"
                 id="password"
-                type={showPassword ? "text" : "password"} // Toggle password visibility
+                type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -164,7 +165,11 @@ const Auth = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white"
               >
-                {showPassword ? "Hide" : "Show"}
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </button>
             </div>
 
