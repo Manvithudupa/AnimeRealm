@@ -15,14 +15,14 @@ function Footer() {
       <div className="max-w-[1920px] mx-auto px-4 py-6 flex flex-col gap-4">
 
         {/* Branding */}
-        <div className="text-center">
+        <div>
           <h1 className="text-xl font-semibold text-white tracking-wide">
             {logoTitle || "An!meRealm"}
           </h1>
         </div>
 
         {/* A-Z */}
-        <div className="w-full flex flex-wrap justify-center gap-1">
+        <div className="w-full flex flex-wrap justify-start gap-1">
           {letters.map((item, index) => (
             <Link
               key={index}
@@ -35,7 +35,7 @@ function Footer() {
         </div>
 
         {/* Links */}
-        <div className="flex justify-center gap-5 text-xs">
+        <div className="flex justify-start gap-5 text-xs">
           <Link
             to="/terms-of-service"
             className="text-white/60 hover:text-white transition-colors"
@@ -57,13 +57,13 @@ function Footer() {
         </div>
 
         {/* Legal */}
-        <p className="text-center text-[11px] text-white/40 max-w-4xl mx-auto leading-snug">
+        <p className="text-left text-[11px] text-white/40 max-w-4xl leading-snug">
           {website_name} does not host any files, it merely pulls streams from third-party
           services. Legal issues should be taken up with the file hosts and providers.
           {website_name} is not responsible for any media files shown by the video providers.
         </p>
 
-        <p className="text-center text-[11px] text-white/40">
+        <p className="text-left text-[11px] text-white/40">
           © {new Date().getFullYear()} {website_name}. All rights reserved.
         </p>
       </div>
