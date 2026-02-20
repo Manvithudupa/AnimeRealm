@@ -136,6 +136,18 @@ const CategoryCard = React.memo(
           </h2>
         )}
 
+        {/* View All Button (ADDED – does not modify existing code) */}
+        {label === "Latest Episode" && (
+          <div className="flex justify-end -mt-6 mb-2">
+            <button
+              onClick={() => navigate("/recently-updated")}
+              className="text-sm text-white/70 hover:text-white transition"
+            >
+              View All &gt;
+            </button>
+          </div>
+        )}
+
         {/* First Row */}
         {categoryPage && itemsToRender.firstRow.length > 0 && (
           <div className="grid grid-cols-4 gap-x-3 gap-y-6 mt-6 max-[758px]:hidden">
