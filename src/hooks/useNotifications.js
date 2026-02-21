@@ -1,20 +1,26 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/src/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
 export const useNotifications = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  // Derived state (no sync bugs)
+  const unreadCount = useMemo(
+    () => notifications.filter((n) => !n.is_read).length,
+    [notifications]
+  );
 
   const fetchNotifications = useCallback(async () => {
     if (!user) {
       setNotifications([]);
-      setUnreadCount(0);
       setLoading(false);
       return;
     }
+
+    setLoading(true);
 
     try {
       const { data, error } = await supabase
@@ -26,7 +32,6 @@ export const useNotifications = () => {
       if (error) throw error;
 
       setNotifications(data || []);
-      setUnreadCount(data?.filter((n) => !n.is_read).length || 0);
     } catch (error) {
       console.error("Error fetching notifications:", error);
     } finally {
@@ -41,81 +46,48 @@ export const useNotifications = () => {
   const markAsRead = async (notificationId) => {
     if (!user) return;
 
-    try {
-      const { error } = await supabase
-        .from("notifications")
-        .update({ is_read: true, updated_at: new Date().toISOString() })
-        .eq("id", notificationId)
-        .eq("user_id", user.id);
+    // Optimistic UI update
+    setNotifications((prev) =>
+      prev.map((n) =>
+        n.id === notificationId ? { ...n, is_read: true } : n
+      )
+    );
 
-      if (error) throw error;
+    const { error } = await supabase
+      .from("notifications")
+      .update({
+        is_read: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", notificationId)
+      .eq("user_id", user.id);
 
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? { ...n, is_read: true } : n))
-      );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
-    } catch (error) {
+    if (error) {
       console.error("Error marking notification as read:", error);
+      fetchNotifications(); // rollback safety
     }
   };
 
   const markAllAsRead = async () => {
     if (!user) return;
 
-    try {
-      const { error } = await supabase
-        .from("notifications")
-        .update({ is_read: true, updated_at: new Date().toISOString() })
-        .eq("user_id", user.id)
-        .eq("is_read", false);
+    // Optimistic UI update
+    setNotifications((prev) =>
+      prev.map((n) => ({ ...n, is_read: true }))
+    );
 
-      if (error) throw error;
+    const { error } = await supabase
+      .from("notifications")
+      .update({
+        is_read: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", user.id)
+      .eq("is_read", false);
 
-      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-      setUnreadCount(0);
-    } catch (error) {
+    if (error) {
       console.error("Error marking all as read:", error);
-    }
-  };
-
-  const deleteNotification = async (notificationId) => {
-    if (!user) return;
-
-    try {
-      const notification = notifications.find((n) => n.id === notificationId);
-
-      const { error } = await supabase
-        .from("notifications")
-        .delete()
-        .eq("id", notificationId)
-        .eq("user_id", user.id);
-
-      if (error) throw error;
-
-      setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
-      if (notification && !notification.is_read) {
-        setUnreadCount((prev) => Math.max(0, prev - 1));
-      }
-    } catch (error) {
-      console.error("Error deleting notification:", error);
-    }
-  };
-
-  const clearAllNotifications = async () => {
-    if (!user) return;
-
-    try {
-      const { error } = await supabase
-        .from("notifications")
-        .delete()
-        .eq("user_id", user.id);
-
-      if (error) throw error;
-
-      setNotifications([]);
-      setUnreadCount(0);
-    } catch (error) {
-      console.error("Error clearing notifications:", error);
+      fetchNotifications(); // rollback safety
     }
   };
 
@@ -125,8 +97,6 @@ export const useNotifications = () => {
     loading,
     markAsRead,
     markAllAsRead,
-    deleteNotification,
-    clearAllNotifications,
     refetch: fetchNotifications,
   };
 };
