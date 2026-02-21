@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/src/hooks/useAuth";
 import { useNotifications } from "@/src/hooks/useNotifications";
 import Loader from "@/src/components/Loader/Loader";
@@ -26,7 +26,6 @@ export default function Notifications() {
   }, [authLoading, user, navigate]);
 
   const handleNotificationClick = async (notification) => {
-    // mark as read and navigate to watch page
     await markAsRead(notification.id);
     navigate(`/watch/${notification.anime_id}`);
   };
@@ -56,14 +55,23 @@ export default function Notifications() {
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto mt-[64px]">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Notifications</h1>
+    <div className="max-w-[1600px] mx-auto mt-[80px] px-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Notifications</h1>
+          {unreadCount > 0 && (
+            <p className="text-sm text-white/60 mt-1">
+              You have {unreadCount} unread notification
+              {unreadCount > 1 ? "s" : ""}
+            </p>
+          )}
+        </div>
 
         <div className="flex items-center gap-3">
           <button
             onClick={refetch}
-            className="px-3 py-1 rounded bg-white/5 text-white/90 hover:bg-white/10 transition"
+            className="px-3 py-1.5 rounded-md bg-white/5 text-white/90 hover:bg-white/10 transition"
           >
             Refresh
           </button>
@@ -71,9 +79,9 @@ export default function Notifications() {
           <button
             onClick={markAllAsRead}
             disabled={unreadCount === 0}
-            className={`flex items-center gap-2 px-3 py-1 rounded transition ${
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-md transition ${
               unreadCount === 0
-                ? "bg-white/3 text-white/40 cursor-not-allowed"
+                ? "bg-white/5 text-white/40 cursor-not-allowed"
                 : "bg-green-600 text-white hover:bg-green-700"
             }`}
           >
@@ -83,28 +91,35 @@ export default function Notifications() {
         </div>
       </div>
 
-      {(!notifications || notifications.length === 0) ? (
-        <div className="p-8 text-center text-white/50 rounded bg-white/[0.01]">
-          No notifications yet
+      {/* Empty State */}
+      {!notifications || notifications.length === 0 ? (
+        <div className="p-12 text-center rounded-xl bg-white/[0.03] text-white/60">
+          <p className="text-lg font-medium">No notifications yet</p>
+          <p className="text-sm mt-2">
+            We’ll notify you when something important happens 👀
+          </p>
         </div>
       ) : (
-        <div className="bg-white/[0.02] rounded-md divide-y divide-white/5 overflow-hidden">
+        <div className="bg-white/[0.02] rounded-xl divide-y divide-white/5 overflow-hidden">
           {notifications.map((n) => (
             <button
               key={n.id}
               onClick={() => handleNotificationClick(n)}
-              className={`w-full text-left px-4 py-4 flex gap-4 items-start transition hover:bg-white/5 ${
-                !n.is_read ? "bg-white/[0.02]" : ""
+              className={`w-full text-left px-4 py-4 flex gap-4 items-start transition hover:bg-white/5 focus:outline-none ${
+                !n.is_read ? "bg-white/[0.04]" : ""
               }`}
             >
+              {/* Poster */}
               <img
                 src={n.anime_poster || "/placeholder_poster.png"}
                 alt={n.anime_title}
-                className="w-14 h-20 object-cover rounded"
+                className="w-14 h-20 object-cover rounded-md flex-shrink-0"
               />
-              <div className="flex-1">
-                <div className="flex justify-between items-start gap-4">
-                  <div className="flex-1">
+
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between gap-4">
+                  <div className="min-w-0">
                     <div className="font-semibold text-white truncate">
                       {n.anime_title || "Unknown Anime"}
                     </div>
@@ -121,9 +136,16 @@ export default function Notifications() {
                     {timeAgo(n.created_at)}
                   </div>
                 </div>
+
                 {n.description && (
                   <div className="mt-2 text-sm text-white/50 line-clamp-2">
                     {n.description}
+                  </div>
+                )}
+
+                {!n.is_read && (
+                  <div className="mt-2 text-xs text-green-400">
+                    ● Unread
                   </div>
                 )}
               </div>
@@ -131,12 +153,6 @@ export default function Notifications() {
           ))}
         </div>
       )}
-
-      <div className="mt-6">
-        <Link to="/home" className="text-sm text-white/60 hover:text-white">
-          ← Back to home
-        </Link>
-      </div>
     </div>
   );
 }
