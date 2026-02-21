@@ -140,6 +140,45 @@ export type Database = {
 
         Relationships: []
       }
+
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          anime_id: string
+          anime_title: string
+          anime_poster: string | null
+          episode_num: number
+          notification_type: 'continue_watching' | 'watchlist'
+          is_read: boolean
+          created_at: string
+          updated_at: string
+        }
+
+        Insert: {
+          user_id: string
+          anime_id: string
+          anime_title: string
+          anime_poster?: string | null
+          episode_num: number
+          notification_type: 'continue_watching' | 'watchlist'
+          is_read?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+
+        Update: {
+          anime_id?: string
+          anime_title?: string
+          anime_poster?: string | null
+          episode_num?: number
+          notification_type?: 'continue_watching' | 'watchlist'
+          is_read?: boolean
+          updated_at?: string
+        }
+
+        Relationships: []
+      }
     }
 
     Views: {

@@ -16,6 +16,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { User, LogOut, Bookmark } from "lucide-react";
 import { Button } from "../ui/button";
+import NotificationBell from "../notifications/NotificationBell";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -127,6 +128,9 @@ function Navbar() {
                 </button>
               ))}
             </div>
+
+            {/* Notification Bell */}
+            {user && <NotificationBell />}
 
             {/* User Dropdown */}
             {user ? (
