@@ -13,7 +13,6 @@ export default function Notifications() {
     loading,
     markAsRead,
     markAllAsRead,
-    refetch,
   } = useNotifications();
 
   const navigate = useNavigate();
@@ -81,7 +80,7 @@ export default function Notifications() {
 
   const { today, yesterday, older } = groupNotifications(notifications);
 
-  const renderSection = (title, items) => (
+  const renderSection = (title, items) =>
     items.length > 0 && (
       <div className="mb-8">
         <h2 className="text-sm font-semibold text-white/60 mb-3 px-1">
@@ -140,8 +139,7 @@ export default function Notifications() {
           ))}
         </div>
       </div>
-    )
-  );
+    );
 
   return (
     <div className="max-w-[1600px] mx-auto mt-[72px] px-3 sm:px-6">
@@ -158,27 +156,18 @@ export default function Notifications() {
           )}
         </div>
 
-        <div className="flex gap-2">
-          <button
-            onClick={refetch}
-            className="flex-1 sm:flex-none px-3 py-1.5 rounded-md bg-white/5 text-white/90 hover:bg-white/10 transition"
-          >
-            Refresh
-          </button>
-
-          <button
-            onClick={markAllAsRead}
-            disabled={unreadCount === 0}
-            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-1.5 rounded-md transition ${
-              unreadCount === 0
-                ? "bg-white/5 text-white/40 cursor-not-allowed"
-                : "bg-green-600 text-white hover:bg-green-700"
-            }`}
-          >
-            <Check className="w-4 h-4" />
-            Read all
-          </button>
-        </div>
+        <button
+          onClick={markAllAsRead}
+          disabled={unreadCount === 0}
+          className={`flex items-center justify-center gap-2 px-3 py-1.5 rounded-md transition ${
+            unreadCount === 0
+              ? "bg-white/5 text-white/40 cursor-not-allowed"
+              : "bg-green-600 text-white hover:bg-green-700"
+          }`}
+        >
+          <Check className="w-4 h-4" />
+          Read all
+        </button>
       </div>
 
       {/* Content */}
