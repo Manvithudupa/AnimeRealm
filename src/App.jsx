@@ -1,10 +1,11 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+
 import { HomeInfoProvider } from "./context/HomeInfoContext";
 import { useAuth } from "./hooks/useAuth";
+
 import Home from "./pages/Home/Home";
 import AnimeInfo from "./pages/animeInfo/AnimeInfo";
 import Navbar from "./components/navbar/Navbar";
@@ -12,8 +13,6 @@ import Footer from "./components/footer/Footer";
 import Error from "./components/error/Error";
 import Category from "./pages/category/Category";
 import AtoZ from "./pages/a2z/AtoZ";
-import { azRoute, categoryRoutes } from "./utils/category.utils";
-import "./App.css";
 import Search from "./pages/search/Search";
 import Filter from "./pages/filter/Filter";
 import Watch from "./pages/watch/Watch";
@@ -27,11 +26,14 @@ import Profile from "./pages/Profile/Profile";
 import Watchlist from "./pages/watchlist/Watchlist";
 import Notifications from "./pages/notifications/Notifications";
 
+import { azRoute, categoryRoutes } from "./utils/category.utils";
+import "./App.css";
+
 /* ================= AUTH PROTECTED ROUTE ================= */
 const AuthRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
-  if (loading) return null; // or <Loader />
+  if (loading) return null; // or a Loader component
   if (!user) return <Navigate to="/auth" replace />;
 
   return children;
@@ -62,11 +64,11 @@ function App() {
             <Route path="/auth" element={<Auth />} />
 
             {/* Anime */}
-            <Route path="/:id" element={<AnimeInfo />} />
-            <Route path="/random" element={<AnimeInfo random={true} />} />
+            <Route path="/random" element={<AnimeInfo random />} />
             <Route path="/watch/:id" element={<Watch />} />
+            <Route path="/:id" element={<AnimeInfo />} />
 
-            {/* Protected routes */}
+            {/* Protected Routes */}
             <Route
               path="/profile"
               element={
@@ -84,8 +86,7 @@ function App() {
                 </AuthRoute>
               }
             />
-            
-            // ... inside <Routes> and near other protected routes add:
+
             <Route
               path="/notifications"
               element={
@@ -93,9 +94,9 @@ function App() {
                   <Notifications />
                 </AuthRoute>
               }
-            />            
+            />
 
-            {/* Category routes */}
+            {/* Category Routes */}
             {categoryRoutes.map((path) => (
               <Route
                 key={path}
@@ -109,7 +110,7 @@ function App() {
               />
             ))}
 
-            {/* A–Z routes */}
+            {/* A–Z Routes */}
             {azRoute.map((path) => (
               <Route
                 key={path}
