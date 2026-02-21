@@ -25,6 +25,7 @@ import Contact from "./pages/contact/Contact";
 import Auth from "./pages/Auth/Auth";
 import Profile from "./pages/Profile/Profile";
 import Watchlist from "./pages/watchlist/Watchlist";
+import Notifications from "./pages/notifications/Notifications";
 
 /* ================= AUTH PROTECTED ROUTE ================= */
 const AuthRoute = ({ children }) => {
@@ -83,6 +84,16 @@ function App() {
                 </AuthRoute>
               }
             />
+            
+            // ... inside <Routes> and near other protected routes add:
+            <Route
+              path="/notifications"
+              element={
+                <AuthRoute>
+                  <Notifications />
+                </AuthRoute>
+              }
+            />            
 
             {/* Category routes */}
             {categoryRoutes.map((path) => (
