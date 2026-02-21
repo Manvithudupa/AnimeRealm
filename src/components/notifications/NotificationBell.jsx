@@ -30,7 +30,7 @@ const NotificationBell = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Auto-check on mount when user is logged in, then poll every 5 minutes
+  // Auto-check on mount when user is logged in, then poll every 6 hours
   useEffect(() => {
     if (!user) return;
 
@@ -39,10 +39,7 @@ const NotificationBell = () => {
       refetch();
     };
 
-    // Run immediately when user is available
     runCheck();
-
-    // Then repeat every 6 hours
     const checkInterval = setInterval(runCheck, 6 * 60 * 60 * 1000);
 
     return () => clearInterval(checkInterval);
@@ -88,7 +85,19 @@ const NotificationBell = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 max-w-[calc(100vw-2rem)] bg-[#111]/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-xl overflow-hidden z-[1000001]">
+        <div
+          className="
+            fixed sm:absolute
+            top-16 sm:top-auto
+            left-2 right-2 sm:left-auto sm:right-0
+            mt-2
+            w-[calc(100vw-1rem)] sm:w-96
+            bg-[#111]/95 backdrop-blur-xl
+            rounded-xl border border-white/10
+            shadow-xl overflow-hidden
+            z-[1000001]
+          "
+        >
           {/* Header */}
           <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
             <div>
@@ -97,70 +106,73 @@ const NotificationBell = () => {
                 <p className="text-xs text-white/50">{unreadCount} unread</p>
               )}
             </div>
-            <div className="flex items-center gap-2">
-              {unreadCount > 0 && (
-                <button
-                  onClick={markAllAsRead}
-                  className="text-xs text-white/70 hover:text-white px-2 py-1 rounded hover:bg-white/5 transition-colors"
-                  title="Mark all as read"
-                >
-                  <Check className="w-4 h-4" />
-                </button>
-              )}
-
-            </div>
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllAsRead}
+                className="text-xs text-white/70 hover:text-white px-2 py-1 rounded hover:bg-white/5 transition-colors"
+                title="Mark all as read"
+              >
+                <Check className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
           {/* List */}
-          <div className="max-h-[400px] overflow-y-auto">
+          <div className="max-h-[60vh] sm:max-h-[400px] overflow-y-auto">
             {loading ? (
               <div className="p-8 text-center text-white/50 text-sm">
                 Loading notifications...
               </div>
-            ) : notifications.filter(n => !n.is_read).length === 0 ? (
+            ) : notifications.filter((n) => !n.is_read).length === 0 ? (
               <div className="p-8 text-center text-white/50 text-sm">
                 No notifications yet
               </div>
             ) : (
-              notifications.filter(n => !n.is_read).map((notification) => (
-                <Link
-                  key={notification.id}
-                  to={`/watch/${notification.anime_id}`}
-                  onClick={() => handleNotificationClick(notification)}
-                  className={`block px-4 py-3 border-b border-white/5 hover:bg-white/5 transition-colors ${
-                    !notification.is_read ? "bg-white/[0.02]" : ""
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <img
-                      src={notification.anime_poster || "/placeholder.png"}
-                      alt={notification.anime_title}
-                      className="w-12 h-16 object-cover rounded flex-shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white line-clamp-1">
-                            {notification.anime_title}
-                          </p>
-                          <p className="text-xs text-white/60 mt-0.5">
-                            Episode {notification.episode_num} is now available
-                          </p>
-                          <p className="text-xs text-white/40 mt-1">
-                            {formatTime(notification.created_at)}
-                          </p>
-                        </div>
-                        {!notification.is_read && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1" />
-                        )}
+              notifications
+                .filter((n) => !n.is_read)
+                .map((notification) => (
+                  <Link
+                    key={notification.id}
+                    to={`/watch/${notification.anime_id}`}
+                    onClick={() => handleNotificationClick(notification)}
+                    className={`block px-4 py-3 border-b border-white/5 hover:bg-white/5 transition-colors ${
+                      !notification.is_read ? "bg-white/[0.02]" : ""
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={notification.anime_poster || "/placeholder.png"}
+                        alt={notification.anime_title}
+                        className="w-12 h-16 object-cover rounded flex-shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white line-clamp-1">
+                          {notification.anime_title}
+                        </p>
+                        <p className="text-xs text-white/60 mt-0.5">
+                          Episode {notification.episode_num} is now available
+                        </p>
+                        <p className="text-xs text-white/40 mt-1">
+                          {formatTime(notification.created_at)}
+                        </p>
                       </div>
+                      {!notification.is_read && (
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-1 flex-shrink-0" />
+                      )}
                     </div>
-
-                  </div>
-                </Link>
-              ))
+                  </Link>
+                ))
             )}
           </div>
+
+          {/* Footer */}
+          <Link
+            to="/notifications"
+            onClick={() => setIsOpen(false)}
+            className="block text-center text-sm text-white/70 hover:text-white py-3 bg-white/[0.02] hover:bg-white/[0.04] transition"
+          >
+            View all notifications
+          </Link>
         </div>
       )}
     </div>
