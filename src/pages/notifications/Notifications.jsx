@@ -55,23 +55,24 @@ export default function Notifications() {
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto mt-[80px] px-4">
+    <div className="max-w-[1600px] mx-auto mt-[72px] px-3 sm:px-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div className="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Notifications</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">
+            Notifications
+          </h1>
           {unreadCount > 0 && (
             <p className="text-sm text-white/60 mt-1">
-              You have {unreadCount} unread notification
-              {unreadCount > 1 ? "s" : ""}
+              {unreadCount} unread
             </p>
           )}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex gap-2">
           <button
             onClick={refetch}
-            className="px-3 py-1.5 rounded-md bg-white/5 text-white/90 hover:bg-white/10 transition"
+            className="flex-1 sm:flex-none px-3 py-1.5 rounded-md bg-white/5 text-white/90 hover:bg-white/10 transition"
           >
             Refresh
           </button>
@@ -79,24 +80,24 @@ export default function Notifications() {
           <button
             onClick={markAllAsRead}
             disabled={unreadCount === 0}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md transition ${
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-1.5 rounded-md transition ${
               unreadCount === 0
                 ? "bg-white/5 text-white/40 cursor-not-allowed"
                 : "bg-green-600 text-white hover:bg-green-700"
             }`}
           >
             <Check className="w-4 h-4" />
-            Mark all read
+            Read all
           </button>
         </div>
       </div>
 
       {/* Empty State */}
       {!notifications || notifications.length === 0 ? (
-        <div className="p-12 text-center rounded-xl bg-white/[0.03] text-white/60">
-          <p className="text-lg font-medium">No notifications yet</p>
+        <div className="p-10 text-center rounded-xl bg-white/[0.03] text-white/60">
+          <p className="text-base font-medium">No notifications yet</p>
           <p className="text-sm mt-2">
-            We’ll notify you when something important happens 👀
+            Updates about your anime will appear here ✨
           </p>
         </div>
       ) : (
@@ -105,7 +106,7 @@ export default function Notifications() {
             <button
               key={n.id}
               onClick={() => handleNotificationClick(n)}
-              className={`w-full text-left px-4 py-4 flex gap-4 items-start transition hover:bg-white/5 focus:outline-none ${
+              className={`w-full text-left px-3 py-4 sm:px-4 flex gap-3 sm:gap-4 transition hover:bg-white/5 ${
                 !n.is_read ? "bg-white/[0.04]" : ""
               }`}
             >
@@ -113,26 +114,33 @@ export default function Notifications() {
               <img
                 src={n.anime_poster || "/placeholder_poster.png"}
                 alt={n.anime_title}
-                className="w-14 h-20 object-cover rounded-md flex-shrink-0"
+                className="w-12 h-16 sm:w-14 sm:h-20 object-cover rounded-md flex-shrink-0"
               />
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <div className="flex justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:gap-4">
                   <div className="min-w-0">
-                    <div className="font-semibold text-white truncate">
-                      {n.anime_title || "Unknown Anime"}
+                    <div className="flex items-center gap-2">
+                      {!n.is_read && (
+                        <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
+                      )}
+                      <span className="font-semibold text-white truncate">
+                        {n.anime_title || "Unknown Anime"}
+                      </span>
                     </div>
+
                     <div className="text-sm text-white/60 mt-1">
                       {n.notification_type === "continue_watching"
                         ? `New episode (${n.episode_num ?? "?"}) available`
                         : n.notification_type === "watchlist"
-                        ? "An anime in your watchlist has an update"
+                        ? "Anime in your watchlist updated"
                         : "Notification"}
                     </div>
                   </div>
 
-                  <div className="text-xs text-white/50 whitespace-nowrap">
+                  {/* Time */}
+                  <div className="text-xs text-white/50 mt-1 sm:mt-0 whitespace-nowrap">
                     {timeAgo(n.created_at)}
                   </div>
                 </div>
@@ -140,12 +148,6 @@ export default function Notifications() {
                 {n.description && (
                   <div className="mt-2 text-sm text-white/50 line-clamp-2">
                     {n.description}
-                  </div>
-                )}
-
-                {!n.is_read && (
-                  <div className="mt-2 text-xs text-green-400">
-                    ● Unread
                   </div>
                 )}
               </div>
