@@ -14,7 +14,7 @@ import WebSearch from "../searchbar/WebSearch";
 import MobileSearch from "../searchbar/MobileSearch";
 import { useAuth } from "../../hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { User, LogOut, Bookmark } from "lucide-react";
+import { User, LogOut, Bookmark, Bell } from "lucide-react";
 import { Button } from "../ui/button";
 import NotificationBell from "../notifications/NotificationBell";
 
@@ -68,7 +68,9 @@ function Navbar() {
     <SearchProvider>
       <nav
         className={`fixed top-0 left-0 right-0 z-[1000000] transition-all duration-300 ease-in-out bg-[#0a0a0a] ${
-          isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"
+          isScrolled
+            ? "bg-opacity-80 backdrop-blur-md shadow-lg"
+            : "bg-opacity-100"
         }`}
       >
         <div className="w-full h-16 flex items-center justify-between px-2 sm:px-4 max-w-[1920px] mx-auto">
@@ -86,10 +88,10 @@ function Navbar() {
               />
             </button>
             <Link to="/home" className="flex-shrink-0 block">
-              <img 
-                src="/logo.png" 
-                alt="Logo" 
-                className="h-7 sm:h-9 w-auto object-contain max-w-[40px] sm:max-w-none" 
+              <img
+                src="/logo.png"
+                alt="Logo"
+                className="h-7 sm:h-9 w-auto object-contain max-w-[40px] sm:max-w-none"
               />
             </Link>
           </div>
@@ -109,10 +111,10 @@ function Navbar() {
             </div>
           </div>
 
-          {/* RIGHT: User + Language + Mobile Search */}
+          {/* RIGHT */}
           <div className="flex items-center gap-2 sm:gap-2 flex-shrink-0">
-
-            {/* Language Toggle - Desktop */}
+            
+            {/* Language Toggle */}
             <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
               {["EN", "JP"].map((lang) => (
                 <button
@@ -158,20 +160,40 @@ function Navbar() {
                         {profile?.username || user.email}
                       </p>
                     </div>
+
                     <button
-                      onClick={() => { setIsDropdownOpen(false); navigate("/profile"); }}
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        navigate("/profile");
+                      }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
                       <User className="h-4 w-4" />
                       Profile
                     </button>
+
                     <button
-                      onClick={() => { setIsDropdownOpen(false); navigate("/watchlist"); }}
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        navigate("/notifications");
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
+                    >
+                      <Bell className="h-4 w-4" />
+                      Notifications
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        navigate("/watchlist");
+                      }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
                       <Bookmark className="h-4 w-4" />
                       Watchlist
                     </button>
+
                     <button
                       onClick={signOut}
                       className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10"
@@ -183,9 +205,9 @@ function Navbar() {
                 )}
               </div>
             ) : (
-              <Button 
-                size="sm" 
-                className="text-xs h-8 px-3 sm:text-sm sm:h-9 sm:px-4 flex-shrink-0 bg-[#2a2a2a]/75 text-white border border-white/20 hover:bg-[#3a3a3a]/75 hover:border-white/30 transition-all" 
+              <Button
+                size="sm"
+                className="text-xs h-8 px-3 sm:text-sm sm:h-9 sm:px-4 flex-shrink-0 bg-[#2a2a2a]/75 text-white border border-white/20 hover:bg-[#3a3a3a]/75 hover:border-white/30 transition-all"
                 onClick={() => navigate("/auth")}
               >
                 Login
@@ -196,19 +218,17 @@ function Navbar() {
             <button
               onClick={() => setIsMobileSearchOpen((prev) => !prev)}
               className="md:hidden w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex-shrink-0"
-              title={isMobileSearchOpen ? "Close Search" : "Search Anime"}
-              aria-label={isMobileSearchOpen ? "Close Search" : "Search Anime"}
+              aria-label="Search Anime"
             >
               <FontAwesomeIcon
                 icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
-                className="text-sm sm:text-base transition-transform duration-200"
-                style={{ transform: isMobileSearchOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                className="text-sm sm:text-base"
               />
             </button>
           </div>
         </div>
 
-        {/* Mobile Search Dropdown */}
+        {/* Mobile Search */}
         {isMobileSearchOpen && (
           <div className="md:hidden bg-[#18181B] shadow-lg">
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
