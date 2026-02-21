@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Bell, Check, Trash2, X } from "lucide-react";
+import { Bell, Check } from "lucide-react";
 import { useNotifications } from "@/src/hooks/useNotifications";
 import { checkNewEpisodes } from "@/src/utils/checkNewEpisodes.utils";
 import { useAuth } from "@/src/hooks/useAuth";
@@ -13,48 +13,40 @@ const NotificationBell = () => {
     loading,
     markAsRead,
     markAllAsRead,
-    deleteNotification,
-    clearAllNotifications,
     refetch,
   } = useNotifications();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isChecking, setIsChecking] = useState(false);
   const dropdownRef = useRef(null);
 
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setIsOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Auto-check on mount when user is logged in, then poll every 5 minutes
   useEffect(() => {
     if (!user) return;
 
-    const checkInterval = setInterval(async () => {
+    const runCheck = async () => {
       await checkNewEpisodes(user.id);
       refetch();
-    }, 5 * 60 * 1000);
+    };
+
+    // Run immediately when user is available
+    runCheck();
+
+    // Then repeat every 6 hours
+    const checkInterval = setInterval(runCheck, 6 * 60 * 60 * 1000);
 
     return () => clearInterval(checkInterval);
   }, [user, refetch]);
-
-  const handleCheckNow = async () => {
-    if (!user || isChecking) return;
-
-    setIsChecking(true);
-    try {
-      await checkNewEpisodes(user.id);
-      await refetch();
-    } finally {
-      setIsChecking(false);
-    }
-  };
 
   const handleNotificationClick = async (notification) => {
     if (!notification.is_read) {
@@ -97,23 +89,15 @@ const NotificationBell = () => {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-96 max-w-[calc(100vw-2rem)] bg-[#111]/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-xl overflow-hidden z-[1000001]">
+          {/* Header */}
           <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
             <div>
               <h3 className="text-sm font-semibold text-white">Notifications</h3>
               {unreadCount > 0 && (
-                <p className="text-xs text-white/50">
-                  {unreadCount} unread
-                </p>
+                <p className="text-xs text-white/50">{unreadCount} unread</p>
               )}
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={handleCheckNow}
-                disabled={isChecking}
-                className="text-xs text-white/70 hover:text-white px-2 py-1 rounded hover:bg-white/5 transition-colors disabled:opacity-50"
-              >
-                {isChecking ? "Checking..." : "Check Now"}
-              </button>
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
@@ -123,29 +107,22 @@ const NotificationBell = () => {
                   <Check className="w-4 h-4" />
                 </button>
               )}
-              {notifications.length > 0 && (
-                <button
-                  onClick={clearAllNotifications}
-                  className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded hover:bg-red-500/10 transition-colors"
-                  title="Clear all"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              )}
+
             </div>
           </div>
 
+          {/* List */}
           <div className="max-h-[400px] overflow-y-auto">
             {loading ? (
               <div className="p-8 text-center text-white/50 text-sm">
                 Loading notifications...
               </div>
-            ) : notifications.length === 0 ? (
+            ) : notifications.filter(n => !n.is_read).length === 0 ? (
               <div className="p-8 text-center text-white/50 text-sm">
                 No notifications yet
               </div>
             ) : (
-              notifications.map((notification) => (
+              notifications.filter(n => !n.is_read).map((notification) => (
                 <Link
                   key={notification.id}
                   to={`/watch/${notification.anime_id}`}
@@ -178,17 +155,7 @@ const NotificationBell = () => {
                         )}
                       </div>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        deleteNotification(notification.id);
-                      }}
-                      className="p-1 hover:bg-red-500/10 rounded transition-colors flex-shrink-0"
-                      title="Delete notification"
-                    >
-                      <X className="w-4 h-4 text-white/40 hover:text-red-400" />
-                    </button>
+
                   </div>
                 </Link>
               ))
