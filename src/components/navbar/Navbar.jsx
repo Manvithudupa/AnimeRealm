@@ -16,6 +16,7 @@ import Sidebar from "../sidebar/Sidebar";
 import { SearchProvider } from "@/src/context/SearchContext";
 import WebSearch from "../searchbar/WebSearch";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import NotificationBell from "../notifications/NotificationBell";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -25,26 +26,27 @@ function Navbar() {
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  const dropdownRef = useRef(null);
 
+  const profileRef = useRef(null);
+
+  /* Scroll effect */
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setIsScrolled(window.scrollY > 0);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  /* Close profile dropdown on outside click */
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
+    const handler = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setIsProfileOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   const handleRandomClick = (e) => {
@@ -57,35 +59,41 @@ function Navbar() {
   return (
     <SearchProvider>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[1000000] transition-all duration-300 ease-in-out bg-[#0a0a0a] ${
+        className={`fixed top-0 left-0 right-0 z-[1000000] transition-all duration-300 bg-[#0a0a0a] ${
           isScrolled
             ? "bg-opacity-80 backdrop-blur-md shadow-lg"
             : "bg-opacity-100"
         }`}
       >
-        <div className="w-full h-16 flex items-center justify-between px-2 sm:px-4 max-w-[1920px] mx-auto">
+        <div className="relative w-full h-16 flex items-center px-2 sm:px-4 max-w-[1920px] mx-auto">
 
           {/* LEFT */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div className="flex items-center gap-3 flex-shrink-0">
             <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+              onClick={() => setIsSidebarOpen(true)}
+              className="p-2 hover:bg-white/5 rounded-lg"
             >
               <FontAwesomeIcon
                 icon={faBars}
-                className="text-base sm:text-xl text-gray-200 hover:text-white"
+                className="text-xl text-gray-200 hover:text-white"
               />
             </button>
 
             <Link to="/home">
-              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+              <h1
+                className="text-lg sm:text-2xl text-white select-none"
+                style={{
+                  fontFamily: "'Zen Dots', sans-serif",
+                  letterSpacing: "0.1em",
+                }}
+              >
                 An!meRealm
               </h1>
             </Link>
           </div>
 
-          {/* CENTER - Search + Random */}
-          <div className="hidden md:flex flex-1 max-w-2xl mx-4 items-center gap-3">
+          {/* CENTER — Search + Random */}
+          <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-3 w-full max-w-2xl">
             <div className="flex-1">
               <WebSearch />
             </div>
@@ -93,7 +101,7 @@ function Navbar() {
             <Link
               to={location.pathname === "/random" ? "#" : "/random"}
               onClick={handleRandomClick}
-              className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center"
+              className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg flex items-center justify-center"
               title="Random Anime"
             >
               <FontAwesomeIcon icon={faRandom} className="text-lg" />
@@ -101,15 +109,15 @@ function Navbar() {
           </div>
 
           {/* RIGHT */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="ml-auto flex items-center gap-2 flex-shrink-0">
 
             {/* Language Toggle */}
-            <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
+            <div className="hidden md:flex bg-[#27272A] rounded-md p-1">
               {["EN", "JP"].map((lang) => (
                 <button
                   key={lang}
                   onClick={() => toggleLanguage(lang)}
-                  className={`px-3 py-1 text-sm font-medium rounded ${
+                  className={`px-3 py-1 text-sm rounded ${
                     language === lang
                       ? "bg-[#3F3F46] text-white"
                       : "text-gray-400 hover:text-white"
@@ -120,23 +128,26 @@ function Navbar() {
               ))}
             </div>
 
-            {/* User Profile */}
+            {/* 🔔 Notifications (own dropdown, untouched) */}
+            {user && <NotificationBell />}
+
+            {/* 👤 Profile Dropdown */}
             {user ? (
-              <div className="relative" ref={dropdownRef}>
-                <button onClick={() => setIsDropdownOpen((p) => !p)}>
-                  <Avatar className="h-8 w-8 sm:h-9 sm:w-9 rounded-md">
+              <div className="relative" ref={profileRef}>
+                <button onClick={() => setIsProfileOpen((p) => !p)}>
+                  <Avatar className="h-9 w-9 rounded-md">
                     <AvatarImage
                       src={profile?.avatar_url || undefined}
-                      className="rounded-md object-cover"
+                      className="object-cover"
                     />
-                    <AvatarFallback className="bg-[#2a2a2a] rounded-md">
-                      <User className="h-4 w-4 text-white/70" />
+                    <AvatarFallback className="bg-[#2a2a2a]">
+                      <User className="h-5 w-5 text-white/70" />
                     </AvatarFallback>
                   </Avatar>
                 </button>
 
-                {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-[#111]/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-xl z-[1000001]">
+                {isProfileOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-[#111]/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-xl z-[1000001] overflow-hidden">
                     <div className="px-4 py-3 border-b border-white/10">
                       <p className="text-sm text-gray-300 truncate">
                         {profile?.username || user.email}
@@ -144,15 +155,22 @@ function Navbar() {
                     </div>
 
                     <button
-                      onClick={() => navigate("/profile")}
+                      onClick={() => {
+                        setIsProfileOpen(false);
+                        navigate("/profile");
+                      }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
                       <User className="h-4 w-4" />
                       Profile
                     </button>
 
+                    {/* ✅ Notifications restored here */}
                     <button
-                      onClick={() => navigate("/notifications")}
+                      onClick={() => {
+                        setIsProfileOpen(false);
+                        navigate("/notifications");
+                      }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
                       <Bell className="h-4 w-4" />
@@ -160,7 +178,10 @@ function Navbar() {
                     </button>
 
                     <button
-                      onClick={() => navigate("/watchlist")}
+                      onClick={() => {
+                        setIsProfileOpen(false);
+                        navigate("/watchlist");
+                      }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
                       <Bookmark className="h-4 w-4" />
@@ -180,17 +201,17 @@ function Navbar() {
             ) : (
               <Button
                 size="sm"
-                className="bg-[#2a2a2a]/75 text-white border border-white/20 hover:bg-[#3a3a3a]/75"
+                className="bg-[#2a2a2a]/75 text-white border border-white/20"
                 onClick={() => navigate("/auth")}
               >
                 Login
               </Button>
             )}
 
-            {/* Mobile Search Button */}
+            {/* Mobile Search */}
             <button
               onClick={() => setIsMobileSearchOpen((p) => !p)}
-              className="md:hidden w-8 h-8 flex items-center justify-center bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg"
+              className="md:hidden w-9 h-9 flex items-center justify-center bg-[#2a2a2a]/75 text-white/60 hover:text-white rounded-lg"
             >
               <FontAwesomeIcon
                 icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
