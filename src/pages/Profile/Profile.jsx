@@ -75,20 +75,36 @@ export const Profile = () => {
     }
   };
 
-  /* ---------- Generate Avatar ---------- */
+  /* ---------- Generate Avatar (ONLY CHANGE) ---------- */
   const generateRandomAvatar = async () => {
     setGenerating(true);
 
     try {
+      const genderMap = {
+        male: "Male",
+        female: "Female",
+        "non-binary": "Non-binary",
+      };
+
+      const anilistGender = genderMap[profile.gender];
+
       const query = `
-        query {
-          Page(page: 1, perPage: 50) {
-            characters(sort: FAVOURITES_DESC) {
+        query ($gender: String, $page: Int) {
+          Page(page: $page, perPage: 50) {
+            characters(
+              sort: FAVOURITES_DESC
+              ${anilistGender ? "gender: $gender" : ""}
+            ) {
               image { large }
             }
           }
         }
       `;
+
+      const variables = {
+        page: Math.floor(Math.random() * 20) + 1,
+        ...(anilistGender && { gender: anilistGender }),
+      };
 
       const response = await fetch("https://graphql.anilist.co", {
         method: "POST",
@@ -96,12 +112,19 @@ export const Profile = () => {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, variables }),
       });
 
       const result = await response.json();
 
-      const characters = result.data.Page.characters;
+      const characters =
+        result?.data?.Page?.characters?.filter(
+          (c) => c?.image?.large
+        ) || [];
+
+      if (!characters.length) {
+        throw new Error("No characters found");
+      }
 
       const random =
         characters[Math.floor(Math.random() * characters.length)];
