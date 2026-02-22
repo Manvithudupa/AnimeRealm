@@ -5,9 +5,12 @@ import {
   faRandom,
   faMagnifyingGlass,
   faXmark,
+  faSun,
+  faMoon,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/src/context/LanguageContext";
+import { useTheme } from "@/src/context/ThemeContext";
 import Sidebar from "../sidebar/Sidebar";
 import { SearchProvider } from "@/src/context/SearchContext";
 import WebSearch from "../searchbar/WebSearch";
@@ -23,6 +26,7 @@ function Navbar() {
   const location = useLocation();
   const { user, profile, signOut } = useAuth();
   const { language, toggleLanguage } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -67,11 +71,9 @@ function Navbar() {
   return (
     <SearchProvider>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[1000000] transition-all duration-300 ease-in-out bg-[#0a0a0a] ${
-          isScrolled
-            ? "bg-opacity-80 backdrop-blur-md shadow-lg"
-            : "bg-opacity-100"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-[1000000] transition-all duration-300 ease-in-out 
+          ${theme === 'dark' ? 'bg-[#0a0a0a]' : 'bg-white border-b border-gray-200'} 
+          ${isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"}`}
       >
         <div className="w-full h-16 flex items-center justify-between px-2 sm:px-4 max-w-[1920px] mx-auto">
           
@@ -84,7 +86,9 @@ function Navbar() {
             >
               <FontAwesomeIcon
                 icon={faBars}
-                className="text-base sm:text-xl text-gray-200 hover:text-white transition-colors"
+                className={`text-base sm:text-xl transition-colors ${
+                  theme === 'dark' ? 'text-gray-200 hover:text-white' : 'text-gray-700 hover:text-black'
+                }`}
               />
             </button>
             <Link to="/home" className="flex-shrink-0 block">
@@ -103,7 +107,10 @@ function Navbar() {
               <Link
                 to={location.pathname === "/random" ? "#" : "/random"}
                 onClick={handleRandomClick}
-                className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center flex-shrink-0"
+                className={`p-[10px] aspect-square rounded-lg transition-colors flex items-center justify-center flex-shrink-0 
+                  ${theme === 'dark' 
+                    ? 'bg-[#2a2a2a]/75 text-white/50 hover:text-white' 
+                    : 'bg-gray-100 text-gray-600 hover:text-black'}`}
                 title="Random Anime"
               >
                 <FontAwesomeIcon icon={faRandom} className="text-lg" />
@@ -114,16 +121,38 @@ function Navbar() {
           {/* RIGHT */}
           <div className="flex items-center gap-2 sm:gap-2 flex-shrink-0">
             
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className={`p-2 rounded-lg transition-colors ${
+                theme === 'dark'
+                  ? 'bg-[#2a2a2a]/75 text-white/50 hover:text-white'
+                  : 'bg-gray-100 text-gray-600 hover:text-black'
+              }`}
+              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+            >
+              <FontAwesomeIcon 
+                icon={theme === 'dark' ? faSun : faMoon} 
+                className="text-lg"
+              />
+            </button>
+
             {/* Language Toggle */}
-            <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
+            <div className={`hidden md:flex items-center gap-2 rounded-md p-1 ${
+              theme === 'dark' ? 'bg-[#27272A]' : 'bg-gray-100'
+            }`}>
               {["EN", "JP"].map((lang) => (
                 <button
                   key={lang}
                   onClick={() => toggleLanguage(lang)}
                   className={`px-3 py-1 text-sm font-medium rounded ${
                     language === lang
-                      ? "bg-[#3F3F46] text-white"
-                      : "text-gray-400 hover:text-white"
+                      ? theme === 'dark'
+                        ? "bg-[#3F3F46] text-white"
+                        : "bg-white text-black shadow-sm"
+                      : theme === 'dark'
+                        ? "text-gray-400 hover:text-white"
+                        : "text-gray-600 hover:text-black"
                   }`}
                 >
                   {lang}
@@ -147,16 +176,28 @@ function Navbar() {
                       src={profile?.avatar_url || undefined}
                       className="rounded-md object-cover"
                     />
-                    <AvatarFallback className="bg-[#2a2a2a] rounded-md flex items-center justify-center">
-                      <User className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
+                    <AvatarFallback className={`rounded-md flex items-center justify-center ${
+                      theme === 'dark' ? 'bg-[#2a2a2a]' : 'bg-gray-200'
+                    }`}>
+                      <User className={`h-4 w-4 sm:h-5 sm:w-5 ${
+                        theme === 'dark' ? 'text-white/70' : 'text-gray-600'
+                      }`} />
                     </AvatarFallback>
                   </Avatar>
                 </button>
 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-[#111]/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-xl overflow-hidden z-[1000001]">
-                    <div className="px-4 py-3 border-b border-white/10">
-                      <p className="text-sm text-gray-300 truncate">
+                  <div className={`absolute right-0 mt-2 w-56 rounded-xl border shadow-xl overflow-hidden z-[1000001] ${
+                    theme === 'dark'
+                      ? 'bg-[#111]/95 border-white/10'
+                      : 'bg-white border-gray-200'
+                  }`}>
+                    <div className={`px-4 py-3 border-b ${
+                      theme === 'dark' ? 'border-white/10' : 'border-gray-200'
+                    }`}>
+                      <p className={`text-sm truncate ${
+                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                      }`}>
                         {profile?.username || user.email}
                       </p>
                     </div>
@@ -166,7 +207,11 @@ function Navbar() {
                         setIsDropdownOpen(false);
                         navigate("/profile");
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
+                      className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
+                        theme === 'dark'
+                          ? 'text-gray-300 hover:bg-white/5'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
                     >
                       <User className="h-4 w-4" />
                       Profile
@@ -177,7 +222,11 @@ function Navbar() {
                         setIsDropdownOpen(false);
                         navigate("/notifications");
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
+                      className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
+                        theme === 'dark'
+                          ? 'text-gray-300 hover:bg-white/5'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
                     >
                       <Bell className="h-4 w-4" />
                       Notifications
@@ -188,7 +237,11 @@ function Navbar() {
                         setIsDropdownOpen(false);
                         navigate("/watchlist");
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
+                      className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
+                        theme === 'dark'
+                          ? 'text-gray-300 hover:bg-white/5'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
                     >
                       <Bookmark className="h-4 w-4" />
                       Watchlist
@@ -196,7 +249,11 @@ function Navbar() {
 
                     <button
                       onClick={signOut}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10"
+                      className={`w-full flex items-center gap-3 px-4 py-3 ${
+                        theme === 'dark'
+                          ? 'text-red-400 hover:bg-red-500/10'
+                          : 'text-red-600 hover:bg-red-50'
+                      }`}
                     >
                       <LogOut className="h-4 w-4" />
                       Logout
@@ -207,7 +264,11 @@ function Navbar() {
             ) : (
               <Button
                 size="sm"
-                className="text-xs h-8 px-3 sm:text-sm sm:h-9 sm:px-4 flex-shrink-0 bg-[#2a2a2a]/75 text-white border border-white/20 hover:bg-[#3a3a3a]/75 hover:border-white/30 transition-all"
+                className={`text-xs h-8 px-3 sm:text-sm sm:h-9 sm:px-4 flex-shrink-0 transition-all ${
+                  theme === 'dark'
+                    ? 'bg-[#2a2a2a]/75 text-white border border-white/20 hover:bg-[#3a3a3a]/75 hover:border-white/30'
+                    : 'bg-white text-black border border-gray-200 hover:bg-gray-50'
+                }`}
                 onClick={() => navigate("/auth")}
               >
                 Login
@@ -217,7 +278,11 @@ function Navbar() {
             {/* Mobile Search */}
             <button
               onClick={() => setIsMobileSearchOpen((prev) => !prev)}
-              className="md:hidden w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex-shrink-0"
+              className={`md:hidden w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg transition-colors flex-shrink-0 ${
+                theme === 'dark'
+                  ? 'bg-[#2a2a2a]/75 text-white/50 hover:text-white'
+                  : 'bg-gray-100 text-gray-600 hover:text-black'
+              }`}
               aria-label="Search Anime"
             >
               <FontAwesomeIcon
@@ -230,7 +295,7 @@ function Navbar() {
 
         {/* Mobile Search */}
         {isMobileSearchOpen && (
-          <div className="md:hidden bg-[#18181B] shadow-lg">
+          <div className={theme === 'dark' ? 'bg-[#18181B]' : 'bg-gray-50 border-t border-gray-200'}>
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
           </div>
         )}
