@@ -87,24 +87,27 @@ export const Profile = () => {
       };
 
       const anilistGender = genderMap[profile.gender];
+      const page = Math.floor(Math.random() * 20) + 1;
 
-      const query = `
+      const queryWithGender = `
         query ($gender: String, $page: Int) {
           Page(page: $page, perPage: 50) {
-            characters(
-              sort: FAVOURITES_DESC
-              ${anilistGender ? "gender: $gender" : ""}
-            ) {
+            characters(sort: FAVOURITES_DESC, gender: $gender) {
               image { large }
             }
           }
         }
       `;
 
-      const variables = {
-        page: Math.floor(Math.random() * 20) + 1,
-        ...(anilistGender && { gender: anilistGender }),
-      };
+      const queryWithoutGender = `
+        query ($page: Int) {
+          Page(page: $page, perPage: 50) {
+            characters(sort: FAVOURITES_DESC) {
+              image { large }
+            }
+          }
+        }
+      `;
 
       const response = await fetch("https://graphql.anilist.co", {
         method: "POST",
@@ -112,10 +115,25 @@ export const Profile = () => {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ query, variables }),
+        body: JSON.stringify(
+          anilistGender
+            ? {
+                query: queryWithGender,
+                variables: { gender: anilistGender, page },
+              }
+            : {
+                query: queryWithoutGender,
+                variables: { page },
+              }
+        ),
       });
 
       const result = await response.json();
+
+      if (result.errors) {
+        console.error(result.errors);
+        throw new Error("AniList error");
+      }
 
       const characters =
         result?.data?.Page?.characters?.filter(
@@ -128,18 +146,15 @@ export const Profile = () => {
 
       const random =
         characters[Math.floor(Math.random() * characters.length)];
-
+ 
       setProfile((p) => ({
         ...p,
         avatar_url: random.image.large,
       }));
 
-      toast({
-        title: "Avatar Updated 👌",
-      });
+      toast({ title: "Avatar Updated 👌" });
     } catch (error) {
       console.error(error);
-
       toast({
         title: "Error",
         description: "Avatar generation failed 😖",
