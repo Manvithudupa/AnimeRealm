@@ -102,11 +102,16 @@ export const Profile = () => {
         genderFilter = Math.random() > 0.5 ? "Male" : "Female";
       }
 
+      // Get random page number between 1-10 for more variety
+      const randomPage = Math.floor(Math.random() * 10) + 1;
+
       const query = `
-        query ($gender: String) {
-          Page(page: 1, perPage: 50) {
-            characters(sort: FAVOURITES_DESC, gender: $gender) {
-              image { large }
+        query {
+          Page(page: ${randomPage}, perPage: 50) {
+            characters(sort: FAVOURITES_DESC, gender: "${genderFilter}") {
+              image {
+                large
+              }
               gender
             }
           }
@@ -119,13 +124,20 @@ export const Profile = () => {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ 
-          query,
-          variables: { gender: genderFilter }
-        }),
+        body: JSON.stringify({ query }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const result = await response.json();
+
+      // Check for API errors
+      if (result.errors) {
+        console.error("API errors:", result.errors);
+        throw new Error(result.errors[0]?.message || "API error");
+      }
 
       // Check if we got characters
       if (!result.data?.Page?.characters || result.data.Page.characters.length === 0) {
@@ -134,8 +146,20 @@ export const Profile = () => {
 
       const characters = result.data.Page.characters;
 
+      // Filter out characters without images
+      const charactersWithImages = characters.filter(
+        (char) => char.image?.large
+      );
+
+      if (charactersWithImages.length === 0) {
+        throw new Error("No characters with images found");
+      }
+
       // Pick a random character
-      const random = characters[Math.floor(Math.random() * characters.length)];
+      const random =
+        charactersWithImages[
+          Math.floor(Math.random() * charactersWithImages.length)
+        ];
 
       setProfile((p) => ({
         ...p,
@@ -151,7 +175,7 @@ export const Profile = () => {
 
       toast({
         title: "Error",
-        description: "Avatar generation failed 😖",
+        description: error.message || "Avatar generation failed 😖",
         variant: "destructive",
       });
     } finally {
