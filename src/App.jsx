@@ -26,6 +26,9 @@ import Profile from "./pages/Profile/Profile";
 import Watchlist from "./pages/watchlist/Watchlist";
 import Notifications from "./pages/notifications/Notifications";
 
+/* 🔑 NEW IMPORT */
+import ResetPassword from "./pages/Auth/ResetPassword";
+
 import { azRoute, categoryRoutes } from "./utils/category.utils";
 import "./App.css";
 
@@ -33,7 +36,7 @@ import "./App.css";
 const AuthRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
-  if (loading) return null; // or a Loader component
+  if (loading) return null;
   if (!user) return <Navigate to="/auth" replace />;
 
   return children;
@@ -62,6 +65,7 @@ function App() {
 
             {/* Auth */}
             <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Anime */}
             <Route path="/random" element={<AnimeInfo random />} />
