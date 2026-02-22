@@ -31,14 +31,12 @@ function Navbar() {
 
   const profileRef = useRef(null);
 
-  /* Scroll effect */
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 0);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  /* Close profile dropdown on outside click */
   useEffect(() => {
     const handler = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -65,7 +63,7 @@ function Navbar() {
             : "bg-opacity-100"
         }`}
       >
-        <div className="relative w-full h-16 flex items-center px-2 sm:px-4 max-w-[1920px] mx-auto">
+        <div className="w-full h-16 flex items-center px-3 sm:px-4 max-w-[1920px] mx-auto">
 
           {/* LEFT */}
           <div className="flex items-center gap-3 flex-shrink-0">
@@ -73,45 +71,49 @@ function Navbar() {
               onClick={() => setIsSidebarOpen(true)}
               className="p-2 hover:bg-white/5 rounded-lg"
             >
-              <FontAwesomeIcon
-                icon={faBars}
-                className="text-xl text-gray-200 hover:text-white"
-              />
+              <FontAwesomeIcon icon={faBars} className="text-white" />
             </button>
 
             <Link to="/home">
               <h1
-                className="text-lg sm:text-2xl text-white select-none"
+                className="text-lg sm:text-2xl text-white font-bold select-none"
                 style={{
-                  fontFamily: "'Zen Dots', sans-serif",
-                  letterSpacing: "0.1em",
+                  fontFamily: "'ZCOOL QingKe HuangYou', sans-serif",
+                  letterSpacing: "0.12em",
                 }}
               >
-                An!meRealm
+                卂几!爪乇尺乇卂ㄥ爪
               </h1>
             </Link>
           </div>
 
-          {/* CENTER — Search + Random */}
-          <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-3 w-full max-w-2xl">
-            <div className="flex-1">
+          {/* CENTER — Filter + Search + Random (MATCHES IMAGE) */}
+          <div className="hidden md:flex items-center gap-2 mx-6">
+            {/* Filter */}
+            <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-white/70 hover:text-white hover:bg-white/5">
+              <span className="text-sm">Filter</span>
+            </button>
+
+            {/* Search */}
+            <div className="w-[360px]">
               <WebSearch />
             </div>
 
+            {/* Random (DIRECTLY NEXT TO SEARCH) */}
             <Link
               to={location.pathname === "/random" ? "#" : "/random"}
               onClick={handleRandomClick}
-              className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg flex items-center justify-center"
+              className="p-2 rounded-lg bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition"
               title="Random Anime"
             >
-              <FontAwesomeIcon icon={faRandom} className="text-lg" />
+              <FontAwesomeIcon icon={faRandom} />
             </Link>
           </div>
 
           {/* RIGHT */}
-          <div className="ml-auto flex items-center gap-2 flex-shrink-0">
+          <div className="ml-auto flex items-center gap-2">
 
-            {/* Language Toggle */}
+            {/* Language */}
             <div className="hidden md:flex bg-[#27272A] rounded-md p-1">
               {["EN", "JP"].map((lang) => (
                 <button
@@ -128,18 +130,15 @@ function Navbar() {
               ))}
             </div>
 
-            {/* 🔔 Notifications (own dropdown, untouched) */}
+            {/* Notifications */}
             {user && <NotificationBell />}
 
-            {/* 👤 Profile Dropdown */}
+            {/* Profile */}
             {user ? (
               <div className="relative" ref={profileRef}>
                 <button onClick={() => setIsProfileOpen((p) => !p)}>
                   <Avatar className="h-9 w-9 rounded-md">
-                    <AvatarImage
-                      src={profile?.avatar_url || undefined}
-                      className="object-cover"
-                    />
+                    <AvatarImage src={profile?.avatar_url || undefined} />
                     <AvatarFallback className="bg-[#2a2a2a]">
                       <User className="h-5 w-5 text-white/70" />
                     </AvatarFallback>
@@ -161,11 +160,9 @@ function Navbar() {
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
-                      <User className="h-4 w-4" />
-                      Profile
+                      <User className="h-4 w-4" /> Profile
                     </button>
 
-                    {/* ✅ Notifications restored here */}
                     <button
                       onClick={() => {
                         setIsProfileOpen(false);
@@ -173,8 +170,7 @@ function Navbar() {
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
-                      <Bell className="h-4 w-4" />
-                      Notifications
+                      <Bell className="h-4 w-4" /> Notifications
                     </button>
 
                     <button
@@ -184,16 +180,14 @@ function Navbar() {
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
-                      <Bookmark className="h-4 w-4" />
-                      Watchlist
+                      <Bookmark className="h-4 w-4" /> Watchlist
                     </button>
 
                     <button
                       onClick={signOut}
                       className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10"
                     >
-                      <LogOut className="h-4 w-4" />
-                      Logout
+                      <LogOut className="h-4 w-4" /> Logout
                     </button>
                   </div>
                 )}
