@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 import { useToast } from "@/src/hooks/use-toast.js";
-import { Loader2, Eye, EyeOff } from "lucide-react"; // Eye icons imported
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/src/hooks/useAuth";
 
 const Auth = () => {
@@ -21,7 +21,11 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // toggle password visibility
+  const [showPassword, setShowPassword] = useState(false);
+
+  /* 🔑 Forgot password state */
+  const [showForgot, setShowForgot] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -95,6 +99,36 @@ const Auth = () => {
     }
   };
 
+  /* 🔐 Forgot password handler */
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      resetEmail,
+      {
+        redirectTo: `${window.location.origin}/reset-password`,
+      }
+    );
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    } else {
+      toast({
+        title: "Check your email 📩",
+        description: "Password reset link sent.",
+      });
+      setShowForgot(false);
+      setResetEmail("");
+    }
+
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-[#0a0a0a] text-white">
       <Card className="w-full max-w-sm bg-[#111] border border-white/10 rounded-xl shadow-lg shadow-black/40">
@@ -116,13 +150,9 @@ const Auth = () => {
           <form onSubmit={handleAuth} className="space-y-4">
             {!isLogin && (
               <div className="space-y-1">
-                <Label className="text-white/80" htmlFor="username">
-                  Username
-                </Label>
+                <Label className="text-white/80">Username</Label>
                 <Input
-                  className="bg-black/40 border-white/10 text-white placeholder:text-white/30"
-                  id="username"
-                  placeholder="your_username"
+                  className="bg-black/40 border-white/10 text-white"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -131,30 +161,21 @@ const Auth = () => {
             )}
 
             <div className="space-y-1">
-              <Label className="text-white/80" htmlFor="email">
-                Email
-              </Label>
+              <Label className="text-white/80">Email</Label>
               <Input
-                className="bg-black/40 border-white/10 text-white placeholder:text-white/30"
-                id="email"
+                className="bg-black/40 border-white/10 text-white"
                 type="email"
-                placeholder="your@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
 
-            {/* Password Input with Eye Icon */}
             <div className="relative space-y-1">
-              <Label className="text-white/80" htmlFor="password">
-                Password
-              </Label>
+              <Label className="text-white/80">Password</Label>
               <Input
-                className="bg-black/40 border-white/10 text-white placeholder:text-white/30 pr-10"
-                id="password"
+                className="bg-black/40 border-white/10 text-white pr-10"
                 type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -163,53 +184,40 @@ const Auth = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white"
+                className="absolute right-2 top-9 text-white/50 hover:text-white"
               >
-                {showPassword ? (
-                  <EyeOff className="w-5 h-5" />
-                ) : (
-                  <Eye className="w-5 h-5" />
-                )}
+                {showPassword ? <EyeOff /> : <Eye />}
               </button>
             </div>
 
-            <Button
-              className="w-full bg-white text-black hover:bg-white/90 transition"
-              type="submit"
-              disabled={loading}
-            >
+            {isLogin && (
+              <button
+                type="button"
+                onClick={() => setShowForgot(true)}
+                className="text-sm text-white/60 hover:text-white underline"
+              >
+                Forgot password?
+              </button>
+            )}
+
+            <Button className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isLogin ? "Sign In" : "Sign Up"}
             </Button>
           </form>
 
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-white/10" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-[#111] px-2 text-white/40">or</span>
-            </div>
-          </div>
-
           <Button
             variant="outline"
-            className="w-full bg-black/40 border-white/10 text-white hover:bg-black/60"
+            className="w-full"
             onClick={handleGoogleSignIn}
           >
-            <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
-              className="w-4 h-4 mr-2"
-              alt=""
-            />
             Google
           </Button>
 
           <div className="text-center text-sm pt-2">
             <button
-              type="button"
               onClick={() => setIsLogin(!isLogin)}
-              className="text-white/70 hover:text-white underline"
+              className="underline"
             >
               {isLogin
                 ? "Don't have an account? Sign up"
@@ -218,6 +226,40 @@ const Auth = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* 🔥 Forgot Password Modal */}
+      {showForgot && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center">
+          <div className="bg-[#111] border border-white/10 rounded-lg p-6 w-full max-w-sm">
+            <h2 className="text-lg font-semibold mb-4">Reset Password</h2>
+
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                required
+              />
+
+              <div className="flex gap-2">
+                <Button className="flex-1" disabled={loading}>
+                  {loading ? "Sending..." : "Send Link"}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setShowForgot(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
