@@ -63,7 +63,7 @@ function Navbar() {
             : "bg-opacity-100"
         }`}
       >
-        <div className="h-16 max-w-[1920px] mx-auto px-4 flex items-center">
+        <div className="relative h-16 max-w-[1920px] mx-auto px-4 flex items-center">
 
           {/* LEFT */}
           <div className="flex items-center gap-3 flex-shrink-0">
@@ -87,14 +87,10 @@ function Navbar() {
             </Link>
           </div>
 
-          {/* CENTER — SEARCH + RANDOM (LOCKED CLUSTER) */}
-          <div className="hidden md:flex items-center gap-3 ml-10 flex-shrink-0">
-            {/* WebSearch stays untouched */}
-            <div className="flex-shrink-0">
-              <WebSearch />
-            </div>
+          {/* CENTER — PERFECTLY CENTERED */}
+          <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-3">
+            <WebSearch />
 
-            {/* Random button — sibling, never overlaps */}
             <Link
               to={location.pathname === "/random" ? "#" : "/random"}
               onClick={handleRandomClick}
@@ -106,7 +102,7 @@ function Navbar() {
           </div>
 
           {/* RIGHT */}
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-2 flex-shrink-0">
 
             {/* Language */}
             <div className="hidden md:flex bg-[#27272A] rounded-md p-1">
@@ -130,10 +126,13 @@ function Navbar() {
 
             {/* Profile */}
             {user ? (
-              <div className="relative" ref={profileRef}>
+              <div className="relative flex-shrink-0" ref={profileRef}>
                 <button onClick={() => setIsProfileOpen((p) => !p)}>
-                  <Avatar className="h-9 w-9 rounded-md">
-                    <AvatarImage src={profile?.avatar_url || undefined} />
+                  <Avatar className="h-9 w-9 aspect-square rounded-md flex-shrink-0">
+                    <AvatarImage
+                      src={profile?.avatar_url || undefined}
+                      className="object-cover"
+                    />
                     <AvatarFallback className="bg-[#2a2a2a]">
                       <User className="h-5 w-5 text-white/70" />
                     </AvatarFallback>
