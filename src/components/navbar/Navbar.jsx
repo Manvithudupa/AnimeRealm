@@ -74,16 +74,12 @@ function Navbar() {
               <FontAwesomeIcon icon={faBars} className="text-white" />
             </button>
 
-            <Link to="/home">
-              <h1
-                className="text-lg sm:text-2xl font-bold text-white select-none"
-                style={{
-                  fontFamily: "'ZCOOL QingKe HuangYou', sans-serif",
-                  letterSpacing: "0.12em",
-                }}
-              >
-                卂几!爪乇尺乇卂ㄥ爪
-              </h1>
+            <Link to="/home" className="flex items-center">
+              <img
+                src="/logo.png"
+                alt="AnimeRealm"
+                className="h-8 sm:h-10 w-auto select-none"
+              />
             </Link>
           </div>
 
