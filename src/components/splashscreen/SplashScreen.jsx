@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./SplashScreen.css";
-import logoTitle from "@/src/config/logoTitle";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleArrowRight,
@@ -148,7 +147,7 @@ function SplashScreen() {
                 to="/home"
                 className="text-[45px] font-extrabold tracking-wide text-white max-[520px]:text-[36px] max-[520px]:text-center"
               >
-                {logoTitle}
+                卂几!爪乇尺乇卂ㄥ爪
               </Link>
 
               {/* SEARCH */}
