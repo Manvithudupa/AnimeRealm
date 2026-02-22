@@ -102,69 +102,83 @@ export const Profile = () => {
         genderFilter = Math.random() > 0.5 ? "Male" : "Female";
       }
 
-      // Get random page number between 1-10 for more variety
-      const randomPage = Math.floor(Math.random() * 10) + 1;
+      // Fetch multiple pages to get more main characters
+      const pagesToFetch = [1, 2, 3]; // First 3 pages have the most popular characters
+      const allCharacters = [];
 
-      const query = `
-        query {
-          Page(page: ${randomPage}, perPage: 50) {
-            characters(sort: FAVOURITES_DESC) {
-              image {
-                large
+      for (const page of pagesToFetch) {
+        const query = `
+          query {
+            Page(page: ${page}, perPage: 50) {
+              characters(sort: FAVOURITES_DESC) {
+                image {
+                  large
+                }
+                gender
+                favourites
               }
-              gender
             }
           }
+        `;
+
+        const response = await fetch("https://graphql.anilist.co", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ query }),
+        });
+
+        if (!response.ok) {
+          console.warn(`Failed to fetch page ${page}`);
+          continue;
         }
-      `;
 
-      const response = await fetch("https://graphql.anilist.co", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ query }),
-      });
+        const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (result.errors) {
+          console.warn(`API errors on page ${page}:`, result.errors);
+          continue;
+        }
+
+        if (result.data?.Page?.characters) {
+          allCharacters.push(...result.data.Page.characters);
+        }
       }
 
-      const result = await response.json();
-
-      // Check for API errors
-      if (result.errors) {
-        console.error("API errors:", result.errors);
-        throw new Error(result.errors[0]?.message || "API error");
-      }
-
-      // Check if we got characters
-      if (!result.data?.Page?.characters || result.data.Page.characters.length === 0) {
+      if (allCharacters.length === 0) {
         throw new Error("No characters found");
       }
 
-      const characters = result.data.Page.characters;
-
       // Filter by gender and ensure they have images
-      const filteredCharacters = characters.filter(
+      const filteredCharacters = allCharacters.filter(
         (char) => char.image?.large && char.gender === genderFilter
       );
 
       // If no characters match the gender, fallback to any character with image
       const charactersToUse = filteredCharacters.length > 0 
         ? filteredCharacters 
-        : characters.filter((char) => char.image?.large);
+        : allCharacters.filter((char) => char.image?.large);
 
       if (charactersToUse.length === 0) {
         throw new Error("No characters with images found");
       }
 
-      // Pick a random character
+      // Sort by favourites to prioritize main/popular characters
+      const sortedCharacters = charactersToUse.sort((a, b) => 
+        (b.favourites || 0) - (a.favourites || 0)
+      );
+
+      // Pick from top 30% of most popular characters for better quality
+      const topCharacters = sortedCharacters.slice(
+        0, 
+        Math.ceil(sortedCharacters.length * 0.3)
+      );
+
+      // Pick a random character from the top picks
       const random =
-        charactersToUse[
-          Math.floor(Math.random() * charactersToUse.length)
-        ];
+        topCharacters[Math.floor(Math.random() * topCharacters.length)];
 
       setProfile((p) => ({
         ...p,
