@@ -564,6 +564,5 @@ export default Profile;
       </main>
     </div>
   );
-};
 
 export default Profile;
