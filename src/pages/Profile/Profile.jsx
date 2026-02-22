@@ -108,7 +108,7 @@ export const Profile = () => {
       const query = `
         query {
           Page(page: ${randomPage}, perPage: 50) {
-            characters(sort: FAVOURITES_DESC, gender: "${genderFilter}") {
+            characters(sort: FAVOURITES_DESC) {
               image {
                 large
               }
@@ -146,19 +146,24 @@ export const Profile = () => {
 
       const characters = result.data.Page.characters;
 
-      // Filter out characters without images
-      const charactersWithImages = characters.filter(
-        (char) => char.image?.large
+      // Filter by gender and ensure they have images
+      const filteredCharacters = characters.filter(
+        (char) => char.image?.large && char.gender === genderFilter
       );
 
-      if (charactersWithImages.length === 0) {
+      // If no characters match the gender, fallback to any character with image
+      const charactersToUse = filteredCharacters.length > 0 
+        ? filteredCharacters 
+        : characters.filter((char) => char.image?.large);
+
+      if (charactersToUse.length === 0) {
         throw new Error("No characters with images found");
       }
 
       // Pick a random character
       const random =
-        charactersWithImages[
-          Math.floor(Math.random() * charactersWithImages.length)
+        charactersToUse[
+          Math.floor(Math.random() * charactersToUse.length)
         ];
 
       setProfile((p) => ({
@@ -168,7 +173,7 @@ export const Profile = () => {
 
       toast({
         title: "Avatar Updated 👌",
-        description: `Generated ${genderFilter.toLowerCase()} character avatar`,
+        description: `Generated ${random.gender?.toLowerCase() || genderFilter.toLowerCase()} character avatar`,
       });
     } catch (error) {
       console.error("Avatar generation error:", error);
