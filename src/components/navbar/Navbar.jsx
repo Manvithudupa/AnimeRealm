@@ -63,7 +63,7 @@ function Navbar() {
             : "bg-opacity-100"
         }`}
       >
-        <div className="w-full h-16 flex items-center px-3 sm:px-4 max-w-[1920px] mx-auto">
+        <div className="h-16 max-w-[1920px] mx-auto px-4 flex items-center">
 
           {/* LEFT */}
           <div className="flex items-center gap-3 flex-shrink-0">
@@ -87,14 +87,14 @@ function Navbar() {
             </Link>
           </div>
 
-          {/* CENTER — SEARCH + RANDOM (FIXED) */}
-          <div className="hidden md:flex items-center gap-2 mx-6">
-            {/* Search (fixed width, no overlap) */}
-            <div className="w-[360px] relative z-10">
+          {/* CENTER — SEARCH + RANDOM (LOCKED CLUSTER) */}
+          <div className="hidden md:flex items-center gap-3 ml-10 flex-shrink-0">
+            {/* WebSearch stays untouched */}
+            <div className="flex-shrink-0">
               <WebSearch />
             </div>
 
-            {/* Random */}
+            {/* Random button — sibling, never overlaps */}
             <Link
               to={location.pathname === "/random" ? "#" : "/random"}
               onClick={handleRandomClick}
@@ -125,7 +125,7 @@ function Navbar() {
               ))}
             </div>
 
-            {/* Notifications (UNCHANGED) */}
+            {/* Notifications */}
             {user && <NotificationBell />}
 
             {/* Profile */}
