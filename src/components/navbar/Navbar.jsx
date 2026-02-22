@@ -69,31 +69,31 @@ function Navbar() {
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 hover:bg-white/5 rounded-lg transition-colors flex-shrink-0"
+              className="p-2 hover:bg-white/5 rounded-lg transition-colors"
             >
               <FontAwesomeIcon
                 icon={faBars}
-                className="text-base sm:text-xl text-gray-200 hover:text-white transition-colors"
+                className="text-base sm:text-xl text-gray-200 hover:text-white"
               />
             </button>
-            <Link to="/home" className="flex-shrink-0 block">
-              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent whitespace-nowrap">
-                AniWave
+
+            <Link to="/home">
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                An!meRealm
               </h1>
             </Link>
           </div>
 
-          {/* CENTER - Search (Desktop) */}
-          <div className="hidden md:block flex-1 max-w-2xl mx-4">
-            <WebSearch />
-          </div>
+          {/* CENTER - Search + Random */}
+          <div className="hidden md:flex flex-1 max-w-2xl mx-4 items-center gap-3">
+            <div className="flex-1">
+              <WebSearch />
+            </div>
 
-          {/* Random Button (Desktop) */}
-          <div className="hidden md:flex items-center gap-3">
             <Link
               to={location.pathname === "/random" ? "#" : "/random"}
               onClick={handleRandomClick}
-              className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center flex-shrink-0"
+              className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center"
               title="Random Anime"
             >
               <FontAwesomeIcon icon={faRandom} className="text-lg" />
@@ -101,7 +101,7 @@ function Navbar() {
           </div>
 
           {/* RIGHT */}
-          <div className="flex items-center gap-2 sm:gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
 
             {/* Language Toggle */}
             <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
@@ -120,26 +120,23 @@ function Navbar() {
               ))}
             </div>
 
-            {/* User Profile or Login */}
+            {/* User Profile */}
             {user ? (
               <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setIsDropdownOpen((prev) => !prev)}
-                  className="flex-shrink-0"
-                >
+                <button onClick={() => setIsDropdownOpen((p) => !p)}>
                   <Avatar className="h-8 w-8 sm:h-9 sm:w-9 rounded-md">
                     <AvatarImage
                       src={profile?.avatar_url || undefined}
                       className="rounded-md object-cover"
                     />
-                    <AvatarFallback className="bg-[#2a2a2a] rounded-md flex items-center justify-center">
-                      <User className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
+                    <AvatarFallback className="bg-[#2a2a2a] rounded-md">
+                      <User className="h-4 w-4 text-white/70" />
                     </AvatarFallback>
                   </Avatar>
                 </button>
 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-[#111]/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-xl overflow-hidden z-[1000001]">
+                  <div className="absolute right-0 mt-2 w-56 bg-[#111]/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-xl z-[1000001]">
                     <div className="px-4 py-3 border-b border-white/10">
                       <p className="text-sm text-gray-300 truncate">
                         {profile?.username || user.email}
@@ -147,10 +144,7 @@ function Navbar() {
                     </div>
 
                     <button
-                      onClick={() => {
-                        setIsDropdownOpen(false);
-                        navigate("/profile");
-                      }}
+                      onClick={() => navigate("/profile")}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
                       <User className="h-4 w-4" />
@@ -158,10 +152,7 @@ function Navbar() {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setIsDropdownOpen(false);
-                        navigate("/notifications");
-                      }}
+                      onClick={() => navigate("/notifications")}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
                       <Bell className="h-4 w-4" />
@@ -169,10 +160,7 @@ function Navbar() {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setIsDropdownOpen(false);
-                        navigate("/watchlist");
-                      }}
+                      onClick={() => navigate("/watchlist")}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
                       <Bookmark className="h-4 w-4" />
@@ -192,22 +180,20 @@ function Navbar() {
             ) : (
               <Button
                 size="sm"
-                className="text-xs h-8 px-3 sm:text-sm sm:h-9 sm:px-4 flex-shrink-0 bg-[#2a2a2a]/75 text-white border border-white/20 hover:bg-[#3a3a3a]/75 hover:border-white/30 transition-all"
+                className="bg-[#2a2a2a]/75 text-white border border-white/20 hover:bg-[#3a3a3a]/75"
                 onClick={() => navigate("/auth")}
               >
                 Login
               </Button>
             )}
 
-            {/* Mobile Search */}
+            {/* Mobile Search Button */}
             <button
-              onClick={() => setIsMobileSearchOpen((prev) => !prev)}
-              className="md:hidden w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex-shrink-0"
-              aria-label="Search Anime"
+              onClick={() => setIsMobileSearchOpen((p) => !p)}
+              className="md:hidden w-8 h-8 flex items-center justify-center bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg"
             >
               <FontAwesomeIcon
                 icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
-                className="text-lg"
               />
             </button>
           </div>
