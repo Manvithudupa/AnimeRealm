@@ -76,7 +76,7 @@ function Navbar() {
 
             <Link to="/home">
               <h1
-                className="text-lg sm:text-2xl text-white font-bold select-none"
+                className="text-lg sm:text-2xl font-bold text-white select-none"
                 style={{
                   fontFamily: "'ZCOOL QingKe HuangYou', sans-serif",
                   letterSpacing: "0.12em",
@@ -87,23 +87,18 @@ function Navbar() {
             </Link>
           </div>
 
-          {/* CENTER — Filter + Search + Random (MATCHES IMAGE) */}
+          {/* CENTER — SEARCH + RANDOM (FIXED) */}
           <div className="hidden md:flex items-center gap-2 mx-6">
-            {/* Filter */}
-            <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-white/70 hover:text-white hover:bg-white/5">
-              <span className="text-sm">Filter</span>
-            </button>
-
-            {/* Search */}
-            <div className="w-[360px]">
+            {/* Search (fixed width, no overlap) */}
+            <div className="w-[360px] relative z-10">
               <WebSearch />
             </div>
 
-            {/* Random (DIRECTLY NEXT TO SEARCH) */}
+            {/* Random */}
             <Link
               to={location.pathname === "/random" ? "#" : "/random"}
               onClick={handleRandomClick}
-              className="p-2 rounded-lg bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition"
+              className="p-2 rounded-lg bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition flex-shrink-0"
               title="Random Anime"
             >
               <FontAwesomeIcon icon={faRandom} />
@@ -130,7 +125,7 @@ function Navbar() {
               ))}
             </div>
 
-            {/* Notifications */}
+            {/* Notifications (UNCHANGED) */}
             {user && <NotificationBell />}
 
             {/* Profile */}
