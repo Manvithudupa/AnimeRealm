@@ -75,16 +75,39 @@ export const Profile = () => {
     }
   };
 
-  /* ---------- Generate Avatar ---------- */
+  /* ---------- Generate Gender-Based Avatar ---------- */
   const generateRandomAvatar = async () => {
+    // Check if gender is selected
+    if (!profile.gender) {
+      toast({
+        title: "Gender Required",
+        description: "Please select your gender first to generate an avatar",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setGenerating(true);
 
     try {
+      // Map gender to AniList gender filter
+      let genderFilter = "";
+      
+      if (profile.gender === "male") {
+        genderFilter = "Male";
+      } else if (profile.gender === "female") {
+        genderFilter = "Female";
+      } else {
+        // For non-binary or prefer-not-to-say, get random from both
+        genderFilter = Math.random() > 0.5 ? "Male" : "Female";
+      }
+
       const query = `
-        query {
+        query ($gender: String) {
           Page(page: 1, perPage: 50) {
-            characters(sort: FAVOURITES_DESC) {
+            characters(sort: FAVOURITES_DESC, gender: $gender) {
               image { large }
+              gender
             }
           }
         }
@@ -96,15 +119,23 @@ export const Profile = () => {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ 
+          query,
+          variables: { gender: genderFilter }
+        }),
       });
 
       const result = await response.json();
 
+      // Check if we got characters
+      if (!result.data?.Page?.characters || result.data.Page.characters.length === 0) {
+        throw new Error("No characters found");
+      }
+
       const characters = result.data.Page.characters;
 
-      const random =
-        characters[Math.floor(Math.random() * characters.length)];
+      // Pick a random character
+      const random = characters[Math.floor(Math.random() * characters.length)];
 
       setProfile((p) => ({
         ...p,
@@ -113,9 +144,10 @@ export const Profile = () => {
 
       toast({
         title: "Avatar Updated 👌",
+        description: `Generated ${genderFilter.toLowerCase()} character avatar`,
       });
     } catch (error) {
-      console.error(error);
+      console.error("Avatar generation error:", error);
 
       toast({
         title: "Error",
@@ -229,7 +261,7 @@ export const Profile = () => {
                   type="button"
                   size="sm"
                   onClick={generateRandomAvatar}
-                  disabled={generating}
+                  disabled={generating || !profile.gender}
                   className="bg-white hover:bg-gray-200
                   text-black font-medium
                   px-4 py-2 rounded-lg
@@ -249,6 +281,12 @@ export const Profile = () => {
                     </>
                   )}
                 </Button>
+                
+                {!profile.gender && (
+                  <p className="text-xs text-white/50 text-center">
+                    Select gender to generate avatar
+                  </p>
+                )}
               </div>
 
               {/* Username */}
