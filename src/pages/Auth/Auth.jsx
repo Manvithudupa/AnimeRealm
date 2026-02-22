@@ -15,6 +15,45 @@ import { useToast } from "@/src/hooks/use-toast.js";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/src/hooks/useAuth";
 
+/* ================= RATE LIMIT CONFIG ================= */
+const RESET_LIMIT_HOURS = 24;
+
+const canRequestPasswordReset = () => {
+  const lastRequest = localStorage.getItem("password_reset_last_request");
+  if (!lastRequest) return true;
+
+  const diff =
+    (Date.now() - Number(lastRequest)) / (1000 * 60 * 60);
+
+  return diff >= RESET_LIMIT_HOURS;
+};
+
+const getRemainingResetTime = () => {
+  const lastRequest = localStorage.getItem("password_reset_last_request");
+  if (!lastRequest) return null;
+
+  const remaining =
+    RESET_LIMIT_HOURS * 60 * 60 * 1000 -
+    (Date.now() - Number(lastRequest));
+
+  if (remaining <= 0) return null;
+
+  const hours = Math.floor(remaining / (1000 * 60 * 60));
+  const minutes = Math.floor(
+    (remaining % (1000 * 60 * 60)) / (1000 * 60)
+  );
+
+  return `${hours}h ${minutes}m`;
+};
+
+const markPasswordResetRequest = () => {
+  localStorage.setItem(
+    "password_reset_last_request",
+    Date.now().toString()
+  );
+};
+/* ===================================================== */
+
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
@@ -23,7 +62,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  /* 🔑 Forgot password state */
+  /* Forgot password */
   const [showForgot, setShowForgot] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
 
@@ -99,9 +138,22 @@ const Auth = () => {
     }
   };
 
-  /* 🔐 Forgot password handler */
+  /* ================= FORGOT PASSWORD ================= */
   const handleForgotPassword = async (e) => {
     e.preventDefault();
+
+    if (!canRequestPasswordReset()) {
+      const timeLeft = getRemainingResetTime();
+      toast({
+        variant: "destructive",
+        title: "Reset limit reached",
+        description: timeLeft
+          ? `Try again in ${timeLeft}.`
+          : "You can only reset your password once per day.",
+      });
+      return;
+    }
+
     setLoading(true);
 
     const { error } = await supabase.auth.resetPasswordForEmail(
@@ -118,16 +170,20 @@ const Auth = () => {
         description: error.message,
       });
     } else {
+      markPasswordResetRequest();
+
       toast({
         title: "Check your email 📩",
         description: "Password reset link sent.",
       });
+
       setShowForgot(false);
       setResetEmail("");
     }
 
     setLoading(false);
   };
+  /* =================================================== */
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-[#0a0a0a] text-white">
@@ -135,11 +191,11 @@ const Auth = () => {
         <CardHeader className="text-center space-y-2 pb-2">
           <img src="/logo.png" alt="Logo" className="mx-auto h-16 w-auto" />
 
-          <CardTitle className="text-2xl font-semibold text-white">
+          <CardTitle className="text-2xl font-semibold">
             {isLogin ? "Sign In" : "Create Account"}
           </CardTitle>
 
-          <CardDescription className="text-sm text-white/40">
+          <CardDescription className="text-white/40">
             {isLogin
               ? "Welcome back to AnimeRealm!"
               : "Join us and start watching anime."}
@@ -186,7 +242,11 @@ const Auth = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-2 top-9 text-white/50 hover:text-white"
               >
-                {showPassword ? <EyeOff /> : <Eye />}
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </button>
             </div>
 
@@ -200,24 +260,45 @@ const Auth = () => {
               </button>
             )}
 
-            <Button className="w-full" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button
+              className="w-full bg-white text-black hover:bg-white/90"
+              disabled={loading}
+            >
+              {loading && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               {isLogin ? "Sign In" : "Sign Up"}
             </Button>
           </form>
 
+          {/* OR divider */}
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-white/10" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-[#111] px-2 text-white/40">or</span>
+            </div>
+          </div>
+
+          {/* Google */}
           <Button
             variant="outline"
-            className="w-full"
+            className="w-full bg-black/40 border-white/10 text-white hover:bg-black/60"
             onClick={handleGoogleSignIn}
           >
-            Google
+            <img
+              src="https://www.svgrepo.com/show/475656/google-color.svg"
+              className="w-4 h-4 mr-2"
+              alt="Google"
+            />
+            Continue with Google
           </Button>
 
           <div className="text-center text-sm pt-2">
             <button
               onClick={() => setIsLogin(!isLogin)}
-              className="underline"
+              className="text-white/70 hover:text-white underline"
             >
               {isLogin
                 ? "Don't have an account? Sign up"
@@ -227,11 +308,13 @@ const Auth = () => {
         </CardContent>
       </Card>
 
-      {/* 🔥 Forgot Password Modal */}
+      {/* ===== FORGOT PASSWORD MODAL ===== */}
       {showForgot && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center">
           <div className="bg-[#111] border border-white/10 rounded-lg p-6 w-full max-w-sm">
-            <h2 className="text-lg font-semibold mb-4">Reset Password</h2>
+            <h2 className="text-lg font-semibold mb-4">
+              Reset Password
+            </h2>
 
             <form onSubmit={handleForgotPassword} className="space-y-4">
               <Input
@@ -244,9 +327,8 @@ const Auth = () => {
 
               <div className="flex gap-2">
                 <Button className="flex-1" disabled={loading}>
-                  {loading ? "Sending..." : "Send Link"}
+                  Send Link
                 </Button>
-
                 <Button
                   type="button"
                   variant="outline"
