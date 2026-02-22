@@ -78,7 +78,7 @@ function Navbar() {
               <img
                 src="/logo.png"
                 alt="AnimeRealm"
-                className="h-[clamp(0.9rem,1.8vw,1.45rem)] w-auto select-none opacity-90"
+                className="h-[clamp(0.9rem,1.8vw,1.45rem)] w-auto select-none"
               />
             </Link>
           </div>
