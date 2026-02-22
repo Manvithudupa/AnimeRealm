@@ -1,18 +1,24 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/src/integrations/supabase/client";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/src/components/ui/card";
 import { useToast } from "@/src/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
 
-  const handleUpdate = async (e) => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleUpdatePassword = async (e) => {
     e.preventDefault();
     setLoading(true);
 
@@ -26,28 +32,30 @@ const ResetPassword = () => {
         title: "Error",
         description: error.message,
       });
-    } else {
-      toast({
-        title: "Password updated ✅",
-        description: "You can now sign in.",
-      });
-      navigate("/auth");
+      setLoading(false);
+      return;
     }
 
-    setLoading(false);
+    // ✅ Sign out after password update
+    await supabase.auth.signOut();
+
+    toast({
+      title: "Password updated ✅",
+      description: "Please sign in again with your new password.",
+    });
+
+    navigate("/auth");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
-      <Card className="w-full max-w-sm bg-[#111] border-white/10">
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] text-white px-4">
+      <Card className="w-full max-w-sm bg-[#111] border border-white/10">
         <CardHeader>
-          <CardTitle className="text-white text-center">
-            Reset Password
-          </CardTitle>
+          <CardTitle className="text-center">Reset Password</CardTitle>
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleUpdate} className="space-y-4">
+          <form onSubmit={handleUpdatePassword} className="space-y-4">
             <Input
               type="password"
               placeholder="New password"
@@ -58,7 +66,7 @@ const ResetPassword = () => {
             />
 
             <Button className="w-full" disabled={loading}>
-              {loading ? "Updating..." : "Update password"}
+              {loading ? "Updating..." : "Update Password"}
             </Button>
           </form>
         </CardContent>
