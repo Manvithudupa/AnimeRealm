@@ -1,4 +1,5 @@
 import { LanguageProvider } from './context/LanguageContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './hooks/useAuth';
 import { Toaster } from "@/src/components/ui/toaster";
 import { createRoot } from 'react-dom/client';
@@ -7,12 +8,14 @@ import App from './App.jsx';
 import './index.css';
 
 createRoot(document.getElementById('root')).render(
-  <LanguageProvider>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-        <Toaster /> {/* <-- ADD THIS */}
-      </AuthProvider>
-    </BrowserRouter>
-  </LanguageProvider>
+  <ThemeProvider>
+    <LanguageProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <App />
+          <Toaster />
+        </AuthProvider>
+      </BrowserRouter>
+    </LanguageProvider>
+  </ThemeProvider>
 );
