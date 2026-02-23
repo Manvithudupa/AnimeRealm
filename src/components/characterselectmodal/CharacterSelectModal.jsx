@@ -2,12 +2,6 @@ import { useState, useEffect } from "react";
 import { X, Loader2, Search } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/src/components/ui/dialog";
 import { useToast } from "@/src/hooks/use-toast.js";
 
 export const CharacterSelectModal = ({ isOpen, onClose, onSelect, gender }) => {
@@ -17,7 +11,6 @@ export const CharacterSelectModal = ({ isOpen, onClose, onSelect, gender }) => {
   const [expandedAnime, setExpandedAnime] = useState(null);
   const [characters, setCharacters] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("avatar");
 
   useEffect(() => {
     if (isOpen) {
@@ -152,50 +145,29 @@ export const CharacterSelectModal = ({ isOpen, onClose, onSelect, gender }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] bg-[#0a0a0a] border-white/25 text-white">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold">
-            Select Image
+      <DialogContent className="w-[95vw] max-w-md max-h-[85vh] bg-[#0a0a0a] border border-white/25 text-white rounded-xl p-0 overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="px-4 py-3 border-b border-white/10 flex-shrink-0">
+          <DialogTitle className="text-xl font-semibold">
+            Select Avatar
           </DialogTitle>
-        </DialogHeader>
-
-        {/* Tabs */}
-        <div className="flex gap-2 mb-4">
-          <Button
-            onClick={() => setActiveTab("avatar")}
-            className={`flex-1 ${
-              activeTab === "avatar"
-                ? "bg-white text-black"
-                : "bg-transparent border border-white/25 text-white hover:bg-white/10"
-            }`}
-          >
-            Avatar
-          </Button>
-          <Button
-            onClick={() => setActiveTab("banner")}
-            className={`flex-1 ${
-              activeTab === "banner"
-                ? "bg-white text-black"
-                : "bg-transparent border border-white/25 text-white hover:bg-white/10"
-            }`}
-          >
-            Banner
-          </Button>
         </div>
 
         {/* Search */}
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
-          <Input
-            placeholder="Search anime..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-[#111] border-white/25 text-white focus:border-purple-500"
-          />
+        <div className="px-4 py-3 flex-shrink-0">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
+            <Input
+              placeholder="Search anime..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-[#111] border-white/25 text-white focus:border-purple-500 h-9"
+            />
+          </div>
         </div>
 
         {/* Anime List */}
-        <div className="overflow-y-auto space-y-2 pr-2">
+        <div className="overflow-y-auto space-y-2 px-4 pb-4 flex-1">
           {loading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="h-8 w-8 animate-spin text-white/70" />
@@ -235,7 +207,7 @@ export const CharacterSelectModal = ({ isOpen, onClose, onSelect, gender }) => {
 
                   {/* Characters Grid */}
                   {isExpanded && filteredChars.length > 0 && (
-                    <div className="p-3 bg-black/30 grid grid-cols-5 gap-3">
+                    <div className="p-3 bg-black/30 grid grid-cols-4 sm:grid-cols-5 gap-2">
                       {filteredChars.map((character) => (
                         <button
                           key={character.id}
@@ -249,7 +221,7 @@ export const CharacterSelectModal = ({ isOpen, onClose, onSelect, gender }) => {
                             className="w-full h-full object-cover group-hover:scale-110 transition"
                           />
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition flex items-end justify-center pb-1">
-                            <span className="text-[10px] opacity-0 group-hover:opacity-100 transition text-white font-medium text-center px-1 truncate w-full">
+                            <span className="text-[9px] sm:text-[10px] opacity-0 group-hover:opacity-100 transition text-white font-medium text-center px-1 truncate w-full">
                               {character.name.full.split(" ")[0]}
                             </span>
                           </div>
