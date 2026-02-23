@@ -16,7 +16,9 @@ function Watchlist() {
 
   /* ---------- Fetch Watchlist ---------- */
   useEffect(() => {
-    if (!user) return;
+    if (!user || authLoading) return;
+
+    let mounted = true;
 
     const fetchWatchlist = async () => {
       setLoading(true);
@@ -27,12 +29,18 @@ function Watchlist() {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
-      setWatchlist(data || []);
-      setLoading(false);
+      if (mounted) {
+        setWatchlist(data || []);
+        setLoading(false);
+      }
     };
 
     fetchWatchlist();
-  }, [user]);
+
+    return () => {
+      mounted = false;
+    };
+  }, [user?.id, authLoading]);
 
   /* ---------- Remove ---------- */
   const removeFromWatchlist = async (animeId) => {
