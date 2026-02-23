@@ -1,16 +1,6 @@
 import { FaChevronLeft } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faFilm,
-  faRandom,
-  faHome,
-  faClock,
-  faFire,
-  faTv,
-  faPlay,
-  faCirclePlay,
-  faFilePen
-} from "@fortawesome/free-solid-svg-icons";
+import { faFilm, faRandom, faHome, faClock, faFire, faTv, faPlay, faCirclePlay, faFilePen } from "@fortawesome/free-solid-svg-icons";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -42,27 +32,27 @@ const Sidebar = ({ isOpen, onClose }) => {
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
       scrollPosition.current = window.scrollY;
-      document.body.style.position = "fixed";
+      document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollPosition.current}px`;
-      document.body.style.width = "100%";
+      document.body.style.width = '100%';
     } else {
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.width = "";
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
       window.scrollTo(0, scrollPosition.current);
     }
 
     return () => {
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.width = "";
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
     };
   }, [isOpen]);
 
@@ -72,7 +62,6 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   return (
     <div className="sidebar-container" aria-hidden={!isOpen}>
-      {/* OUTSIDE CLICK AREA */}
       {isOpen && (
         <div
           className="sidebar-overlay"
@@ -81,10 +70,9 @@ const Sidebar = ({ isOpen, onClose }) => {
       )}
 
       <aside
-        className={`sidebar-main ${isOpen ? "sidebar-open" : ""}`}
+        className={`sidebar-main ${isOpen ? 'sidebar-open' : ''}`}
         role="dialog"
         aria-modal="true"
-        onClick={(e) => e.stopPropagation()}
       >
         <div className="sidebar-content">
           {/* Header */}
@@ -101,33 +89,33 @@ const Sidebar = ({ isOpen, onClose }) => {
           {/* Quick Actions */}
           <div className="quick-actions">
             <div className="quick-actions-grid">
-              <Link to="/random" className="quick-action-item">
+              <Link
+                to="/random"
+                className="quick-action-item"
+              >
                 <FontAwesomeIcon icon={faRandom} className="text-lg" />
                 <span className="text-xs font-medium">Random</span>
               </Link>
-
-              <Link to="/movie" className="quick-action-item">
+              <Link
+                to="/movie"
+                className="quick-action-item"
+              >
                 <FontAwesomeIcon icon={faFilm} className="text-lg" />
                 <span className="text-xs font-medium">Movie</span>
               </Link>
-
               <div className="quick-action-item">
                 <div className="language-switcher">
                   {["EN", "JP"].map((lang) => (
                     <button
                       key={lang}
                       onClick={() => toggleLanguage(lang)}
-                      className={`lang-button ${
-                        language === lang ? "active" : ""
-                      }`}
+                      className={`lang-button ${language === lang ? 'active' : ''}`}
                     >
                       {lang}
                     </button>
                   ))}
                 </div>
-                <span className="text-xs font-medium text-white/60">
-                  Language
-                </span>
+                <span className="text-xs font-medium text-white/60">Language</span>
               </div>
             </div>
           </div>

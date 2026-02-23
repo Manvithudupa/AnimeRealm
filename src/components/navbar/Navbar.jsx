@@ -16,7 +16,6 @@ import Sidebar from "../sidebar/Sidebar";
 import { SearchProvider } from "@/src/context/SearchContext";
 import WebSearch from "../searchbar/WebSearch";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import NotificationBell from "../notifications/NotificationBell";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -26,25 +25,26 @@ function Navbar() {
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-
-  const profileRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 0);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
-    const handler = (e) => {
-      if (profileRef.current && !profileRef.current.contains(e.target)) {
-        setIsProfileOpen(false);
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
       }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleRandomClick = (e) => {
@@ -57,56 +57,59 @@ function Navbar() {
   return (
     <SearchProvider>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[1000000] transition-all duration-300 bg-[#0a0a0a] ${
+        className={`fixed top-0 left-0 right-0 z-[1000000] transition-all duration-300 ease-in-out bg-[#0a0a0a] ${
           isScrolled
             ? "bg-opacity-80 backdrop-blur-md shadow-lg"
             : "bg-opacity-100"
         }`}
       >
-        <div className="relative h-16 max-w-[1920px] mx-auto px-4 flex items-center">
+        <div className="w-full h-16 flex items-center justify-between px-2 sm:px-4 max-w-[1920px] mx-auto">
 
           {/* LEFT */}
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="p-2 hover:bg-white/5 rounded-lg"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 hover:bg-white/5 rounded-lg transition-colors flex-shrink-0"
             >
-              <FontAwesomeIcon icon={faBars} className="text-white" />
-            </button>
-
-            <Link to="/home" className="flex items-center">
-              <img
-                src="/logo.png"
-                alt="AnimeRealm"
-                className="h-[clamp(0.9rem,1.8vw,1.45rem)] w-auto select-none"
+              <FontAwesomeIcon
+                icon={faBars}
+                className="text-base sm:text-xl text-gray-200 hover:text-white transition-colors"
               />
+            </button>
+            <Link to="/home" className="flex-shrink-0 block">
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent whitespace-nowrap">
+                AniWave
+              </h1>
             </Link>
           </div>
 
-          {/* CENTER — PERFECTLY CENTERED */}
-          <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-3">
+          {/* CENTER - Search (Desktop) */}
+          <div className="hidden md:block flex-1 max-w-2xl mx-4">
             <WebSearch />
+          </div>
 
+          {/* Random Button (Desktop) */}
+          <div className="hidden md:flex items-center gap-3">
             <Link
               to={location.pathname === "/random" ? "#" : "/random"}
               onClick={handleRandomClick}
-              className="p-2 rounded-lg bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition flex-shrink-0"
+              className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center flex-shrink-0"
               title="Random Anime"
             >
-              <FontAwesomeIcon icon={faRandom} />
+              <FontAwesomeIcon icon={faRandom} className="text-lg" />
             </Link>
           </div>
 
           {/* RIGHT */}
-          <div className="ml-auto flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-2 flex-shrink-0">
 
-            {/* Language */}
-            <div className="hidden md:flex bg-[#27272A] rounded-md p-1">
+            {/* Language Toggle */}
+            <div className="hidden md:flex items-center gap-2 bg-[#27272A] rounded-md p-1">
               {["EN", "JP"].map((lang) => (
                 <button
                   key={lang}
                   onClick={() => toggleLanguage(lang)}
-                  className={`px-3 py-1 text-sm rounded ${
+                  className={`px-3 py-1 text-sm font-medium rounded ${
                     language === lang
                       ? "bg-[#3F3F46] text-white"
                       : "text-gray-400 hover:text-white"
@@ -117,26 +120,26 @@ function Navbar() {
               ))}
             </div>
 
-            {/* Notifications */}
-            {user && <NotificationBell />}
-
-            {/* Profile */}
+            {/* User Profile or Login */}
             {user ? (
-              <div className="relative flex-shrink-0" ref={profileRef}>
-                <button onClick={() => setIsProfileOpen((p) => !p)}>
-                  <Avatar className="h-9 w-9 aspect-square rounded-md flex-shrink-0">
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsDropdownOpen((prev) => !prev)}
+                  className="flex-shrink-0"
+                >
+                  <Avatar className="h-8 w-8 sm:h-9 sm:w-9 rounded-md">
                     <AvatarImage
                       src={profile?.avatar_url || undefined}
-                      className="object-cover"
+                      className="rounded-md object-cover"
                     />
-                    <AvatarFallback className="bg-[#2a2a2a]">
-                      <User className="h-5 w-5 text-white/70" />
+                    <AvatarFallback className="bg-[#2a2a2a] rounded-md flex items-center justify-center">
+                      <User className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
                     </AvatarFallback>
                   </Avatar>
                 </button>
 
-                {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-[#111]/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-xl z-[1000001] overflow-hidden">
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-[#111]/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-xl overflow-hidden z-[1000001]">
                     <div className="px-4 py-3 border-b border-white/10">
                       <p className="text-sm text-gray-300 truncate">
                         {profile?.username || user.email}
@@ -145,39 +148,43 @@ function Navbar() {
 
                     <button
                       onClick={() => {
-                        setIsProfileOpen(false);
+                        setIsDropdownOpen(false);
                         navigate("/profile");
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
-                      <User className="h-4 w-4" /> Profile
+                      <User className="h-4 w-4" />
+                      Profile
                     </button>
 
                     <button
                       onClick={() => {
-                        setIsProfileOpen(false);
+                        setIsDropdownOpen(false);
                         navigate("/notifications");
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
-                      <Bell className="h-4 w-4" /> Notifications
+                      <Bell className="h-4 w-4" />
+                      Notifications
                     </button>
 
                     <button
                       onClick={() => {
-                        setIsProfileOpen(false);
+                        setIsDropdownOpen(false);
                         navigate("/watchlist");
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/5"
                     >
-                      <Bookmark className="h-4 w-4" /> Watchlist
+                      <Bookmark className="h-4 w-4" />
+                      Watchlist
                     </button>
 
                     <button
                       onClick={signOut}
                       className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10"
                     >
-                      <LogOut className="h-4 w-4" /> Logout
+                      <LogOut className="h-4 w-4" />
+                      Logout
                     </button>
                   </div>
                 )}
@@ -185,7 +192,7 @@ function Navbar() {
             ) : (
               <Button
                 size="sm"
-                className="bg-[#2a2a2a]/75 text-white border border-white/20"
+                className="text-xs h-8 px-3 sm:text-sm sm:h-9 sm:px-4 flex-shrink-0 bg-[#2a2a2a]/75 text-white border border-white/20 hover:bg-[#3a3a3a]/75 hover:border-white/30 transition-all"
                 onClick={() => navigate("/auth")}
               >
                 Login
@@ -194,11 +201,13 @@ function Navbar() {
 
             {/* Mobile Search */}
             <button
-              onClick={() => setIsMobileSearchOpen((p) => !p)}
-              className="md:hidden w-9 h-9 flex items-center justify-center bg-[#2a2a2a]/75 text-white/60 hover:text-white rounded-lg"
+              onClick={() => setIsMobileSearchOpen((prev) => !prev)}
+              className="md:hidden w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex-shrink-0"
+              aria-label="Search Anime"
             >
               <FontAwesomeIcon
                 icon={isMobileSearchOpen ? faXmark : faMagnifyingGlass}
+                className="text-lg"
               />
             </button>
           </div>
