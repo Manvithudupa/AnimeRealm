@@ -37,11 +37,19 @@ export const useNotifications = () => {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user?.id]); // Only depend on user.id
 
   useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+    let mounted = true;
+
+    if (user?.id && mounted) {
+      fetchNotifications();
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [user?.id, fetchNotifications]);
 
   const markAsRead = async (notificationId) => {
     if (!user) return;
