@@ -2,6 +2,12 @@ import { useState, useEffect } from "react";
 import { X, Loader2, Search } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/src/components/ui/dialog";
 import { useToast } from "@/src/hooks/use-toast.js";
 
 export const CharacterSelectModal = ({ isOpen, onClose, onSelect, gender }) => {
