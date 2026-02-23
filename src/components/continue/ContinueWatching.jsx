@@ -1,7 +1,7 @@
 import { Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Link } from "react-router-dom";
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import "swiper/css";
 import "swiper/css/navigation";
 
@@ -57,7 +57,7 @@ const ContinueWatching = () => {
   /* ===============================
      LOAD WATCHLIST FROM SUPABASE
   =============================== */
-  const loadWatchList = async () => {
+  const loadWatchList = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -87,11 +87,19 @@ const ContinueWatching = () => {
     } catch (err) {
       console.error("Error loading watchlist:", err);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadWatchList();
-  }, []);
+    let mounted = true;
+
+    if (mounted) {
+      loadWatchList();
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [loadWatchList]);
 
   const memoizedWatchList = useMemo(() => watchList, [watchList]);
 
