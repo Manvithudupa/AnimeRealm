@@ -14,16 +14,25 @@ export const Dialog = ({ open, onOpenChange, children }) => {
 
   if (!open) return null;
 
-  return children;
+  const handleBackdropClick = () => {
+    if (onOpenChange) {
+      onOpenChange(false);
+    }
+  };
+
+  return (
+    <div onClick={handleBackdropClick}>
+      {children}
+    </div>
+  );
 };
 
-export const DialogContent = ({ className = "", children, onOpenChange }) => {
+export const DialogContent = ({ className = "", children }) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop - clicking this closes the modal */}
       <div
         className="fixed inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in-0"
-        onClick={() => onOpenChange?.(false)}
       />
 
       {/* Modal Content */}
