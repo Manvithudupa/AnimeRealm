@@ -25,9 +25,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/src/components/ui/select";
-import { Loader2, User, Sparkles } from "lucide-react";
+import { Loader2, User, Pencil } from "lucide-react";
 import { useToast } from "@/src/hooks/use-toast.js";
 import { useNavigate } from "react-router-dom";
+import CharacterSelectModal from "@/src/components/characterselectmodal/CharacterSelectModal";
 
 export const Profile = () => {
   const { user, loading: authLoading } = useAuth();
@@ -35,7 +36,7 @@ export const Profile = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
-  const [generating, setGenerating] = useState(false);
+  const [showCharacterModal, setShowCharacterModal] = useState(false);
 
   const [profile, setProfile] = useState({
     username: "",
@@ -75,56 +76,16 @@ export const Profile = () => {
     }
   };
 
-  /* ---------- Generate Avatar ---------- */
-  const generateRandomAvatar = async () => {
-    setGenerating(true);
+  /* ---------- Handle Character Selection ---------- */
+  const handleCharacterSelect = (imageUrl) => {
+    setProfile((p) => ({
+      ...p,
+      avatar_url: imageUrl,
+    }));
 
-    try {
-      const query = `
-        query {
-          Page(page: 1, perPage: 50) {
-            characters(sort: FAVOURITES_DESC) {
-              image { large }
-            }
-          }
-        }
-      `;
-
-      const response = await fetch("https://graphql.anilist.co", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ query }),
-      });
-
-      const result = await response.json();
-
-      const characters = result.data.Page.characters;
-
-      const random =
-        characters[Math.floor(Math.random() * characters.length)];
-
-      setProfile((p) => ({
-        ...p,
-        avatar_url: random.image.large,
-      }));
-
-      toast({
-        title: "Avatar Updated 👌",
-      });
-    } catch (error) {
-      console.error(error);
-
-      toast({
-        title: "Error",
-        description: "Avatar generation failed 😖",
-        variant: "destructive",
-      });
-    } finally {
-      setGenerating(false);
-    }
+    toast({
+      title: "Avatar Updated 👌",
+    });
   };
 
   /* ---------- Save Profile ---------- */
@@ -187,6 +148,14 @@ export const Profile = () => {
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       <Navbar />
 
+      {/* Character Selection Modal */}
+      <CharacterSelectModal
+        isOpen={showCharacterModal}
+        onClose={() => setShowCharacterModal(false)}
+        onSelect={handleCharacterSelect}
+        gender={profile.gender}
+      />
+
       {/* Main */}
       <main className="flex justify-center px-4 pt-20 pb-12">
         <Card
@@ -214,41 +183,34 @@ export const Profile = () => {
             >
               {/* Avatar */}
               <div className="flex flex-col items-center gap-3">
-                <Avatar className="h-24 w-24 border border-white/20">
-                  <AvatarImage
-                    src={profile.avatar_url || "/default-avatar.png"}
-                    className="object-cover"
-                  />
+                <div className="relative">
+                  <Avatar className="h-24 w-24 border border-white/20">
+                    <AvatarImage
+                      src={profile.avatar_url || "/default-avatar.png"}
+                      className="object-cover"
+                    />
 
-                  <AvatarFallback className="bg-black/50">
-                    <User className="h-10 w-10 text-white/60" />
-                  </AvatarFallback>
-                </Avatar>
+                    <AvatarFallback className="bg-black/50">
+                      <User className="h-10 w-10 text-white/60" />
+                    </AvatarFallback>
+                  </Avatar>
 
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={generateRandomAvatar}
-                  disabled={generating}
-                  className="bg-white hover:bg-gray-200
-                  text-black font-medium
-                  px-4 py-2 rounded-lg
-                  shadow-md transition
-                  disabled:opacity-60
-                  disabled:cursor-not-allowed"
-                >
-                  {generating ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Generate Avatar
-                    </>
-                  )}
-                </Button>
+                  {/* Pencil Icon Button */}
+                  <button
+                    type="button"
+                    onClick={() => setShowCharacterModal(true)}
+                    className="absolute bottom-0 right-0 bg-white hover:bg-gray-200 text-black p-2 rounded-full shadow-lg transition active:scale-95"
+                    title="Change avatar"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                </div>
+
+                {!profile.gender && (
+                  <p className="text-xs text-white/50 text-center">
+                    Select gender to filter characters
+                  </p>
+                )}
               </div>
 
               {/* Username */}
