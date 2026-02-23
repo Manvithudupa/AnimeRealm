@@ -37,13 +37,18 @@ export const checkNewEpisodes = async (userId) => {
 
         if (!episodesData?.episodes?.length) continue;
 
-        const latestEpisodeNum = Math.max(
-          ...episodesData.episodes.map((ep) => ep.episode_no || 0)
+        // Find the latest episode object by episode_no
+        const latestEpisode = episodesData.episodes.reduce((prev, current) =>
+          (current.episode_no || 0) > (prev.episode_no || 0) ? current : prev
         );
+
+        const latestEpisodeNum = latestEpisode.episode_no || 0;
+        const latestEpisodeId = latestEpisode.id; // <-- store this as episode_id
 
         const continueWatchingItem = continueWatching.find(
           (item) => item.anime_id === animeId
         );
+
         if (
           continueWatchingItem &&
           latestEpisodeNum > (continueWatchingItem.episode_num || 0)
@@ -64,6 +69,7 @@ export const checkNewEpisodes = async (userId) => {
               anime_title: continueWatchingItem.title || "Unknown Anime",
               anime_poster: continueWatchingItem.poster,
               episode_num: latestEpisodeNum,
+              episode_id: latestEpisodeId, // <-- added
               notification_type: "continue_watching",
             });
           }
@@ -72,6 +78,7 @@ export const checkNewEpisodes = async (userId) => {
         const watchlistItem = watchlist.find(
           (item) => item.anime_id === animeId
         );
+
         if (watchlistItem && !continueWatchingItem) {
           const { data: existing } = await supabase
             .from("notifications")
@@ -89,6 +96,7 @@ export const checkNewEpisodes = async (userId) => {
               anime_title: watchlistItem.anime_title || "Unknown Anime",
               anime_poster: watchlistItem.anime_poster,
               episode_num: latestEpisodeNum,
+              episode_id: latestEpisodeId, // <-- added
               notification_type: "watchlist",
             });
           }
