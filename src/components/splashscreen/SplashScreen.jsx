@@ -146,11 +146,15 @@ function SplashScreen() {
               {/* LOGO */}
               <Link
                 to="/home"
-                className="text-[45px] font-extrabold tracking-wide text-white max-[520px]:text-[36px] max-[520px]:text-center"
+                className="flex justify-center max-[520px]:justify-center"
               >
-                {logoTitle}
+                <img
+                  src="/logo.png"
+                  alt="AnimeRealm"
+                  className="h-[45px] max-[520px]:h-[36px] w-auto"
+                />
               </Link>
-
+              
               {/* SEARCH */}
               <div className="w-full flex gap-x-3 mt-6">
 
