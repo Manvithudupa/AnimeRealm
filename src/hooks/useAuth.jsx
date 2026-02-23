@@ -18,10 +18,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     let mounted = true;
 
-    // Get initial session
+    // Get initial session FIRST
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
-
+      
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -38,11 +38,11 @@ export const AuthProvider = ({ children }) => {
       }
     });
 
-    // Listen for auth changes
+    // Then listen for changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         if (!mounted) return;
-
+        
         setSession(session);
         setUser(session?.user ?? null);
 
