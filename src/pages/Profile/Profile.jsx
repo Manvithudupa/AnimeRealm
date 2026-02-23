@@ -52,29 +52,37 @@ export const Profile = () => {
 
   /* ---------- Load profile ---------- */
   useEffect(() => {
-    if (user) loadProfile();
-  }, [user]);
+    if (!user || authLoading) return;
 
-  const loadProfile = async () => {
-    try {
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
+    let mounted = true;
 
-      if (data) {
-        setProfile({
-          username: data.username || "",
-          gender: data.gender || "",
-          bio: data.bio || "",
-          avatar_url: data.avatar_url || "",
-        });
+    const loadProfile = async () => {
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
+
+        if (mounted && data) {
+          setProfile({
+            username: data.username || "",
+            gender: data.gender || "",
+            bio: data.bio || "",
+            avatar_url: data.avatar_url || "",
+          });
+        }
+      } catch (error) {
+        console.error("Load profile error:", error);
       }
-    } catch (error) {
-      console.error("Load profile error:", error);
-    }
-  };
+    };
+
+    loadProfile();
+
+    return () => {
+      mounted = false;
+    };
+  }, [user?.id, authLoading]);
 
   /* ---------- Handle Character Selection ---------- */
   const handleCharacterSelect = (imageUrl) => {
