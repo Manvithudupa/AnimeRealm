@@ -16,30 +16,12 @@ export const AuthProvider = ({ children }) => {
   const [profile, setProfile] = useState(null);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
+    let mounted = true;
 
-        if (session?.user) {
-          setTimeout(() => {
-            supabase
-              .from('profiles')
-              .select('avatar_url, username')
-              .eq('user_id', session.user.id)
-              .single()
-              .then(({ data }) => {
-                if (data) setProfile(data);
-              });
-          }, 0);
-        } else {
-          setProfile(null);
-        }
-      }
-    );
-
+    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -51,12 +33,38 @@ export const AuthProvider = ({ children }) => {
           .eq('user_id', session.user.id)
           .single()
           .then(({ data }) => {
-            if (data) setProfile(data);
+            if (mounted && data) setProfile(data);
           });
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!mounted) return;
+
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          supabase
+            .from('profiles')
+            .select('avatar_url, username')
+            .eq('user_id', session.user.id)
+            .single()
+            .then(({ data }) => {
+              if (mounted && data) setProfile(data);
+            });
+        } else {
+          setProfile(null);
+        }
+      }
+    );
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
