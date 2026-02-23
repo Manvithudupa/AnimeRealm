@@ -133,7 +133,7 @@ const NotificationBell = () => {
                 .map((notification) => (
                   <Link
                     key={notification.id}
-                    to={`/watch/${notification.anime_id}`}
+                    to={`/watch/${notification.anime_id}?ep=${notification.episode_id}`}
                     onClick={() => handleNotificationClick(notification)}
                     className={`block px-4 py-3 border-b border-white/5 hover:bg-white/5 transition-colors ${
                       !notification.is_read ? "bg-white/[0.02]" : ""
