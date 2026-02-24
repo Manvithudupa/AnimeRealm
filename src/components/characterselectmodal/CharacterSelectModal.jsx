@@ -24,13 +24,65 @@ export const CharacterSelectModal = ({ isOpen, onClose, onSelect, gender }) => {
     }
   }, [isOpen]);
 
+  // Helper function to filter out duplicate series
+  const filterUniqueAnime = (animeList) => {
+    const seen = new Set();
+    const baseTitles = new Map();
+    
+    return animeList.filter((anime) => {
+      // Get base title (remove season/part indicators)
+      const title = (anime.title.english || anime.title.romaji || "").toLowerCase();
+      
+      // Remove common season/sequel indicators
+      const baseTitle = title
+        .replace(/\s*season\s*\d+/gi, "")
+        .replace(/\s*part\s*\d+/gi, "")
+        .replace(/\s*cour\s*\d+/gi, "")
+        .replace(/\s*\d+(st|nd|rd|th)\s*season/gi, "")
+        .replace(/\s*:\s*.*$/, "") // Remove subtitle after colon
+        .replace(/\s*-\s*.*$/, "") // Remove subtitle after dash
+        .replace(/\s*final\s*season/gi, "")
+        .replace(/\s*the\s*final\s*season/gi, "")
+        .replace(/\s*\(.*?\)/g, "") // Remove content in parentheses
+        .trim();
+      
+      // Check if we've already seen this base title
+      if (baseTitles.has(baseTitle)) {
+        return false;
+      }
+      
+      // Check if this is a sequel/prequel of something we already have
+      const isRelated = anime.relations?.edges?.some(
+        edge => {
+          const relationType = edge.relationType;
+          return (
+            (relationType === "SEQUEL" || 
+             relationType === "PREQUEL" || 
+             relationType === "SIDE_STORY" ||
+             relationType === "ALTERNATIVE") && 
+            seen.has(edge.node.id)
+          );
+        }
+      );
+      
+      if (isRelated) {
+        return false;
+      }
+      
+      // Add to our tracking
+      seen.add(anime.id);
+      baseTitles.set(baseTitle, anime.id);
+      return true;
+    });
+  };
+
   const fetchPopularAnime = async () => {
     setLoading(true);
     try {
       const query = `
         query {
-          Page(page: 1, perPage: 50) {
-            media(type: ANIME, sort: POPULARITY_DESC) {
+          Page(page: 1, perPage: 100) {
+            media(type: ANIME, sort: POPULARITY_DESC, format_not: MUSIC) {
               id
               title {
                 romaji
@@ -38,6 +90,14 @@ export const CharacterSelectModal = ({ isOpen, onClose, onSelect, gender }) => {
               }
               coverImage {
                 medium
+              }
+              relations {
+                edges {
+                  relationType
+                  node {
+                    id
+                  }
+                }
               }
             }
           }
@@ -55,7 +115,9 @@ export const CharacterSelectModal = ({ isOpen, onClose, onSelect, gender }) => {
 
       const result = await response.json();
       if (result.data?.Page?.media) {
-        setAnimeList(result.data.Page.media);
+        // Filter out duplicates and sequels/prequels
+        const uniqueAnime = filterUniqueAnime(result.data.Page.media);
+        setAnimeList(uniqueAnime.slice(0, 50)); // Take top 50 unique
       }
     } catch (error) {
       console.error("Failed to fetch anime:", error);
