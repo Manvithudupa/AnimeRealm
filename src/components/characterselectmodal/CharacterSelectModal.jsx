@@ -18,107 +18,145 @@ export const CharacterSelectModal = ({ isOpen, onClose, onSelect, gender }) => {
   const [characters, setCharacters] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Curated list of popular anime with unique characters
+  const CURATED_ANIME = [
+    { name: "Attack on Titan", id: 16498 },
+    { name: "Demon Slayer", id: 101922 },
+    { name: "My Hero Academia", id: 21459 },
+    { name: "Jujutsu Kaisen", id: 113415 },
+    { name: "One Piece", id: 21 },
+    { name: "Naruto", id: 20 },
+    { name: "Bleach", id: 269 },
+    { name: "Hunter x Hunter", id: 11061 },
+    { name: "Death Note", id: 1535 },
+    { name: "Dragon Ball Z", id: 813 },
+    { name: "Spy x Family", id: 140960 },
+    { name: "Chainsaw Man", id: 127230 },
+    { name: "Tokyo Ghoul", id: 22319 },
+    { name: "Sword Art Online", id: 11757 },
+    { name: "Fullmetal Alchemist: Brotherhood", id: 5114 },
+    { name: "Steins;Gate", id: 9253 },
+    { name: "Code Geass", id: 1575 },
+    { name: "Cowboy Bebop", id: 1 },
+    { name: "Neon Genesis Evangelion", id: 30 },
+    { name: "One Punch Man", id: 21087 },
+    { name: "Mob Psycho 100", id: 21507 },
+    { name: "Vinland Saga", id: 101348 },
+    { name: "Re:Zero", id: 21355 },
+    { name: "Konosuba", id: 21202 },
+    { name: "Overlord", id: 20832 },
+    { name: "The Promised Neverland", id: 101759 },
+    { name: "Dr. Stone", id: 105333 },
+    { name: "Fire Force", id: 105310 },
+    { name: "Black Clover", id: 21954 },
+    { name: "Fairy Tail", id: 6702 },
+    { name: "Haikyuu", id: 20464 },
+    { name: "Kuroko no Basket", id: 11771 },
+    { name: "Food Wars", id: 20923 },
+    { name: "Your Lie in April", id: 20665 },
+    { name: "A Silent Voice", id: 20954 },
+    { name: "Your Name", id: 21519 },
+    { name: "Violet Evergarden", id: 21827 },
+    { name: "Fruits Basket", id: 120 },
+    { name: "Toradora", id: 4224 },
+    { name: "Clannad", id: 2167 },
+    { name: "Angel Beats", id: 6547 },
+    { name: "Anohana", id: 9989 },
+    { name: "Tokyo Revengers", id: 120120 },
+    { name: "86 Eighty-Six", id: 116589 },
+    { name: "Vivy: Fluorite Eye's Song", id: 128546 },
+    { name: "Mushoku Tensei", id: 108465 },
+    { name: "That Time I Got Reincarnated as a Slime", id: 101280 },
+    { name: "The Rising of the Shield Hero", id: 99263 },
+    { name: "Goblin Slayer", id: 101165 },
+    { name: "Jobless Reincarnation", id: 108465 },
+    { name: "Kaguya-sama: Love is War", id: 101921 },
+    { name: "Horimiya", id: 124080 },
+    { name: "Dress-Up Darling", id: 132405 },
+    { name: "Rent-a-Girlfriend", id: 113813 },
+    { name: "Bocchi the Rock", id: 130003 },
+    { name: "Lycoris Recoil", id: 143270 },
+    { name: "Blue Lock", id: 137822 },
+    { name: "Oshi no Ko", id: 150672 },
+    { name: "Frieren: Beyond Journey's End", id: 154587 },
+    { name: "Zom 100", id: 146065 },
+    { name: "Hell's Paradise", id: 119661 },
+    { name: "Wind Breaker", id: 166270 },
+    { name: "Kaiju No.8", id: 143842 },
+    { name: "Solo Leveling", id: 151807 },
+    { name: "Mashle", id: 124085 },
+    { name: "The Apothecary Diaries", id: 139613 },
+    { name: "Shangri-La Frontier", id: 158498 },
+    { name: "Undead Unluck", id: 143289 },
+    { name: "My Dress-Up Darling", id: 132405 },
+    { name: "Spy × Family", id: 140960 },
+    { name: "Eminence in Shadow", id: 130298 },
+    { name: "Classroom of the Elite", id: 98659 },
+    { name: "Rascal Does Not Dream", id: 101291 },
+    { name: "Bunny Girl Senpai", id: 101291 },
+    { name: "No Game No Life", id: 19815 },
+    { name: "The Devil is a Part-Timer", id: 15809 },
+    { name: "Konosuba", id: 21202 }
+  ];
+
   useEffect(() => {
     if (isOpen) {
       fetchPopularAnime();
     }
   }, [isOpen]);
 
-  // Helper function to filter out duplicate series
-  const filterUniqueAnime = (animeList) => {
-    const seen = new Set();
-    const baseTitles = new Map();
-    
-    return animeList.filter((anime) => {
-      // Get base title (remove season/part indicators)
-      const title = (anime.title.english || anime.title.romaji || "").toLowerCase();
-      
-      // Remove common season/sequel indicators
-      const baseTitle = title
-        .replace(/\s*season\s*\d+/gi, "")
-        .replace(/\s*part\s*\d+/gi, "")
-        .replace(/\s*cour\s*\d+/gi, "")
-        .replace(/\s*\d+(st|nd|rd|th)\s*season/gi, "")
-        .replace(/\s*:\s*.*$/, "") // Remove subtitle after colon
-        .replace(/\s*-\s*.*$/, "") // Remove subtitle after dash
-        .replace(/\s*final\s*season/gi, "")
-        .replace(/\s*the\s*final\s*season/gi, "")
-        .replace(/\s*\(.*?\)/g, "") // Remove content in parentheses
-        .trim();
-      
-      // Check if we've already seen this base title
-      if (baseTitles.has(baseTitle)) {
-        return false;
-      }
-      
-      // Check if this is a sequel/prequel of something we already have
-      const isRelated = anime.relations?.edges?.some(
-        edge => {
-          const relationType = edge.relationType;
-          return (
-            (relationType === "SEQUEL" || 
-             relationType === "PREQUEL" || 
-             relationType === "SIDE_STORY" ||
-             relationType === "ALTERNATIVE") && 
-            seen.has(edge.node.id)
-          );
-        }
-      );
-      
-      if (isRelated) {
-        return false;
-      }
-      
-      // Add to our tracking
-      seen.add(anime.id);
-      baseTitles.set(baseTitle, anime.id);
-      return true;
-    });
-  };
-
   const fetchPopularAnime = async () => {
     setLoading(true);
     try {
-      const query = `
-        query {
-          Page(page: 1, perPage: 100) {
-            media(type: ANIME, sort: POPULARITY_DESC, format_not: MUSIC) {
-              id
-              title {
-                romaji
-                english
-              }
-              coverImage {
-                medium
-              }
-              relations {
-                edges {
-                  relationType
-                  node {
-                    id
-                  }
+      // Fetch in batches to avoid rate limiting
+      const batchSize = 20;
+      const allAnime = [];
+      
+      for (let i = 0; i < CURATED_ANIME.length; i += batchSize) {
+        const batch = CURATED_ANIME.slice(i, i + batchSize);
+        const ids = batch.map(anime => anime.id).join(",");
+        
+        const query = `
+          query {
+            Page(page: 1, perPage: ${batchSize}) {
+              media(id_in: [${ids}], type: ANIME) {
+                id
+                title {
+                  romaji
+                  english
+                }
+                coverImage {
+                  medium
                 }
               }
             }
           }
+        `;
+
+        const response = await fetch("https://graphql.anilist.co", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ query }),
+        });
+
+        const result = await response.json();
+        if (result.data?.Page?.media) {
+          allAnime.push(...result.data.Page.media);
         }
-      `;
-
-      const response = await fetch("https://graphql.anilist.co", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ query }),
-      });
-
-      const result = await response.json();
-      if (result.data?.Page?.media) {
-        // Filter out duplicates and sequels/prequels
-        const uniqueAnime = filterUniqueAnime(result.data.Page.media);
-        setAnimeList(uniqueAnime.slice(0, 50)); // Take top 50 unique
+        
+        // Small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 250));
       }
+      
+      // Sort by the order in CURATED_ANIME
+      const sortedAnime = CURATED_ANIME
+        .map(curated => allAnime.find(anime => anime.id === curated.id))
+        .filter(Boolean);
+      
+      setAnimeList(sortedAnime);
     } catch (error) {
       console.error("Failed to fetch anime:", error);
       toast({
