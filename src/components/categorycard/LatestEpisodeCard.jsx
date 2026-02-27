@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import OptimizedImage from "@/src/components/OptimizedImage";
 import { useLanguage } from "@/src/context/LanguageContext";
 
 const LatestEpisodeCard = ({ item, path }) => {
@@ -19,12 +20,14 @@ const LatestEpisodeCard = ({ item, path }) => {
       className="relative cursor-pointer rounded-xl overflow-hidden bg-[#0f0f1a] group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40"
     >
       {/* Thumbnail */}
-      <img
-        src={item.poster}
-        alt={item.title}
-        className="w-full h-48 object-cover"
-        loading="lazy"
-      />
+      <div className="w-full h-48 overflow-hidden">
+        <OptimizedImage
+          src={item.poster}
+          alt={item.title}
+          className="w-full h-48 object-cover"
+          lazy={true}
+        />
+      </div>
 
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
