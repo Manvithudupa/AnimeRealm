@@ -1,6 +1,7 @@
 import { Pagination, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import OptimizedImage from "@/src/components/OptimizedImage";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { Link } from "react-router-dom";
 
@@ -45,12 +46,14 @@ const Trending = ({ trending }) => {
                   "
                 >
                   {/* Poster */}
-                  <img
-                    src={item.poster}
-                    alt={item.title}
-                    title={item.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
+                  <div className="w-full h-full">
+                    <OptimizedImage
+                      src={item.poster}
+                      alt={item.title}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      lazy={true}
+                    />
+                  </div>
 
                   {/* Dark gradient */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />

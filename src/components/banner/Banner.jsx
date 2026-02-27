@@ -7,6 +7,7 @@ import {
   faClock,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
+import OptimizedImage from "@/src/components/OptimizedImage";
 import { useLanguage } from "@/src/context/LanguageContext";
 import "./Banner.css";
 
@@ -18,11 +19,14 @@ function Banner({ item, index }) {
     <section className="spotlight w-full h-full relative">
 
       {/* Background Image */}
-      <img
-        src={item.poster}
-        alt={item.title}
-        className="absolute inset-0 w-full h-full object-cover"
-      />
+      <div className="absolute inset-0 w-full h-full">
+        <OptimizedImage
+          src={item.poster}
+          alt={item.title}
+          className="absolute inset-0 w-full h-full object-cover"
+          lazy={false}
+        />
+      </div>
 
       {/* Overlay */}
       <div className="spotlight-overlay absolute inset-0 z-[1]" />

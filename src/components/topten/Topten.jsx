@@ -4,6 +4,7 @@ import {
   faClosedCaptioning,
   faMicrophone,
 } from "@fortawesome/free-solid-svg-icons";
+import OptimizedImage from "@/src/components/OptimizedImage";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { Link, useNavigate } from "react-router-dom";
 import useToolTipPosition from "@/src/hooks/useToolTipPosition";
@@ -95,14 +96,19 @@ function Topten({ data, className }) {
                 }}
                 className="flex pb-3 relative container items-center group-hover:bg-[#2a2a2a] transition-colors duration-200 rounded-lg p-1.5"
               >
-                <img
-                  src={`${item.poster}`}
-                  alt={item.title}
-                  className="w-[55px] h-[70px] rounded-lg object-cover flex-shrink-0 cursor-pointer shadow-md transition-transform duration-200 group-hover:scale-[1.02]"
+                <div
+                  className="w-[55px] h-[70px] rounded-lg flex-shrink-0 overflow-hidden cursor-pointer shadow-md"
                   onClick={() => navigate(`/watch/${item.id}`)}
                   onMouseEnter={() => handleMouseEnter(item, index)}
                   onMouseLeave={handleMouseLeave}
-                />
+                >
+                  <OptimizedImage
+                    src={item.poster}
+                    alt={item.title}
+                    className="w-[55px] h-[70px] rounded-lg object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+                    lazy={true}
+                  />
+                </div>
 
                 {/* Tooltip positioned near image */}
                 {hoveredItem === item.id + index &&
