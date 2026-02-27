@@ -7,6 +7,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
 import LatestEpisodeCard from "./LatestEpisodeCard.jsx";
+import OptimizedImage from "@/src/components/OptimizedImage";
 import { useLanguage } from "@/src/context/LanguageContext";
 import "./CategoryCard.css";
 
@@ -57,7 +58,7 @@ const CategoryCard = React.memo(
       window.addEventListener("resize", handleResize);
 
       return () => window.removeEventListener("resize", handleResize);
-    }, [getItemsToRender]);
+    }, [categoryPage, data]);
 
     const renderCard = (item, index) => {
       if (label === "Latest Episode") {
@@ -84,7 +85,7 @@ const CategoryCard = React.memo(
                   )
                 }
               >
-                <img src={item.poster} alt={item.title} />
+                <OptimizedImage src={item.poster} alt={item.title} />
 
                 <div className="overlay"></div>
 
