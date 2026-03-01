@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/src/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
-export const useNotifications = () => {
+export const useNotifications = (shouldFetch = true) => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -42,14 +42,14 @@ export const useNotifications = () => {
   useEffect(() => {
     let mounted = true;
 
-    if (user?.id && mounted) {
+    if (shouldFetch && user?.id && mounted) {
       fetchNotifications();
     }
 
     return () => {
       mounted = false;
     };
-  }, [user?.id, fetchNotifications]);
+  }, [shouldFetch, user?.id, fetchNotifications]);
 
   const markAsRead = async (notificationId) => {
     if (!user) return;

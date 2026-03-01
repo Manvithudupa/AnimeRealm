@@ -7,6 +7,11 @@ import { useAuth } from "@/src/hooks/useAuth";
 
 const NotificationBell = () => {
   const { user } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
+  const [hasInitialFetch, setHasInitialFetch] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Lazy-load notifications only when dropdown is opened
   const {
     notifications,
     unreadCount,
@@ -14,10 +19,7 @@ const NotificationBell = () => {
     markAsRead,
     markAllAsRead,
     refetch,
-  } = useNotifications();
-
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  } = useNotifications(hasInitialFetch);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -30,9 +32,16 @@ const NotificationBell = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Auto-check on mount when user is logged in, then poll every 6 hours
+  // Trigger initial fetch when dropdown is first opened
   useEffect(() => {
-    if (!user) return;
+    if (isOpen && !hasInitialFetch) {
+      setHasInitialFetch(true);
+    }
+  }, [isOpen, hasInitialFetch]);
+
+  // Check for new episodes and poll when dropdown is open
+  useEffect(() => {
+    if (!user || !hasInitialFetch) return;
 
     const runCheck = async () => {
       await checkNewEpisodes(user.id);
@@ -43,7 +52,7 @@ const NotificationBell = () => {
     const checkInterval = setInterval(runCheck, 6 * 60 * 60 * 1000);
 
     return () => clearInterval(checkInterval);
-  }, [user, refetch]);
+  }, [user, hasInitialFetch, refetch]);
 
   const handleNotificationClick = async (notification) => {
     if (!notification.is_read) {
