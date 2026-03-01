@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useParams, Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/src/context/LanguageContext";
-import { useHomeInfo } from "@/src/context/HomeInfoContext";
 import { useWatch } from "@/src/hooks/useWatch";
 import BouncingLoader from "@/src/components/ui/bouncingloader/Bouncingloader";
 import IframePlayer from "@/src/components/player/IframePlayer";
@@ -29,7 +28,6 @@ export default function Watch() {
   let initialEpisodeId = queryParams.get("ep");
   const [tags, setTags] = useState([]);
   const { language } = useLanguage();
-  const { homeInfo } = useHomeInfo();
   const isFirstSet = useRef(true);
   const [showNextEpisodeSchedule, setShowNextEpisodeSchedule] = useState(true);
   const {
@@ -596,4 +594,4 @@ export default function Watch() {
       </div>
     </div>
   );
-} 
+}
