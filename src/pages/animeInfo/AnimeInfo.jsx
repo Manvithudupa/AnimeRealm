@@ -6,28 +6,36 @@ import {
   faMicrophone,
   faBookmark,
   faCheck,
+  faStar,
+  faCalendar,
+  faClock,
+  faSignal,
+  faFilm,
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import website_name from "@/src/config/website";
 import CategoryCard from "@/src/components/categorycard/CategoryCard";
-import Sidecard from "@/src/components/sidecard/Sidecard";
 import OptimizedImage from "@/src/components/OptimizedImage";
 import Loader from "@/src/components/Loader/Loader";
 import Error from "@/src/components/error/Error";
 import { useLanguage } from "@/src/context/LanguageContext";
-import { useHomeInfo } from "@/src/context/HomeInfoContext";
 import Voiceactor from "@/src/components/voiceactor/Voiceactor";
 import { supabase } from "@/src/integrations/supabase/client";
 import { useAuth } from "@/src/hooks/useAuth";
 
 /* ---------------- Info Row ---------------- */
-function InfoItem({ label, value }) {
+function InfoItem({ icon, label, value }) {
   if (!value) return null;
   return (
-    <div className="flex justify-between text-sm">
-      <dt className="text-white/50">{label}</dt>
-      <dd className="text-white/90 text-right max-w-[60%] truncate">{value}</dd>
+    <div className="group flex items-center justify-between p-3 rounded-lg hover:bg-white/5 transition-all duration-300">
+      <dt className="flex items-center gap-2 text-sm text-white/50 font-medium">
+        {icon && <FontAwesomeIcon icon={icon} className="text-xs text-white/30" />}
+        {label}
+      </dt>
+      <dd className="text-sm text-white/90 text-right max-w-[60%] font-medium group-hover:text-white transition-colors">
+        {value}
+      </dd>
     </div>
   );
 }
@@ -35,10 +43,22 @@ function InfoItem({ label, value }) {
 /* ---------------- Genre / Tag ---------------- */
 function Tag({ icon, text }) {
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 text-xs text-white/70">
+    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-white/10 to-white/5 border border-white/10 text-xs text-white/90 font-medium hover:from-white/15 hover:to-white/10 hover:border-white/20 transition-all duration-300 backdrop-blur-sm">
       {icon && <FontAwesomeIcon icon={icon} className="text-xs" />}
       {text}
     </span>
+  );
+}
+
+/* ---------------- Genre Pills ---------------- */
+function GenrePill({ genre }) {
+  return (
+    <Link
+      to={`/genre/${genre.toLowerCase().replace(/\s+/g, "-")}`}
+      className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-white/80 hover:bg-white/10 hover:border-white/20 hover:text-white transition-all duration-300 backdrop-blur-sm"
+    >
+      {genre}
+    </Link>
   );
 }
 
@@ -68,7 +88,7 @@ function AnimeInfo({ random = false }) {
       try {
         const data = await getAnimeInfo(id, random);
         setAnimeInfo(data.data);
-        setSeasons(data.seasons || []); // ✅ FIXED: fetch from top-level data
+        setSeasons(data.seasons || []);
       } catch (err) {
         setError(err);
       } finally {
@@ -166,8 +186,6 @@ function AnimeInfo({ random = false }) {
   }
 
   const { title, japanese_title, poster, animeInfo: info } = animeInfo;
-
-  // ✅ FIXED: Define currentId - extract the data_id from current anime
   const currentId = animeInfo?.data_id || animeInfo?.id?.split('-').pop();
 
   const tags = [
@@ -180,57 +198,93 @@ function AnimeInfo({ random = false }) {
   return (
     <div className="min-h-screen bg-black text-white">
 
-      {/* ================= HERO ================= */}
-      <section className="relative pt-14">
-        <div className="relative h-[50vh] overflow-hidden bg-gradient-to-b from-gray-900 to-black">
+      {/* ================= HERO SECTION ================= */}
+      <section className="relative pt-14 overflow-hidden">
+        {/* Backdrop with Enhanced Gradient */}
+        <div className="relative h-[55vh] md:h-[60vh]">
           <div className="absolute inset-0">
             <OptimizedImage
               src={poster}
               alt={title}
-              className="absolute inset-0 w-full h-full object-cover blur-sm scale-105"
+              className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-40"
               lazy={false}
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
+          {/* Multi-layered gradient for depth */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,black_100%)]" />
         </div>
 
-        {/* Info */}
-        <div className="relative -mt-32 mx-auto max-w-7xl px-5">
-          <div className="flex flex-col md:flex-row gap-6">
+        {/* Content Container */}
+        <div className="relative -mt-40 md:-mt-48 mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8">
 
-            {/* Poster */}
-            <div className="relative w-40 md:w-52 aspect-[3/4] rounded-xl overflow-hidden shadow-xl shrink-0 hover:shadow-2xl transition-shadow duration-300">
-              <OptimizedImage
-                src={poster}
-                alt={title}
-                className="w-full h-full object-cover"
-                lazy={false}
-              />
+            {/* Poster Card with Glow Effect */}
+            <div className="relative group shrink-0 mx-auto md:mx-0">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 rounded-2xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative w-44 md:w-56 lg:w-64 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform hover:scale-105 transition-transform duration-500">
+                <OptimizedImage
+                  src={poster}
+                  alt={title}
+                  className="w-full h-full object-cover"
+                  lazy={false}
+                />
+                {/* Subtle overlay on hover */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </div>
             </div>
 
-            {/* Details */}
-            <div className="flex-1 pt-4 md:pt-20 animate-fadeIn">
-              <p className="text-xs uppercase tracking-widest text-white/50 mb-3 font-medium">
-                {info?.Status} · {info?.Premiered} · {info?.Duration}
-              </p>
-
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 leading-tight">
-                {language === "EN" ? title : japanese_title}
-              </h1>
-
-              {japanese_title && language === "EN" && <p className="text-sm text-white/50 mb-5 font-light">{japanese_title}</p>}
-
-              <div className="flex flex-wrap items-center gap-4 text-sm text-white/70 mb-7">
-                {info?.["MAL Score"] && (
-                  <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full">
-                    <span className="text-yellow-400">⭐</span>
-                    <span className="font-semibold">{info["MAL Score"]}</span>
+            {/* Details Section */}
+            <div className="flex-1 pt-4 md:pt-24 space-y-6">
+              
+              {/* Status Bar */}
+              <div className="flex flex-wrap items-center gap-3 text-xs font-medium">
+                {info?.Status && (
+                  <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white/90 backdrop-blur-sm">
+                    <FontAwesomeIcon icon={faSignal} className="text-xs" />
+                    {info.Status}
+                  </span>
+                )}
+                {info?.Premiered && (
+                  <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white/90 backdrop-blur-sm">
+                    <FontAwesomeIcon icon={faCalendar} className="text-xs" />
+                    {info.Premiered}
+                  </span>
+                )}
+                {info?.Duration && (
+                  <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white/90 backdrop-blur-sm">
+                    <FontAwesomeIcon icon={faClock} className="text-xs" />
+                    {info.Duration}
                   </span>
                 )}
               </div>
 
-              {/* Buttons */}
-              <div className="flex flex-wrap items-center gap-3 mb-7">
+              {/* Title */}
+              <div className="space-y-2">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80">
+                  {language === "EN" ? title : japanese_title}
+                </h1>
+                {japanese_title && language === "EN" && (
+                  <p className="text-sm md:text-base text-white/50 font-light tracking-wide">
+                    {japanese_title}
+                  </p>
+                )}
+              </div>
+
+              {/* Rating */}
+              {info?.["MAL Score"] && (
+                <div className="inline-flex items-center gap-3 px-5 py-3 rounded-xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 backdrop-blur-sm">
+                  <FontAwesomeIcon icon={faStar} className="text-yellow-400 text-lg" />
+                  <div className="flex flex-col">
+                    <span className="text-2xl font-bold text-yellow-400">{info["MAL Score"]}</span>
+                    <span className="text-xs text-white/50 font-medium">MAL Score</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3">
                 {info?.Status?.toLowerCase() !== "not-yet-aired" && (
                   <Link
                     to={
@@ -238,22 +292,28 @@ function AnimeInfo({ random = false }) {
                         ? `/watch/${animeInfo.id}?ep=${lastWatchedEpisode.id}`
                         : `/watch/${animeInfo.id}`
                     }
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-white text-black text-sm font-semibold hover:bg-white/95 active:scale-95 transition-all duration-200 shadow-lg"
+                    className="group relative inline-flex items-center gap-3 px-8 py-3.5 rounded-xl bg-white text-black text-sm font-bold overflow-hidden shadow-lg shadow-white/20 hover:shadow-xl hover:shadow-white/30 transition-all duration-300"
                   >
-                    <FontAwesomeIcon icon={faPlay} className="text-xs" />
-                    {lastWatchedEpisode
-                      ? `Continue Ep ${lastWatchedEpisode.num}`
-                      : "Watch Now"}
+                    <div className="absolute inset-0 bg-gradient-to-r from-white to-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <FontAwesomeIcon icon={faPlay} className="relative z-10 text-sm" />
+                    <span className="relative z-10">
+                      {lastWatchedEpisode
+                        ? `Continue Ep ${lastWatchedEpisode.num}`
+                        : "Watch Now"}
+                    </span>
                   </Link>
                 )}
 
                 <button
                   onClick={toggleWatchlist}
                   disabled={watchlistLoading}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-medium transition-all duration-200 active:scale-95 disabled:opacity-50"
+                  className="group relative inline-flex items-center gap-3 px-8 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/30 text-sm font-bold transition-all duration-300 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <FontAwesomeIcon icon={inWatchlist ? faCheck : faBookmark} className="text-xs" />
-                  {inWatchlist ? "Saved" : "Save"}
+                  <FontAwesomeIcon 
+                    icon={inWatchlist ? faCheck : faBookmark} 
+                    className={`text-sm transition-transform duration-300 ${inWatchlist ? 'scale-110' : 'group-hover:scale-110'}`}
+                  />
+                  <span>{inWatchlist ? "In Watchlist" : "Add to Watchlist"}</span>
                 </button>
               </div>
 
@@ -270,114 +330,182 @@ function AnimeInfo({ random = false }) {
         </div>
       </section>
 
-      {/* ================= SYNOPSIS + INFO ================= */}
-      <section className="py-12 px-5 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent">
-        <div className="mx-auto max-w-7xl grid lg:grid-cols-3 gap-8">
+      {/* ================= CONTENT SECTION ================= */}
+      <section className="py-16 px-4 md:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
 
-          {/* Synopsis */}
-          <div className="lg:col-span-2 animate-fadeIn" style={{animationDelay: '100ms'}}>
-            <h2 className="text-xs uppercase tracking-widest text-white/50 mb-5 font-semibold">Overview</h2>
-            <p className="text-white/70 leading-relaxed text-sm md:text-base">
-              {info?.Overview ? (
-                info.Overview.length > 270 ? (
-                  <>
-                    {isFullOverview ? info.Overview : `${info.Overview.slice(0, 270)}...`}
-                    <button
-                      className="ml-2 text-white/60 hover:text-white font-medium transition-colors duration-200"
-                      onClick={() => setIsFullOverview(!isFullOverview)}
-                    >
-                      {isFullOverview ? "Show Less" : "Read More"}
-                    </button>
-                  </>
-                ) : info.Overview
-              ) : (
-                <span className="text-white/50">No description available.</span>
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-10">
+              
+              {/* Synopsis Card */}
+              <div className="group relative p-8 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 backdrop-blur-sm hover:border-white/20 transition-all duration-500">
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="relative z-10">
+                  <h2 className="flex items-center gap-3 text-lg font-bold mb-6 text-white/90">
+                    <div className="w-1 h-6 bg-gradient-to-b from-white to-white/50 rounded-full" />
+                    Synopsis
+                  </h2>
+                  
+                  <div className="prose prose-invert max-w-none">
+                    <p className="text-white/70 leading-relaxed text-sm md:text-base">
+                      {info?.Overview ? (
+                        info.Overview.length > 300 ? (
+                          <>
+                            {isFullOverview ? info.Overview : `${info.Overview.slice(0, 300)}...`}
+                            <button
+                              className="ml-2 inline-flex items-center gap-1 text-sm text-white/60 hover:text-white font-semibold transition-colors duration-200 underline underline-offset-4"
+                              onClick={() => setIsFullOverview(!isFullOverview)}
+                            >
+                              {isFullOverview ? "Show Less" : "Read More"}
+                            </button>
+                          </>
+                        ) : info.Overview
+                      ) : (
+                        <span className="text-white/40 italic">No description available.</span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Genres Section */}
+              {info?.Genres && (
+                <div className="group relative p-8 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 backdrop-blur-sm hover:border-white/20 transition-all duration-500">
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  <div className="relative z-10">
+                    <h2 className="flex items-center gap-3 text-lg font-bold mb-6 text-white/90">
+                      <div className="w-1 h-6 bg-gradient-to-b from-white to-white/50 rounded-full" />
+                      Genres
+                    </h2>
+                    
+                    <div className="flex flex-wrap gap-3">
+                      {info.Genres.split(',').map((genre, idx) => (
+                        <GenrePill key={idx} genre={genre.trim()} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
               )}
-            </p>
-          </div>
+            </div>
 
-          {/* Sidebar Info */}
-          <div className="lg:col-span-1 animate-fadeIn" style={{animationDelay: '200ms'}}>
-            <div className="bg-white/[0.03] rounded-xl p-6 border border-white/10 backdrop-blur-sm hover:bg-white/[0.05] transition-all duration-300">
-              <h3 className="text-xs uppercase tracking-widest text-white/50 mb-5 font-semibold">Information</h3>
-              <dl className="space-y-4">
-                <InfoItem label="Japanese" value={info?.Japanese} />
-                <InfoItem label="Synonyms" value={info?.Synonyms} />
-                <InfoItem label="Aired" value={info?.Aired} />
-                <InfoItem label="Premiered" value={info?.Premiered} />
-                <InfoItem label="Duration" value={info?.Duration} />
-                <InfoItem label="Status" value={info?.Status} />
-                <InfoItem label="MAL Score" value={info?.["MAL Score"]} />
-              </dl>
+            {/* Sidebar */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-20 group relative p-8 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 backdrop-blur-sm hover:border-white/20 transition-all duration-500">
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="relative z-10">
+                  <h3 className="flex items-center gap-3 text-lg font-bold mb-6 text-white/90">
+                    <div className="w-1 h-6 bg-gradient-to-b from-white to-white/50 rounded-full" />
+                    Information
+                  </h3>
+                  
+                  <div className="space-y-1">
+                    <InfoItem icon={faFilm} label="Japanese" value={info?.Japanese} />
+                    <InfoItem label="Synonyms" value={info?.Synonyms} />
+                    <InfoItem icon={faCalendar} label="Aired" value={info?.Aired} />
+                    <InfoItem label="Premiered" value={info?.Premiered} />
+                    <InfoItem icon={faClock} label="Duration" value={info?.Duration} />
+                    <InfoItem icon={faSignal} label="Status" value={info?.Status} />
+                    <InfoItem icon={faStar} label="MAL Score" value={info?.["MAL Score"]} />
+                    {info?.Studios && <InfoItem label="Studios" value={info.Studios} />}
+                    {info?.Producers && <InfoItem label="Producers" value={info.Producers} />}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Seasons Section */}
+      {/* ================= SEASONS SECTION ================= */}
       {seasons?.length > 0 && (
-        <div className="container mx-auto py-8 sm:py-12">
-          <h2 className="text-2xl font-bold mb-6 sm:mb-8 px-1">More Seasons</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
-            {seasons.map((season, index) => (
-              <Link
-                to={`/${season.id}`}
-                key={index}
-                className={`relative w-full aspect-[3/1] sm:aspect-[3/1] rounded-lg overflow-hidden cursor-pointer group ${
-                  currentId === String(season.data_id)
-                    ? "ring-2 ring-white/40 shadow-lg shadow-white/10"
-                    : ""
-                }`}
-              >
-                <img
-                  src={season.season_poster}
-                  alt={season.season}
-                  className={`w-full h-full object-cover scale-150 ${
+        <section className="py-12 px-4 md:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="flex items-center gap-3 text-2xl font-bold mb-8 text-white/90">
+              <div className="w-1 h-8 bg-gradient-to-b from-white to-white/50 rounded-full" />
+              More Seasons
+            </h2>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {seasons.map((season, index) => (
+                <Link
+                  to={`/${season.id}`}
+                  key={index}
+                  className={`group relative aspect-[3/1] rounded-xl overflow-hidden ${
                     currentId === String(season.data_id)
-                      ? "opacity-50"
-                      : "opacity-40"
-                  }`}
-                />
-                {/* Dots Pattern Overlay */}
-                <div 
-                  className="absolute inset-0 z-10" 
-                  style={{ 
-                    backgroundImage: `url('data:image/svg+xml,<svg width="3" height="3" viewBox="0 0 3 3" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="1.5" cy="1.5" r="0.5" fill="white" fill-opacity="0.25"/></svg>')`,
-                    backgroundSize: '3px 3px'
-                  }}
-                />
-                {/* Dark Gradient Overlay */}
-                <div className={`absolute inset-0 z-20 bg-gradient-to-r ${
-                  currentId === String(season.data_id)
-                    ? "from-black/50 to-transparent"
-                    : "from-black/40 to-transparent"
-                }`} />
-                {/* Title Container */}
-                <div className="absolute inset-0 z-30 flex items-center justify-center">
-                  <p className={`text-[14px] sm:text-[16px] md:text-[18px] font-bold text-center px-2 sm:px-4 transition-colors duration-300 ${
-                    currentId === String(season.data_id)
-                      ? "text-white"
-                      : "text-white/90 group-hover:text-white"
-                  }`}>
-                    {season.season}
-                  </p>
-                </div>
-              </Link>
-            ))}
+                      ? "ring-2 ring-white/60 shadow-xl shadow-white/20"
+                      : "ring-1 ring-white/10 hover:ring-white/30"
+                  } transition-all duration-300`}
+                >
+                  {/* Background Image */}
+                  <img
+                    src={season.season_poster}
+                    alt={season.season}
+                    className={`absolute inset-0 w-full h-full object-cover scale-150 transition-all duration-500 ${
+                      currentId === String(season.data_id)
+                        ? "opacity-60 group-hover:opacity-70"
+                        : "opacity-40 group-hover:opacity-60"
+                    }`}
+                  />
+                  
+                  {/* Noise Texture */}
+                  <div 
+                    className="absolute inset-0 z-10 opacity-20" 
+                    style={{ 
+                      backgroundImage: `url('data:image/svg+xml,<svg width="4" height="4" viewBox="0 0 4 4" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="0.5" fill="white" fill-opacity="0.3"/></svg>')`,
+                      backgroundSize: '4px 4px'
+                    }}
+                  />
+                  
+                  {/* Gradient Overlays */}
+                  <div className="absolute inset-0 z-20 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+                  <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/60 to-transparent" />
+                  
+                  {/* Active Indicator */}
+                  {currentId === String(season.data_id) && (
+                    <div className="absolute top-3 right-3 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30">
+                      <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                      <span className="text-xs font-bold text-white">Watching</span>
+                    </div>
+                  )}
+                  
+                  {/* Title */}
+                  <div className="absolute inset-0 z-30 flex items-center justify-center p-4">
+                    <p className={`text-sm md:text-base font-bold text-center transition-all duration-300 ${
+                      currentId === String(season.data_id)
+                        ? "text-white scale-105"
+                        : "text-white/90 group-hover:text-white group-hover:scale-105"
+                    }`}>
+                      {season.season}
+                    </p>
+                  </div>
+
+                  {/* Hover Border Effect */}
+                  <div className="absolute inset-0 z-40 rounded-xl border-2 border-white/0 group-hover:border-white/20 transition-colors duration-300" />
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        </section>
       )}
       
-      {/* Voice Actors Section */}
+      {/* ================= VOICE ACTORS ================= */}
       {animeInfo?.charactersVoiceActors?.length > 0 && (
-        <div className="container mx-auto py-12">
-          <Voiceactor animeInfo={animeInfo} />
-        </div>
+        <section className="py-12 px-4 md:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <Voiceactor animeInfo={animeInfo} />
+          </div>
+        </section>
       )}
       
       {/* ================= RECOMMENDATIONS ================= */}
       {animeInfo?.recommended_data?.length > 0 && (
-        <CategoryCard label="You may also like" data={animeInfo.recommended_data} showViewMore={false} />
+        <section className="py-12">
+          <CategoryCard label="You May Also Like" data={animeInfo.recommended_data} showViewMore={false} />
+        </section>
       )}
     </div>
   );
