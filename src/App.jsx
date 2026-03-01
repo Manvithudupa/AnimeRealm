@@ -53,15 +53,14 @@ function App() {
   const isSplashScreen = location.pathname === "/";
 
   return (
-    <HomeInfoProvider>
-      <div className="app-container px-4 lg:px-10">
-        <main className="content max-w-[2048px] mx-auto w-full">
-          {!isSplashScreen && <Navbar />}
+    <div className="app-container px-4 lg:px-10">
+      <main className="content max-w-[2048px] mx-auto w-full">
+        {!isSplashScreen && <Navbar />}
 
-          <Routes>
-            {/* Splash / Home */}
-            <Route path="/" element={<SplashScreen />} />
-            <Route path="/home" element={<Home />} />
+        <Routes>
+          {/* Splash / Home */}
+          <Route path="/" element={<SplashScreen />} />
+          <Route path="/home" element={<HomeInfoProvider><Home /></HomeInfoProvider>} />
 
             {/* Auth */}
             <Route path="/auth" element={<Auth />} />
@@ -138,12 +137,11 @@ function App() {
           </Routes>
 
           {!isSplashScreen && <Footer />}
-        </main>
+      </main>
 
-        <Analytics />
-        <SpeedInsights />
-      </div>
-    </HomeInfoProvider>
+      <Analytics />
+      <SpeedInsights />
+    </div>
   );
 }
 
