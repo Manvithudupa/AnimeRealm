@@ -58,7 +58,7 @@ const CategoryCard = React.memo(
       window.addEventListener("resize", handleResize);
 
       return () => window.removeEventListener("resize", handleResize);
-    }, [categoryPage, data]);
+    }, [getItemsToRender]);
 
     const renderCard = (item, index) => {
       if (label === "Latest Episode") {
