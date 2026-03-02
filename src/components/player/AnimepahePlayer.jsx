@@ -19,12 +19,20 @@ export default function AnimepahePlayer({ streamUrl, m3u8ProxyUrl }) {
   }, [streamUrl, m3u8ProxyUrl]);
 
   return (
-    <iframe
-      ref={iframeRef}
-      className="w-full h-full bg-black border-none"
-      allowFullScreen
-      scrolling="no"
-      style={{ display: "block" }}
-    />
+    <div className="w-full h-full bg-black overflow-hidden">
+      <iframe
+        ref={iframeRef}
+        className="w-full h-full border-none"
+        allowFullScreen
+        scrolling="no"
+        style={{
+          display: "block",
+          width: "100%",
+          height: "100%",
+          margin: 0,
+          padding: 0,
+        }}
+      />
+    </div>
   );
 }
