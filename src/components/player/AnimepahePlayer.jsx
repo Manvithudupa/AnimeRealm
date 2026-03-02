@@ -1,28 +1,16 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useRef } from "react";
+import Player from "@/src/components/player/Player";
 
-export default function AnimePahePlayer({ streamUrl, m3u8ProxyUrl }) {
-  const iframeRef = useRef(null);
-
-  useEffect(() => {
-    if (!streamUrl || !m3u8ProxyUrl || !iframeRef.current) return;
-
-    const proxyPlayerUrl = m3u8ProxyUrl + encodeURIComponent(streamUrl);
-    iframeRef.current.src = proxyPlayerUrl;
-  }, [streamUrl, m3u8ProxyUrl]);
-
+export default function AnimePahePlayer({ streamUrl, m3u8ProxyUrl, ...playerProps }) {
   return (
-    <div className="relative w-full h-full bg-black">
-      <iframe
-        ref={iframeRef}
-        className="absolute inset-0 w-full h-full"
-        allowFullScreen
-        allow="autoplay; fullscreen; picture-in-picture"
-        sandbox="allow-scripts allow-same-origin allow-presentation"
-        style={{
-          border: "none",
-        }}
-      />
-    </div>
+    <Player
+      streamUrl={streamUrl}
+      m3u8ProxyUrl={m3u8ProxyUrl || import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY}
+      subtitles={[]}
+      intro={null}
+      outro={null}
+      thumbnail={null}
+      {...playerProps}
+    />
   );
 }

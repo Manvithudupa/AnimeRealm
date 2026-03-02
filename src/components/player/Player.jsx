@@ -29,6 +29,7 @@ Artplayer.CONTEXTMENU = false;
 
 export default function Player({
   streamUrl,
+  m3u8ProxyUrl,
   subtitles,
   thumbnail,
   intro,
@@ -129,13 +130,14 @@ export default function Player({
       const headers = {};
       if (iframeUrl) headers.referer = new URL(iframeUrl).origin + "/";
 
+      const defaultProxy = m3u8proxy[Math.floor(Math.random() * m3u8proxy.length)] || "";
+      const proxiedStreamUrl = m3u8ProxyUrl
+        ? `${m3u8ProxyUrl}${encodeURIComponent(streamUrl)}`
+        : `${defaultProxy}${encodeURIComponent(streamUrl)}&headers=${encodeURIComponent(JSON.stringify(headers))}`;
+
       // Initialize Artplayer
       art = new Artplayer({
-        url:
-          m3u8proxy[Math.floor(Math.random() * m3u8proxy.length)] +
-          encodeURIComponent(streamUrl) +
-          "&headers=" +
-          encodeURIComponent(JSON.stringify(headers)),
+        url: proxiedStreamUrl,
         container: artRef.current,
         type: "m3u8",
         autoplay: autoPlay,
