@@ -21,8 +21,8 @@ export default function AnimePahePlayer({ streamUrl, m3u8ProxyUrl }) {
         sandbox="allow-scripts allow-same-origin allow-presentation"
         style={{
           display: "block",
-          width: "100%",
-          height: "100%",
+          width: "200%",
+          height: "200%",
           border: "none",
           margin: 0,
           padding: 0,
