@@ -29,6 +29,7 @@ Artplayer.CONTEXTMENU = false;
 
 export default function Player({
   streamUrl,
+  m3u8ProxyUrl,
   subtitles,
   thumbnail,
   intro,
@@ -77,7 +78,21 @@ export default function Player({
   const playM3u8 = (video, url, art) => {
     if (Hls.isSupported()) {
       if (art.hls) art.hls.destroy();
-      const hls = new Hls();
+
+      const customProxy = m3u8ProxyUrl;
+      const hls = customProxy
+        ? new Hls({
+            xhrSetup: (xhr, targetUrl) => {
+              const normalizedProxy = customProxy.trim();
+              const alreadyProxied = targetUrl.startsWith(normalizedProxy);
+              const finalUrl = alreadyProxied
+                ? targetUrl
+                : `${normalizedProxy}${encodeURIComponent(targetUrl)}`;
+              xhr.open("GET", finalUrl, true);
+            },
+          })
+        : new Hls();
+
       hls.loadSource(url);
       hls.attachMedia(video);
       art.hls = hls;
@@ -126,16 +141,18 @@ export default function Player({
 
       // Headers for proxied streams
       const iframeUrl = streamInfo?.streamingLink?.iframe;
-      const headers = {};
-      if (iframeUrl) headers.referer = new URL(iframeUrl).origin + "/";
+      const streamHeaders = streamInfo?.streamingLink?.headers || {};
+      const headers = { ...streamHeaders };
+      if (iframeUrl && !headers.referer) headers.referer = new URL(iframeUrl).origin + "/";
+
+      const defaultProxy = m3u8proxy[Math.floor(Math.random() * m3u8proxy.length)] || "";
+      const proxiedStreamUrl = m3u8ProxyUrl
+        ? streamUrl
+        : `${defaultProxy}${encodeURIComponent(streamUrl)}&headers=${encodeURIComponent(JSON.stringify(headers))}`;
 
       // Initialize Artplayer
       art = new Artplayer({
-        url:
-          m3u8proxy[Math.floor(Math.random() * m3u8proxy.length)] +
-          encodeURIComponent(streamUrl) +
-          "&headers=" +
-          encodeURIComponent(JSON.stringify(headers)),
+        url: proxiedStreamUrl,
         container: artRef.current,
         type: "m3u8",
         autoplay: autoPlay,
