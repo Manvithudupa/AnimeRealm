@@ -42,15 +42,13 @@ export default function Player({
   animeInfo,
   episodeNum,
   streamInfo,
-  m3u8ProxyUrl,
 }) {
   const artRef = useRef(null);
   const saveIntervalRef = useRef(null);
   const lastSavedTimeRef = useRef(0);
 
   const proxy = import.meta.env.VITE_PROXY_URL;
-  const defaultM3u8Proxy = import.meta.env.VITE_M3U8_PROXY_URL?.split(",") || [];
-  const m3u8proxy = m3u8ProxyUrl ? [m3u8ProxyUrl] : defaultM3u8Proxy;
+  const m3u8proxy = import.meta.env.VITE_M3U8_PROXY_URL?.split(",") || [];
 
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(
     episodes?.findIndex((ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId)
@@ -128,21 +126,16 @@ export default function Player({
 
       // Headers for proxied streams
       const iframeUrl = streamInfo?.streamingLink?.iframe;
-      const headers = streamInfo?.streamingLink?.headers || {};
+      const headers = {};
       if (iframeUrl) headers.referer = new URL(iframeUrl).origin + "/";
-
-      // Build proxy URL - handle custom proxies differently
-      let proxyUrl = m3u8proxy[Math.floor(Math.random() * m3u8proxy.length)];
-      let finalUrl = proxyUrl + encodeURIComponent(streamUrl);
-
-      // Only append headers for default proxies (contains certain patterns)
-      if (!proxyUrl.includes("ramenflix")) {
-        finalUrl += "&headers=" + encodeURIComponent(JSON.stringify(headers));
-      }
 
       // Initialize Artplayer
       art = new Artplayer({
-        url: finalUrl,
+        url:
+          m3u8proxy[Math.floor(Math.random() * m3u8proxy.length)] +
+          encodeURIComponent(streamUrl) +
+          "&headers=" +
+          encodeURIComponent(JSON.stringify(headers)),
         container: artRef.current,
         type: "m3u8",
         autoplay: autoPlay,
@@ -275,7 +268,7 @@ export default function Player({
       if (saveIntervalRef.current) clearInterval(saveIntervalRef.current);
       if (art?.destroy) art.destroy(false);
     };
-  }, [streamUrl, episodeId, subtitles, intro, outro, autoPlay, autoNext, episodes, animeInfo, m3u8ProxyUrl]);
+  }, [streamUrl, episodeId, subtitles, intro, outro, autoPlay, autoNext, episodes, animeInfo]);
 
   return <div ref={artRef} className="w-full h-full" />;
 }

@@ -5,6 +5,7 @@ import { useLanguage } from "@/src/context/LanguageContext";
 import { useWatchMultiSource } from "@/src/hooks/useWatchMultiSource";
 import BouncingLoader from "@/src/components/ui/bouncingloader/Bouncingloader";
 import IframePlayer from "@/src/components/player/IframePlayer";
+import AnimepahePlayer from "@/src/components/player/AnimepahePlayer";
 import Episodelist from "@/src/components/episodelist/Episodelist";
 import website_name from "@/src/config/website";
 import Sidecard from "@/src/components/sidecard/Sidecard";
@@ -230,34 +231,39 @@ export default function Watch() {
             <div ref={playerRef} className="player w-full h-fit bg-black flex flex-col rounded-xl overflow-hidden">
               {/* Video Container */}
               <div ref={videoContainerRef} className="w-full relative aspect-video bg-black">
-                {!buffering ? (source === "hianime" && ["hd-1", "hd-4"].includes(activeServerName.toLowerCase()) ?
-                  <IframePlayer
-                    episodeId={episodeId}
-                    servertype={activeServerType}
-                    serverName={activeServerName}
-                    animeInfo={animeInfo}
-                    episodeNum={activeEpisodeNum}
-                    episodes={episodes}
-                    playNext={(id) => setEpisodeId(id)}
-                    autoNext={autoNext}
-                  /> : <Player
-                    streamUrl={streamUrl}
-                    subtitles={subtitles}
-                    intro={intro}
-                    outro={outro}
-                    serverName={activeServerName.toLowerCase()}
-                    thumbnail={thumbnail}
-                    autoSkipIntro={autoSkipIntro}
-                    autoPlay={autoPlay}
-                    autoNext={autoNext}
-                    episodeId={episodeId}
-                    episodes={episodes}
-                    playNext={(id) => setEpisodeId(id)}
-                    animeInfo={animeInfo}
-                    episodeNum={activeEpisodeNum}
-                    streamInfo={streamInfo}
-                    m3u8ProxyUrl={source === "animepahe" ? import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY : undefined}
-                  />
+                {!buffering ? (
+                  source === "animepahe" ? (
+                    <AnimepahePlayer
+                      streamUrl={streamUrl}
+                      m3u8ProxyUrl={import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY}
+                    />
+                  ) : (source === "hianime" && ["hd-1", "hd-4"].includes(activeServerName.toLowerCase()) ?
+                    <IframePlayer
+                      episodeId={episodeId}
+                      servertype={activeServerType}
+                      serverName={activeServerName}
+                      animeInfo={animeInfo}
+                      episodeNum={activeEpisodeNum}
+                      episodes={episodes}
+                      playNext={(id) => setEpisodeId(id)}
+                      autoNext={autoNext}
+                    /> : <Player
+                      streamUrl={streamUrl}
+                      subtitles={subtitles}
+                      intro={intro}
+                      outro={outro}
+                      serverName={activeServerName.toLowerCase()}
+                      thumbnail={thumbnail}
+                      autoSkipIntro={autoSkipIntro}
+                      autoPlay={autoPlay}
+                      autoNext={autoNext}
+                      episodeId={episodeId}
+                      episodes={episodes}
+                      playNext={(id) => setEpisodeId(id)}
+                      animeInfo={animeInfo}
+                      episodeNum={activeEpisodeNum}
+                      streamInfo={streamInfo}
+                    />)
                 ) : (
                   <div className="absolute inset-0 flex justify-center items-center bg-black">
                     <BouncingLoader />
