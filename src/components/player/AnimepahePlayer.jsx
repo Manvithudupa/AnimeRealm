@@ -8,16 +8,14 @@ export default function AnimePahePlayer({ streamUrl, m3u8ProxyUrl }) {
     if (!streamUrl || !m3u8ProxyUrl || !iframeRef.current) return;
     
     const proxyPlayerUrl = m3u8ProxyUrl + encodeURIComponent(streamUrl);
-    console.log("📡 Loading iframe player:", proxyPlayerUrl);
-    
     iframeRef.current.src = proxyPlayerUrl;
   }, [streamUrl, m3u8ProxyUrl]);
 
   return (
-    <div className="absolute inset-0 w-full h-full bg-black overflow-hidden">
+    <div className="absolute inset-0 w-full h-full bg-black">
       <iframe
         ref={iframeRef}
-        className="w-full h-full border-none"
+        className="w-full h-full"
         allowFullScreen
         allow="autoplay; fullscreen; picture-in-picture"
         sandbox="allow-scripts allow-same-origin allow-presentation"
@@ -28,6 +26,7 @@ export default function AnimePahePlayer({ streamUrl, m3u8ProxyUrl }) {
           border: "none",
           margin: 0,
           padding: 0,
+          overflow: "hidden",
         }}
       />
     </div>
