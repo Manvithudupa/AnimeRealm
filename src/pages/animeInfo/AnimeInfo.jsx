@@ -382,8 +382,13 @@ function AnimeInfo({ random = false }) {
                     </h2>
                     
                     <div className="flex flex-wrap gap-3">
-                      {info.Genres.split(',').map((genre, idx) => (
-                        <GenrePill key={idx} genre={genre.trim()} />
+                      {(Array.isArray(info.Genres) 
+                        ? info.Genres 
+                        : typeof info.Genres === 'string' 
+                          ? info.Genres.split(',') 
+                          : []
+                      ).map((genre, idx) => (
+                        <GenrePill key={idx} genre={typeof genre === 'string' ? genre.trim() : String(genre).trim()} />
                       ))}
                     </div>
                   </div>
