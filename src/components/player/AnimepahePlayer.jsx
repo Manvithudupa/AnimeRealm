@@ -5,6 +5,7 @@ import Hls from "hls.js";
 export default function AnimePahePlayer({ streamUrl, m3u8ProxyUrl, autoPlay }) {
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
+  const loadedUrlRef = useRef(null); // Track what URL we've already loaded
 
   useEffect(() => {
     if (!streamUrl || !videoRef.current) {
@@ -14,31 +15,18 @@ export default function AnimePahePlayer({ streamUrl, m3u8ProxyUrl, autoPlay }) {
 
     const video = videoRef.current;
 
-    // Construct final URL (with proxy if provided)
-    let finalUrl;
-    
-    if (m3u8ProxyUrl) {
-      // Check if proxy URL already has query params
-      const separator = m3u8ProxyUrl.includes('?') ? '&' : '?';
-      
-      // Try different proxy formats
-      if (m3u8ProxyUrl.endsWith('/')) {
-        // Format: https://proxy.com/ + encoded_url
-        finalUrl = m3u8ProxyUrl + encodeURIComponent(streamUrl);
-      } else if (m3u8ProxyUrl.includes('?url=') || m3u8ProxyUrl.includes('&url=')) {
-        // Format: https://proxy.com?url= + encoded_url
-        finalUrl = m3u8ProxyUrl + encodeURIComponent(streamUrl);
-      } else {
-        // Default: append with separator
-        finalUrl = `${m3u8ProxyUrl}${separator}url=${encodeURIComponent(streamUrl)}`;
-      }
-    } else {
-      // No proxy, use direct URL
-      finalUrl = streamUrl;
+    // Construct final URL
+    const finalUrl = m3u8ProxyUrl 
+      ? m3u8ProxyUrl + encodeURIComponent(streamUrl)
+      : streamUrl;
+
+    // Prevent reloading the same URL
+    if (loadedUrlRef.current === finalUrl && hlsRef.current) {
+      console.log("⏭️ URL already loaded, skipping...");
+      return;
     }
 
     console.log("🔍 Original Stream URL:", streamUrl);
-    console.log("🔍 Proxy URL:", m3u8ProxyUrl);
     console.log("📡 Final URL:", finalUrl);
 
     // Destroy previous HLS instance
@@ -48,35 +36,27 @@ export default function AnimePahePlayer({ streamUrl, m3u8ProxyUrl, autoPlay }) {
       hlsRef.current = null;
     }
 
+    loadedUrlRef.current = finalUrl; // Mark this URL as loaded
+
     if (Hls.isSupported()) {
       console.log("✅ HLS.js is supported");
       
       const hls = new Hls({
         enableWorker: true,
         lowLatencyMode: false,
-        debug: true,
+        debug: false, // Turn off debug to reduce console spam
         xhrSetup: (xhr) => {
           xhr.withCredentials = false;
-          // Log the actual request URL
-          console.log("🌐 XHR Request to:", xhr.responseURL || "pending");
         },
       });
 
       hls.on(Hls.Events.ERROR, (event, data) => {
-        console.error("❌ HLS Error:", data);
-        console.error("❌ Error Details:", {
-          type: data.type,
-          details: data.details,
-          fatal: data.fatal,
-          url: data.url,
-          response: data.response
-        });
-        
         if (data.fatal) {
+          console.error("❌ Fatal HLS Error:", data.type, data.details);
+          
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
               console.log("🔄 Network error, trying to recover...");
-              console.log("Failed URL:", data.url);
               hls.startLoad();
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
@@ -86,47 +66,52 @@ export default function AnimePahePlayer({ streamUrl, m3u8ProxyUrl, autoPlay }) {
             default:
               console.log("💀 Fatal error, destroying HLS");
               hls.destroy();
+              hlsRef.current = null;
+              loadedUrlRef.current = null; // Allow retry on next render
               break;
           }
         }
       });
 
       hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-        console.log("✅ Manifest parsed successfully!");
-        console.log("✅ Available quality levels:", data.levels);
+        console.log("✅ Manifest parsed, levels:", data.levels.length);
         if (autoPlay) {
           video.play()
-            .then(() => console.log("▶️ Autoplay started"))
-            .catch((err) => console.log("⚠️ Autoplay prevented:", err));
+            .then(() => console.log("▶️ Playing"))
+            .catch((err) => console.log("⚠️ Autoplay blocked:", err.message));
         }
       });
 
-      hls.on(Hls.Events.LEVEL_LOADED, (event, data) => {
-        console.log("✅ Level loaded:", data.level);
-      });
-
-      console.log("📡 Loading source:", finalUrl);
       hls.loadSource(finalUrl);
       hls.attachMedia(video);
       hlsRef.current = hls;
+
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       console.log("✅ Using native HLS (Safari)");
       video.src = finalUrl;
       
-      video.addEventListener('loadedmetadata', () => {
+      const handleMetadata = () => {
         console.log("✅ Metadata loaded");
         if (autoPlay) {
           video.play()
-            .then(() => console.log("▶️ Autoplay started"))
-            .catch((err) => console.log("⚠️ Autoplay prevented:", err));
+            .then(() => console.log("▶️ Playing"))
+            .catch((err) => console.log("⚠️ Autoplay blocked:", err.message));
         }
-      });
+      };
 
-      video.addEventListener('error', (e) => {
-        console.error("❌ Video error:", e);
-        console.error("❌ Video error code:", video.error?.code);
-        console.error("❌ Video error message:", video.error?.message);
-      });
+      const handleError = (e) => {
+        console.error("❌ Video error:", video.error?.code, video.error?.message);
+        loadedUrlRef.current = null; // Allow retry
+      };
+
+      video.addEventListener('loadedmetadata', handleMetadata);
+      video.addEventListener('error', handleError);
+
+      // Cleanup listeners
+      return () => {
+        video.removeEventListener('loadedmetadata', handleMetadata);
+        video.removeEventListener('error', handleError);
+      };
     } else {
       console.error("❌ HLS not supported");
     }
