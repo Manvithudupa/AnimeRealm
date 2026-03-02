@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import BouncingLoader from "../ui/bouncingloader/Bouncingloader";
 
 export default function IframePlayer({
@@ -19,6 +19,7 @@ export default function IframePlayer({
       ? import.meta.env.VITE_BASE_IFRAME_URL_2
       : undefined; 
 
+  const iframeRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeSrc, setIframeSrc] = useState("");
@@ -69,6 +70,58 @@ export default function IframePlayer({
     };
   }, [autoNext, currentEpisodeIndex, episodes, playNext]);
 
+  // Inject CSS to make video fill iframe (after load)
+  useEffect(() => {
+    if (!iframeRef.current || !iframeLoaded) return;
+
+    const tryInjectStyles = () => {
+      try {
+        const iframeDoc = iframeRef.current.contentDocument || 
+                          iframeRef.current.contentWindow?.document;
+        
+        if (!iframeDoc) return;
+
+        // Create style element if it doesn't exist
+        let styleEl = iframeDoc.getElementById('video-fill-styles');
+        if (!styleEl) {
+          styleEl = iframeDoc.createElement('style');
+          styleEl.id = 'video-fill-styles';
+          styleEl.textContent = `
+            * {
+              margin: 0 !important;
+              padding: 0 !important;
+              box-sizing: border-box !important;
+            }
+            html, body {
+              width: 100% !important;
+              height: 100% !important;
+              overflow: hidden !important;
+              background: #000 !important;
+            }
+            video {
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
+              width: 100% !important;
+              height: 100% !important;
+              object-fit: contain !important;
+            }
+          `;
+          iframeDoc.head?.appendChild(styleEl);
+        }
+      } catch (e) {
+        // CORS prevents access - this is expected for cross-origin iframes
+        console.log('Cannot inject styles (CORS protected)');
+      }
+    };
+
+    // Try immediately and after a delay
+    tryInjectStyles();
+    const timer = setTimeout(tryInjectStyles, 500);
+
+    return () => clearTimeout(timer);
+  }, [iframeLoaded]);
+
   useEffect(() => {
     setLoading(true);
     setIframeLoaded(false);
@@ -99,7 +152,7 @@ export default function IframePlayer({
   }, [episodeId, servertype]);
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="absolute inset-0 w-full h-full bg-black">
       {/* Loader Overlay */}
       <div
         className={`absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 z-10 transition-opacity duration-500 ${
@@ -110,17 +163,28 @@ export default function IframePlayer({
       </div>
 
       <iframe
+        ref={iframeRef}
         key={`${episodeId}-${servertype}-${serverName}-${iframeSrc}`}
         src={iframeSrc}
         allowFullScreen
-        className={`w-full h-full transition-opacity duration-500 ${
+        allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+        sandbox="allow-scripts allow-same-origin allow-presentation"
+        className={`absolute inset-0 w-full h-full border-0 transition-opacity duration-500 ${
           iframeLoaded ? "opacity-100" : "opacity-0"
         }`}
+        style={{
+          display: "block",
+          width: "100%",
+          height: "100%",
+          border: "none",
+          margin: 0,
+          padding: 0,
+        }}
         onLoad={() => {
           setIframeLoaded(true);
           setTimeout(() => setLoading(false), 1000);
         }}
-      ></iframe>
+      />
     </div>
   );
-} 
+}
