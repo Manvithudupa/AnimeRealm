@@ -131,13 +131,18 @@ export default function Player({
       const headers = streamInfo?.streamingLink?.headers || {};
       if (iframeUrl) headers.referer = new URL(iframeUrl).origin + "/";
 
+      // Build proxy URL - handle custom proxies differently
+      let proxyUrl = m3u8proxy[Math.floor(Math.random() * m3u8proxy.length)];
+      let finalUrl = proxyUrl + encodeURIComponent(streamUrl);
+
+      // Only append headers for default proxies (contains certain patterns)
+      if (!proxyUrl.includes("ramenflix")) {
+        finalUrl += "&headers=" + encodeURIComponent(JSON.stringify(headers));
+      }
+
       // Initialize Artplayer
       art = new Artplayer({
-        url:
-          m3u8proxy[Math.floor(Math.random() * m3u8proxy.length)] +
-          encodeURIComponent(streamUrl) +
-          "&headers=" +
-          encodeURIComponent(JSON.stringify(headers)),
+        url: finalUrl,
         container: artRef.current,
         type: "m3u8",
         autoplay: autoPlay,
