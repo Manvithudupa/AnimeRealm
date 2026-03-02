@@ -19,7 +19,7 @@ export default function AnimepahePlayer({ streamUrl, m3u8ProxyUrl }) {
   }, [streamUrl, m3u8ProxyUrl]);
 
   return (
-    <div className="w-full h-full bg-black overflow-hidden">
+    <div className="absolute inset-0 w-full h-full bg-black overflow-hidden">
       <iframe
         ref={iframeRef}
         className="w-full h-full border-none"
