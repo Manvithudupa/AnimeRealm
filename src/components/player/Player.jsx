@@ -78,7 +78,60 @@ export default function Player({
   const playM3u8 = (video, url, art) => {
     if (Hls.isSupported()) {
       if (art.hls) art.hls.destroy();
-      const hls = new Hls();
+
+      const hls = new Hls({
+        // Loader configuration for better segment fetching
+        loader: Hls.DefaultConfig.loader,
+        // Enable detailed logging
+        debug: true,
+        // Retry configuration for failed segments
+        testBandwidth: false,
+        // Fragment loading timeouts
+        fragLoadingTimeoutMs: 30000, // 30 seconds for segment loading
+        fragLoadingMaxRetry: 6, // Retry failed segments up to 6 times
+        fragLoadingRetryDelay: 1000, // Wait 1s before first retry
+        fragLoadingRetryDelayMax: 8000, // Max 8s between retries
+        // Playlist loading configuration
+        manifestLoadingTimeoutMs: 10000,
+        manifestLoadingMaxRetry: 3,
+      });
+
+      // Add error listener for debugging
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        console.warn("[HLS Error]", data.type, data.reason, data);
+        // Fatal errors should trigger fallback or recovery
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              console.error("Fatal network error encountered, retrying...");
+              hls.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              console.error("Fatal media error encountered");
+              hls.recoverMediaError();
+              break;
+            default:
+              console.error("Fatal error, cannot recover:", data);
+              break;
+          }
+        }
+      });
+
+      // Log manifest loading
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        console.log("Manifest loaded successfully");
+      });
+
+      // Log fragment loading
+      hls.on(Hls.Events.FRAG_LOADED, (event, data) => {
+        console.log(`Fragment loaded: ${data.frag.sn}`);
+      });
+
+      // Log when loading starts
+      hls.on(Hls.Events.FRAG_LOADING, (event, data) => {
+        console.log(`Loading fragment: ${data.frag.sn}`);
+      });
+
       hls.loadSource(url);
       hls.attachMedia(video);
       art.hls = hls;
@@ -127,12 +180,13 @@ export default function Player({
 
       // Headers for proxied streams
       const iframeUrl = streamInfo?.streamingLink?.iframe;
-      const headers = {};
+      const existingHeaders = streamInfo?.streamingLink?.headers || {};
+      const headers = { ...existingHeaders };
       if (iframeUrl) headers.referer = new URL(iframeUrl).origin + "/";
 
       const defaultProxy = m3u8proxy[Math.floor(Math.random() * m3u8proxy.length)] || "";
       const proxiedStreamUrl = m3u8ProxyUrl
-        ? `${m3u8ProxyUrl}${encodeURIComponent(streamUrl)}`
+        ? `${m3u8ProxyUrl}${encodeURIComponent(streamUrl)}&headers=${encodeURIComponent(JSON.stringify(headers))}`
         : `${defaultProxy}${encodeURIComponent(streamUrl)}&headers=${encodeURIComponent(JSON.stringify(headers))}`;
 
       // Initialize Artplayer
