@@ -71,16 +71,17 @@ export async function getAnimepaheEpisodes(animeId) {
 /**
  * Get servers/sources for an episode
  * @param {string} episodeId - Animepahe episode ID
- * @returns {Promise} Available servers
+ * @returns {Promise} Object with servers and download options
  */
 export async function getAnimepaheServers(episodeId) {
   try {
     const response = await axios.get(
       `${BASE_URL}/api/animepahe/episode/${episodeId}/servers`
     );
-    
+
     const servers = [];
     const data = response.data?.data || {};
+    const downloadData = response.data?.download || {};
 
     // Create server entries for sub, dub, and raw
     if (data.sub && data.sub.length > 0) {
@@ -125,7 +126,42 @@ export async function getAnimepaheServers(episodeId) {
       });
     }
 
-    return servers;
+    // Prepare download options from response
+    const downloadOptions = {
+      sub: [],
+      dub: [],
+      raw: [],
+      episodeNumber: downloadData.episodeNumber || data.episodeNumber || null,
+    };
+
+    if (downloadData.sub && Array.isArray(downloadData.sub)) {
+      downloadOptions.sub = downloadData.sub.map((item) => ({
+        serverId: item.serverId,
+        serverName: item.serverName,
+        mediaId: item.mediaId,
+      }));
+    }
+
+    if (downloadData.dub && Array.isArray(downloadData.dub)) {
+      downloadOptions.dub = downloadData.dub.map((item) => ({
+        serverId: item.serverId,
+        serverName: item.serverName,
+        mediaId: item.mediaId,
+      }));
+    }
+
+    if (downloadData.raw && Array.isArray(downloadData.raw)) {
+      downloadOptions.raw = downloadData.raw.map((item) => ({
+        serverId: item.serverId,
+        serverName: item.serverName,
+        mediaId: item.mediaId,
+      }));
+    }
+
+    return {
+      servers,
+      downloadOptions,
+    };
   } catch (error) {
     console.error("Error fetching Animepahe servers:", error);
     throw error;

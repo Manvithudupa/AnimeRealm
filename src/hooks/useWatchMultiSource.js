@@ -37,6 +37,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
   const [serverLoading, setServerLoading] = useState(true);
   const [nextEpisodeSchedule, setNextEpisodeSchedule] = useState(null);
   const [animepaheId, setAnimepaheId] = useState(null); // Store Animepahe anime ID
+  const [downloadOptions, setDownloadOptions] = useState(null);
   const isServerFetchInProgress = useRef(false);
   const isStreamFetchInProgress = useRef(false);
 
@@ -61,6 +62,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     setTotalEpisodes(null);
     setAnimeInfoLoading(true);
     setAnimepaheId(null);
+    setDownloadOptions(null);
     isServerFetchInProgress.current = false;
     isStreamFetchInProgress.current = false;
   }, [animeId, source]);
@@ -174,11 +176,12 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
             throw new Error("Episode not found");
           }
 
-          const data = await getAnimepaheServers(episode.episodeId);
-          setServers(data);
+          const response = await getAnimepaheServers(episode.episodeId);
+          setServers(response.servers);
+          setDownloadOptions(response.downloadOptions);
 
           // Select first server
-          const initialServer = data?.[0];
+          const initialServer = response.servers?.[0];
           setActiveServerType(initialServer?.type);
           setActiveServerName(initialServer?.serverName);
           setActiveServerId(initialServer?.data_id);
@@ -350,5 +353,6 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     setActiveServerType,
     activeServerName,
     setActiveServerName,
+    downloadOptions,
   };
 };
