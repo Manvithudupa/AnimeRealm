@@ -118,18 +118,50 @@ export default function Player({
       });
 
       // Log manifest loading
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
         console.log("Manifest loaded successfully");
+        console.log(`Total levels: ${data.levels.length}`);
+        const level = data.levels[0];
+        if (level && level.fragments) {
+          console.log(`Total fragments in level 0: ${level.fragments.length}`);
+          console.log("First 10 fragments:");
+          level.fragments.forEach((frag, idx) => {
+            if (idx < 10) {
+              console.log(`  Fragment ${idx}: sn=${frag.sn}, duration=${frag.duration.toFixed(2)}s, url=${frag.url}`);
+            }
+          });
+        }
+      });
+
+      // Log manifest response to see raw content
+      hls.on(Hls.Events.MANIFEST_LOADING, (event, data) => {
+        console.log(`Loading manifest from: ${data.url}`);
+      });
+
+      hls.on(Hls.Events.MANIFEST_LOADED, (event, data) => {
+        console.log(`Manifest loaded, response length: ${data.responseText?.length || 'unknown'}`);
+        if (data.responseText) {
+          const lines = data.responseText.split('\n').slice(0, 20);
+          console.log("Manifest first 20 lines:");
+          lines.forEach((line, idx) => {
+            if (line.trim()) console.log(`  ${idx}: ${line}`);
+          });
+        }
       });
 
       // Log fragment loading
       hls.on(Hls.Events.FRAG_LOADED, (event, data) => {
-        console.log(`Fragment loaded: ${data.frag.sn}`);
+        console.log(`Fragment loaded: sn=${data.frag.sn}, url=${data.frag.url}, duration=${data.frag.duration}`);
       });
 
       // Log when loading starts
       hls.on(Hls.Events.FRAG_LOADING, (event, data) => {
-        console.log(`Loading fragment: ${data.frag.sn}`);
+        console.log(`Loading fragment: sn=${data.frag.sn}, url=${data.frag.url}`);
+      });
+
+      // Log network errors in detail
+      hls.on(Hls.Events.FRAG_LOAD_ERROR, (event, data) => {
+        console.error(`Fragment load error: sn=${data.frag.sn}, url=${data.frag.url}, status=${data.response?.status}, reason=${data.reason}`);
       });
 
       hls.loadSource(url);
@@ -188,6 +220,11 @@ export default function Player({
       const proxiedStreamUrl = m3u8ProxyUrl
         ? `${m3u8ProxyUrl}${encodeURIComponent(streamUrl)}&headers=${encodeURIComponent(JSON.stringify(headers))}`
         : `${defaultProxy}${encodeURIComponent(streamUrl)}&headers=${encodeURIComponent(JSON.stringify(headers))}`;
+
+      console.log("[Player Init] Stream URL:", streamUrl);
+      console.log("[Player Init] Headers:", headers);
+      console.log("[Player Init] Using proxy:", m3u8ProxyUrl ? "AnimePahe" : "Default");
+      console.log("[Player Init] Proxied stream URL:", proxiedStreamUrl);
 
       // Initialize Artplayer
       art = new Artplayer({
