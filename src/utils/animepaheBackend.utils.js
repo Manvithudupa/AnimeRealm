@@ -133,6 +133,41 @@ export async function getAnimepaheServers(episodeId) {
 }
 
 /**
+ * Extract m3u8 URL from HTML player page
+ * @param {string} html - HTML content
+ * @returns {string|null} m3u8 URL if found
+ */
+function extractM3u8FromHtml(html) {
+  // Try multiple patterns to find m3u8 URL
+  const patterns = [
+    // Pattern 1: "url":"https://..."
+    /"url"\s*:\s*"([^"]*\.m3u8[^"]*)"/i,
+    // Pattern 2: url: 'https://...'
+    /url\s*:\s*'([^']*\.m3u8[^']*)'/i,
+    // Pattern 3: src="https://...m3u8..."
+    /src="([^"]*\.m3u8[^"]*)"/i,
+    // Pattern 4: data-src="https://...m3u8..."
+    /data-src="([^"]*\.m3u8[^"]*)"/i,
+    // Pattern 5: .m3u8 in script tag
+    /["']([^"']*\.m3u8[^"']*)["']/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    if (match && match[1]) {
+      const url = match[1]
+        .replace(/\\u002F/g, "/")
+        .replace(/\\\//g, "/");
+      if (url.startsWith("http")) {
+        return url;
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
  * Get streaming sources for an episode
  * @param {string} episodeId - Animepahe episode ID
  * @param {string} version - 'sub', 'dub', or 'raw' (default: 'sub')
@@ -143,9 +178,47 @@ export async function getAnimepaheStreamInfo(episodeId, version = "sub") {
     const response = await axios.get(
       `${BASE_URL}/api/animepahe/sources/${episodeId}?version=${version}`
     );
-    
-    const sources = response.data?.data?.sources || [];
-    
+
+    let sources = response.data?.data?.sources || [];
+
+    // Handle case where backend returns HTML player instead of JSON
+    if (typeof response.data === "string" || (sources.length === 0 && typeof response.data === "string")) {
+      console.warn("Backend returned HTML instead of JSON. Attempting to parse...");
+      const htmlContent = typeof response.data === "string" ? response.data : new XMLSerializer().serializeToString(response.data);
+      const m3u8Url = extractM3u8FromHtml(htmlContent);
+
+      if (m3u8Url) {
+        console.log("Extracted m3u8 URL from HTML:", m3u8Url);
+        sources = [
+          {
+            url: m3u8Url,
+            isM3u8: true,
+            type: "hls",
+            quality: "auto",
+          },
+        ];
+      } else {
+        console.error("Could not extract m3u8 URL from HTML response");
+      }
+    }
+
+    // Also try to extract from HTML if sources is empty
+    if (sources.length === 0 && typeof response.data !== "object") {
+      console.warn("No sources found in response. Attempting HTML parse...");
+      const m3u8Url = extractM3u8FromHtml(JSON.stringify(response.data));
+      if (m3u8Url) {
+        console.log("Extracted m3u8 URL from stringified response:", m3u8Url);
+        sources = [
+          {
+            url: m3u8Url,
+            isM3u8: true,
+            type: "hls",
+            quality: "auto",
+          },
+        ];
+      }
+    }
+
     // Transform sources to match expected format
     const transformedSources = sources.map((source) => ({
       url: source.url,

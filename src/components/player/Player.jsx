@@ -78,7 +78,92 @@ export default function Player({
   const playM3u8 = (video, url, art) => {
     if (Hls.isSupported()) {
       if (art.hls) art.hls.destroy();
-      const hls = new Hls();
+
+      const hls = new Hls({
+        // Loader configuration for better segment fetching
+        loader: Hls.DefaultConfig.loader,
+        // Enable detailed logging
+        debug: true,
+        // Retry configuration for failed segments
+        testBandwidth: false,
+        // Fragment loading timeouts
+        fragLoadingTimeoutMs: 30000, // 30 seconds for segment loading
+        fragLoadingMaxRetry: 6, // Retry failed segments up to 6 times
+        fragLoadingRetryDelay: 1000, // Wait 1s before first retry
+        fragLoadingRetryDelayMax: 8000, // Max 8s between retries
+        // Playlist loading configuration
+        manifestLoadingTimeoutMs: 10000,
+        manifestLoadingMaxRetry: 3,
+      });
+
+      // Add error listener for debugging
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        console.warn("[HLS Error]", data.type, data.reason, data);
+        // Fatal errors should trigger fallback or recovery
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              console.error("Fatal network error encountered, retrying...");
+              hls.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              console.error("Fatal media error encountered");
+              hls.recoverMediaError();
+              break;
+            default:
+              console.error("Fatal error, cannot recover:", data);
+              break;
+          }
+        }
+      });
+
+      // Log manifest loading
+      hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+        console.log("Manifest loaded successfully");
+        console.log(`Total levels: ${data.levels.length}`);
+        const level = data.levels[0];
+        if (level && level.fragments) {
+          console.log(`Total fragments in level 0: ${level.fragments.length}`);
+          console.log("First 10 fragments:");
+          level.fragments.forEach((frag, idx) => {
+            if (idx < 10) {
+              console.log(`  Fragment ${idx}: sn=${frag.sn}, duration=${frag.duration.toFixed(2)}s, url=${frag.url}`);
+            }
+          });
+        }
+      });
+
+      // Log manifest response to see raw content
+      hls.on(Hls.Events.MANIFEST_LOADING, (event, data) => {
+        console.log(`Loading manifest from: ${data.url}`);
+      });
+
+      hls.on(Hls.Events.MANIFEST_LOADED, (event, data) => {
+        console.log(`Manifest loaded, response length: ${data.responseText?.length || 'unknown'}`);
+        if (data.responseText) {
+          const lines = data.responseText.split('\n').slice(0, 20);
+          console.log("Manifest first 20 lines:");
+          lines.forEach((line, idx) => {
+            if (line.trim()) console.log(`  ${idx}: ${line}`);
+          });
+        }
+      });
+
+      // Log fragment loading
+      hls.on(Hls.Events.FRAG_LOADED, (event, data) => {
+        console.log(`Fragment loaded: sn=${data.frag.sn}, url=${data.frag.url}, duration=${data.frag.duration}`);
+      });
+
+      // Log when loading starts
+      hls.on(Hls.Events.FRAG_LOADING, (event, data) => {
+        console.log(`Loading fragment: sn=${data.frag.sn}, url=${data.frag.url}`);
+      });
+
+      // Log network errors in detail
+      hls.on(Hls.Events.FRAG_LOAD_ERROR, (event, data) => {
+        console.error(`Fragment load error: sn=${data.frag.sn}, url=${data.frag.url}, status=${data.response?.status}, reason=${data.reason}`);
+      });
+
       hls.loadSource(url);
       hls.attachMedia(video);
       art.hls = hls;
@@ -127,13 +212,19 @@ export default function Player({
 
       // Headers for proxied streams
       const iframeUrl = streamInfo?.streamingLink?.iframe;
-      const headers = {};
+      const existingHeaders = streamInfo?.streamingLink?.headers || {};
+      const headers = { ...existingHeaders };
       if (iframeUrl) headers.referer = new URL(iframeUrl).origin + "/";
 
       const defaultProxy = m3u8proxy[Math.floor(Math.random() * m3u8proxy.length)] || "";
       const proxiedStreamUrl = m3u8ProxyUrl
-        ? `${m3u8ProxyUrl}${encodeURIComponent(streamUrl)}`
+        ? `${m3u8ProxyUrl}${encodeURIComponent(streamUrl)}&headers=${encodeURIComponent(JSON.stringify(headers))}`
         : `${defaultProxy}${encodeURIComponent(streamUrl)}&headers=${encodeURIComponent(JSON.stringify(headers))}`;
+
+      console.log("[Player Init] Stream URL:", streamUrl);
+      console.log("[Player Init] Headers:", headers);
+      console.log("[Player Init] Using proxy:", m3u8ProxyUrl ? "AnimePahe" : "Default");
+      console.log("[Player Init] Proxied stream URL:", proxiedStreamUrl);
 
       // Initialize Artplayer
       art = new Artplayer({

@@ -19,6 +19,7 @@ import SidecardLoader from "@/src/components/Loader/Sidecard.loader";
 import Watchcontrols from "@/src/components/watchcontrols/Watchcontrols";
 import useWatchControl from "@/src/hooks/useWatchControl";
 import Player from "@/src/components/player/Player";
+import AnimePaheEmbedPlayer from "@/src/components/player/AnimePaheEmbedPlayer";
 
 export default function Watch() {
   const location = useLocation();
@@ -241,6 +242,16 @@ export default function Watch() {
                       episodes={episodes}
                       playNext={(id) => setEpisodeId(id)}
                       autoNext={autoNext}
+                    /> : source === "animepahe" && import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY ?
+                    <AnimePaheEmbedPlayer
+                      m3u8ProxyUrl={import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY}
+                      streamUrl={streamUrl}
+                      episodeId={episodeId}
+                      episodes={episodes}
+                      playNext={(id) => setEpisodeId(id)}
+                      autoNext={autoNext}
+                      animeInfo={animeInfo}
+                      episodeNum={activeEpisodeNum}
                     /> : <Player
                       streamUrl={streamUrl}
                       m3u8ProxyUrl={source === "animepahe" ? import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY : null}
