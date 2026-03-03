@@ -20,6 +20,8 @@ import Watchcontrols from "@/src/components/watchcontrols/Watchcontrols";
 import useWatchControl from "@/src/hooks/useWatchControl";
 import Player from "@/src/components/player/Player";
 import AnimePaheEmbedPlayer from "@/src/components/player/AnimePaheEmbedPlayer";
+import DownloadModal from "@/src/components/downloadmodal/DownloadModal";
+import { faDownload } from "@fortawesome/free-solid-svg-icons";
 
 export default function Watch() {
   const location = useLocation();
@@ -31,6 +33,7 @@ export default function Watch() {
   const { language } = useLanguage();
   const isFirstSet = useRef(true);
   const [showNextEpisodeSchedule, setShowNextEpisodeSchedule] = useState(true);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
   const {
     source,
     setSource,
@@ -60,7 +63,8 @@ export default function Watch() {
     activeServerType,
     setActiveServerType,
     activeServerName,
-    setActiveServerName
+    setActiveServerName,
+    downloadOptions,
   } = useWatchMultiSource(animeId, initialEpisodeId);
   const {
     autoPlay,
@@ -358,6 +362,20 @@ export default function Watch() {
                   </div>
                 </div>
 
+                {/* Download Modal Button */}
+                {source === "animepahe" && downloadOptions &&
+                  (downloadOptions.sub?.length > 0 || downloadOptions.dub?.length > 0 || downloadOptions.raw?.length > 0) && (
+                  <div className="px-3 py-2 border-t border-gray-700">
+                    <button
+                      onClick={() => setShowDownloadModal(true)}
+                      className="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
+                    >
+                      <FontAwesomeIcon icon={faDownload} className="text-[14px]" />
+                      Download Episode
+                    </button>
+                  </div>
+                )}
+
                 {/* Next Episode Schedule */}
                 {nextEpisodeSchedule?.nextEpisodeSchedule && showNextEpisodeSchedule && (
                   <div className="px-3 pb-3">
@@ -636,6 +654,13 @@ export default function Watch() {
           )}
         </div>
       </div>
+
+      {/* Download Modal */}
+      <DownloadModal
+        open={showDownloadModal}
+        onOpenChange={setShowDownloadModal}
+        downloadOptions={downloadOptions}
+      />
     </div>
   );
 }

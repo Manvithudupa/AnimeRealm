@@ -1,0 +1,17 @@
+/* Custom scrollbar styling for download options */
+.download-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.download-modal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.download-modal-content::-webkit-scrollbar-thumb {
+  background: #404040;
+  border-radius: 4px;
+}
+
+.download-modal-content::-webkit-scrollbar-thumb:hover {
+  background: #505050;
+}

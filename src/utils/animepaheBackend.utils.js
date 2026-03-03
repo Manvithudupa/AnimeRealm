@@ -236,3 +236,63 @@ export async function getAnimepaheStreamInfo(episodeId, version = "sub") {
     throw error;
   }
 }
+
+/**
+ * Get download options for an episode
+ * @param {string} episodeId - Animepahe episode ID
+ * @returns {Promise} Download options with sub and dub links
+ */
+export async function getAnimepaheDownloadOptions(episodeId) {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/animepahe/episode/${episodeId}/download`
+    );
+
+    const downloadOptions = {
+      sub: [],
+      dub: [],
+      raw: [],
+      episodeNumber: response.data?.download?.episodeNumber || null,
+    };
+
+    const data = response.data?.download || {};
+
+    // Process sub downloads
+    if (data.sub && Array.isArray(data.sub)) {
+      downloadOptions.sub = data.sub.map((item) => ({
+        serverId: item.serverId,
+        serverName: item.serverName,
+        mediaId: item.mediaId,
+      }));
+    }
+
+    // Process dub downloads
+    if (data.dub && Array.isArray(data.dub)) {
+      downloadOptions.dub = data.dub.map((item) => ({
+        serverId: item.serverId,
+        serverName: item.serverName,
+        mediaId: item.mediaId,
+      }));
+    }
+
+    // Process raw downloads
+    if (data.raw && Array.isArray(data.raw)) {
+      downloadOptions.raw = data.raw.map((item) => ({
+        serverId: item.serverId,
+        serverName: item.serverName,
+        mediaId: item.mediaId,
+      }));
+    }
+
+    return downloadOptions;
+  } catch (error) {
+    console.error("Error fetching Animepahe download options:", error);
+    // Return empty download options on error instead of throwing
+    return {
+      sub: [],
+      dub: [],
+      raw: [],
+      episodeNumber: null,
+    };
+  }
+}

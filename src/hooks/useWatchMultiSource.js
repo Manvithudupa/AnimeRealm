@@ -10,6 +10,7 @@ import {
   getAnimepaheEpisodes,
   getAnimepaheServers,
   getAnimepaheStreamInfo,
+  getAnimepaheDownloadOptions,
 } from "@/src/utils/animepaheBackend.utils";
 
 export const useWatchMultiSource = (animeId, initialEpisodeId) => {
@@ -37,6 +38,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
   const [serverLoading, setServerLoading] = useState(true);
   const [nextEpisodeSchedule, setNextEpisodeSchedule] = useState(null);
   const [animepaheId, setAnimepaheId] = useState(null); // Store Animepahe anime ID
+  const [downloadOptions, setDownloadOptions] = useState(null);
   const isServerFetchInProgress = useRef(false);
   const isStreamFetchInProgress = useRef(false);
 
@@ -61,6 +63,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     setTotalEpisodes(null);
     setAnimeInfoLoading(true);
     setAnimepaheId(null);
+    setDownloadOptions(null);
     isServerFetchInProgress.current = false;
     isStreamFetchInProgress.current = false;
   }, [animeId, source]);
@@ -231,6 +234,29 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     fetchServers();
   }, [episodeId, episodes, source]);
 
+  // Fetch download options for Animepahe
+  useEffect(() => {
+    if (source !== "animepahe" || !episodeId || !episodes) return;
+
+    const fetchDownloadOptions = async () => {
+      try {
+        const episode = episodes.find((ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId);
+        if (!episode?.episodeId) {
+          setDownloadOptions(null);
+          return;
+        }
+
+        const downloadData = await getAnimepaheDownloadOptions(episode.episodeId);
+        setDownloadOptions(downloadData);
+      } catch (error) {
+        console.error("Error fetching download options:", error);
+        setDownloadOptions(null);
+      }
+    };
+
+    fetchDownloadOptions();
+  }, [episodeId, episodes, source]);
+
   useEffect(() => {
     if (
       !episodeId ||
@@ -350,5 +376,6 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     setActiveServerType,
     activeServerName,
     setActiveServerName,
+    downloadOptions,
   };
 };
