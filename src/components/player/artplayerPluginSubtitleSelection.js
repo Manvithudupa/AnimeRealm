@@ -5,10 +5,10 @@ export default function artplayerPluginSubtitleSelection(subtitles = []) {
     let hasSetDefault = false;
 
     art.setting.add({
+      name: "Subtitles",
       html: `
-        <select
-          name="subtitle-select"
-          id="subtitle-select"
+        <select 
+          name="subtitle-select" 
           class="subtitle-dropdown"
         >
           <option value="">Off</option>
@@ -62,11 +62,11 @@ export default function artplayerPluginSubtitleSelection(subtitles = []) {
       },
     });
 
-    // Add comprehensive styles for the subtitle dropdown
+    // Add styles for the subtitle dropdown
     const style = document.createElement("style");
     style.textContent = `
       .subtitle-dropdown {
-        width: 100%;
+        width: calc(100% - 4px);
         padding: 8px 10px;
         border-radius: 4px;
         border: 1px solid rgba(255, 255, 255, 0.15);
@@ -81,7 +81,6 @@ export default function artplayerPluginSubtitleSelection(subtitles = []) {
         line-height: 1.4;
         min-height: 32px;
         vertical-align: middle;
-        margin: -4px 0 0 0;
       }
 
       .subtitle-dropdown:hover {
