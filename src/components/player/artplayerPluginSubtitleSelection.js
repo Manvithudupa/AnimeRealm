@@ -71,84 +71,58 @@ export default function artplayerPluginSubtitleSelection(subtitles = []) {
     style.textContent = `
       .subtitle-selection-wrapper {
         width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        padding: 4px 0;
+        display: block;
+        margin: 0;
+        padding: 0;
       }
 
       .subtitle-label {
+        display: block;
         font-size: 12px;
         font-weight: 600;
         color: rgba(255, 255, 255, 0.7);
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        margin-bottom: 6px;
+        margin-top: 0;
       }
 
       .subtitle-dropdown {
         width: 100%;
-        padding: 10px 12px;
-        border-radius: 6px;
+        padding: 8px 10px;
+        border-radius: 4px;
         border: 1px solid rgba(255, 255, 255, 0.15);
-        background: linear-gradient(135deg, rgba(20, 20, 25, 0.9) 0%, rgba(30, 30, 35, 0.9) 100%);
+        background: rgba(20, 20, 25, 0.9);
         color: #ffffff;
         font-size: 13px;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         font-family: inherit;
-        appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 8px center;
-        background-size: 18px;
-        padding-right: 36px;
+        box-sizing: border-box;
       }
 
       .subtitle-dropdown:hover {
         background-color: rgba(30, 30, 40, 0.95);
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 8px center;
-        background-size: 18px;
-        border-color: rgba(255, 255, 255, 0.3);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        border-color: rgba(255, 255, 255, 0.25);
       }
 
       .subtitle-dropdown:focus {
         outline: none;
         background-color: rgba(30, 30, 40, 0.95);
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 8px center;
-        background-size: 18px;
-        border-color: rgba(255, 255, 255, 0.5);
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(59, 130, 246, 0.15);
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
       }
 
       .subtitle-dropdown option {
         background-color: rgb(20, 20, 25);
         color: #ffffff;
-        padding: 10px 8px;
-        line-height: 1.5;
-        border: none;
-      }
-
-      .subtitle-dropdown option:hover {
-        background: linear-gradient(rgb(59, 130, 246), rgb(59, 130, 246));
+        padding: 8px 6px;
       }
 
       .subtitle-dropdown option:checked {
-        background: linear-gradient(rgb(59, 130, 246), rgb(59, 130, 246));
+        background: rgb(59, 130, 246);
         color: #ffffff;
-      }
-
-      @supports (-webkit-appearance: none) {
-        .subtitle-dropdown {
-          appearance: none;
-          -webkit-appearance: none;
-          -moz-appearance: none;
-        }
       }
     `;
     document.head.appendChild(style);
