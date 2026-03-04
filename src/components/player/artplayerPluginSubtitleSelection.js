@@ -6,28 +6,24 @@ export default function artplayerPluginSubtitleSelection(subtitles = []) {
 
     art.setting.add({
       html: `
-        <div class="subtitle-selection-wrapper">
-          <label class="subtitle-label">Subtitles</label>
-          <select 
-            name="subtitle-select" 
-            id="subtitle-select"
-            class="subtitle-dropdown"
-          >
-            <option value="">Off</option>
-            ${subtitles
-              .map(
-                (sub, index) =>
-                  `<option value="${index}" ${
-                    sub.label?.toLowerCase() === "english" ? "selected" : ""
-                  }>${sub.label}</option>`
-              )
-              .join("")}
-          </select>
-        </div>
+        <select
+          name="subtitle-select"
+          id="subtitle-select"
+          class="subtitle-dropdown"
+        >
+          <option value="">Off</option>
+          ${subtitles
+            .map(
+              (sub, index) =>
+                `<option value="${index}" ${
+                  sub.label?.toLowerCase() === "english" ? "selected" : ""
+                }>${sub.label}</option>`
+            )
+            .join("")}
+        </select>
       `,
-      width: 220,
       onClick(setting, $setting) {
-        const $select = $setting.querySelector("select[name='subtitle-select']");
+        const $select = $setting instanceof HTMLSelectElement ? $setting : $setting.querySelector("select[name='subtitle-select']");
 
         // Set default subtitle only once
         if (!hasSetDefault) {
@@ -69,27 +65,6 @@ export default function artplayerPluginSubtitleSelection(subtitles = []) {
     // Add comprehensive styles for the subtitle dropdown
     const style = document.createElement("style");
     style.textContent = `
-      .subtitle-selection-wrapper {
-        width: 100%;
-        display: block;
-        margin: 0;
-        padding: 0;
-        position: relative;
-        z-index: 1000;
-      }
-
-      .subtitle-label {
-        display: block;
-        font-size: 12px;
-        font-weight: 600;
-        color: rgba(255, 255, 255, 0.7);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 6px;
-        margin-top: 0;
-        line-height: 1;
-      }
-
       .subtitle-dropdown {
         width: 100%;
         padding: 8px 10px;
@@ -103,11 +78,10 @@ export default function artplayerPluginSubtitleSelection(subtitles = []) {
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         font-family: inherit;
         box-sizing: border-box;
-        position: relative;
-        z-index: 1001;
         line-height: 1.4;
         min-height: 32px;
         vertical-align: middle;
+        margin: -4px 0 0 0;
       }
 
       .subtitle-dropdown:hover {
