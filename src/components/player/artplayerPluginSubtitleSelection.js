@@ -74,6 +74,8 @@ export default function artplayerPluginSubtitleSelection(subtitles = []) {
         display: block;
         margin: 0;
         padding: 0;
+        position: relative;
+        z-index: 1000;
       }
 
       .subtitle-label {
@@ -85,6 +87,7 @@ export default function artplayerPluginSubtitleSelection(subtitles = []) {
         letter-spacing: 0.5px;
         margin-bottom: 6px;
         margin-top: 0;
+        line-height: 1;
       }
 
       .subtitle-dropdown {
@@ -100,6 +103,11 @@ export default function artplayerPluginSubtitleSelection(subtitles = []) {
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         font-family: inherit;
         box-sizing: border-box;
+        position: relative;
+        z-index: 1001;
+        line-height: 1.4;
+        min-height: 32px;
+        vertical-align: middle;
       }
 
       .subtitle-dropdown:hover {
