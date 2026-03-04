@@ -271,9 +271,6 @@ export default function Player({
           });
         }
 
-        // Default subtitle
-        const def = subtitles?.find((s) => s.label.toLowerCase() === "english");
-        if (def) art.subtitle.switch(def.file, { name: def.label, default: true });
 
         // Auto skip intro/outro
         const skipRanges = [
