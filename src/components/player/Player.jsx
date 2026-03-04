@@ -21,7 +21,7 @@ import "./Player.css";
 import website_name from "@/src/config/website";
 import getChapterStyles from "./getChapterStyle";
 import artplayerPluginHlsControl from "artplayer-plugin-hls-control";
-import artplayerPluginUploadSubtitle from "./artplayerPluginUploadSubtitle";
+import artplayerPluginSubtitleSelection from "./artplayerPluginSubtitleSelection";
 import { supabase } from "@/src/integrations/supabase/client";
 
 Artplayer.LOG_VERSION = false;
@@ -244,7 +244,7 @@ export default function Player({
           artplayerPluginHlsControl({
             quality: { setting: true, getName: (l) => l.height + "P", title: "Quality", auto: "Auto" },
           }),
-          artplayerPluginUploadSubtitle(),
+          artplayerPluginSubtitleSelection(subtitles),
           artplayerPluginChapter({ chapters: createChapters() }),
         ],
         icons: {
@@ -271,9 +271,6 @@ export default function Player({
           });
         }
 
-        // Default subtitle
-        const def = subtitles?.find((s) => s.label.toLowerCase() === "english");
-        if (def) art.subtitle.switch(def.file, { name: def.label, default: true });
 
         // Auto skip intro/outro
         const skipRanges = [
