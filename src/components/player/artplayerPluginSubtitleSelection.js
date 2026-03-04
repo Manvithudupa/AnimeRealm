@@ -22,8 +22,13 @@ export default function artplayerPluginSubtitleSelection(subtitles = []) {
             .join("")}
         </select>
       `,
+      onSelect(value) {
+        return value;
+      },
       onClick(setting, $setting) {
         const $select = $setting instanceof HTMLSelectElement ? $setting : $setting.querySelector("select[name='subtitle-select']");
+
+        if (!$select) return;
 
         // Set default subtitle only once
         if (!hasSetDefault) {
@@ -66,7 +71,7 @@ export default function artplayerPluginSubtitleSelection(subtitles = []) {
     const style = document.createElement("style");
     style.textContent = `
       .subtitle-dropdown {
-        width: calc(100% - 4px);
+        width: 100%;
         padding: 8px 10px;
         border-radius: 4px;
         border: 1px solid rgba(255, 255, 255, 0.15);
