@@ -70,6 +70,15 @@ export default function artplayerPluginSubtitleSelection(subtitles = []) {
     // Add styles for the subtitle dropdown
     const style = document.createElement("style");
     style.textContent = `
+      .art-settings-item:has(.subtitle-dropdown) {
+        width: 100% !important;
+      }
+
+      .art-settings-value:has(.subtitle-dropdown) {
+        width: 100% !important;
+        flex: 1 !important;
+      }
+
       .subtitle-dropdown {
         width: 100%;
         padding: 8px 10px;
@@ -86,6 +95,7 @@ export default function artplayerPluginSubtitleSelection(subtitles = []) {
         line-height: 1.4;
         min-height: 32px;
         vertical-align: middle;
+        display: block;
       }
 
       .subtitle-dropdown:hover {
