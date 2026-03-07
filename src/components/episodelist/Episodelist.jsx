@@ -207,7 +207,7 @@ function Episodelist({
         className="w-full flex-1 overflow-y-auto bg-[#1a1a1a] max-h-[calc(100vh-200px)]"
       >
         {viewMode === "grid" ? (
-          <div className="p-4 grid gap-3 grid-cols-6 max-[768px]:grid-cols-5 max-[576px]:grid-cols-4 max-[420px]:grid-cols-3">
+          <div className="p-4 grid gap-4 grid-cols-6 max-[768px]:grid-cols-5 max-[576px]:grid-cols-4 max-[420px]:grid-cols-3">
             {displayedEpisodes.map((item, index) => {
               const episodeNumber = item?.id.match(/ep=(\d+)/)?.[1];
               const isActive =
@@ -218,8 +218,8 @@ function Episodelist({
                 <div
                   key={item?.id}
                   ref={isActive ? activeEpisodeRef : null}
-                  className={`relative flex flex-col items-center justify-end h-[100px] rounded-md cursor-pointer transition-all overflow-hidden group
-                    ${isSearched ? "ring-2 ring-white" : ""}`}
+                  className={`relative flex flex-col items-center justify-end h-[110px] rounded-lg cursor-pointer transition-all overflow-hidden group
+                    ${isActive ? "ring-2 ring-purple-500" : isSearched ? "ring-2 ring-white" : ""}`}
                   onClick={() => {
                     if (episodeNumber) {
                       onEpisodeClick(episodeNumber);
@@ -233,7 +233,7 @@ function Episodelist({
                     <img
                       src={item.thumbnail}
                       alt={`Episode ${index + selectedRange[0]}`}
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
                       onError={(e) => {
                         e.target.style.display = "none";
                       }}
@@ -243,26 +243,20 @@ function Episodelist({
                   )}
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-all" />
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2 bg-black/80 z-20">
-                    <span className="text-xs font-semibold text-white text-center line-clamp-3 break-words">
+                    <FontAwesomeIcon icon={faCirclePlay} className="text-white w-5 h-5" />
+                    <span className="text-xs font-semibold text-white text-center line-clamp-2 break-words">
                       {language === "EN" ? item?.title : item?.japanese_title}
                     </span>
                   </div>
-                  <div
-                    className={`relative z-10 flex items-center justify-center w-full h-full text-xs font-medium rounded-md transition-all
-                      ${
-                        isActive
-                          ? "bg-white/20 text-white"
-                          : "text-gray-300 group-hover:text-white"
-                      }`}
-                  >
-                    {index + selectedRange[0]}
+                  <div className="relative z-10 flex items-center justify-center w-full text-xs font-bold text-white bg-black/50 py-1 w-full">
+                    Ep {index + selectedRange[0]}
                   </div>
                 </div>
               );
             })}
           </div>
         ) : (
-          <div className="divide-y divide-[#2a2a2a]">
+          <div className="p-4 space-y-3">
             {displayedEpisodes.map((item, index) => {
               const episodeNumber = item?.id.match(/ep=(\d+)/)?.[1];
               const isActive =
@@ -273,11 +267,11 @@ function Episodelist({
                 <div
                   key={item?.id}
                   ref={isActive ? activeEpisodeRef : null}
-                  className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all
+                  className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-all group
                     ${
                       isActive
-                        ? "bg-[#2a2a2a] text-white"
-                        : "bg-[#1a1a1a] text-gray-400 hover:bg-[#2a2a2a]"
+                        ? "bg-[#2a2a2a] ring-1 ring-purple-500/50"
+                        : "bg-[#1a1a1a] hover:bg-[#252525]"
                     }
                     ${isSearched ? "ring-1 ring-white" : ""}`}
                   onClick={() => {
@@ -288,31 +282,46 @@ function Episodelist({
                     }
                   }}
                 >
-                  {item?.thumbnail && (
-                    <img
-                      src={item.thumbnail}
-                      alt={`Episode ${index + selectedRange[0]}`}
-                      className="w-16 h-12 rounded object-cover flex-shrink-0"
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                      }}
-                    />
-                  )}
-                  <div className="flex items-center justify-between w-full flex-1 min-w-0">
-                    <div className="flex flex-col gap-1 min-w-0 flex-1">
-                      <span className="text-sm font-medium">{index + selectedRange[0]}</span>
-                      <h1
-                        className={`text-sm line-clamp-2 break-words ${
-                          isActive ? "font-semibold" : ""
-                        }`}
-                        title={language === "EN" ? item?.title : item?.japanese_title}
-                      >
-                        {language === "EN" ? item?.title : item?.japanese_title}
-                      </h1>
-                    </div>
-                    {isActive && (
-                      <FontAwesomeIcon icon={faCirclePlay} className="text-white w-4 h-4 ml-3 flex-shrink-0" />
+                  {/* Thumbnail */}
+                  <div className="relative flex-shrink-0 w-24 h-16 rounded-md overflow-hidden bg-[#2a2a2a] group-hover:shadow-lg transition-shadow">
+                    {item?.thumbnail ? (
+                      <img
+                        src={item.thumbnail}
+                        alt={`Episode ${index + selectedRange[0]}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-[#2a2a2a]" />
                     )}
+                    {/* Episode number badge */}
+                    <div className="absolute bottom-1 left-1 bg-black/70 px-2 py-0.5 rounded text-xs font-bold text-white">
+                      Ep {index + selectedRange[0]}
+                    </div>
+                    {/* Active indicator */}
+                    {isActive && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                        <FontAwesomeIcon icon={faCirclePlay} className="text-white w-6 h-6" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0 flex flex-col justify-start">
+                    <h2
+                      className={`text-sm font-semibold line-clamp-2 break-words transition-colors
+                        ${isActive ? "text-white" : "text-gray-200 group-hover:text-white"}
+                      `}
+                      title={language === "EN" ? item?.title : item?.japanese_title}
+                    >
+                      {language === "EN" ? item?.title : item?.japanese_title}
+                    </h2>
+                    {/* Metadata - you can add view counts and post dates here when data is available */}
+                    <div className="flex items-center gap-2 mt-1.5 text-xs text-gray-400">
+                      <span className="line-clamp-1">Episode {index + selectedRange[0]}</span>
+                    </div>
                   </div>
                 </div>
               );
