@@ -55,9 +55,9 @@ export async function getAnimepaheEpisodes(animeId) {
       episode_no: ep.episodeNumber,
       episodeId: ep.episodeId,
       title: ep.title || `Episode ${ep.episodeNumber}`,
-      // Use wrsl image proxy for animepahe thumbnails
+      // Use wsrv.nl image proxy for animepahe thumbnails (more reliable)
       thumbnail: ep.thumbnail
-        ? `https://images.wrsl.dev/?url=${encodeURIComponent(ep.thumbnail)}`
+        ? `https://wsrv.nl/?url=${encodeURIComponent(ep.thumbnail)}&n=-1`
         : undefined,
     }));
 

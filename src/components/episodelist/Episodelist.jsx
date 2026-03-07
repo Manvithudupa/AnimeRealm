@@ -227,17 +227,26 @@ function Episodelist({
                       setSearchedEpisode(null);
                     }
                   }}
+                  title={language === "EN" ? item?.title : item?.japanese_title}
                 >
                   {item?.thumbnail ? (
                     <img
                       src={item.thumbnail}
                       alt={`Episode ${index + selectedRange[0]}`}
                       className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
                     />
                   ) : (
                     <div className="absolute inset-0 w-full h-full bg-[#2a2a2a]" />
                   )}
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-all" />
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2 bg-black/80 z-20">
+                    <span className="text-xs font-semibold text-white text-center line-clamp-3 break-words">
+                      {language === "EN" ? item?.title : item?.japanese_title}
+                    </span>
+                  </div>
                   <div
                     className={`relative z-10 flex items-center justify-center w-full h-full text-xs font-medium rounded-md transition-all
                       ${
@@ -284,21 +293,25 @@ function Episodelist({
                       src={item.thumbnail}
                       alt={`Episode ${index + selectedRange[0]}`}
                       className="w-16 h-12 rounded object-cover flex-shrink-0"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
                     />
                   )}
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between w-full flex-1 min-w-0">
+                    <div className="flex flex-col gap-1 min-w-0 flex-1">
                       <span className="text-sm font-medium">{index + selectedRange[0]}</span>
                       <h1
-                        className={`truncate text-sm max-w-xs ${
+                        className={`text-sm line-clamp-2 break-words ${
                           isActive ? "font-semibold" : ""
                         }`}
+                        title={language === "EN" ? item?.title : item?.japanese_title}
                       >
                         {language === "EN" ? item?.title : item?.japanese_title}
                       </h1>
                     </div>
                     {isActive && (
-                      <FontAwesomeIcon icon={faCirclePlay} className="text-white w-4 h-4 ml-3" />
+                      <FontAwesomeIcon icon={faCirclePlay} className="text-white w-4 h-4 ml-3 flex-shrink-0" />
                     )}
                   </div>
                 </div>
