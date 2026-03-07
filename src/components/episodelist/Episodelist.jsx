@@ -207,7 +207,7 @@ function Episodelist({
         className="w-full flex-1 overflow-y-auto bg-[#1a1a1a] max-h-[calc(100vh-200px)]"
       >
         {viewMode === "grid" ? (
-          <div className="p-4 grid gap-2 grid-cols-6 max-[768px]:grid-cols-5 max-[576px]:grid-cols-4 max-[420px]:grid-cols-3">
+          <div className="p-4 grid gap-3 grid-cols-6 max-[768px]:grid-cols-5 max-[576px]:grid-cols-4 max-[420px]:grid-cols-3">
             {displayedEpisodes.map((item, index) => {
               const episodeNumber = item?.id.match(/ep=(\d+)/)?.[1];
               const isActive =
@@ -218,13 +218,8 @@ function Episodelist({
                 <div
                   key={item?.id}
                   ref={isActive ? activeEpisodeRef : null}
-                  className={`flex items-center justify-center h-[35px] text-xs font-medium rounded-md cursor-pointer transition-all
-                    ${
-                      isActive
-                        ? "bg-white text-black"
-                        : "bg-[#2a2a2a] text-gray-400 hover:bg-[#3a3a3a] hover:text-white"
-                    }
-                    ${isSearched ? "ring-1 ring-white" : ""}`}
+                  className={`relative flex flex-col items-center justify-end h-[100px] rounded-md cursor-pointer transition-all overflow-hidden group
+                    ${isSearched ? "ring-2 ring-white" : ""}`}
                   onClick={() => {
                     if (episodeNumber) {
                       onEpisodeClick(episodeNumber);
@@ -233,7 +228,26 @@ function Episodelist({
                     }
                   }}
                 >
-                  {index + selectedRange[0]}
+                  {item?.thumbnail ? (
+                    <img
+                      src={item.thumbnail}
+                      alt={`Episode ${index + selectedRange[0]}`}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 w-full h-full bg-[#2a2a2a]" />
+                  )}
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-all" />
+                  <div
+                    className={`relative z-10 flex items-center justify-center w-full h-full text-xs font-medium rounded-md transition-all
+                      ${
+                        isActive
+                          ? "bg-white/20 text-white"
+                          : "text-gray-300 group-hover:text-white"
+                      }`}
+                  >
+                    {index + selectedRange[0]}
+                  </div>
                 </div>
               );
             })}
@@ -250,7 +264,7 @@ function Episodelist({
                 <div
                   key={item?.id}
                   ref={isActive ? activeEpisodeRef : null}
-                  className={`flex items-center justify-between px-4 py-2 cursor-pointer transition-all
+                  className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all
                     ${
                       isActive
                         ? "bg-[#2a2a2a] text-white"
@@ -265,17 +279,26 @@ function Episodelist({
                     }
                   }}
                 >
-                  <span className="text-sm">{index + selectedRange[0]}</span>
-                  <div className="flex items-center justify-between w-full ml-3">
-                    <h1
-                      className={`truncate text-sm ${
-                        isActive ? "font-semibold" : ""
-                      }`}
-                    >
-                      {language === "EN" ? item?.title : item?.japanese_title}
-                    </h1>
+                  {item?.thumbnail && (
+                    <img
+                      src={item.thumbnail}
+                      alt={`Episode ${index + selectedRange[0]}`}
+                      className="w-16 h-12 rounded object-cover flex-shrink-0"
+                    />
+                  )}
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-medium">{index + selectedRange[0]}</span>
+                      <h1
+                        className={`truncate text-sm max-w-xs ${
+                          isActive ? "font-semibold" : ""
+                        }`}
+                      >
+                        {language === "EN" ? item?.title : item?.japanese_title}
+                      </h1>
+                    </div>
                     {isActive && (
-                      <FontAwesomeIcon icon={faCirclePlay} className="text-white w-4 h-4" />
+                      <FontAwesomeIcon icon={faCirclePlay} className="text-white w-4 h-4 ml-3" />
                     )}
                   </div>
                 </div>

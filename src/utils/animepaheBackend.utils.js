@@ -48,14 +48,17 @@ export async function getAnimepaheEpisodes(animeId) {
       `${BASE_URL}/api/animepahe/anime/${animeId}/episodes`
     );
     const episodes = response.data?.data || [];
-    
+
     // Transform episodes to match expected format
     const transformedEpisodes = episodes.map((ep) => ({
       id: `ep=${ep.episodeNumber}`, // Match format: ep=1, ep=2, etc.
       episode_no: ep.episodeNumber,
       episodeId: ep.episodeId,
       title: ep.title || `Episode ${ep.episodeNumber}`,
-      thumbnail: ep.thumbnail,
+      // Use wrsl image proxy for animepahe thumbnails
+      thumbnail: ep.thumbnail
+        ? `https://images.wrsl.dev/?url=${encodeURIComponent(ep.thumbnail)}`
+        : undefined,
     }));
 
     return {

@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
 import getEpisodes from "@/src/utils/getEpisodes.utils";
+import getEpisodesFromAnilist from "@/src/utils/getEpisodesFromAnilist.utils";
 import getNextEpisodeSchedule from "../utils/getNextEpisodeSchedule.utils";
 import getServers from "../utils/getServers.utils";
 import getStreamInfo from "../utils/getStreamInfo.utils";
@@ -107,11 +108,16 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
               : null);
           setEpisodeId(newEpisodeId);
         } else {
-          // HiAnime flow (original)
-          const [animeData, episodesData] = await Promise.all([
-            getAnimeInfo(animeId, false),
-            getEpisodes(animeId),
-          ]);
+          // HiAnime flow using VITE_ANIMEPAHE_URL endpoint
+          const animeData = await getAnimeInfo(animeId, false);
+          const anilistId = animeData?.data?.anilistId;
+
+          if (!anilistId) {
+            throw new Error("Could not fetch Anilist ID");
+          }
+
+          const episodesData = await getEpisodesFromAnilist(anilistId, "hianime");
+
           setAnimeInfo(animeData?.data);
           setSeasons(animeData?.seasons);
           setEpisodes(episodesData?.episodes);
