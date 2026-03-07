@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { Button } from "@/src/components/ui/button";
 import { User, Bell, Bookmark, LogOut } from "lucide-react";
@@ -46,6 +46,8 @@ function Navbar() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  const handleCloseSidebar = useCallback(() => setIsSidebarOpen(false), []);
 
   const handleRandomClick = (e) => {
     if (location.pathname === "/random") {
@@ -212,7 +214,7 @@ function Navbar() {
         )}
       </nav>
 
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
     </SearchProvider>
   );
 }
