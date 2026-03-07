@@ -58,7 +58,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     onClose();
-  }, [location]);
+  }, [location, onClose]);
 
   return (
     <div className="sidebar-container" aria-hidden={!isOpen}>
@@ -122,9 +122,9 @@ const Sidebar = ({ isOpen, onClose }) => {
 
           {/* Menu Items */}
           <nav className="menu-items">
-            {MENU_ITEMS.map((item, index) => (
+            {MENU_ITEMS.map((item) => (
               <Link
-                key={index}
+                key={item.path}
                 to={item.path}
                 className="menu-item"
               >

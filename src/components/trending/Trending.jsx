@@ -36,7 +36,7 @@ const Trending = ({ trending }) => {
         >
           {trending &&
             trending.map((item, idx) => (
-              <SwiperSlide key={idx} className="flex justify-center">
+              <SwiperSlide key={item.id ?? idx} className="flex justify-center">
                 <Link
                   to={`/${item.id}`}
                   className="
