@@ -11,12 +11,10 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import website_name from "@/src/config/website";
 import CategoryCard from "@/src/components/categorycard/CategoryCard";
-import Sidecard from "@/src/components/sidecard/Sidecard";
 import OptimizedImage from "@/src/components/OptimizedImage";
 import Loader from "@/src/components/Loader/Loader";
 import Error from "@/src/components/error/Error";
 import { useLanguage } from "@/src/context/LanguageContext";
-import { useHomeInfo } from "@/src/context/HomeInfoContext";
 import Voiceactor from "@/src/components/voiceactor/Voiceactor";
 import { supabase } from "@/src/integrations/supabase/client";
 import { useAuth } from "@/src/hooks/useAuth";
@@ -99,7 +97,14 @@ function AnimeInfo({ random = false }) {
       .eq("user_id", user.id)
       .eq("anime_id", animeInfo.id)
       .single()
-      .then(({ data }) => setInWatchlist(!!data));
+      .then(({ data, error }) => {
+        // PGRST116 = no rows found — treat as "not in watchlist", not an error
+        if (error && error.code !== 'PGRST116') {
+          console.error("Error checking watchlist:", error);
+        }
+        setInWatchlist(!!data);
+      })
+      .catch((err) => console.error("Error checking watchlist:", err));
   }, [user, animeInfo]);
 
   /* ---------- Toggle Watchlist ---------- */
@@ -259,10 +264,10 @@ function AnimeInfo({ random = false }) {
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2.5">
-                {tags.map((tag, i) =>
+                {tags.map((tag) =>
                   typeof tag === "string"
-                    ? <Tag key={i} text={tag} />
-                    : <Tag key={i} icon={tag.icon} text={tag.text} />
+                    ? <Tag key={tag} text={tag} />
+                    : <Tag key={tag.text} icon={tag.icon} text={tag.text} />
                 )}
               </div>
             </div>
@@ -322,7 +327,7 @@ function AnimeInfo({ random = false }) {
             {seasons.map((season, index) => (
               <Link
                 to={`/${season.id}`}
-                key={index}
+                key={season.id ?? index}
                 className={`relative w-full aspect-[3/1] sm:aspect-[3/1] rounded-lg overflow-hidden cursor-pointer group ${
                   currentId === String(season.data_id)
                     ? "ring-2 ring-white/40 shadow-lg shadow-white/10"

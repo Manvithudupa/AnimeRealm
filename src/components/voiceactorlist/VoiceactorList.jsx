@@ -1,11 +1,4 @@
 import { useState, useEffect } from "react";
-import {
-  faAngleDoubleLeft,
-  faAngleDoubleRight,
-  faChevronLeft,
-  faChevronRight,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import fetchVoiceActorInfo from "@/src/utils/getVoiceActor.utils";
 import VoiceActorlistLoader from "../Loader/VoiceActorlist.loader";
 import { useNavigate } from "react-router-dom";
@@ -91,7 +84,7 @@ function VoiceactorList({ id, isOpen, onClose }) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                 {VoiceactorList.map((item, index) => (
                   <div
-                    key={index}
+                    key={item.character?.name ?? index}
                     className="flex items-center justify-between p-2 sm:p-3 bg-zinc-800/50 hover:bg-zinc-800/70 rounded-lg border border-zinc-700/30 transition-all duration-300"
                   >
                     {/* Character Section */}

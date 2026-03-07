@@ -58,7 +58,7 @@ function AtoZ({ path }) {
             ...Array.from({ length: 26 }, (_, i) =>
               String.fromCharCode(65 + i)
             ),
-          ].map((item, index) => {
+          ].map((item) => {
             const linkPath =
               item.toLowerCase() === "all"
                 ? ""
@@ -73,7 +73,7 @@ function AtoZ({ path }) {
             return (
               <Link
                 to={`/az-list/${linkPath}`}
-                key={index}
+                key={item}
                 className={`text-md bg-[#373646] py-1 px-4 rounded-md font-bold hover:text-black hover:bg-white hover:cursor-pointer transition-all ease-out ${
                   isActive ? "text-black bg-white" : ""
                 }`}

@@ -42,7 +42,7 @@ const ContinueWatching = () => {
               adult_content: !!item.adultContent,
               updated_at: new Date().toISOString(),
             },
-            { onConflict: ["user_id", "anime_id"] } // <-- overwrite same anime
+            { onConflict: "user_id,anime_id" } // overwrite same anime
           )
         )
       );

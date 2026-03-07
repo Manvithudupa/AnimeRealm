@@ -24,7 +24,7 @@ function Voiceactor({ animeInfo, className }) {
       <div className="grid grid-cols-3 gap-3 max-lg:grid-cols-2 max-md:grid-cols-1">
         {animeInfo.charactersVoiceActors.slice(0, 6).map((character, index) => (
           <div
-            key={index}
+            key={character.character?.name ?? index}
             className="flex justify-between items-center px-4 py-3 rounded-lg bg-zinc-800/50 hover:bg-zinc-800/70 transition-all duration-300 border border-zinc-700/30"
           >
             {character.character && (

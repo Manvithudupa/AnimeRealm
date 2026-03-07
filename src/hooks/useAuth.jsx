@@ -34,7 +34,15 @@ export const AuthProvider = ({ children }) => {
           .single()
           .then(({ data }) => {
             if (mounted && data) setProfile(data);
-          });
+          })
+          .catch((err) => console.error('Error fetching profile:', err));
+      }
+    }).catch((err) => {
+      console.error('Error getting session:', err);
+      if (mounted) {
+        setUser(null);
+        setSession(null);
+        setLoading(false);
       }
     });
 
@@ -54,7 +62,8 @@ export const AuthProvider = ({ children }) => {
             .single()
             .then(({ data }) => {
               if (mounted && data) setProfile(data);
-            });
+            })
+            .catch((err) => console.error('Error fetching profile on auth change:', err));
         } else {
           setProfile(null);
         }

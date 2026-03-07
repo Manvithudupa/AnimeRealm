@@ -26,7 +26,7 @@ const CategoryCard = React.memo(
     const { language } = useLanguage();
     const navigate = useNavigate();
 
-    if (limit) data = data.slice(0, limit);
+    const displayData = limit ? data.slice(0, limit) : data;
 
     const [itemsToRender, setItemsToRender] = useState({
       firstRow: [],
@@ -36,20 +36,20 @@ const CategoryCard = React.memo(
     const getItemsToRender = useCallback(() => {
       if (categoryPage) {
         const firstRow =
-          window.innerWidth > 758 && data.length > 4
-            ? data.slice(0, 4)
+          window.innerWidth > 758 && displayData.length > 4
+            ? displayData.slice(0, 4)
             : [];
 
         const remainingItems =
-          window.innerWidth > 758 && data.length > 4
-            ? data.slice(4)
-            : data.slice(0);
+          window.innerWidth > 758 && displayData.length > 4
+            ? displayData.slice(4)
+            : displayData.slice(0);
 
         return { firstRow, remainingItems };
       }
 
-      return { firstRow: [], remainingItems: data.slice(0) };
-    }, [categoryPage, data]);
+      return { firstRow: [], remainingItems: displayData.slice(0) };
+    }, [categoryPage, displayData]);
 
     useEffect(() => {
       const handleResize = () => setItemsToRender(getItemsToRender());
@@ -62,12 +62,12 @@ const CategoryCard = React.memo(
 
     const renderCard = (item, index) => {
       if (label === "Latest Episode") {
-        return <LatestEpisodeCard key={index} item={item} path={path} />;
+        return <LatestEpisodeCard key={item.id ?? index} item={item} path={path} />;
       }
 
       return (
         <div
-          key={index}
+          key={item.id ?? index}
           ref={(el) => cardRefs && (cardRefs.current[item.id] = el)}
           onMouseEnter={() => onItemHover && onItemHover(item)}
           onMouseLeave={() => onItemLeave && onItemLeave()}

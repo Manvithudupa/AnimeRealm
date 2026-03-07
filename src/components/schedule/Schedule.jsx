@@ -149,7 +149,7 @@ const Schedule = () => {
           >
             {dates &&
               dates.map((date, index) => (
-                <SwiperSlide key={index}>
+                <SwiperSlide key={date.fulldate}>
                   <div
                     ref={(el) => (cardRefs.current[index] = el)}
                     onClick={() => toggleActive(index)}
