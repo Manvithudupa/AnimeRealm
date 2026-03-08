@@ -5,6 +5,7 @@ import getEpisodesFromAnilist from "@/src/utils/getEpisodesFromAnilist.utils";
 import getEpisodes from "@/src/utils/getEpisodes.utils";
 import getServers from "../utils/getServers.utils";
 import getStreamInfo from "../utils/getStreamInfo.utils";
+import getNextEpisodeSchedule from "@/src/utils/getNextEpisodeSchedule.utils";
 import {
   searchAnimepaheBackend,
   getAnimepaheEpisodes,
@@ -37,6 +38,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
   const [serverLoading, setServerLoading] = useState(true);
   const [animepaheId, setAnimepaheId] = useState(null); // Store Animepahe anime ID
   const [downloadOptions, setDownloadOptions] = useState(null);
+  const [nextEpisodeSchedule, setNextEpisodeSchedule] = useState(null);
   const isServerFetchInProgress = useRef(false);
   const isStreamFetchInProgress = useRef(false);
 
@@ -62,12 +64,22 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     setAnimeInfoLoading(true);
     setAnimepaheId(null);
     setDownloadOptions(null);
+    setNextEpisodeSchedule(null);
     isServerFetchInProgress.current = false;
     isStreamFetchInProgress.current = false;
   }, [animeId, source]);
 
   // Fetch initial data based on source
   useEffect(() => {
+    const fetchSchedule = async () => {
+      try {
+        const scheduleData = await getNextEpisodeSchedule(animeId);
+        setNextEpisodeSchedule(scheduleData?.nextEpisodeSchedule || null);
+      } catch {
+        setNextEpisodeSchedule(null);
+      }
+    };
+
     const fetchInitialData = async () => {
       try {
         setAnimeInfoLoading(true);
@@ -99,6 +111,9 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
           setEpisodes(episodesData?.episodes);
           setTotalEpisodes(episodesData?.totalEpisodes);
 
+          // Fetch next episode schedule (only relevant for HiAnime ID)
+          await fetchSchedule();
+
           const newEpisodeId =
             initialEpisodeId ||
             (episodesData?.episodes?.length > 0
@@ -126,6 +141,10 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
 
           setEpisodes(episodesData?.episodes);
           setTotalEpisodes(episodesData?.totalEpisodes);
+
+          // Fetch next episode schedule using HiAnime ID
+          await fetchSchedule();
+
           const newEpisodeId =
             initialEpisodeId ||
             (episodesData?.episodes?.length > 0
@@ -352,5 +371,6 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     activeServerName,
     setActiveServerName,
     downloadOptions,
+    nextEpisodeSchedule,
   };
 };

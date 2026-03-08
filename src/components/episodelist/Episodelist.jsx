@@ -61,6 +61,7 @@ function Episodelist({
   const [episodeNum, setEpisodeNum] = useState(currentEpisode);
   const dropDownRef = useRef(null);
   const [searchedEpisode, setSearchedEpisode] = useState(null);
+  const searchedEpisodeRef = useRef(null);
   const [sortDesc, setSortDesc] = useState(false);
   const proxyUrl = import.meta.env.VITE_PROXY_URL || "";
 
@@ -85,6 +86,16 @@ function Episodelist({
 
   useEffect(() => setActiveEpisodeId(episodeNum), [episodeNum]);
   useEffect(() => scrollToActiveEpisode(), [activeEpisodeId]);
+
+  useEffect(() => {
+    if (!searchedEpisode) return;
+    if (searchedEpisodeRef.current) {
+      searchedEpisodeRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [searchedEpisode]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -292,6 +303,7 @@ function Episodelist({
               const isActive =
                 activeEpisodeId === episodeNumber || currentEpisode === episodeNumber;
               const isSearched = searchedEpisode === item?.id;
+              const itemRef = isActive ? activeEpisodeRef : isSearched ? searchedEpisodeRef : null;
               const displayNum = sortDesc
                 ? selectedRange[0] + (slicedEpisodes.length - 1 - index)
                 : selectedRange[0] + index;
@@ -299,7 +311,7 @@ function Episodelist({
               return (
                 <div
                   key={item?.id}
-                  ref={isActive ? activeEpisodeRef : null}
+                  ref={itemRef}
                   className={`flex items-center justify-center h-[35px] text-xs font-medium rounded-md cursor-pointer transition-all
                     ${
                       isActive
@@ -329,11 +341,12 @@ function Episodelist({
               const isSearched = searchedEpisode === item?.id;
               const thumbnailSrc = getThumbnailSrc(item);
               const timeAgo = getTimeAgo(item?.airDate);
+              const itemRef = isActive ? activeEpisodeRef : isSearched ? searchedEpisodeRef : null;
 
               return (
                 <div
                   key={item?.id}
-                  ref={isActive ? activeEpisodeRef : null}
+                  ref={itemRef}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all
                     ${
                       isActive

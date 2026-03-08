@@ -63,6 +63,7 @@ export default function Watch() {
     activeServerName,
     setActiveServerName,
     downloadOptions,
+    nextEpisodeSchedule,
   } = useWatchMultiSource(animeId, initialEpisodeId);
   const {
     autoPlay,
@@ -382,39 +383,72 @@ export default function Watch() {
                   const nextEp = currentIndex >= 0 && currentIndex < episodes.length - 1
                     ? episodes[currentIndex + 1]
                     : null;
-                  if (!nextEp) return null;
-                  return (
-                    <div className="px-3 pb-3">
-                      <div
-                        className="w-full rounded-lg bg-[#272727] flex items-center gap-3 cursor-pointer hover:bg-[#303030] transition-colors overflow-hidden"
-                        onClick={() => setEpisodeId(nextEp.id.match(/ep=(\d+)/)?.[1])}
-                      >
-                        {nextEp.thumbnail && (
-                          <div className="flex-shrink-0 w-[100px] h-[56px] relative overflow-hidden">
-                            <img
-                              src={source === "animepahe" ? `${import.meta.env.VITE_PROXY_URL || ""}${nextEp.thumbnail}` : nextEp.thumbnail}
-                              alt={nextEp.title}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                              <svg className="w-6 h-6 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z" />
-                              </svg>
+                  if (nextEp) {
+                    return (
+                      <div className="px-3 pb-3">
+                        <div
+                          className="w-full rounded-lg bg-[#272727] flex items-center gap-3 cursor-pointer hover:bg-[#303030] transition-colors overflow-hidden"
+                          onClick={() => setEpisodeId(nextEp.id.match(/ep=(\d+)/)?.[1])}
+                        >
+                          {nextEp.thumbnail && (
+                            <div className="flex-shrink-0 w-[100px] h-[56px] relative overflow-hidden">
+                              <img
+                                src={source === "animepahe" ? `${import.meta.env.VITE_PROXY_URL || ""}${nextEp.thumbnail}` : nextEp.thumbnail}
+                                alt={nextEp.title}
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <svg className="w-6 h-6 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                              </div>
                             </div>
-                          </div>
-                        )}
-                        <div className="flex-1 py-2 pr-3 min-w-0">
-                          <p className="text-gray-400 text-xs">Up Next</p>
-                          <p className="text-white text-sm font-medium truncate">
-                            Ep {nextEp.episode_no}{nextEp.title ? ` — ${nextEp.title}` : ""}
-                          </p>
-                          {nextEp.airDate && (
-                            <p className="text-gray-500 text-xs mt-0.5">{nextEp.airDate}</p>
                           )}
+                          <div className="flex-1 py-2 pr-3 min-w-0">
+                            <p className="text-gray-400 text-xs">Up Next</p>
+                            <p className="text-white text-sm font-medium truncate">
+                              Ep {nextEp.episode_no}{nextEp.title ? ` — ${nextEp.title}` : ""}
+                            </p>
+                            {nextEp.airDate && (
+                              <p className="text-gray-500 text-xs mt-0.5">{nextEp.airDate}</p>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
+                    );
+                  }
+                  if (nextEpisodeSchedule) {
+                    // The API returns schedule timestamps in UTC ("YYYY-MM-DD HH:MM:SS").
+                    // Normalize to ISO-8601 UTC so Date can parse it correctly.
+                    const normalized = nextEpisodeSchedule.includes("T")
+                      ? nextEpisodeSchedule
+                      : nextEpisodeSchedule.replace(" ", "T") + "Z";
+                    const scheduleDate = new Date(normalized);
+                    const formatted = isNaN(scheduleDate.getTime())
+                      ? nextEpisodeSchedule
+                      : scheduleDate.toLocaleString(undefined, {
+                          weekday: "short",
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        });
+                    return (
+                      <div className="px-3 pb-3">
+                        <div className="w-full rounded-lg bg-[#272727] flex items-center gap-3 px-4 py-3">
+                          <svg className="w-5 h-5 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <div className="min-w-0">
+                            <p className="text-gray-400 text-xs">Next Episode Airs</p>
+                            <p className="text-white text-sm font-medium">{formatted}</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
                 })()}
               </div>
             </div>
