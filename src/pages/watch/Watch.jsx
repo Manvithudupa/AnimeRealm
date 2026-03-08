@@ -32,7 +32,6 @@ export default function Watch() {
   const [tags, setTags] = useState([]);
   const { language } = useLanguage();
   const isFirstSet = useRef(true);
-  const [showNextEpisodeSchedule, setShowNextEpisodeSchedule] = useState(true);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const {
     source,
@@ -43,7 +42,6 @@ export default function Watch() {
     streamUrl,
     animeInfo,
     episodes,
-    nextEpisodeSchedule,
     animeInfoLoading,
     totalEpisodes,
     isFullOverview,
@@ -376,39 +374,48 @@ export default function Watch() {
                   </div>
                 )}
 
-                {/* Next Episode Schedule */}
-                {nextEpisodeSchedule?.nextEpisodeSchedule && showNextEpisodeSchedule && (
-                  <div className="px-3 pb-3">
-                    <div className="w-full p-3 rounded-lg bg-[#272727] flex items-center justify-between">
-                      <div className="flex items-center gap-x-3">
-                        <span className="text-[18px]">🚀</span>
-                        <div>
-                          <span className="text-gray-400 text-sm">Next episode estimated at</span>
-                          <span className="ml-2 text-white text-sm font-medium">
-                            {new Date(
-                              new Date(nextEpisodeSchedule.nextEpisodeSchedule).getTime() -
-                              new Date().getTimezoneOffset() * 60000
-                            ).toLocaleDateString("en-GB", {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                              second: "2-digit",
-                              hour12: true,
-                            })}
-                          </span>
+                {/* Next Episode Info */}
+                {episodes && episodeId && (() => {
+                  const currentIndex = episodes.findIndex(
+                    (ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId
+                  );
+                  const nextEp = currentIndex >= 0 && currentIndex < episodes.length - 1
+                    ? episodes[currentIndex + 1]
+                    : null;
+                  if (!nextEp) return null;
+                  return (
+                    <div className="px-3 pb-3">
+                      <div
+                        className="w-full rounded-lg bg-[#272727] flex items-center gap-3 cursor-pointer hover:bg-[#303030] transition-colors overflow-hidden"
+                        onClick={() => setEpisodeId(nextEp.id.match(/ep=(\d+)/)?.[1])}
+                      >
+                        {nextEp.thumbnail && (
+                          <div className="flex-shrink-0 w-[100px] h-[56px] relative overflow-hidden">
+                            <img
+                              src={`${import.meta.env.VITE_PROXY_URL || ""}${nextEp.thumbnail}`}
+                              alt={nextEp.title}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                              <svg className="w-6 h-6 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex-1 py-2 pr-3 min-w-0">
+                          <p className="text-gray-400 text-xs">Up Next</p>
+                          <p className="text-white text-sm font-medium truncate">
+                            Ep {nextEp.episode_no}{nextEp.title ? ` — ${nextEp.title}` : ""}
+                          </p>
+                          {nextEp.airDate && (
+                            <p className="text-gray-500 text-xs mt-0.5">{nextEp.airDate}</p>
+                          )}
                         </div>
                       </div>
-                      <button
-                        className="text-2xl text-gray-500 hover:text-white transition-colors"
-                        onClick={() => setShowNextEpisodeSchedule(false)}
-                      >
-                        ×
-                      </button>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
             </div>
 
@@ -479,6 +486,7 @@ export default function Watch() {
                     currentEpisode={episodeId}
                     onEpisodeClick={(id) => setEpisodeId(id)}
                     totalEpisodes={totalEpisodes}
+                    source={source}
                   />
                 )}
               </div>
@@ -622,6 +630,7 @@ export default function Watch() {
                   currentEpisode={episodeId}
                   onEpisodeClick={(id) => setEpisodeId(id)}
                   totalEpisodes={totalEpisodes}
+                  source={source}
                 />
               )}
             </div>
