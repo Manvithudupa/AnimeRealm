@@ -245,10 +245,18 @@ function Episodelist({
     return thumbnailBlobCache.get(originalUrl) || originalUrl;
   }
 
+  // Resolve the human-readable episode number (episode_no, e.g. 2) for the
+  // currently playing episode.  currentEpisode is the internal ep= ID
+  // (e.g. "163517"), NOT the display episode number, so we look it up.
+  // Use a direct string check (split on "?ep=") to avoid repeated regex
+  // compilation inside the find callback.
+  const currentEpNum =
+    episodes.find((ep) => ep?.id?.split("?ep=")[1] === currentEpisode)
+      ?.episode_no ?? null;
+
   // Compute "Up Next" episode number
-  const currentEpNum = parseInt(currentEpisode, 10);
   const nextEpisode = episodes.find(
-    (ep) => ep.episode_no === currentEpNum + 1
+    (ep) => ep.episode_no === (currentEpNum ?? 0) + 1
   );
   const nextEpNum = nextEpisode ? nextEpisode.episode_no : null;
 
@@ -529,4 +537,3 @@ function Episodelist({
 }
 
 export default Episodelist;
-
