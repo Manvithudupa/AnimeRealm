@@ -487,6 +487,7 @@ export default function Watch() {
                     onEpisodeClick={(id) => setEpisodeId(id)}
                     totalEpisodes={totalEpisodes}
                     source={source}
+                    animeTitle={animeInfo ? (language ? animeInfo.title : (animeInfo.japanese_title || animeInfo.title)) : null}
                   />
                 )}
               </div>
@@ -631,6 +632,7 @@ export default function Watch() {
                   onEpisodeClick={(id) => setEpisodeId(id)}
                   totalEpisodes={totalEpisodes}
                   source={source}
+                  animeTitle={animeInfo ? (language ? animeInfo.title : (animeInfo.japanese_title || animeInfo.title)) : null}
                 />
               )}
             </div>
