@@ -383,7 +383,16 @@ export default function Watch() {
                   const nextEp = currentIndex >= 0 && currentIndex < episodes.length - 1
                     ? episodes[currentIndex + 1]
                     : null;
-                  if (nextEp) {
+
+                  // Only treat nextEp as "Up Next" if it has actually aired.
+                  // Episodes from Anilist may include future (unaired) entries; those
+                  // should instead display the schedule card below.
+                  const nextEpHasAired =
+                    nextEp &&
+                    nextEp.aired !== false &&
+                    (!nextEp.airDate || new Date(nextEp.airDate) <= new Date());
+
+                  if (nextEp && nextEpHasAired) {
                     return (
                       <div className="px-3 pb-3">
                         <div
@@ -417,36 +426,49 @@ export default function Watch() {
                       </div>
                     );
                   }
-                  if (nextEpisodeSchedule) {
-                    // The API returns schedule timestamps in UTC ("YYYY-MM-DD HH:MM:SS").
-                    // Normalize to ISO-8601 UTC so Date can parse it correctly.
-                    const normalized = nextEpisodeSchedule.includes("T")
-                      ? nextEpisodeSchedule
-                      : nextEpisodeSchedule.replace(" ", "T") + "Z";
-                    const scheduleDate = new Date(normalized);
-                    const formatted = isNaN(scheduleDate.getTime())
-                      ? nextEpisodeSchedule
-                      : scheduleDate.toLocaleString(undefined, {
-                          weekday: "short",
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        });
-                    return (
-                      <div className="px-3 pb-3">
-                        <div className="w-full rounded-lg bg-[#272727] flex items-center gap-3 px-4 py-3">
-                          <svg className="w-5 h-5 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          <div className="min-w-0">
-                            <p className="text-gray-400 text-xs">Next Episode Airs</p>
-                            <p className="text-white text-sm font-medium">{formatted}</p>
+
+                  // Determine the best schedule string to show:
+                  // prefer the unaired nextEp's airDate, then fall back to the API schedule.
+                  const rawSchedule =
+                    (nextEp && nextEp.airDate && new Date(nextEp.airDate) > new Date())
+                      ? nextEp.airDate
+                      : nextEpisodeSchedule;
+
+                  if (rawSchedule) {
+                    // The API may return timestamps as "YYYY-MM-DD HH:MM:SS" (UTC).
+                    // Normalise to ISO-8601 so Date() parses it correctly.
+                    const isString = typeof rawSchedule === "string";
+                    const normalized = isString
+                      ? rawSchedule.includes("T")
+                        ? rawSchedule
+                        : rawSchedule.replace(" ", "T") + "Z"
+                      : null;
+                    if (normalized) {
+                      const scheduleDate = new Date(normalized);
+                      const formatted = isNaN(scheduleDate.getTime())
+                        ? rawSchedule
+                        : scheduleDate.toLocaleString(undefined, {
+                            weekday: "short",
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          });
+                      return (
+                        <div className="px-3 pb-3">
+                          <div className="w-full rounded-lg bg-[#272727] flex items-center gap-3 px-4 py-3">
+                            <svg className="w-5 h-5 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <div className="min-w-0">
+                              <p className="text-gray-400 text-xs">Next Episode Airs</p>
+                              <p className="text-white text-sm font-medium">{formatted}</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
+                      );
+                    }
                   }
                   return null;
                 })()}
