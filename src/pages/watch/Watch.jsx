@@ -418,7 +418,8 @@ export default function Watch() {
                     );
                   }
                   if (nextEpisodeSchedule) {
-                    // Parse "YYYY-MM-DD HH:MM:SS" (UTC) or ISO-8601 formats
+                    // The API returns schedule timestamps in UTC ("YYYY-MM-DD HH:MM:SS").
+                    // Normalize to ISO-8601 UTC so Date can parse it correctly.
                     const normalized = nextEpisodeSchedule.includes("T")
                       ? nextEpisodeSchedule
                       : nextEpisodeSchedule.replace(" ", "T") + "Z";
