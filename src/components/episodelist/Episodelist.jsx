@@ -11,8 +11,37 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import "./Episodelist.css";
+
+// Module-level thumbnail blob cache – persists across component mounts/unmounts
+// so thumbnails are never re-fetched from the network once loaded.
+const thumbnailBlobCache = new Map(); // originalUrl -> blobUrl (or original as fallback)
+const thumbnailFetchingSet = new Set(); // prevents duplicate concurrent fetches
+
+function cacheThumbnailBlob(url) {
+  if (!url || thumbnailBlobCache.has(url) || thumbnailFetchingSet.has(url)) return;
+  thumbnailFetchingSet.add(url);
+  fetch(url)
+    .then((r) => (r.ok ? r.blob() : Promise.reject()))
+    .then((blob) => {
+      thumbnailBlobCache.set(url, URL.createObjectURL(blob));
+    })
+    .catch(() => {
+      thumbnailBlobCache.set(url, url); // cache original URL as fallback
+    })
+    .finally(() => thumbnailFetchingSet.delete(url));
+}
+
+// Helper: compute the range that contains a given episode number
+function calcInitialRange(episodeNum, total) {
+  const num = parseInt(episodeNum, 10);
+  if (isNaN(num) || num < 1) return [1, 100];
+  const step = 100;
+  const start = Math.floor((num - 1) / step) * step + 1;
+  const end = Math.min(start + step - 1, total || start + step - 1);
+  return [start, end];
+}
 
 function getTimeAgo(dateStr) {
   if (!dateStr) return null;
@@ -56,18 +85,26 @@ function Episodelist({
   const listContainerRef = useRef(null);
   const activeEpisodeRef = useRef(null);
   const [showDropDown, setShowDropDown] = useState(false);
-  const [selectedRange, setSelectedRange] = useState([1, 100]);
-  const [activeRange, setActiveRange] = useState("1-100");
+  // Initialise the selected range to the range that contains the current episode
+  // so "Go to current episode" works immediately even for episodes in the 500-600 range.
+  const [selectedRange, setSelectedRange] = useState(() => calcInitialRange(currentEpisode, totalEpisodes));
+  const [activeRange, setActiveRange] = useState(() => {
+    const r = calcInitialRange(currentEpisode, totalEpisodes);
+    return `${r[0]}-${r[1]}`;
+  });
   const [episodeNum, setEpisodeNum] = useState(currentEpisode);
   const dropDownRef = useRef(null);
   const [searchedEpisode, setSearchedEpisode] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const searchedEpisodeRef = useRef(null);
   const [sortDesc, setSortDesc] = useState(false);
   const proxyUrl = import.meta.env.VITE_PROXY_URL || "";
+  // Used to trigger a scroll after the range is updated by goToCurrentEpisode
+  const pendingScrollRef = useRef(false);
 
   const [viewMode, setViewMode] = useState("list");
 
-  const scrollToActiveEpisode = () => {
+  const scrollToActiveEpisode = useCallback(() => {
     if (activeEpisodeRef.current && listContainerRef.current) {
       const container = listContainerRef.current;
       const activeEpisode = activeEpisodeRef.current;
@@ -82,7 +119,15 @@ function Episodelist({
         containerHeight / 2 +
         activeEpisodeHeight / 2;
     }
-  };
+  }, []);
+
+  // After selectedRange updates (triggered by goToCurrentEpisode), scroll to active episode
+  useEffect(() => {
+    if (pendingScrollRef.current) {
+      pendingScrollRef.current = false;
+      scrollToActiveEpisode();
+    }
+  }, [selectedRange, scrollToActiveEpisode]);
 
   useEffect(() => setActiveEpisodeId(episodeNum), [episodeNum]);
   useEffect(() => scrollToActiveEpisode(), [activeEpisodeId]);
@@ -109,8 +154,15 @@ function Episodelist({
 
   function handleChange(e) {
     const value = e.target.value.trim();
+    setSearchTerm(value);
+
     if (value === "") {
-      const newRange = findRangeForEpisode(1);
+      // Reset to the range that contains the currently active episode
+      const activeEp = episodes?.find(
+        (item) => item?.id.match(/ep=(\d+)/)?.[1] === currentEpisode
+      );
+      const epNum = activeEp?.episode_no || 1;
+      const newRange = findRangeForEpisode(epNum);
       setSelectedRange(newRange);
       setActiveRange(`${newRange[0]}-${newRange[1]}`);
       setSearchedEpisode(null);
@@ -129,6 +181,22 @@ function Episodelist({
       setSelectedRange(newRange);
       setActiveRange(`${newRange[0]}-${newRange[1]}`);
       setSearchedEpisode(foundEpisode?.id);
+    }
+  }
+
+  // Navigate to the range containing the current episode, then scroll to it
+  function goToCurrentEpisode() {
+    const activeEp = episodes?.find(
+      (item) => item?.id.match(/ep=(\d+)/)?.[1] === currentEpisode
+    );
+    const epNum = activeEp?.episode_no;
+    if (epNum) {
+      const newRange = findRangeForEpisode(epNum);
+      setSelectedRange(newRange);
+      setActiveRange(`${newRange[0]}-${newRange[1]}`);
+      pendingScrollRef.current = true;
+    } else {
+      scrollToActiveEpisode();
     }
   }
 
@@ -160,13 +228,21 @@ function Episodelist({
   const slicedEpisodes = episodes.slice(selectedRange[0] - 1, selectedRange[1]);
   const displayedEpisodes = sortDesc ? [...slicedEpisodes].reverse() : slicedEpisodes;
 
+  // When a search term is active, show ONLY the episode that exactly matches the number
+  const searchNum = searchTerm ? parseInt(searchTerm, 10) : NaN;
+  const filteredEpisodes = !isNaN(searchNum)
+    ? displayedEpisodes.filter((item) => item?.episode_no === searchNum)
+    : displayedEpisodes;
+
   // Only proxy animepahe thumbnails, not hianime
   function getThumbnailSrc(item) {
     if (!item?.thumbnail) return null;
-    if (source === "animepahe" && proxyUrl) {
-      return `${proxyUrl}${item.thumbnail}`;
-    }
-    return item.thumbnail;
+    const originalUrl =
+      source === "animepahe" && proxyUrl
+        ? `${proxyUrl}${item.thumbnail}`
+        : item.thumbnail;
+    // Return cached blob URL if available, otherwise the original URL
+    return thumbnailBlobCache.get(originalUrl) || originalUrl;
   }
 
   // Compute "Up Next" episode number
@@ -221,7 +297,7 @@ function Episodelist({
 
           {/* Refresh / scroll to current */}
           <button
-            onClick={scrollToActiveEpisode}
+            onClick={goToCurrentEpisode}
             title="Go to current episode"
             className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-[#2a2a2a] border border-[#3a3a3a] text-gray-400 hover:text-white transition-colors"
           >
@@ -298,7 +374,7 @@ function Episodelist({
       >
         {viewMode === "grid" ? (
           <div className="p-4 grid gap-2 grid-cols-6 max-[768px]:grid-cols-5 max-[576px]:grid-cols-4 max-[420px]:grid-cols-3">
-            {displayedEpisodes.map((item, index) => {
+            {filteredEpisodes.map((item, index) => {
               const episodeNumber = item?.id.match(/ep=(\d+)/)?.[1];
               const isActive =
                 activeEpisodeId === episodeNumber || currentEpisode === episodeNumber;
@@ -334,12 +410,20 @@ function Episodelist({
           </div>
         ) : (
           <div className="flex flex-col gap-1.5 p-2">
-            {displayedEpisodes.map((item) => {
+            {filteredEpisodes.map((item) => {
               const episodeNumber = item?.id.match(/ep=(\d+)/)?.[1];
               const isActive =
                 activeEpisodeId === episodeNumber || currentEpisode === episodeNumber;
               const isSearched = searchedEpisode === item?.id;
-              const thumbnailSrc = getThumbnailSrc(item);
+              // Get the original URL for cache-key lookup
+              const originalUrl = item?.thumbnail
+                ? source === "animepahe" && proxyUrl
+                  ? `${proxyUrl}${item.thumbnail}`
+                  : item.thumbnail
+                : null;
+              const thumbnailSrc = originalUrl
+                ? thumbnailBlobCache.get(originalUrl) || originalUrl
+                : null;
               const timeAgo = getTimeAgo(item?.airDate);
               const itemRef = isActive ? activeEpisodeRef : isSearched ? searchedEpisodeRef : null;
 
@@ -370,6 +454,7 @@ function Episodelist({
                         alt={item?.title || `Episode ${item?.episode_no}`}
                         className="w-full h-full object-cover"
                         loading="lazy"
+                        onLoad={() => cacheThumbnailBlob(originalUrl)}
                         onError={(e) => {
                           e.target.style.display = "none";
                           if (e.target.nextSibling) {
