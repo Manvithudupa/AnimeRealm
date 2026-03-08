@@ -3,7 +3,7 @@ import { Skeleton } from "../ui/Skeleton/Skeleton";
 function SidecardLoader({ className }) {
     return (
         <div className={`bg-[#141414] rounded-lg p-6 ${className}`}>
-            <h2 className="text-xl font-semibold mb-4 text-white">Related Anime</h2>
+            <h2 className="text-xl font-semibold mb-4 text-white">Popular Anime</h2>
             <div className="flex flex-col space-y-2 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-track-[#1a1a1a] scrollbar-thumb-[#2a2a2a] hover:scrollbar-thumb-[#333] scrollbar-thumb-rounded">
                 {[...Array(8)].map((_, index) => (
                     <div key={index} className="group">
