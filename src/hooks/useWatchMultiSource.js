@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef } from "react";
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
+import getEpisodesFromAnilist from "@/src/utils/getEpisodesFromAnilist.utils";
 import getEpisodes from "@/src/utils/getEpisodes.utils";
-import getNextEpisodeSchedule from "../utils/getNextEpisodeSchedule.utils";
 import getServers from "../utils/getServers.utils";
 import getStreamInfo from "../utils/getStreamInfo.utils";
 import {
@@ -35,7 +35,6 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
   const [activeServerType, setActiveServerType] = useState(null);
   const [activeServerName, setActiveServerName] = useState(null);
   const [serverLoading, setServerLoading] = useState(true);
-  const [nextEpisodeSchedule, setNextEpisodeSchedule] = useState(null);
   const [animepaheId, setAnimepaheId] = useState(null); // Store Animepahe anime ID
   const [downloadOptions, setDownloadOptions] = useState(null);
   const isServerFetchInProgress = useRef(false);
@@ -107,13 +106,24 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
               : null);
           setEpisodeId(newEpisodeId);
         } else {
-          // HiAnime flow (original)
-          const [animeData, episodesData] = await Promise.all([
-            getAnimeInfo(animeId, false),
-            getEpisodes(animeId),
-          ]);
+          // HiAnime flow: fetch anime info first to get anilistId, then use anilist episodes API
+          const animeData = await getAnimeInfo(animeId, false);
+          const anilistId = animeData?.data?.anilistId;
           setAnimeInfo(animeData?.data);
           setSeasons(animeData?.seasons);
+
+          let episodesData = null;
+          if (anilistId) {
+            try {
+              episodesData = await getEpisodesFromAnilist(anilistId);
+            } catch (err) {
+              console.warn("Anilist episodes fetch failed, falling back to default:", err);
+              episodesData = await getEpisodes(animeId);
+            }
+          } else {
+            episodesData = await getEpisodes(animeId);
+          }
+
           setEpisodes(episodesData?.episodes);
           setTotalEpisodes(episodesData?.totalEpisodes);
           const newEpisodeId =
@@ -131,20 +141,6 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
       }
     };
     fetchInitialData();
-  }, [animeId, source]);
-
-  useEffect(() => {
-    const fetchNextEpisodeSchedule = async () => {
-      if (source !== "hianime") return; // Only for HiAnime
-
-      try {
-        const data = await getNextEpisodeSchedule(animeId);
-        setNextEpisodeSchedule(data);
-      } catch (err) {
-        console.error("Error fetching next episode schedule:", err);
-      }
-    };
-    fetchNextEpisodeSchedule();
   }, [animeId, source]);
 
   useEffect(() => {
@@ -186,8 +182,10 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
           setActiveServerName(initialServer?.serverName);
           setActiveServerId(initialServer?.data_id);
         } else {
-          // HiAnime flow (original)
-          const data = await getServers(animeId, episodeId);
+          // HiAnime flow: use the full episodeId from the episode object
+          const episode = episodes.find((ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId);
+          const fullEpisodeId = episode?.id || `${animeId}?ep=${episodeId}`;
+          const data = await getServers(fullEpisodeId);
           const filteredServers = data?.filter(
             (server) =>
               server.serverName === "HD-1" ||
@@ -285,12 +283,13 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
           setIntro(null);
           setOutro(null);
         } else {
-          // HiAnime flow (original)
+          // HiAnime flow: use the full episodeId from the episode object
           const server = servers.find((srv) => srv.data_id === activeServerId);
           if (server) {
+            const episode = episodes.find((ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId);
+            const fullEpisodeId = episode?.id || `${animeId}?ep=${episodeId}`;
             const data = await getStreamInfo(
-              animeId,
-              episodeId,
+              fullEpisodeId,
               server.serverName.toLowerCase() === "hd-3" ? "hd-1" : server.serverName.toLowerCase(),
               server.type.toLowerCase()
             );
@@ -331,7 +330,6 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     streamInfo,
     animeInfo,
     episodes,
-    nextEpisodeSchedule,
     animeInfoLoading,
     totalEpisodes,
     seasons,

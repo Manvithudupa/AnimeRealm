@@ -17,6 +17,7 @@ function Episodelist({
   onEpisodeClick,
   currentEpisode,
   totalEpisodes,
+  source,
 }) {
   const [activeEpisodeId, setActiveEpisodeId] = useState(currentEpisode);
   const { language } = useLanguage();
@@ -28,6 +29,7 @@ function Episodelist({
   const [episodeNum, setEpisodeNum] = useState(currentEpisode);
   const dropDownRef = useRef(null);
   const [searchedEpisode, setSearchedEpisode] = useState(null);
+  const proxyUrl = import.meta.env.VITE_PROXY_URL || "";
 
   // ✅ default to "list" view
   const [viewMode, setViewMode] = useState("list");
@@ -116,6 +118,15 @@ function Episodelist({
     selectedRange[0] - 1,
     selectedRange[1]
   );
+
+  function getThumbnailSrc(item) {
+    if (!item?.thumbnail) return null;
+    // Proxy animepahe thumbnails (or any external thumbnail) through VITE_PROXY_URL
+    if (source === "animepahe" || proxyUrl) {
+      return `${proxyUrl}${item.thumbnail}`;
+    }
+    return item.thumbnail;
+  }
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -240,23 +251,24 @@ function Episodelist({
           </div>
         ) : (
           <div className="divide-y divide-[#2a2a2a]">
-            {displayedEpisodes.map((item, index) => {
+            {displayedEpisodes.map((item) => {
               const episodeNumber = item?.id.match(/ep=(\d+)/)?.[1];
               const isActive =
                 activeEpisodeId === episodeNumber || currentEpisode === episodeNumber;
               const isSearched = searchedEpisode === item?.id;
+              const thumbnailSrc = getThumbnailSrc(item);
 
               return (
                 <div
                   key={item?.id}
                   ref={isActive ? activeEpisodeRef : null}
-                  className={`flex items-center justify-between px-4 py-2 cursor-pointer transition-all
+                  className={`flex items-start gap-3 cursor-pointer transition-all
                     ${
                       isActive
-                        ? "bg-[#2a2a2a] text-white"
-                        : "bg-[#1a1a1a] text-gray-400 hover:bg-[#2a2a2a]"
+                        ? "bg-[#252525]"
+                        : "bg-[#1a1a1a] hover:bg-[#212121]"
                     }
-                    ${isSearched ? "ring-1 ring-white" : ""}`}
+                    ${isSearched ? "ring-1 ring-inset ring-white/30" : ""}`}
                   onClick={() => {
                     if (episodeNumber) {
                       onEpisodeClick(episodeNumber);
@@ -265,17 +277,50 @@ function Episodelist({
                     }
                   }}
                 >
-                  <span className="text-sm">{index + selectedRange[0]}</span>
-                  <div className="flex items-center justify-between w-full ml-3">
-                    <h1
-                      className={`truncate text-sm ${
-                        isActive ? "font-semibold" : ""
-                      }`}
+                  {/* Thumbnail */}
+                  <div className="flex-shrink-0 w-[110px] h-[62px] relative overflow-hidden bg-[#2a2a2a]">
+                    {thumbnailSrc ? (
+                      <img
+                        src={thumbnailSrc}
+                        alt={item?.title || `Episode ${item?.episode_no}`}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                          e.target.nextSibling && (e.target.nextSibling.style.display = "flex");
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className="w-full h-full items-center justify-center bg-[#2a2a2a]"
+                      style={{ display: thumbnailSrc ? "none" : "flex" }}
                     >
-                      {language === "EN" ? item?.title : item?.japanese_title}
-                    </h1>
+                      <svg className="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
                     {isActive && (
-                      <FontAwesomeIcon icon={faCirclePlay} className="text-white w-4 h-4" />
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <FontAwesomeIcon icon={faCirclePlay} className="text-white text-xl" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0 py-2 pr-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className={`text-xs font-medium truncate ${isActive ? "text-white" : "text-gray-300"}`}>
+                        <span className="text-gray-500 mr-1.5">Ep {item?.episode_no}</span>
+                        {language === "EN" ? item?.title : (item?.japanese_title || item?.title)}
+                      </p>
+                    </div>
+                    {item?.overview && (
+                      <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-2 leading-tight">
+                        {item.overview}
+                      </p>
+                    )}
+                    {item?.airDate && !item?.overview && (
+                      <p className="text-[11px] text-gray-500 mt-0.5">{item.airDate}</p>
                     )}
                   </div>
                 </div>
@@ -289,3 +334,4 @@ function Episodelist({
 }
 
 export default Episodelist;
+
