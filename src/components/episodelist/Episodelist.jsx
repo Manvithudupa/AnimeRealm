@@ -1,22 +1,55 @@
 import { useLanguage } from "@/src/context/LanguageContext";
 import {
-  faAngleDown,
   faCirclePlay,
   faList,
   faCheck,
   faGrip,
   faBars,
+  faArrowsRotate,
+  faSort,
+  faBell,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect, useRef } from "react";
 import "./Episodelist.css";
 
+function getTimeAgo(dateStr) {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return null;
+  const now = new Date();
+  const diffMs = now - date;
+  if (diffMs < 0) return null;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays < 7) return `${diffDays} days ago`;
+  const weeks = Math.floor(diffDays / 7);
+  if (diffDays < 30) return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
+  const months = Math.floor(diffDays / 30);
+  if (diffDays < 365) return `${months} month${months > 1 ? "s" : ""} ago`;
+  const years = Math.floor(diffDays / 365);
+  return `${years} year${years > 1 ? "s" : ""} ago`;
+}
+
+function getDaysUntil(dateStr) {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return null;
+  const now = new Date();
+  const diffMs = date - now;
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  return diffDays > 0 ? diffDays : null;
+}
+
 function Episodelist({
   episodes,
   onEpisodeClick,
   currentEpisode,
   totalEpisodes,
+  source,
+  animeTitle,
 }) {
   const [activeEpisodeId, setActiveEpisodeId] = useState(currentEpisode);
   const { language } = useLanguage();
@@ -28,8 +61,10 @@ function Episodelist({
   const [episodeNum, setEpisodeNum] = useState(currentEpisode);
   const dropDownRef = useRef(null);
   const [searchedEpisode, setSearchedEpisode] = useState(null);
+  const searchedEpisodeRef = useRef(null);
+  const [sortDesc, setSortDesc] = useState(false);
+  const proxyUrl = import.meta.env.VITE_PROXY_URL || "";
 
-  // ✅ default to "list" view
   const [viewMode, setViewMode] = useState("list");
 
   const scrollToActiveEpisode = () => {
@@ -51,6 +86,16 @@ function Episodelist({
 
   useEffect(() => setActiveEpisodeId(episodeNum), [episodeNum]);
   useEffect(() => scrollToActiveEpisode(), [activeEpisodeId]);
+
+  useEffect(() => {
+    if (!searchedEpisode) return;
+    if (searchedEpisodeRef.current) {
+      searchedEpisodeRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [searchedEpisode]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -112,33 +157,112 @@ function Episodelist({
     if (activeEpisode) setEpisodeNum(activeEpisode?.episode_no);
   }, [activeEpisodeId, episodes]);
 
-  const displayedEpisodes = episodes.slice(
-    selectedRange[0] - 1,
-    selectedRange[1]
+  const slicedEpisodes = episodes.slice(selectedRange[0] - 1, selectedRange[1]);
+  const displayedEpisodes = sortDesc ? [...slicedEpisodes].reverse() : slicedEpisodes;
+
+  // Only proxy animepahe thumbnails, not hianime
+  function getThumbnailSrc(item) {
+    if (!item?.thumbnail) return null;
+    if (source === "animepahe" && proxyUrl) {
+      return `${proxyUrl}${item.thumbnail}`;
+    }
+    return item.thumbnail;
+  }
+
+  // Compute "Up Next" episode number
+  const currentEpNum = parseInt(currentEpisode, 10);
+  const nextEpisode = episodes.find(
+    (ep) => ep.episode_no === currentEpNum + 1
   );
+  const nextEpNum = nextEpisode ? nextEpisode.episode_no : null;
+
+  // Find next airing episode by checking if airDate is in the future
+  const nextAiringEpisode = episodes.find((ep) => {
+    if (!ep.airDate) return false;
+    const date = new Date(ep.airDate);
+    return !isNaN(date.getTime()) && date > new Date();
+  });
+  const daysUntilNextAiring = nextAiringEpisode
+    ? getDaysUntil(nextAiringEpisode.airDate)
+    : null;
 
   return (
     <div className="flex flex-col w-full h-full">
       {/* Header */}
-      <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-2.5 bg-[#1a1a1a] border-b border-[#2a2a2a]">
-        <div className="flex items-center gap-3">
-          <h1 className="text-sm font-semibold text-white">Episodes</h1>
-
-          {totalEpisodes > 100 && (
-            <div className="relative" ref={dropDownRef}>
-              <div
-                onClick={() => setShowDropDown((prev) => !prev)}
-                className="text-gray-300 flex items-center gap-2 cursor-pointer hover:text-white transition"
-              >
-                <FontAwesomeIcon icon={faList} />
-                <p className="text-xs">
-                  {selectedRange[0]}-{selectedRange[1]}
+      <div className="sticky top-0 z-10 bg-[#1a1a1a] border-b border-[#2a2a2a]">
+        {/* Up Next / Playing info */}
+        <div className="px-4 pt-3 pb-2">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold text-white leading-tight">
+                {nextEpNum ? `Up Next - Episode ${nextEpNum}` : "Episode List"}
+              </p>
+              {animeTitle && (
+                <p className="text-xs text-gray-400 mt-0.5 truncate">
+                  Playing - Episode {currentEpNum || "–"} -{" "}
+                  <span className="text-gray-300">{animeTitle}</span>
                 </p>
-                <FontAwesomeIcon icon={faAngleDown} className="text-[10px]" />
-              </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Search + Controls */}
+        <div className="flex items-center gap-2 px-3 pb-2.5">
+          <div className="flex items-center flex-1 bg-[#2a2a2a] rounded-lg px-2.5 py-1.5 border border-[#3a3a3a]">
+            <FontAwesomeIcon icon={faMagnifyingGlass} className="text-gray-400 text-xs flex-shrink-0" />
+            <input
+              type="text"
+              className="w-full bg-transparent focus:outline-none text-xs text-white ml-2 placeholder:text-gray-500"
+              placeholder="Search Episode"
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Refresh / scroll to current */}
+          <button
+            onClick={scrollToActiveEpisode}
+            title="Go to current episode"
+            className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-[#2a2a2a] border border-[#3a3a3a] text-gray-400 hover:text-white transition-colors"
+          >
+            <FontAwesomeIcon icon={faArrowsRotate} className="text-xs" />
+          </button>
+
+          {/* Sort toggle */}
+          <button
+            onClick={() => setSortDesc((prev) => !prev)}
+            title={sortDesc ? "Currently: descending" : "Currently: ascending"}
+            className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md border border-[#3a3a3a] transition-colors ${
+              sortDesc ? "bg-[#3a3a3a] text-white" : "bg-[#2a2a2a] text-gray-400 hover:text-white"
+            }`}
+          >
+            <FontAwesomeIcon icon={faSort} className="text-xs" />
+          </button>
+
+          {/* Grid view toggle */}
+          <button
+            onClick={() => setViewMode((v) => (v === "grid" ? "list" : "grid"))}
+            title={viewMode === "grid" ? "List view" : "Grid view"}
+            className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md border border-[#3a3a3a] transition-colors ${
+              viewMode === "grid" ? "bg-[#3a3a3a] text-white" : "bg-[#2a2a2a] text-gray-400 hover:text-white"
+            }`}
+          >
+            <FontAwesomeIcon icon={viewMode === "grid" ? faBars : faGrip} className="text-xs" />
+          </button>
+
+          {/* Range dropdown (only for long series) */}
+          {totalEpisodes > 100 && (
+            <div className="relative flex-shrink-0" ref={dropDownRef}>
+              <button
+                onClick={() => setShowDropDown((prev) => !prev)}
+                title="Select episode range"
+                className="w-8 h-8 flex items-center justify-center rounded-md bg-[#2a2a2a] border border-[#3a3a3a] text-gray-400 hover:text-white transition-colors"
+              >
+                <FontAwesomeIcon icon={faList} className="text-xs" />
+              </button>
 
               {showDropDown && (
-                <div className="absolute top-full mt-2 left-0 z-30 bg-[#2a2a2a] w-[150px] max-h-[200px] overflow-y-auto rounded-lg border border-[#3a3a3a] shadow-lg">
+                <div className="absolute top-full mt-2 right-0 z-30 bg-[#2a2a2a] w-[150px] max-h-[200px] overflow-y-auto rounded-lg border border-[#3a3a3a] shadow-lg">
                   {generateRangeOptions(totalEpisodes).map((item, index) => (
                     <div
                       key={index}
@@ -165,46 +289,12 @@ function Episodelist({
             </div>
           )}
         </div>
-
-        {/* View toggle + search */}
-        <div className="flex items-center gap-3">
-          <div className="flex gap-2 bg-[#2a2a2a] p-1 rounded-md border border-[#3a3a3a]">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`p-1.5 rounded ${
-                viewMode === "grid" ? "bg-[#3a3a3a] text-white" : "text-gray-400"
-              } hover:text-white`}
-            >
-              <FontAwesomeIcon icon={faGrip} />
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`p-1.5 rounded ${
-                viewMode === "list" ? "bg-[#3a3a3a] text-white" : "text-gray-400"
-              } hover:text-white`}
-            >
-              <FontAwesomeIcon icon={faBars} />
-            </button>
-          </div>
-
-          {totalEpisodes > 100 && (
-            <div className="flex items-center min-w-[150px] bg-[#2a2a2a] rounded-lg px-2 py-1 border border-[#3a3a3a]">
-              <FontAwesomeIcon icon={faMagnifyingGlass} className="text-gray-400 text-xs" />
-              <input
-                type="text"
-                className="w-full bg-transparent focus:outline-none text-xs text-white ml-2 placeholder:text-gray-500"
-                placeholder="Go to episode..."
-                onChange={handleChange}
-              />
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Episode List */}
       <div
         ref={listContainerRef}
-        className="w-full flex-1 overflow-y-auto bg-[#1a1a1a] max-h-[calc(100vh-200px)]"
+        className="w-full flex-1 overflow-y-auto bg-[#1a1a1a]"
       >
         {viewMode === "grid" ? (
           <div className="p-4 grid gap-2 grid-cols-6 max-[768px]:grid-cols-5 max-[576px]:grid-cols-4 max-[420px]:grid-cols-3">
@@ -213,11 +303,15 @@ function Episodelist({
               const isActive =
                 activeEpisodeId === episodeNumber || currentEpisode === episodeNumber;
               const isSearched = searchedEpisode === item?.id;
+              const itemRef = isActive ? activeEpisodeRef : isSearched ? searchedEpisodeRef : null;
+              const displayNum = sortDesc
+                ? selectedRange[0] + (slicedEpisodes.length - 1 - index)
+                : selectedRange[0] + index;
 
               return (
                 <div
                   key={item?.id}
-                  ref={isActive ? activeEpisodeRef : null}
+                  ref={itemRef}
                   className={`flex items-center justify-center h-[35px] text-xs font-medium rounded-md cursor-pointer transition-all
                     ${
                       isActive
@@ -233,30 +327,33 @@ function Episodelist({
                     }
                   }}
                 >
-                  {index + selectedRange[0]}
+                  {displayNum}
                 </div>
               );
             })}
           </div>
         ) : (
-          <div className="divide-y divide-[#2a2a2a]">
-            {displayedEpisodes.map((item, index) => {
+          <div className="flex flex-col gap-1.5 p-2">
+            {displayedEpisodes.map((item) => {
               const episodeNumber = item?.id.match(/ep=(\d+)/)?.[1];
               const isActive =
                 activeEpisodeId === episodeNumber || currentEpisode === episodeNumber;
               const isSearched = searchedEpisode === item?.id;
+              const thumbnailSrc = getThumbnailSrc(item);
+              const timeAgo = getTimeAgo(item?.airDate);
+              const itemRef = isActive ? activeEpisodeRef : isSearched ? searchedEpisodeRef : null;
 
               return (
                 <div
                   key={item?.id}
-                  ref={isActive ? activeEpisodeRef : null}
-                  className={`flex items-center justify-between px-4 py-2 cursor-pointer transition-all
+                  ref={itemRef}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all
                     ${
                       isActive
-                        ? "bg-[#2a2a2a] text-white"
-                        : "bg-[#1a1a1a] text-gray-400 hover:bg-[#2a2a2a]"
+                        ? "bg-[#252525]"
+                        : "bg-[#212121] hover:bg-[#2a2a2a]"
                     }
-                    ${isSearched ? "ring-1 ring-white" : ""}`}
+                    ${isSearched ? "ring-1 ring-inset ring-white/30" : ""}`}
                   onClick={() => {
                     if (episodeNumber) {
                       onEpisodeClick(episodeNumber);
@@ -265,17 +362,62 @@ function Episodelist({
                     }
                   }}
                 >
-                  <span className="text-sm">{index + selectedRange[0]}</span>
-                  <div className="flex items-center justify-between w-full ml-3">
-                    <h1
-                      className={`truncate text-sm ${
-                        isActive ? "font-semibold" : ""
-                      }`}
+                  {/* Thumbnail with Ep badge */}
+                  <div className="relative flex-shrink-0 w-[120px] h-[68px] rounded-md overflow-hidden bg-[#2a2a2a]">
+                    {thumbnailSrc ? (
+                      <img
+                        src={thumbnailSrc}
+                        alt={item?.title || `Episode ${item?.episode_no}`}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                          if (e.target.nextSibling) {
+                            e.target.nextSibling.style.display = "flex";
+                          }
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className="w-full h-full items-center justify-center bg-[#2a2a2a]"
+                      style={{ display: thumbnailSrc ? "none" : "flex" }}
                     >
-                      {language === "EN" ? item?.title : item?.japanese_title}
-                    </h1>
+                      <svg className="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                    {/* Playing overlay */}
                     {isActive && (
-                      <FontAwesomeIcon icon={faCirclePlay} className="text-white w-4 h-4" />
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <FontAwesomeIcon icon={faCirclePlay} className="text-white text-xl" />
+                      </div>
+                    )}
+                    {/* Ep N badge */}
+                    <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">
+                      Ep {item?.episode_no}
+                    </div>
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm font-semibold truncate leading-tight ${isActive ? "text-white" : "text-gray-200"}`}>
+                      Episode {item?.episode_no}
+                    </p>
+                    {item?.title &&
+                      item.title !== `Episode ${item?.episode_no}` &&
+                      item.title !== String(item?.episode_no) && (
+                        <p className="text-xs text-gray-400 truncate mt-0.5 leading-tight">
+                          {language === "EN"
+                            ? item.title
+                            : item.japanese_title || item.title}
+                        </p>
+                      )}
+                    {(item?.rating || timeAgo) && (
+                      <div className="flex items-center gap-1 mt-1 text-[11px] text-gray-500">
+                        {item?.rating && <span>★ {item.rating}</span>}
+                        {item?.rating && timeAgo && <span>•</span>}
+                        {timeAgo && <span>{timeAgo}</span>}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -284,8 +426,22 @@ function Episodelist({
           </div>
         )}
       </div>
+
+      {/* Next Airing Banner */}
+      {daysUntilNextAiring !== null && (
+        <div className="sticky bottom-0 z-10 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1a3a2a] border-t border-[#2a4a3a] text-sm text-green-300">
+          <FontAwesomeIcon icon={faBell} className="text-xs" />
+          <span>
+            Next ep airing in{" "}
+            <span className="font-semibold text-green-400">
+              {daysUntilNextAiring} {daysUntilNextAiring === 1 ? "day" : "days"}
+            </span>
+          </span>
+        </div>
+      )}
     </div>
   );
 }
 
 export default Episodelist;
+
