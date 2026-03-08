@@ -392,7 +392,7 @@ export default function Watch() {
                         {nextEp.thumbnail && (
                           <div className="flex-shrink-0 w-[100px] h-[56px] relative overflow-hidden">
                             <img
-                              src={`${import.meta.env.VITE_PROXY_URL || ""}${nextEp.thumbnail}`}
+                              src={source === "animepahe" ? `${import.meta.env.VITE_PROXY_URL || ""}${nextEp.thumbnail}` : nextEp.thumbnail}
                               alt={nextEp.title}
                               className="w-full h-full object-cover"
                             />

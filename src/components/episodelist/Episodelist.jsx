@@ -165,10 +165,12 @@ function Episodelist({
   );
   const nextEpNum = nextEpisode ? nextEpisode.episode_no : null;
 
-  // Find next airing episode
-  const nextAiringEpisode = episodes.find(
-    (ep) => !ep.aired && ep.airDate
-  );
+  // Find next airing episode by checking if airDate is in the future
+  const nextAiringEpisode = episodes.find((ep) => {
+    if (!ep.airDate) return false;
+    const date = new Date(ep.airDate);
+    return !isNaN(date.getTime()) && date > new Date();
+  });
   const daysUntilNextAiring = nextAiringEpisode
     ? getDaysUntil(nextAiringEpisode.airDate)
     : null;
@@ -319,7 +321,7 @@ function Episodelist({
             })}
           </div>
         ) : (
-          <div className="divide-y divide-[#2a2a2a]">
+          <div className="flex flex-col gap-1.5 p-2">
             {displayedEpisodes.map((item) => {
               const episodeNumber = item?.id.match(/ep=(\d+)/)?.[1];
               const isActive =
@@ -332,11 +334,11 @@ function Episodelist({
                 <div
                   key={item?.id}
                   ref={isActive ? activeEpisodeRef : null}
-                  className={`flex items-center gap-3 px-3 py-2 cursor-pointer transition-all
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all
                     ${
                       isActive
                         ? "bg-[#252525]"
-                        : "bg-[#1a1a1a] hover:bg-[#212121]"
+                        : "bg-[#212121] hover:bg-[#2a2a2a]"
                     }
                     ${isSearched ? "ring-1 ring-inset ring-white/30" : ""}`}
                   onClick={() => {
