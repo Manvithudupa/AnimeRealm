@@ -18,8 +18,10 @@ export default function AnimePaheEmbedPlayer({
     episodes?.findIndex((ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId)
   );
 
-  // Build the iframe URL from the m3u8ProxyUrl
-  const iframeSrc = m3u8ProxyUrl ? `${m3u8ProxyUrl}${encodeURIComponent(streamUrl)}` : "";
+  // Build the iframe URL from the m3u8ProxyUrl.
+  // Guard against null/undefined streamUrl to prevent proxy calls with "null".
+  const iframeSrc =
+    m3u8ProxyUrl && streamUrl ? `${m3u8ProxyUrl}${encodeURIComponent(streamUrl)}` : "";
 
   useEffect(() => {
     if (episodes?.length > 0) {
