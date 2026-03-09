@@ -1,4 +1,5 @@
 /* Custom scrollbar styling for download options */
+
 .download-modal-content::-webkit-scrollbar {
   width: 8px;
 }
