@@ -95,6 +95,15 @@ export async function getAnimepaheEpisodesByAnilistId(anilistId) {
       provider: response.data?.provider || null,
     };
   } catch (error) {
+    // If the server returned an HTTP error response, treat it as no data available
+    // so the caller can fall back gracefully (e.g. to HiAnime) instead of crashing
+    if (error.response) {
+      console.warn(
+        "Animepahe episodes not available for this title:",
+        error.response.data?.error || error.message
+      );
+      return { episodes: [], totalEpisodes: 0, provider: null };
+    }
     console.error("Error fetching Animepahe episodes by Anilist ID:", error);
     throw error;
   }
