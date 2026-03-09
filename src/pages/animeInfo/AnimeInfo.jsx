@@ -1,5 +1,4 @@
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
-import getAnilistCharacters from "@/src/utils/getAnilistCharacters.utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
@@ -19,7 +18,6 @@ import Error from "@/src/components/error/Error";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { useHomeInfo } from "@/src/context/HomeInfoContext";
 import Voiceactor from "@/src/components/voiceactor/Voiceactor";
-import CharactersSection from "@/src/components/characterssection/CharactersSection";
 import { supabase } from "@/src/integrations/supabase/client";
 import { useAuth } from "@/src/hooks/useAuth";
 
@@ -63,8 +61,6 @@ function AnimeInfo({ random = false }) {
   const [lastWatchedEpisode, setLastWatchedEpisode] = useState(null);
   const [isFullOverview, setIsFullOverview] = useState(false);
 
-  const [anilistCharacters, setAnilistCharacters] = useState([]);
-
   /* ---------- Fetch Anime ---------- */
   useEffect(() => {
     const fetchAnime = async () => {
@@ -73,13 +69,6 @@ function AnimeInfo({ random = false }) {
         const data = await getAnimeInfo(id, random);
         setAnimeInfo(data.data);
         setSeasons(data.seasons || []); // ✅ FIXED: fetch from top-level data
-
-        // Fetch characters from anilist endpoint if anilistId is available
-        const anilistId = data.data?.anilistId;
-        if (anilistId) {
-          const characters = await getAnilistCharacters(anilistId);
-          setAnilistCharacters(characters);
-        }
       } catch (err) {
         setError(err);
       } finally {
@@ -380,13 +369,9 @@ function AnimeInfo({ random = false }) {
       )}
       
       {/* Voice Actors Section */}
-      {anilistCharacters.length > 0 ? (
+      {animeInfo?.anilistId && (
         <div className="container mx-auto py-12 px-5">
-          <CharactersSection characters={anilistCharacters} />
-        </div>
-      ) : animeInfo?.charactersVoiceActors?.length > 0 && (
-        <div className="container mx-auto py-12">
-          <Voiceactor animeInfo={animeInfo} />
+          <Voiceactor anilistId={animeInfo.anilistId} />
         </div>
       )}
       
