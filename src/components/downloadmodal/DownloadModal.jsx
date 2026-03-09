@@ -7,6 +7,7 @@ import {
   faFile,
   faDownload,
   faChevronDown,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   Dialog,
@@ -31,7 +32,6 @@ export default function DownloadModal({ open, onOpenChange, downloadOptions }) {
   };
 
   const handleDownload = (serverId, serverName) => {
-    // Open the download link in a new tab
     if (serverId && serverId.startsWith("http")) {
       window.open(serverId, "_blank", "noopener,noreferrer");
     } else {
@@ -59,6 +59,7 @@ export default function DownloadModal({ open, onOpenChange, downloadOptions }) {
               {items.length}
             </span>
           </div>
+
           <FontAwesomeIcon
             icon={faChevronDown}
             className={`text-gray-400 transition-transform ${
@@ -79,8 +80,11 @@ export default function DownloadModal({ open, onOpenChange, downloadOptions }) {
                     {item.serverName}
                   </p>
                 </div>
+
                 <button
-                  onClick={() => handleDownload(item.serverId, item.serverName)}
+                  onClick={() =>
+                    handleDownload(item.serverId, item.serverName)
+                  }
                   className="ml-3 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
                 >
                   <FontAwesomeIcon icon={faDownload} className="text-[12px]" />
@@ -105,30 +109,42 @@ export default function DownloadModal({ open, onOpenChange, downloadOptions }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#141414] border border-gray-700 rounded-lg max-w-2xl w-full max-[600px]:max-w-sm">
+      <DialogContent className="relative bg-[#141414] border border-gray-700 rounded-lg max-w-2xl w-full max-[600px]:max-w-sm">
+
+        {/* X Close Button */}
+        <button
+          onClick={() => onOpenChange(false)}
+          className="absolute top-4 right-4 text-gray-400 hover:text-white transition text-lg"
+        >
+          <FontAwesomeIcon icon={faXmark} />
+        </button>
+
         <DialogHeader className="border-b border-gray-700 pb-4">
           <DialogTitle className="text-white text-[22px] flex items-center gap-2">
             <FontAwesomeIcon icon={faDownload} className="text-blue-500" />
             Download Options
           </DialogTitle>
+
           <p className="text-gray-400 text-sm mt-2">
             Select a quality and format to download the episode
           </p>
         </DialogHeader>
 
-        <div className="space-y-4 max-h-[500px] overflow-y-auto">
+        <div className="space-y-4 max-h-[500px] overflow-y-auto download-modal-content">
           {renderDownloadSection(
             "Subtitled",
             downloadOptions.sub,
             "sub",
             faClosedCaptioning
           )}
+
           {renderDownloadSection(
             "Dubbed",
             downloadOptions.dub,
             "dub",
             faMicrophone
           )}
+
           {renderDownloadSection(
             "Raw",
             downloadOptions.raw,
@@ -137,14 +153,6 @@ export default function DownloadModal({ open, onOpenChange, downloadOptions }) {
           )}
         </div>
 
-        <div className="border-t border-gray-700 pt-4 flex justify-end">
-          <button
-            onClick={() => onOpenChange(false)}
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm font-medium transition-colors"
-          >
-            Close
-          </button>
-        </div>
       </DialogContent>
     </Dialog>
   );
