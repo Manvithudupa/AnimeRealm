@@ -1,94 +1,173 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { FaChevronRight } from "react-icons/fa";
 import VoiceactorList from "../voiceactorlist/VoiceactorList";
+import getAnilistCharacters from "@/src/utils/getAnilistCharacters.utils";
 
-function Voiceactor({ animeInfo, className }) {
-  const [showVoiceActors, setShowVoiceActors] = useState(false);
+const FALLBACK_IMG = "https://i.postimg.cc/HnHKvHpz/no-avatar.jpg";
+
+const ROLE_ORDER = { MAIN: 0, SUPPORTING: 1, BACKGROUND: 2 };
+
+const ROLE_BADGE = {
+  MAIN: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+  SUPPORTING: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+  BACKGROUND: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30",
+};
+
+function CharacterCard({ character, preferredLanguage }) {
+  const [imgError, setImgError] = useState(false);
+  const [vaImgError, setVaImgError] = useState(false);
+
+  const voiceActor = useMemo(() => {
+    if (!character.voiceActors?.length) return null;
+    return (
+      character.voiceActors.find((va) => va.language === preferredLanguage) ||
+      character.voiceActors[0]
+    );
+  }, [character.voiceActors, preferredLanguage]);
+
   return (
-    <div className={`w-full flex flex-col gap-y-5 ${className}`}>
-      <div className="flex justify-between items-center">
-        <h1 className="font-bold text-2xl text-zinc-100 max-[478px]:text-[18px] capitalize">
-          Characters & Voice Actors
-        </h1>
-        <button 
-          onClick={() => setShowVoiceActors(true)}
-          className="flex items-center px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700/80 transition-all duration-300 group"
-        >
-          <span className="text-zinc-300 text-sm font-medium group-hover:text-zinc-100">
-            View more
+    <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.07] transition-all duration-200 group">
+      {/* Character side */}
+      <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="relative shrink-0">
+          <img
+            src={imgError ? FALLBACK_IMG : character.image}
+            alt={character.name}
+            onError={() => setImgError(true)}
+            className="w-11 h-11 rounded-full object-cover border-2 border-white/10 group-hover:border-white/25 transition-all duration-200"
+            loading="lazy"
+          />
+          {character.role === "MAIN" && (
+            <span className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-yellow-400 border-2 border-black" />
+          )}
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-white/90 truncate leading-tight">
+            {character.name}
+          </p>
+          <span
+            className={`inline-block mt-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded border ${
+              ROLE_BADGE[character.role] || ROLE_BADGE.BACKGROUND
+            }`}
+          >
+            {character.role}
           </span>
-          <FaChevronRight className="text-zinc-400 text-xs ml-1.5 group-hover:text-zinc-300" />
-        </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 max-lg:grid-cols-2 max-md:grid-cols-1">
-        {animeInfo.charactersVoiceActors.slice(0, 6).map((character, index) => (
-          <div
-            key={index}
-            className="flex justify-between items-center px-4 py-3 rounded-lg bg-zinc-800/50 hover:bg-zinc-800/70 transition-all duration-300 border border-zinc-700/30"
-          >
-            {character.character && (
-              <div className="w-[50%] float-left overflow-hidden max-[350px]:w-[45%]">
-                <div className="w-full flex gap-x-3">
-                  {character.character.poster && (
-                    <img
-                      src={character.character.poster}
-                      title={character.character.name || "Character"}
-                      alt={character.character.name || "Character"}
-                      onError={(e) => {
-                        e.target.src = "https://i.postimg.cc/HnHKvHpz/no-avatar.jpg";
-                      }}
-                      className="w-[48px] h-[48px] flex-shrink-0 rounded-full object-cover border-2 border-zinc-700 hover:border-zinc-500 transition-all duration-300 max-[480px]:w-[36px] max-[480px]:h-[36px]"
-                      loading="lazy"
-                    />
-                  )}
-                  <div className="flex justify-center flex-col">
-                    {character.character.name && (
-                      <h4 className="text-[13px] text-zinc-100 font-medium leading-snug mb-1 overflow-hidden -webkit-box -webkit-line-clamp-2 -webkit-box-orient-vertical">
-                        {character.character.name}
-                      </h4>
-                    )}
-                    {character.character.cast && (
-                      <p className="text-[12px] text-zinc-400">
-                        {character.character.cast}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-            {character.voiceActors.length > 0 && character.voiceActors[0] && (
-              <div className="w-[50%] float-right overflow-hidden max-[350px]:w-[45%]">
-                <div className="w-full flex justify-end gap-x-3">
-                  <div className="flex flex-col justify-center">
-                    {character.voiceActors[0].name && (
-                      <span className="text-[13px] text-zinc-300 text-right leading-snug mb-0 overflow-hidden -webkit-box -webkit-line-clamp-2 -webkit-box-orient-vertical w-fit">
-                        {character.voiceActors[0].name}
-                      </span>
-                    )}
-                  </div>
-                  {character.voiceActors[0].poster && (
-                    <img
-                      src={character.voiceActors[0].poster}
-                      title={character.voiceActors[0].name || "Voice Actor"}
-                      alt={character.voiceActors[0].name || "Voice Actor"}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.target.src = "https://i.postimg.cc/HnHKvHpz/no-avatar.jpg";
-                      }}
-                      className="w-[48px] h-[48px] rounded-full object-cover opacity-60 hover:opacity-100 cursor-pointer flex-shrink-0 transition-all duration-300 border-2 border-zinc-700 hover:border-zinc-500 max-[480px]:w-[36px] max-[480px]:h-[36px]"
-                    />
-                  )}
-                </div>
-              </div>
-            )}
+      {/* Voice actor side */}
+      {voiceActor && (
+        <div className="flex items-center gap-3 min-w-0 shrink-0">
+          <div className="text-right min-w-0 hidden sm:block">
+            <p className="text-sm text-white/60 truncate max-w-[100px] leading-tight">
+              {voiceActor.name}
+            </p>
+            <p className="text-[10px] text-white/35 mt-0.5">{voiceActor.language}</p>
           </div>
+          <img
+            src={vaImgError ? FALLBACK_IMG : voiceActor.image}
+            alt={voiceActor.name}
+            onError={() => setVaImgError(true)}
+            className="w-11 h-11 rounded-full object-cover border-2 border-white/10 opacity-70 group-hover:opacity-100 transition-all duration-200"
+            loading="lazy"
+            title={voiceActor.name}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Voiceactor({ anilistId, className }) {
+  const [showVoiceActors, setShowVoiceActors] = useState(false);
+  const [characters, setCharacters] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [preferredLanguage, setPreferredLanguage] = useState("Japanese");
+
+  useEffect(() => {
+    if (!anilistId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    getAnilistCharacters(anilistId).then((data) => {
+      setCharacters(data || []);
+      setLoading(false);
+    }).catch(() => {
+      setLoading(false);
+    });
+  }, [anilistId]);
+
+  const languages = useMemo(() => {
+    const langSet = new Set();
+    characters.forEach((c) =>
+      c.voiceActors?.forEach((va) => langSet.add(va.language))
+    );
+    return Array.from(langSet).sort();
+  }, [characters]);
+
+  const sorted = useMemo(
+    () =>
+      [...characters].sort(
+        (a, b) => (ROLE_ORDER[a.role] ?? 99) - (ROLE_ORDER[b.role] ?? 99)
+      ),
+    [characters]
+  );
+
+  if (loading || characters.length === 0) return null;
+
+  return (
+    <div className={`w-full flex flex-col gap-y-5 ${className}`}>
+      {/* Header row */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-bold text-2xl text-zinc-100 max-[478px]:text-[18px] capitalize">
+          Characters &amp; Voice Actors
+        </h1>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Language selector */}
+          {languages.length > 1 && (
+            <div className="flex flex-wrap gap-1.5">
+              {languages.map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => setPreferredLanguage(lang)}
+                  className={`text-xs px-3 py-1 rounded-full border transition-all duration-150 ${
+                    preferredLanguage === lang
+                      ? "bg-white text-black border-white font-semibold"
+                      : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white/80"
+                  }`}
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
+          )}
+          <button
+            onClick={() => setShowVoiceActors(true)}
+            className="flex items-center px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700/80 transition-all duration-300 group"
+          >
+            <span className="text-zinc-300 text-sm font-medium group-hover:text-zinc-100">
+              View more
+            </span>
+            <FaChevronRight className="text-zinc-400 text-xs ml-1.5 group-hover:text-zinc-300" />
+          </button>
+        </div>
+      </div>
+
+      {/* Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+        {sorted.slice(0, 6).map((character) => (
+          <CharacterCard
+            key={character.id}
+            character={character}
+            preferredLanguage={preferredLanguage}
+          />
         ))}
       </div>
 
       {showVoiceActors && (
         <VoiceactorList
-          id={animeInfo.id}
+          characters={sorted}
           isOpen={showVoiceActors}
           onClose={() => setShowVoiceActors(false)}
         />

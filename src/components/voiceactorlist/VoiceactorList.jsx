@@ -1,28 +1,23 @@
-import { useState, useEffect } from "react";
-import {
-  faAngleDoubleLeft,
-  faAngleDoubleRight,
-  faChevronLeft,
-  faChevronRight,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import fetchVoiceActorInfo from "@/src/utils/getVoiceActor.utils";
-import VoiceActorlistLoader from "../Loader/VoiceActorlist.loader";
-import { useNavigate } from "react-router-dom";
-import Error from "../error/Error";
+import { useState, useEffect, useMemo } from "react";
 import {
   cleanupScrollbar,
   toggleScrollbar,
 } from "@/src/helper/toggleScrollbar";
 import PageSlider from "../pageslider/PageSlider";
 
-function VoiceactorList({ id, isOpen, onClose }) {
-  const [loading, setLoading] = useState(true);
+const FALLBACK_IMG = "https://i.postimg.cc/HnHKvHpz/no-avatar.jpg";
+
+const ROLE_BADGE = {
+  MAIN: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+  SUPPORTING: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+  BACKGROUND: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30",
+};
+
+const PAGE_SIZE = 20;
+
+function VoiceactorList({ characters, isOpen, onClose }) {
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [error, setError] = useState(null);
-  const [VoiceactorList, setVoiceactorList] = useState([]);
-  const navigate = useNavigate();
+  const [preferredLanguage, setPreferredLanguage] = useState("Japanese");
 
   useEffect(() => {
     toggleScrollbar(isOpen);
@@ -31,30 +26,22 @@ function VoiceactorList({ id, isOpen, onClose }) {
     };
   }, [isOpen]);
 
+  // Reset to page 1 when language changes
   useEffect(() => {
-    const fetchCategoryInfo = async () => {
-      setLoading(true);
-      try {
-        const data = await fetchVoiceActorInfo(id, page);
-        setVoiceactorList(data.data);
-        setTotalPages(data.totalPages);
-        setLoading(false);
-      } catch (err) {
-        setError(err);
-        console.error("Error fetching category info:", err);
-      }
-    };
-    fetchCategoryInfo();
-  }, [page]);
+    setPage(1);
+  }, [preferredLanguage]);
 
-  if (error) {
-    navigate("/error-page");
-    return <Error />;
-  }
-  if (!VoiceactorList) {
-    navigate("/404-not-found-page");
-    return null;
-  }
+  const languages = useMemo(() => {
+    const langSet = new Set();
+    characters.forEach((c) =>
+      c.voiceActors?.forEach((va) => langSet.add(va.language))
+    );
+    return Array.from(langSet).sort();
+  }, [characters]);
+
+  const totalPages = Math.max(1, Math.ceil(characters.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const displayed = characters.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   return (
     <div
@@ -69,12 +56,30 @@ function VoiceactorList({ id, isOpen, onClose }) {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="relative flex items-center justify-between p-3 sm:p-6 border-b border-zinc-800/50 flex-shrink-0">
-            {!loading && (
-              <h2 className="text-base sm:text-xl font-bold text-zinc-100">
-                Characters & Voice Actors
-              </h2>
+          <div className="relative flex flex-wrap items-center gap-3 p-3 sm:p-6 border-b border-zinc-800/50 flex-shrink-0">
+            <h2 className="text-base sm:text-xl font-bold text-zinc-100">
+              Characters &amp; Voice Actors
+            </h2>
+
+            {/* Language selector */}
+            {languages.length > 1 && (
+              <div className="flex flex-wrap gap-1.5 mr-8 sm:mr-10">
+                {languages.map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => setPreferredLanguage(lang)}
+                    className={`text-xs px-3 py-1 rounded-full border transition-all duration-150 ${
+                      preferredLanguage === lang
+                        ? "bg-white text-black border-white font-semibold"
+                        : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white/80"
+                    }`}
+                  >
+                    {lang}
+                  </button>
+                ))}
+              </div>
             )}
+
             <button
               onClick={onClose}
               className="absolute right-2 sm:right-4 top-2 sm:top-4 w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 transition-all duration-300"
@@ -85,90 +90,88 @@ function VoiceactorList({ id, isOpen, onClose }) {
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-2 sm:p-6 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
-            {loading ? (
-              <VoiceActorlistLoader />
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                {VoiceactorList.map((item, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+              {displayed.map((character) => {
+                const voiceActor =
+                  character.voiceActors?.find(
+                    (va) => va.language === preferredLanguage
+                  ) || character.voiceActors?.[0];
+
+                return (
                   <div
-                    key={index}
-                    className="flex items-center justify-between p-2 sm:p-3 bg-zinc-800/50 hover:bg-zinc-800/70 rounded-lg border border-zinc-700/30 transition-all duration-300"
+                    key={character.id}
+                    className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.07] transition-all duration-200 group"
                   >
-                    {/* Character Section */}
-                    <div className="flex items-center gap-2 sm:gap-3 w-[48%]">
-                      <img
-                        src={item.character.poster}
-                        className="w-9 h-9 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-zinc-700 hover:border-zinc-500 transition-all duration-300"
-                        loading="lazy"
-                        onError={(e) => {
-                          e.target.src = "https://i.postimg.cc/HnHKvHpz/no-avatar.jpg";
-                        }}
-                      />
+                    {/* Character side */}
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="relative shrink-0">
+                        <img
+                          src={character.image || FALLBACK_IMG}
+                          alt={character.name}
+                          onError={(e) => {
+                            e.target.src = FALLBACK_IMG;
+                          }}
+                          className="w-11 h-11 rounded-full object-cover border-2 border-white/10 group-hover:border-white/25 transition-all duration-200"
+                          loading="lazy"
+                        />
+                        {character.role === "MAIN" && (
+                          <span className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-yellow-400 border-2 border-black" />
+                        )}
+                      </div>
                       <div className="min-w-0">
-                        {item.character.name && (
-                          <h3 className="text-xs sm:text-sm text-zinc-100 font-medium truncate">
-                            {item.character.name}
-                          </h3>
-                        )}
-                        {item.character.cast && (
-                          <p className="text-[10px] sm:text-xs text-zinc-400 truncate">
-                            {item.character.cast}
-                          </p>
-                        )}
+                        <p className="text-sm font-medium text-white/90 truncate leading-tight">
+                          {character.name}
+                        </p>
+                        <span
+                          className={`inline-block mt-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded border ${
+                            ROLE_BADGE[character.role] || ROLE_BADGE.BACKGROUND
+                          }`}
+                        >
+                          {character.role}
+                        </span>
                       </div>
                     </div>
 
-                    {/* Voice Actors Section */}
-                    {item.voiceActors && item.voiceActors.length > 0 && (
-                      <div className="flex items-center justify-end gap-2 sm:gap-3 w-[48%]">
-                        {item.voiceActors.length > 1 ? (
-                          <div className="flex items-center justify-end gap-1 sm:gap-2 w-full overflow-x-auto py-1 sm:py-2">
-                            {item.voiceActors.map((actor, idx) => (
-                              <img
-                                key={idx}
-                                src={actor.poster}
-                                className="w-7 h-7 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 opacity-60 hover:opacity-100 border-2 border-zinc-700 hover:border-zinc-500 transition-all duration-300"
-                                title={actor.name}
-                                onError={(e) => {
-                                  e.target.src = "https://i.postimg.cc/HnHKvHpz/no-avatar.jpg";
-                                }}
-                              />
-                            ))}
-                          </div>
-                        ) : (
-                          <>
-                            <div className="text-right min-w-0">
-                              <p className="text-xs sm:text-sm text-zinc-300 truncate">
-                                {item.voiceActors[0].name}
-                              </p>
-                            </div>
-                            <img
-                              src={item.voiceActors[0].poster}
-                              className="w-9 h-9 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0 opacity-60 hover:opacity-100 border-2 border-zinc-700 hover:border-zinc-500 transition-all duration-300"
-                              title={item.voiceActors[0].name}
-                              onError={(e) => {
-                                e.target.src = "https://i.postimg.cc/HnHKvHpz/no-avatar.jpg";
-                              }}
-                            />
-                          </>
-                        )}
+                    {/* Voice actor side */}
+                    {voiceActor && (
+                      <div className="flex items-center gap-3 min-w-0 shrink-0">
+                        <div className="text-right min-w-0 hidden sm:block">
+                          <p className="text-sm text-white/60 truncate max-w-[100px] leading-tight">
+                            {voiceActor.name}
+                          </p>
+                          <p className="text-[10px] text-white/35 mt-0.5">
+                            {voiceActor.language}
+                          </p>
+                        </div>
+                        <img
+                          src={voiceActor.image || FALLBACK_IMG}
+                          alt={voiceActor.name}
+                          onError={(e) => {
+                            e.target.src = FALLBACK_IMG;
+                          }}
+                          className="w-11 h-11 rounded-full object-cover border-2 border-white/10 opacity-70 group-hover:opacity-100 transition-all duration-200"
+                          loading="lazy"
+                          title={voiceActor.name}
+                        />
                       </div>
                     )}
                   </div>
-                ))}
-              </div>
-            )}
+                );
+              })}
+            </div>
           </div>
 
           {/* Pagination */}
-          <div className="p-2 sm:p-6 sm:pt-2 border-t border-zinc-800/50 flex-shrink-0">
-            <PageSlider
-              page={page}
-              totalPages={totalPages}
-              handlePageChange={setPage}
-              start={true}
-            />
-          </div>
+          {totalPages > 1 && (
+            <div className="p-2 sm:p-6 sm:pt-2 border-t border-zinc-800/50 flex-shrink-0">
+              <PageSlider
+                page={safePage}
+                totalPages={totalPages}
+                handlePageChange={setPage}
+                start={true}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
