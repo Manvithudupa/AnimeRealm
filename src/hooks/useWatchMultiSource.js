@@ -303,6 +303,9 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
 
           // Get streaming sources for Animepahe
           const episode = episodes.find((ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId);
+          if (!episode?.episodeId) {
+            throw new Error("Episode not found");
+          }
           const streamData = await getAnimepaheStreamInfo(episode.episodeId, server.type);
 
           // Use the first source (highest quality)
@@ -361,9 +364,44 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     fetchStreamInfo();
   }, [episodeId, activeServerId, servers, source]);
 
+  // changeSource resets all stream-related state in the same batch as the
+  // source change so that there is never a transitional render where the new
+  // source is active but old state (streamUrl, thumbnail, …) is still present.
+  const changeSource = (newSource) => {
+    if (newSource === source) return;
+    if (animeInfoCacheRef.current?.animeId !== animeId) {
+      animeInfoCacheRef.current = null;
+    }
+    setEpisodes(null);
+    setEpisodeId(null);
+    setActiveEpisodeNum(null);
+    setServers(null);
+    setActiveServerId(null);
+    setStreamInfo(null);
+    setStreamUrl(null);
+    setSubtitles([]);
+    setThumbnail(null);
+    setIntro(null);
+    setOutro(null);
+    setBuffering(true);
+    setServerLoading(true);
+    setError(null);
+    setAnimeInfo(null);
+    setSeasons(null);
+    setTotalEpisodes(null);
+    setAnimeInfoLoading(true);
+    setAnimepaheId(null);
+    setDownloadOptions(null);
+    setNextEpisodeSchedule(null);
+    isServerFetchInProgress.current = false;
+    isStreamFetchInProgress.current = false;
+    setSource(newSource);
+  };
+
   return {
     source,
     setSource,
+    changeSource,
     error,
     buffering,
     serverLoading,
