@@ -7,11 +7,11 @@ import getServers from "../utils/getServers.utils";
 import getStreamInfo from "../utils/getStreamInfo.utils";
 import getNextEpisodeSchedule from "@/src/utils/getNextEpisodeSchedule.utils";
 import {
-  searchAnimepaheBackend,
-  getAnimepaheEpisodes,
+  getAnimepaheEpisodesByAnilistId,
   getAnimepaheServers,
   getAnimepaheStreamInfo,
 } from "@/src/utils/animepaheBackend.utils";
+import { toast } from "@/src/hooks/use-toast";
 
 export const useWatchMultiSource = (animeId, initialEpisodeId) => {
   const [source, setSource] = useState("hianime"); // 'hianime' or 'animepahe'
@@ -85,33 +85,32 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
         setAnimeInfoLoading(true);
         
         if (source === "animepahe") {
-          // For Animepahe, we need to search by title first
+          // For Animepahe, use anilistId to fetch episodes directly
           const animeInfoData = await getAnimeInfo(animeId, false);
-          const title = animeInfoData?.data?.title;
-          
-          if (!title) {
-            throw new Error("Could not fetch anime title");
+          const anilistId = animeInfoData?.data?.anilistId;
+
+          if (!anilistId) {
+            throw new Error("Anilist ID not available for this anime");
           }
 
-          // Search Animepahe by title
-          const searchResults = await searchAnimepaheBackend(title);
-          const animepaheAnime = searchResults?.data?.[0];
+          // Fetch episodes using Anilist ID
+          const episodesData = await getAnimepaheEpisodesByAnilistId(anilistId);
 
-          if (!animepaheAnime) {
-            throw new Error("Anime not found on Animepahe");
+          if (!episodesData?.episodes?.length) {
+            toast({
+              title: "No stream available in Animepahe",
+              description: "Falling back to HiAnime.",
+            });
+            setSource("hianime");
+            return;
           }
 
-          setAnimepaheId(animepaheAnime.id);
-
-          // Fetch episodes using Animepahe ID
-          const episodesData = await getAnimepaheEpisodes(animepaheAnime.id);
-          
           setAnimeInfo(animeInfoData?.data);
           setSeasons(animeInfoData?.seasons);
           setEpisodes(episodesData?.episodes);
           setTotalEpisodes(episodesData?.totalEpisodes);
 
-          // Fetch next episode schedule (only relevant for HiAnime ID)
+          // Fetch next episode schedule
           await fetchSchedule();
 
           const newEpisodeId =

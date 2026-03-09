@@ -69,6 +69,38 @@ export async function getAnimepaheEpisodes(animeId) {
 }
 
 /**
+ * Get episodes for an anime using Anilist ID
+ * @param {string|number} anilistId - Anilist anime ID
+ * @returns {Promise} Episodes list with provider info
+ */
+export async function getAnimepaheEpisodesByAnilistId(anilistId) {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/anilist/episodes/${anilistId}?provider=animepahe`
+    );
+    const providerEpisodes = response.data?.providerEpisodes || [];
+
+    // Transform episodes to match expected format
+    const transformedEpisodes = providerEpisodes.map((ep) => ({
+      id: `ep=${ep.episodeNumber}`,
+      episode_no: ep.episodeNumber,
+      episodeId: ep.episodeId,
+      title: ep.title || `Episode ${ep.episodeNumber}`,
+      thumbnail: ep.thumbnail,
+    }));
+
+    return {
+      episodes: transformedEpisodes,
+      totalEpisodes: providerEpisodes.length,
+      provider: response.data?.provider || null,
+    };
+  } catch (error) {
+    console.error("Error fetching Animepahe episodes by Anilist ID:", error);
+    throw error;
+  }
+}
+
+/**
  * Get servers/sources for an episode
  * @param {string} episodeId - Animepahe episode ID
  * @returns {Promise} Object with servers and download options
