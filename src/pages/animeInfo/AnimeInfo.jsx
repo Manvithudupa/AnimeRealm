@@ -369,9 +369,9 @@ function AnimeInfo({ random = false }) {
       )}
       
       {/* Voice Actors Section */}
-      {animeInfo?.charactersVoiceActors?.length > 0 && (
-        <div className="container mx-auto py-12">
-          <Voiceactor animeInfo={animeInfo} />
+      {animeInfo?.anilistId && (
+        <div className="container mx-auto py-12 px-5">
+          <Voiceactor anilistId={animeInfo.anilistId} />
         </div>
       )}
       
