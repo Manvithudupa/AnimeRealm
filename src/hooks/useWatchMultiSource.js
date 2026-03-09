@@ -7,11 +7,11 @@ import getServers from "../utils/getServers.utils";
 import getStreamInfo from "../utils/getStreamInfo.utils";
 import getNextEpisodeSchedule from "@/src/utils/getNextEpisodeSchedule.utils";
 import {
-  searchAnimepaheBackend,
-  getAnimepaheEpisodes,
+  getAnimepaheEpisodesByAnilistId,
   getAnimepaheServers,
   getAnimepaheStreamInfo,
 } from "@/src/utils/animepaheBackend.utils";
+import { toast } from "@/src/hooks/use-toast";
 
 export const useWatchMultiSource = (animeId, initialEpisodeId) => {
   const [source, setSource] = useState("hianime"); // 'hianime' or 'animepahe'
@@ -41,9 +41,16 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
   const [nextEpisodeSchedule, setNextEpisodeSchedule] = useState(null);
   const isServerFetchInProgress = useRef(false);
   const isStreamFetchInProgress = useRef(false);
+  // Cache anime info (title, anilistId, seasons…) per animeId so switching
+  // between providers doesn't trigger a redundant getAnimeInfo network call.
+  const animeInfoCacheRef = useRef(null); // { animeId, data, seasons, anilistId }
 
   // Reset state when animeId or source changes
   useEffect(() => {
+    // Clear cached anime info only when the anime itself changes
+    if (animeInfoCacheRef.current?.animeId !== animeId) {
+      animeInfoCacheRef.current = null;
+    }
     setEpisodes(null);
     setEpisodeId(null);
     setActiveEpisodeNum(null);
@@ -80,38 +87,53 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
       }
     };
 
+    // Retrieve anime info from cache (same animeId) or fetch from network.
+    // Defined outside fetchInitialData so it is shared by both provider paths.
+    const getAnimeInfoCached = async () => {
+      if (animeInfoCacheRef.current?.animeId === animeId) {
+        return animeInfoCacheRef.current;
+      }
+      const fetched = await getAnimeInfo(animeId, false);
+      const entry = {
+        animeId,
+        data: fetched?.data,
+        seasons: fetched?.seasons,
+        anilistId: fetched?.data?.anilistId,
+      };
+      animeInfoCacheRef.current = entry;
+      return entry;
+    };
+
     const fetchInitialData = async () => {
       try {
         setAnimeInfoLoading(true);
-        
+
         if (source === "animepahe") {
-          // For Animepahe, we need to search by title first
-          const animeInfoData = await getAnimeInfo(animeId, false);
-          const title = animeInfoData?.data?.title;
-          
-          if (!title) {
-            throw new Error("Could not fetch anime title");
+          const cached = await getAnimeInfoCached();
+          const anilistId = cached.anilistId;
+
+          if (!anilistId) {
+            throw new Error("Anilist ID not available for Animepahe provider");
           }
 
-          // Search Animepahe by title
-          const searchResults = await searchAnimepaheBackend(title);
-          const animepaheAnime = searchResults?.data?.[0];
+          // Fetch episodes using Anilist ID
+          const episodesData = await getAnimepaheEpisodesByAnilistId(anilistId);
 
-          if (!animepaheAnime) {
-            throw new Error("Anime not found on Animepahe");
+          if (!episodesData?.episodes?.length) {
+            toast({
+              title: "No stream available in Animepahe",
+              description: "Falling back to HiAnime.",
+            });
+            setSource("hianime");
+            return;
           }
 
-          setAnimepaheId(animepaheAnime.id);
-
-          // Fetch episodes using Animepahe ID
-          const episodesData = await getAnimepaheEpisodes(animepaheAnime.id);
-          
-          setAnimeInfo(animeInfoData?.data);
-          setSeasons(animeInfoData?.seasons);
+          setAnimeInfo(cached.data);
+          setSeasons(cached.seasons);
           setEpisodes(episodesData?.episodes);
           setTotalEpisodes(episodesData?.totalEpisodes);
 
-          // Fetch next episode schedule (only relevant for HiAnime ID)
+          // Fetch next episode schedule
           await fetchSchedule();
 
           const newEpisodeId =
@@ -122,15 +144,14 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
           setEpisodeId(newEpisodeId);
         } else {
           // HiAnime flow: fetch anime info first to get anilistId, then use anilist episodes API
-          const animeData = await getAnimeInfo(animeId, false);
-          const anilistId = animeData?.data?.anilistId;
-          setAnimeInfo(animeData?.data);
-          setSeasons(animeData?.seasons);
+          const cached = await getAnimeInfoCached();
+          setAnimeInfo(cached.data);
+          setSeasons(cached.seasons);
 
           let episodesData = null;
-          if (anilistId) {
+          if (cached.anilistId) {
             try {
-              episodesData = await getEpisodesFromAnilist(anilistId);
+              episodesData = await getEpisodesFromAnilist(cached.anilistId);
             } catch (err) {
               console.warn("Anilist episodes fetch failed, falling back to default:", err);
               episodesData = await getEpisodes(animeId);
