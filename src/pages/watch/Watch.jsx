@@ -263,6 +263,10 @@ export default function Watch() {
                       episodes={episodes}
                       playNext={(id) => setEpisodeId(id)}
                       autoNext={autoNext}
+                      autoPlay={autoPlay}
+                      autoSkipIntro={autoSkipIntro}
+                      intro={intro}
+                      outro={outro}
                     /> : source === "animepahe" && import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY && streamUrl ?
                     <AnimePaheEmbedPlayer
                       m3u8ProxyUrl={import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY}
