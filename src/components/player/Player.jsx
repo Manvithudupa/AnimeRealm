@@ -295,7 +295,7 @@ export default function Player({
           ...(outro?.start != null && outro?.end != null ? [[outro.start + 1, outro.end]] : []),
         ];
         if (skipRanges.length > 0) {
-          art.on("timeupdate", () => {
+          art.on("video:timeupdate", () => {
             if (!autoSkipIntroRef.current) return;
             const ct = art.currentTime;
             for (const [start, end] of skipRanges) {
