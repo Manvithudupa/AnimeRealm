@@ -200,34 +200,32 @@ function AnimeInfo({ random = false }) {
         <Breadcrumb items={[{ label: displayTitle }]} />
       </div>
 
-      {/* =================== HERO =================== */}
-      <section className="relative overflow-hidden">
-        {/* Blurred background */}
-        <div className="absolute inset-0 h-[520px]">
-          <OptimizedImage
-            src={poster}
-            alt={title}
-            className="w-full h-full object-cover blur-xl scale-110 opacity-40"
-            lazy={false}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/30 via-[#0a0a0a]/60 to-[#0a0a0a]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/80 via-transparent to-[#0a0a0a]/60" />
+      {/* ================= HERO ================= */}
+      <section className="relative pt-14">
+        <div className="relative h-[50vh] overflow-hidden bg-gradient-to-b from-gray-900 to-black">
+          <div className="absolute inset-0">
+            <OptimizedImage
+              src={poster}
+              alt={title}
+              className="absolute inset-0 w-full h-full object-cover blur-sm scale-105"
+              lazy={false}
+            />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
         </div>
 
-        {/* Hero content */}
-        <div className="relative pt-10 pb-0 px-5 mx-auto max-w-7xl">
-          <div className="flex flex-col md:flex-row gap-8 items-start">
+        {/* Info */}
+        <div className="relative -mt-32 mx-auto max-w-7xl px-5">
+          <div className="flex flex-col md:flex-row gap-6">
 
             {/* Poster */}
-            <div className="relative shrink-0 w-44 md:w-56 rounded-2xl overflow-hidden shadow-2xl shadow-black/60 ring-1 ring-white/10">
+            <div className="relative w-40 md:w-52 aspect-[3/4] rounded-xl overflow-hidden shadow-xl shrink-0 hover:shadow-2xl transition-shadow duration-300">
               <OptimizedImage
                 src={poster}
                 alt={title}
-                className="w-full aspect-[3/4] object-cover"
+                className="w-full h-full object-cover"
                 lazy={false}
               />
-              {/* Subtle shine */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
             </div>
 
             {/* Info */}
@@ -408,44 +406,58 @@ function AnimeInfo({ random = false }) {
         </div>
       </section>
 
-      {/* =================== SEASONS =================== */}
+      {/* Seasons Section */}
       {seasons?.length > 0 && (
-        <section className="py-8 px-5 mx-auto max-w-7xl">
-          <h2 className="text-lg font-bold mb-5 text-white/90">More Seasons</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        <div className="container mx-auto py-8 sm:py-12">
+          <h2 className="text-2xl font-bold mb-6 sm:mb-8 px-1">More Seasons</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
             {seasons.map((season, index) => (
               <Link
                 to={`/${season.id}`}
                 key={index}
-                className={`relative w-full aspect-[3/4] rounded-xl overflow-hidden cursor-pointer group hover:scale-[1.03] transition-transform duration-200 ${
+                className={`relative w-full aspect-[3/1] sm:aspect-[3/1] rounded-lg overflow-hidden cursor-pointer group ${
                   currentId === String(season.data_id)
-                    ? "ring-2 ring-white/50 shadow-lg shadow-white/10"
-                    : "ring-1 ring-white/10"
+                    ? "ring-2 ring-white/40 shadow-lg shadow-white/10"
+                    : ""
                 }`}
               >
                 <img
                   src={season.season_poster}
                   alt={season.season}
-                  className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-105 ${
-                    currentId === String(season.data_id) ? "opacity-60" : "opacity-50 group-hover:opacity-70"
+                  className={`w-full h-full object-cover scale-150 ${
+                    currentId === String(season.data_id)
+                      ? "opacity-50"
+                      : "opacity-40"
                   }`}
                 />
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-                {/* Active indicator */}
-                {currentId === String(season.data_id) && (
-                  <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-white shadow-md shadow-white/50" />
-                )}
-                {/* Title */}
-                <div className="absolute bottom-0 inset-x-0 p-3">
-                  <p className="text-xs font-semibold text-white leading-tight line-clamp-2">
+                {/* Dots Pattern Overlay */}
+                <div 
+                  className="absolute inset-0 z-10" 
+                  style={{ 
+                    backgroundImage: `url('data:image/svg+xml,<svg width="3" height="3" viewBox="0 0 3 3" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="1.5" cy="1.5" r="0.5" fill="white" fill-opacity="0.25"/></svg>')`,
+                    backgroundSize: '3px 3px'
+                  }}
+                />
+                {/* Dark Gradient Overlay */}
+                <div className={`absolute inset-0 z-20 bg-gradient-to-r ${
+                  currentId === String(season.data_id)
+                    ? "from-black/50 to-transparent"
+                    : "from-black/40 to-transparent"
+                }`} />
+                {/* Title Container */}
+                <div className="absolute inset-0 z-30 flex items-center justify-center">
+                  <p className={`text-[14px] sm:text-[16px] md:text-[18px] font-bold text-center px-2 sm:px-4 transition-colors duration-300 ${
+                    currentId === String(season.data_id)
+                      ? "text-white"
+                      : "text-white/90 group-hover:text-white"
+                  }`}>
                     {season.season}
                   </p>
                 </div>
               </Link>
             ))}
           </div>
-        </section>
+        </div>
       )}
 
       {/* =================== VOICE ACTORS =================== */}
