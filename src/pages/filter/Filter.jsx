@@ -32,10 +32,10 @@ const Filter = () => {
   const genresList = [
     "Action","Adventure","Cars","Comedy","Dementia","Demons","Drama","Ecchi",
     "Fantasy","Game","Harem","Historical","Horror","Isekai","Josei","Kids",
-    "Magic","Martial-Arts","Mecha","Military","Music","Mystery","Parody","Police",
-    "Psychological","Romance","Samurai","School","Sci-Fi","Seinen","Shoujo",
-    "Shoujo Ai","Shounen","Shounen-Ai","Slice-of-Life","Space","Sports",
-    "Super-Power","Supernatural","Thriller","Vampire"
+    "Magic","Martial_Arts","Mecha","Military","Music","Mystery","Parody","Police",
+    "Psychological","Romance","Samurai","School","Sci_Fi","Seinen","Shoujo",
+    "Shoujo_Ai","Shounen","Shounen_Ai","Slice_of_Life","Space","Sports",
+    "Super_Power","Supernatural","Thriller","Vampire"
   ];
 
   const dropdowns = {
