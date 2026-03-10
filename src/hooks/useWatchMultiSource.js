@@ -135,7 +135,8 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
             try {
               const searchResults = await searchAnimepaheBackend(title);
               const firstResult = searchResults?.data?.[0];
-              if (!firstResult?.session) {
+              const animepaheAnimeId = firstResult?.id || firstResult?.session;
+              if (!animepaheAnimeId) {
                 toast({
                   title: "No stream available in Animepahe",
                   description: "Falling back to HiAnime.",
@@ -143,8 +144,8 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
                 setSource("hianime");
                 return;
               }
-              setAnimepaheId(firstResult.session);
-              episodesData = await getAnimepaheEpisodes(firstResult.session);
+              setAnimepaheId(animepaheAnimeId);
+              episodesData = await getAnimepaheEpisodes(animepaheAnimeId);
             } catch (searchErr) {
               console.warn("Animepahe title search/episode fetch failed:", searchErr);
               toast({
