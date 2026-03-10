@@ -20,6 +20,7 @@ import { useHomeInfo } from "@/src/context/HomeInfoContext";
 import Voiceactor from "@/src/components/voiceactor/Voiceactor";
 import { supabase } from "@/src/integrations/supabase/client";
 import { useAuth } from "@/src/hooks/useAuth";
+import Breadcrumb from "@/src/components/breadcrumb/Breadcrumb";
 
 /* ---------------- Info Row ---------------- */
 function InfoItem({ label, value }) {
@@ -177,11 +178,18 @@ function AnimeInfo({ random = false }) {
     info?.tvInfo?.dub && { icon: faMicrophone, text: info.tvInfo.dub },
   ].filter(Boolean);
 
+  const displayTitle = language === "EN" ? title : (japanese_title || title);
+
   return (
     <div className="min-h-screen bg-black text-white">
 
+      {/* ================= BREADCRUMB ================= */}
+      <div className="pt-14">
+        <Breadcrumb items={[{ label: displayTitle }]} />
+      </div>
+
       {/* ================= HERO ================= */}
-      <section className="relative pt-14">
+      <section className="relative">
         <div className="relative h-[50vh] overflow-hidden bg-gradient-to-b from-gray-900 to-black">
           <div className="absolute inset-0">
             <OptimizedImage

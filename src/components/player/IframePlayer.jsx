@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BouncingLoader from "../ui/bouncingloader/Bouncingloader";
 
 export default function IframePlayer({
@@ -28,6 +28,16 @@ export default function IframePlayer({
     )
   );
 
+  // Refs so the message-event handler always sees the latest values
+  // without needing to be torn-down and re-registered on every change.
+  const autoNextRef = useRef(autoNext);
+  const currentEpisodeIndexRef = useRef(currentEpisodeIndex);
+  const episodesRef = useRef(episodes);
+
+  useEffect(() => { autoNextRef.current = autoNext; }, [autoNext]);
+  useEffect(() => { currentEpisodeIndexRef.current = currentEpisodeIndex; }, [currentEpisodeIndex]);
+  useEffect(() => { episodesRef.current = episodes; }, [episodes]);
+
   useEffect(() => {
     const loadIframeUrl = async () => {
       setLoading(true);
@@ -54,12 +64,15 @@ export default function IframePlayer({
     const handleMessage = (event) => {
       const { currentTime, duration } = event.data;
       if (typeof currentTime === "number" && typeof duration === "number") {
+        const idx = currentEpisodeIndexRef.current;
+        const eps = episodesRef.current;
         if (
           currentTime >= duration &&
-          currentEpisodeIndex < episodes?.length - 1 &&
-          autoNext
+          autoNextRef.current &&
+          idx >= 0 &&
+          idx < eps?.length - 1
         ) {
-          playNext(episodes[currentEpisodeIndex + 1].id.match(/ep=(\d+)/)?.[1]);
+          playNext(eps[idx + 1].id.match(/ep=(\d+)/)?.[1]);
         }
       }
     };
@@ -67,7 +80,7 @@ export default function IframePlayer({
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, [autoNext, currentEpisodeIndex, episodes, playNext]);
+  }, [playNext]);
 
   useEffect(() => {
     setLoading(true);

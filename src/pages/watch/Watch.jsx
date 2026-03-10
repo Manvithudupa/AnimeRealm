@@ -22,6 +22,7 @@ import Player from "@/src/components/player/Player";
 import AnimePaheEmbedPlayer from "@/src/components/player/AnimePaheEmbedPlayer";
 import DownloadModal from "@/src/components/downloadmodal/DownloadModal";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
+import Breadcrumb from "@/src/components/breadcrumb/Breadcrumb";
 
 export default function Watch() {
   const location = useLocation();
@@ -228,7 +229,23 @@ export default function Watch() {
   }, [animeId, animeInfo]);
   return (
     <div className="w-full min-h-screen bg-[#0a0a0a]">
-      <div className="w-full max-w-[1920px] mx-auto pt-16 pb-6 w-full max-[1200px]:pt-12">
+      {/* ================= BREADCRUMB ================= */}
+      <div className="pt-14">
+        <Breadcrumb
+          items={[
+            {
+              label: animeInfo
+                ? (language ? animeInfo.title : (animeInfo.japanese_title || animeInfo.title))
+                : "Loading…",
+              href: animeInfo ? `/${animeId}` : undefined,
+            },
+            ...(activeEpisodeNum
+              ? [{ label: `Episode ${activeEpisodeNum}` }]
+              : []),
+          ]}
+        />
+      </div>
+      <div className="w-full max-w-[1920px] mx-auto pb-6 max-[1200px]:pt-2">
         <div className="grid grid-cols-[minmax(0,70%),minmax(0,30%)] gap-6 w-full h-full max-[1200px]:flex max-[1200px]:flex-col">
           {/* Left Column - Player, Controls, Servers */}
           <div className="flex flex-col w-full gap-6">
