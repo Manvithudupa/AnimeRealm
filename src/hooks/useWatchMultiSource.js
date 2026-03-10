@@ -8,8 +8,10 @@ import getStreamInfo from "../utils/getStreamInfo.utils";
 import getNextEpisodeSchedule from "@/src/utils/getNextEpisodeSchedule.utils";
 import {
   getAnimepaheEpisodesByAnilistId,
+  getAnimepaheEpisodes,
   getAnimepaheServers,
   getAnimepaheStreamInfo,
+  searchAnimepaheBackend,
 } from "@/src/utils/animepaheBackend.utils";
 import { toast } from "@/src/hooks/use-toast";
 
@@ -112,12 +114,47 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
           const cached = await getAnimeInfoCached();
           const anilistId = cached.anilistId;
 
-          if (!anilistId) {
-            throw new Error("Anilist ID not available for Animepahe provider");
+          let episodesData;
+          if (anilistId) {
+            // Preferred path: fetch episodes via AniList ID
+            episodesData = await getAnimepaheEpisodesByAnilistId(anilistId);
+          } else {
+            // Fallback: anilistId is null — search AnimePahe by title then fetch episodes
+            const title =
+              typeof cached.data?.title === "string"
+                ? cached.data.title
+                : cached.data?.title?.english || cached.data?.title?.romaji || null;
+            if (!title) {
+              toast({
+                title: "No stream available in Animepahe",
+                description: "Falling back to HiAnime.",
+              });
+              setSource("hianime");
+              return;
+            }
+            try {
+              const searchResults = await searchAnimepaheBackend(title);
+              const firstResult = searchResults?.data?.[0];
+              if (!firstResult?.session) {
+                toast({
+                  title: "No stream available in Animepahe",
+                  description: "Falling back to HiAnime.",
+                });
+                setSource("hianime");
+                return;
+              }
+              setAnimepaheId(firstResult.session);
+              episodesData = await getAnimepaheEpisodes(firstResult.session);
+            } catch (searchErr) {
+              console.warn("Animepahe title search/episode fetch failed:", searchErr);
+              toast({
+                title: "No stream available in Animepahe",
+                description: "Falling back to HiAnime.",
+              });
+              setSource("hianime");
+              return;
+            }
           }
-
-          // Fetch episodes using Anilist ID
-          const episodesData = await getAnimepaheEpisodesByAnilistId(anilistId);
 
           if (!episodesData?.episodes?.length) {
             toast({
