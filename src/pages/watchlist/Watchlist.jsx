@@ -38,7 +38,6 @@ function statusTextColor(value) {
 
 function Watchlist() {
   const { user, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
 
   const [watchlist, setWatchlist] = useState([]);
   const [loading, setLoading] = useState(true);
