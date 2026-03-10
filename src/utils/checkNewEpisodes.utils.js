@@ -14,8 +14,9 @@ export const checkNewEpisodes = async (userId) => {
         .eq("user_id", userId),
       supabase
         .from("watchlists")
-        .select("anime_id, anime_title, anime_poster")
-        .eq("user_id", userId),
+        .select("anime_id, anime_title, anime_poster, status")
+        .eq("user_id", userId)
+        .in("status", ["watching", "on_hold"]),
     ]);
 
     const continueWatching = continueWatchingData.data || [];
