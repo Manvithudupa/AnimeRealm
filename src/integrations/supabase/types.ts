@@ -57,6 +57,7 @@ export type Database = {
           anime_id: string
           anime_title: string
           anime_poster: string | null
+          status: 'watching' | 'plan_to_watch' | 'completed' | 'on_hold' | 'dropped'
           created_at: string
         }
 
@@ -65,9 +66,12 @@ export type Database = {
           anime_id: string
           anime_title: string
           anime_poster?: string | null
+          status?: 'watching' | 'plan_to_watch' | 'completed' | 'on_hold' | 'dropped'
         }
 
-        Update: {}
+        Update: {
+          status?: 'watching' | 'plan_to_watch' | 'completed' | 'on_hold' | 'dropped'
+        }
 
         Relationships: []
       }
