@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -6,41 +7,67 @@ import {
   faMicrophone,
   faBookmark,
   faCheck,
+  faStar,
+  faCalendar,
+  faClock,
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import website_name from "@/src/config/website";
 import CategoryCard from "@/src/components/categorycard/CategoryCard";
-import Sidecard from "@/src/components/sidecard/Sidecard";
 import OptimizedImage from "@/src/components/OptimizedImage";
 import Loader from "@/src/components/Loader/Loader";
 import Error from "@/src/components/error/Error";
 import { useLanguage } from "@/src/context/LanguageContext";
-import { useHomeInfo } from "@/src/context/HomeInfoContext";
 import Voiceactor from "@/src/components/voiceactor/Voiceactor";
 import { supabase } from "@/src/integrations/supabase/client";
 import { useAuth } from "@/src/hooks/useAuth";
+import Breadcrumb from "@/src/components/breadcrumb/Breadcrumb";
 
-/* ---------------- Info Row ---------------- */
-function InfoItem({ label, value }) {
+/* ------------------------------------------------------------------ */
+/* Helper components                                                    */
+/* ------------------------------------------------------------------ */
+
+function InfoRow({ label, value }) {
   if (!value) return null;
   return (
-    <div className="flex justify-between text-sm">
-      <dt className="text-white/50">{label}</dt>
-      <dd className="text-white/90 text-right max-w-[60%] truncate">{value}</dd>
+    <div className="flex justify-between items-start gap-4 py-2.5 border-b border-white/5 last:border-0">
+      <dt className="text-xs text-white/40 uppercase tracking-wider shrink-0">{label}</dt>
+      <dd className="text-sm text-white/80 text-right max-w-[65%] leading-relaxed">{value}</dd>
     </div>
   );
 }
 
-/* ---------------- Genre / Tag ---------------- */
-function Tag({ icon, text }) {
+/* ------------------------------------------------------------------ */
+/* Genre pill                                                            */
+/* ------------------------------------------------------------------ */
+
+const GENRE_COLORS = [
+  "from-violet-600/30 to-violet-800/20 border-violet-500/30 text-violet-300",
+  "from-blue-600/30 to-blue-800/20 border-blue-500/30 text-blue-300",
+  "from-emerald-600/30 to-emerald-800/20 border-emerald-500/30 text-emerald-300",
+  "from-rose-600/30 to-rose-800/20 border-rose-500/30 text-rose-300",
+  "from-amber-600/30 to-amber-800/20 border-amber-500/30 text-amber-300",
+  "from-cyan-600/30 to-cyan-800/20 border-cyan-500/30 text-cyan-300",
+  "from-pink-600/30 to-pink-800/20 border-pink-500/30 text-pink-300",
+  "from-indigo-600/30 to-indigo-800/20 border-indigo-500/30 text-indigo-300",
+];
+
+function GenrePill({ genre, index }) {
+  const color = GENRE_COLORS[index % GENRE_COLORS.length];
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 text-xs text-white/70">
-      {icon && <FontAwesomeIcon icon={icon} className="text-xs" />}
-      {text}
-    </span>
+    <Link
+      to={`/genre/${genre}`}
+      className={`inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r ${color} border text-xs font-medium transition-all duration-200 hover:scale-105 hover:brightness-125`}
+    >
+      {genre}
+    </Link>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Main component                                                        */
+/* ------------------------------------------------------------------ */
 
 function AnimeInfo({ random = false }) {
   const { language } = useLanguage();
@@ -61,14 +88,14 @@ function AnimeInfo({ random = false }) {
   const [lastWatchedEpisode, setLastWatchedEpisode] = useState(null);
   const [isFullOverview, setIsFullOverview] = useState(false);
 
-  /* ---------- Fetch Anime ---------- */
+  /* -------- Fetch Anime -------- */
   useEffect(() => {
     const fetchAnime = async () => {
       setLoading(true);
       try {
         const data = await getAnimeInfo(id, random);
         setAnimeInfo(data.data);
-        setSeasons(data.seasons || []); // ✅ FIXED: fetch from top-level data
+        setSeasons(data.seasons || []);
       } catch (err) {
         setError(err);
       } finally {
@@ -79,7 +106,7 @@ function AnimeInfo({ random = false }) {
     window.scrollTo(0, 0);
   }, [id, random]);
 
-  /* ---------- Page Title ---------- */
+  /* -------- Page Title -------- */
   useEffect(() => {
     if (animeInfo) {
       document.title = `Watch ${animeInfo.title} on ${website_name}`;
@@ -89,10 +116,9 @@ function AnimeInfo({ random = false }) {
     };
   }, [animeInfo]);
 
-  /* ---------- Check Watchlist ---------- */
+  /* -------- Check Watchlist -------- */
   useEffect(() => {
     if (!user || !animeInfo) return;
-
     supabase
       .from("watchlists")
       .select("id")
@@ -102,15 +128,13 @@ function AnimeInfo({ random = false }) {
       .then(({ data }) => setInWatchlist(!!data));
   }, [user, animeInfo]);
 
-  /* ---------- Toggle Watchlist ---------- */
+  /* -------- Toggle Watchlist -------- */
   const toggleWatchlist = async () => {
     if (!user) {
       navigate("/auth");
       return;
     }
-
     setWatchlistLoading(true);
-
     if (inWatchlist) {
       await supabase
         .from("watchlists")
@@ -127,14 +151,12 @@ function AnimeInfo({ random = false }) {
       });
       setInWatchlist(true);
     }
-
     setWatchlistLoading(false);
   };
 
-  /* ---------- Load Last Watched Episode ---------- */
+  /* -------- Load Last Watched Episode -------- */
   useEffect(() => {
     if (!user || !animeInfo) return;
-
     const fetchLastWatched = async () => {
       const { data, error } = await supabase
         .from("continue_watching")
@@ -144,9 +166,7 @@ function AnimeInfo({ random = false }) {
         .order("updated_at", { ascending: false })
         .limit(1)
         .single();
-
       if (error) {
-        console.error("Error fetching last watched episode:", error);
         setLastWatchedEpisode(null);
       } else if (data) {
         setLastWatchedEpisode({ id: data.episode_id, num: data.episode_num });
@@ -154,7 +174,6 @@ function AnimeInfo({ random = false }) {
         setLastWatchedEpisode(null);
       }
     };
-
     fetchLastWatched();
   }, [user, animeInfo]);
 
@@ -166,19 +185,20 @@ function AnimeInfo({ random = false }) {
   }
 
   const { title, japanese_title, poster, animeInfo: info } = animeInfo;
-
-  // ✅ FIXED: Define currentId - extract the data_id from current anime
-  const currentId = animeInfo?.data_id || animeInfo?.id?.split('-').pop();
-
-  const tags = [
-    info?.tvInfo?.rating,
-    info?.tvInfo?.quality,
-    info?.tvInfo?.sub && { icon: faClosedCaptioning, text: info.tvInfo.sub },
-    info?.tvInfo?.dub && { icon: faMicrophone, text: info.tvInfo.dub },
-  ].filter(Boolean);
+  const currentId = animeInfo?.data_id || animeInfo?.id?.split("-").pop();
+  const displayTitle = language === "EN" ? title : japanese_title || title;
+  const genres = info?.Genres || info?.genres || [];
+  const showType = info?.Type || info?.tvInfo?.showType;
+  const studios = info?.Studios;
+  const malScore = info?.["MAL Score"];
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+
+      {/* =================== BREADCRUMB =================== */}
+      <div className="pt-14">
+        <Breadcrumb items={[{ label: displayTitle }]} />
+      </div>
 
       {/* ================= HERO ================= */}
       <section className="relative pt-14">
@@ -208,29 +228,84 @@ function AnimeInfo({ random = false }) {
               />
             </div>
 
-            {/* Details */}
-            <div className="flex-1 pt-4 md:pt-20 animate-fadeIn">
-              <p className="text-xs uppercase tracking-widest text-white/50 mb-3 font-medium">
-                {info?.Status} · {info?.Premiered} · {info?.Duration}
-              </p>
-
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 leading-tight">
-                {language === "EN" ? title : japanese_title}
-              </h1>
-
-              {japanese_title && language === "EN" && <p className="text-sm text-white/50 mb-5 font-light">{japanese_title}</p>}
-
-              <div className="flex flex-wrap items-center gap-4 text-sm text-white/70 mb-7">
-                {info?.["MAL Score"] && (
-                  <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full">
-                    <span className="text-yellow-400">⭐</span>
-                    <span className="font-semibold">{info["MAL Score"]}</span>
+            {/* Info */}
+            <div className="flex-1 pt-2 md:pt-6 min-w-0">
+              {/* Type + Rating badges */}
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                {showType && (
+                  <span className="px-2.5 py-1 rounded-md bg-white/10 text-xs font-bold text-white/80 uppercase tracking-wider">
+                    {showType}
                   </span>
+                )}
+                {info?.tvInfo?.rating && (
+                  <span className="px-2.5 py-1 rounded-md bg-white/10 text-xs font-bold text-white/80 uppercase tracking-wider">
+                    {info.tvInfo.rating}
+                  </span>
+                )}
+                {info?.tvInfo?.quality && (
+                  <span className="px-2.5 py-1 rounded-md bg-blue-500/20 text-xs font-bold text-blue-300 uppercase tracking-wider border border-blue-500/30">
+                    {info.tvInfo.quality}
+                  </span>
+                )}
+                {info?.Status && (() => {
+                  const statusLower = info.Status.toLowerCase();
+                  const statusClass = statusLower.includes("airing") && !statusLower.includes("finished")
+                    ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                    : statusLower.includes("not")
+                    ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
+                    : "bg-white/5 text-white/50 border border-white/10";
+                  return (
+                    <span className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider ${statusClass}`}>
+                      {info.Status}
+                    </span>
+                  );
+                })()}
+              </div>
+
+              {/* Title */}
+              <h1 className="text-3xl md:text-5xl font-black mb-2 leading-tight tracking-tight">
+                {language === "EN" ? title : japanese_title || title}
+              </h1>
+              {japanese_title && language === "EN" && (
+                <p className="text-sm text-white/40 mb-5 font-light">{japanese_title}</p>
+              )}
+
+              {/* Stats row */}
+              <div className="flex flex-wrap items-center gap-3 mb-6">
+                {malScore && (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/25">
+                    <FontAwesomeIcon icon={faStar} className="text-amber-400 text-xs" />
+                    <span className="text-sm font-bold text-amber-300">{malScore}</span>
+                  </div>
+                )}
+                {info?.tvInfo?.sub != null && (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/20">
+                    <FontAwesomeIcon icon={faClosedCaptioning} className="text-green-400 text-xs" />
+                    <span className="text-xs font-semibold text-green-300">SUB {info.tvInfo.sub}</span>
+                  </div>
+                )}
+                {info?.tvInfo?.dub != null && (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                    <FontAwesomeIcon icon={faMicrophone} className="text-blue-400 text-xs" />
+                    <span className="text-xs font-semibold text-blue-300">DUB {info.tvInfo.dub}</span>
+                  </div>
+                )}
+                {info?.Duration && (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
+                    <FontAwesomeIcon icon={faClock} className="text-white/40 text-xs" />
+                    <span className="text-xs font-medium text-white/60">{info.Duration}</span>
+                  </div>
+                )}
+                {info?.Premiered && (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
+                    <FontAwesomeIcon icon={faCalendar} className="text-white/40 text-xs" />
+                    <span className="text-xs font-medium text-white/60">{info.Premiered}</span>
+                  </div>
                 )}
               </div>
 
-              {/* Buttons */}
-              <div className="flex flex-wrap items-center gap-3 mb-7">
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 mb-6">
                 {info?.Status?.toLowerCase() !== "not-yet-aired" && (
                   <Link
                     to={
@@ -238,76 +313,93 @@ function AnimeInfo({ random = false }) {
                         ? `/watch/${animeInfo.id}?ep=${lastWatchedEpisode.id}`
                         : `/watch/${animeInfo.id}`
                     }
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-white text-black text-sm font-semibold hover:bg-white/95 active:scale-95 transition-all duration-200 shadow-lg"
+                    className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-white text-black text-sm font-bold hover:bg-white/90 active:scale-95 transition-all duration-200 shadow-lg shadow-white/10"
                   >
                     <FontAwesomeIcon icon={faPlay} className="text-xs" />
                     {lastWatchedEpisode
-                      ? `Continue Ep ${lastWatchedEpisode.num}`
+                      ? `Continue · Ep ${lastWatchedEpisode.num}`
                       : "Watch Now"}
                   </Link>
                 )}
-
                 <button
                   onClick={toggleWatchlist}
                   disabled={watchlistLoading}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-medium transition-all duration-200 active:scale-95 disabled:opacity-50"
+                  className={`inline-flex items-center gap-2.5 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 disabled:opacity-50 border ${
+                    inWatchlist
+                      ? "bg-white/10 border-white/20 text-white hover:bg-white/15"
+                      : "bg-transparent border-white/20 text-white/70 hover:bg-white/5 hover:text-white"
+                  }`}
                 >
                   <FontAwesomeIcon icon={inWatchlist ? faCheck : faBookmark} className="text-xs" />
-                  {inWatchlist ? "Saved" : "Save"}
+                  {inWatchlist ? "In Watchlist" : "Add to Watchlist"}
                 </button>
               </div>
 
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2.5">
-                {tags.map((tag, i) =>
-                  typeof tag === "string"
-                    ? <Tag key={i} text={tag} />
-                    : <Tag key={i} icon={tag.icon} text={tag.text} />
-                )}
-              </div>
+              {/* Genres */}
+              {genres.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {genres.map((genre, i) => (
+                    <GenrePill key={i} genre={genre} index={i} />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ================= SYNOPSIS + INFO ================= */}
-      <section className="py-12 px-5 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent">
-        <div className="mx-auto max-w-7xl grid lg:grid-cols-3 gap-8">
+      {/* =================== SYNOPSIS + INFO =================== */}
+      <section className="py-12 px-5 mx-auto max-w-7xl">
+        <div className="grid lg:grid-cols-3 gap-8">
 
           {/* Synopsis */}
-          <div className="lg:col-span-2 animate-fadeIn" style={{animationDelay: '100ms'}}>
-            <h2 className="text-xs uppercase tracking-widest text-white/50 mb-5 font-semibold">Overview</h2>
-            <p className="text-white/70 leading-relaxed text-sm md:text-base">
-              {info?.Overview ? (
-                info.Overview.length > 270 ? (
-                  <>
-                    {isFullOverview ? info.Overview : `${info.Overview.slice(0, 270)}...`}
-                    <button
-                      className="ml-2 text-white/60 hover:text-white font-medium transition-colors duration-200"
-                      onClick={() => setIsFullOverview(!isFullOverview)}
-                    >
-                      {isFullOverview ? "Show Less" : "Read More"}
-                    </button>
-                  </>
-                ) : info.Overview
-              ) : (
-                <span className="text-white/50">No description available.</span>
-              )}
-            </p>
+          <div className="lg:col-span-2">
+            <h2 className="text-xs uppercase tracking-widest text-white/40 mb-4 font-semibold">Synopsis</h2>
+            <div className="bg-white/[0.03] rounded-2xl p-6 border border-white/[0.07]">
+              <p className="text-white/70 leading-relaxed text-sm md:text-[15px]">
+                {info?.Overview ? (
+                  info.Overview.length > 300 ? (
+                    <>
+                      {isFullOverview ? info.Overview : `${info.Overview.slice(0, 300)}...`}
+                      <button
+                        className="ml-2 text-white/50 hover:text-white text-sm font-medium transition-colors duration-200 underline underline-offset-2"
+                        onClick={() => setIsFullOverview(!isFullOverview)}
+                      >
+                        {isFullOverview ? "Show Less" : "Read More"}
+                      </button>
+                    </>
+                  ) : (
+                    info.Overview
+                  )
+                ) : (
+                  <span className="text-white/30 italic">No description available.</span>
+                )}
+              </p>
+            </div>
+
+            {/* Studio row (below synopsis on large screens) */}
+            {studios && (
+              <div className="mt-4 flex items-center gap-2 text-sm">
+                <span className="text-white/30 uppercase tracking-wider text-xs">Studio</span>
+                <span className="text-white/60 font-medium">{studios}</span>
+              </div>
+            )}
           </div>
 
           {/* Sidebar Info */}
-          <div className="lg:col-span-1 animate-fadeIn" style={{animationDelay: '200ms'}}>
-            <div className="bg-white/[0.03] rounded-xl p-6 border border-white/10 backdrop-blur-sm hover:bg-white/[0.05] transition-all duration-300">
-              <h3 className="text-xs uppercase tracking-widest text-white/50 mb-5 font-semibold">Information</h3>
-              <dl className="space-y-4">
-                <InfoItem label="Japanese" value={info?.Japanese} />
-                <InfoItem label="Synonyms" value={info?.Synonyms} />
-                <InfoItem label="Aired" value={info?.Aired} />
-                <InfoItem label="Premiered" value={info?.Premiered} />
-                <InfoItem label="Duration" value={info?.Duration} />
-                <InfoItem label="Status" value={info?.Status} />
-                <InfoItem label="MAL Score" value={info?.["MAL Score"]} />
+          <div className="lg:col-span-1">
+            <h2 className="text-xs uppercase tracking-widest text-white/40 mb-4 font-semibold">Details</h2>
+            <div className="bg-white/[0.03] rounded-2xl p-6 border border-white/[0.07] space-y-1">
+              <dl>
+                <InfoRow label="Type" value={showType} />
+                <InfoRow label="Japanese" value={info?.Japanese} />
+                <InfoRow label="Synonyms" value={info?.Synonyms} />
+                <InfoRow label="Aired" value={info?.Aired} />
+                <InfoRow label="Premiered" value={info?.Premiered} />
+                <InfoRow label="Duration" value={info?.Duration} />
+                <InfoRow label="Status" value={info?.Status} />
+                <InfoRow label="MAL Score" value={malScore} />
+                <InfoRow label="Studios" value={studios} />
               </dl>
             </div>
           </div>
@@ -367,17 +459,17 @@ function AnimeInfo({ random = false }) {
           </div>
         </div>
       )}
-      
-      {/* Voice Actors Section */}
+
+      {/* =================== VOICE ACTORS =================== */}
       {animeInfo?.anilistId && (
-        <div className="container mx-auto py-12 px-5">
+        <div className="px-5 mx-auto max-w-7xl py-8">
           <Voiceactor anilistId={animeInfo.anilistId} />
         </div>
       )}
-      
-      {/* ================= RECOMMENDATIONS ================= */}
+
+      {/* =================== RECOMMENDATIONS =================== */}
       {animeInfo?.recommended_data?.length > 0 && (
-        <CategoryCard label="You may also like" data={animeInfo.recommended_data} showViewMore={false} />
+        <CategoryCard label="You May Also Like" data={animeInfo.recommended_data} showViewMore={false} />
       )}
     </div>
   );

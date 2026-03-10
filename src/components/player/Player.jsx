@@ -3,7 +3,6 @@ import Hls from "hls.js";
 import { useEffect, useRef, useState } from "react";
 import Artplayer from "artplayer";
 import artplayerPluginChapter from "./artPlayerPluinChaper";
-import autoSkip from "./autoSkip";
 import artplayerPluginVttThumbnail from "./artPlayerPluginVttThumbnail";
 import {
   fullScreenOffIcon,
@@ -63,6 +62,22 @@ export default function Player({
     );
     setCurrentEpisodeIndex(index);
   }, [episodeId, episodes]);
+
+  /* =========================== Control Refs =========================== */
+  // Keep refs in sync with the latest prop values so that event handlers
+  // inside the player (video:ended, timeupdate) always read the current
+  // toggle state WITHOUT needing to destroy/recreate the player on toggle.
+  const autoPlayRef = useRef(autoPlay);
+  const autoNextRef = useRef(autoNext);
+  const autoSkipIntroRef = useRef(autoSkipIntro);
+  const currentEpisodeIndexRef = useRef(currentEpisodeIndex);
+  const episodesRef = useRef(episodes);
+
+  useEffect(() => { autoPlayRef.current = autoPlay; }, [autoPlay]);
+  useEffect(() => { autoNextRef.current = autoNext; }, [autoNext]);
+  useEffect(() => { autoSkipIntroRef.current = autoSkipIntro; }, [autoSkipIntro]);
+  useEffect(() => { currentEpisodeIndexRef.current = currentEpisodeIndex; }, [currentEpisodeIndex]);
+  useEffect(() => { episodesRef.current = episodes; }, [episodes]);
 
   /* =========================== Chapter Styles =========================== */
   useEffect(() => {
@@ -231,7 +246,7 @@ export default function Player({
         url: proxiedStreamUrl,
         container: artRef.current,
         type: "m3u8",
-        autoplay: autoPlay,
+        autoplay: autoPlayRef.current,
         volume: 1,
         setting: true,
         playbackRate: true,
@@ -272,12 +287,25 @@ export default function Player({
         }
 
 
-        // Auto skip intro/outro
+        // Auto skip intro/outro — check the ref on every tick so that
+        // toggling Skip Intro ON/OFF takes effect immediately without
+        // destroying and recreating the player.
         const skipRanges = [
           ...(intro?.start != null && intro?.end != null ? [[intro.start + 1, intro.end - 1]] : []),
           ...(outro?.start != null && outro?.end != null ? [[outro.start + 1, outro.end]] : []),
         ];
-        autoSkipIntro && art.plugins.add(autoSkip(skipRanges));
+        if (skipRanges.length > 0) {
+          art.on("video:timeupdate", () => {
+            if (!autoSkipIntroRef.current) return;
+            const ct = art.currentTime;
+            for (const [start, end] of skipRanges) {
+              if (ct >= start && ct < end) {
+                art.seek(end);
+                break;
+              }
+            }
+          });
+        }
 
         // Thumbnails
         if (thumbnail) art.plugins.add(artplayerPluginVttThumbnail({ vtt: `${proxy}${thumbnail}` }));
@@ -343,9 +371,11 @@ export default function Player({
               .eq("episode_id", episodeId);
           }
 
-          // Auto next episode
-          if (currentEpisodeIndex < episodes?.length - 1 && autoNext) {
-            playNext(episodes[currentEpisodeIndex + 1].id.match(/ep=(\d+)/)?.[1]);
+          // Auto next episode — read refs so the handler is never stale
+          const idx = currentEpisodeIndexRef.current;
+          const eps = episodesRef.current;
+          if (autoNextRef.current && idx >= 0 && idx < eps?.length - 1) {
+            playNext(eps[idx + 1].id.match(/ep=(\d+)/)?.[1]);
           }
         });
       });
@@ -358,7 +388,7 @@ export default function Player({
       if (saveIntervalRef.current) clearInterval(saveIntervalRef.current);
       if (art?.destroy) art.destroy(false);
     };
-  }, [streamUrl, episodeId, subtitles, intro, outro, autoPlay, autoNext, episodes, animeInfo]);
+  }, [streamUrl, episodeId, subtitles, intro, outro, animeInfo]);
 
   return <div ref={artRef} className="w-full h-full" />;
 }

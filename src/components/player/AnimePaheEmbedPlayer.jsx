@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BouncingLoader from "../ui/bouncingloader/Bouncingloader";
 
 export default function AnimePaheEmbedPlayer({
@@ -17,6 +17,15 @@ export default function AnimePaheEmbedPlayer({
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(
     episodes?.findIndex((ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId)
   );
+
+  // Refs so the message-event handler always sees the latest values
+  const autoNextRef = useRef(autoNext);
+  const currentEpisodeIndexRef = useRef(currentEpisodeIndex);
+  const episodesRef = useRef(episodes);
+
+  useEffect(() => { autoNextRef.current = autoNext; }, [autoNext]);
+  useEffect(() => { currentEpisodeIndexRef.current = currentEpisodeIndex; }, [currentEpisodeIndex]);
+  useEffect(() => { episodesRef.current = episodes; }, [episodes]);
 
   // Build the iframe URL from the m3u8ProxyUrl.
   // Guard against null/undefined streamUrl to prevent proxy calls with "null".
@@ -36,12 +45,15 @@ export default function AnimePaheEmbedPlayer({
     const handleMessage = (event) => {
       const { currentTime, duration } = event.data;
       if (typeof currentTime === "number" && typeof duration === "number") {
+        const idx = currentEpisodeIndexRef.current;
+        const eps = episodesRef.current;
         if (
           currentTime >= duration &&
-          currentEpisodeIndex < episodes?.length - 1 &&
-          autoNext
+          autoNextRef.current &&
+          idx >= 0 &&
+          idx < eps?.length - 1
         ) {
-          playNext(episodes[currentEpisodeIndex + 1].id.match(/ep=(\d+)/)?.[1]);
+          playNext(eps[idx + 1].id.match(/ep=(\d+)/)?.[1]);
         }
       }
     };
@@ -49,7 +61,7 @@ export default function AnimePaheEmbedPlayer({
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, [autoNext, currentEpisodeIndex, episodes, playNext]);
+  }, [playNext]);
 
   useEffect(() => {
     setLoading(true);
