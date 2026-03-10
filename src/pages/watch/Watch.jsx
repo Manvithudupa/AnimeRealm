@@ -245,7 +245,7 @@ export default function Watch() {
           ]}
         />
       </div>
-      <div className="w-full max-w-[1920px] mx-auto pb-6 w-full max-[1200px]:pt-2">
+      <div className="w-full max-w-[1920px] mx-auto pb-6 max-[1200px]:pt-2">
         <div className="grid grid-cols-[minmax(0,70%),minmax(0,30%)] gap-6 w-full h-full max-[1200px]:flex max-[1200px]:flex-col">
           {/* Left Column - Player, Controls, Servers */}
           <div className="flex flex-col w-full gap-6">

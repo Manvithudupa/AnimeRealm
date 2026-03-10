@@ -30,8 +30,9 @@ function Breadcrumb({ items = [] }) {
 
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
+          const key = `${item.label}-${item.href ?? ""}`;
           return (
-            <li key={index} className="flex items-center gap-1 min-w-0">
+            <li key={key} className="flex items-center gap-1 min-w-0">
               <MdChevronRight className="text-white/30 text-lg flex-shrink-0" />
               {isLast || !item.href ? (
                 <span
