@@ -10,8 +10,10 @@ import {
   faStar,
   faCalendar,
   faClock,
+  faChevronDown,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import website_name from "@/src/config/website";
 import CategoryCard from "@/src/components/categorycard/CategoryCard";
@@ -23,6 +25,26 @@ import Voiceactor from "@/src/components/voiceactor/Voiceactor";
 import { supabase } from "@/src/integrations/supabase/client";
 import { useAuth } from "@/src/hooks/useAuth";
 import Breadcrumb from "@/src/components/breadcrumb/Breadcrumb";
+
+/* ------------------------------------------------------------------ */
+/* Watchlist status config                                              */
+/* ------------------------------------------------------------------ */
+
+const WATCHLIST_STATUSES = [
+  { value: "watching",      label: "Watching",      color: "text-green-400",  bg: "hover:bg-green-500/20" },
+  { value: "plan_to_watch", label: "Plan to Watch", color: "text-blue-400",   bg: "hover:bg-blue-500/20" },
+  { value: "completed",     label: "Completed",     color: "text-purple-400", bg: "hover:bg-purple-500/20" },
+  { value: "on_hold",       label: "On Hold",       color: "text-yellow-400", bg: "hover:bg-yellow-500/20" },
+  { value: "dropped",       label: "Dropped",       color: "text-red-400",    bg: "hover:bg-red-500/20" },
+];
+
+function statusLabel(value) {
+  return WATCHLIST_STATUSES.find((s) => s.value === value)?.label ?? "Add to Watchlist";
+}
+
+function statusColor(value) {
+  return WATCHLIST_STATUSES.find((s) => s.value === value)?.color ?? "";
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper components                                                    */
@@ -83,7 +105,10 @@ function AnimeInfo({ random = false }) {
   const [error, setError] = useState(null);
 
   const [inWatchlist, setInWatchlist] = useState(false);
+  const [watchlistStatus, setWatchlistStatus] = useState(null);
   const [watchlistLoading, setWatchlistLoading] = useState(false);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const [lastWatchedEpisode, setLastWatchedEpisode] = useState(null);
   const [isFullOverview, setIsFullOverview] = useState(false);
@@ -121,36 +146,67 @@ function AnimeInfo({ random = false }) {
     if (!user || !animeInfo) return;
     supabase
       .from("watchlists")
-      .select("id")
+      .select("id, status")
       .eq("user_id", user.id)
       .eq("anime_id", animeInfo.id)
       .single()
-      .then(({ data }) => setInWatchlist(!!data));
+      .then(({ data }) => {
+        setInWatchlist(!!data);
+        setWatchlistStatus(data?.status ?? null);
+      });
   }, [user, animeInfo]);
 
-  /* -------- Toggle Watchlist -------- */
-  const toggleWatchlist = async () => {
+  /* -------- Close dropdown on outside click -------- */
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setStatusDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  /* -------- Set / Change Watchlist Status -------- */
+  const setWatchlistEntry = async (status) => {
     if (!user) {
       navigate("/auth");
       return;
     }
     setWatchlistLoading(true);
-    if (inWatchlist) {
-      await supabase
-        .from("watchlists")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("anime_id", animeInfo.id);
-      setInWatchlist(false);
-    } else {
+    setStatusDropdownOpen(false);
+    if (!inWatchlist) {
       await supabase.from("watchlists").insert({
         user_id: user.id,
         anime_id: animeInfo.id,
         anime_title: animeInfo.title,
         anime_poster: animeInfo.poster,
+        status,
       });
       setInWatchlist(true);
+      setWatchlistStatus(status);
+    } else {
+      await supabase
+        .from("watchlists")
+        .update({ status })
+        .eq("user_id", user.id)
+        .eq("anime_id", animeInfo.id);
+      setWatchlistStatus(status);
     }
+    setWatchlistLoading(false);
+  };
+
+  /* -------- Remove from Watchlist -------- */
+  const removeFromWatchlist = async () => {
+    setWatchlistLoading(true);
+    setStatusDropdownOpen(false);
+    await supabase
+      .from("watchlists")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("anime_id", animeInfo.id);
+    setInWatchlist(false);
+    setWatchlistStatus(null);
     setWatchlistLoading(false);
   };
 
@@ -321,18 +377,60 @@ function AnimeInfo({ random = false }) {
                       : "Watch Now"}
                   </Link>
                 )}
-                <button
-                  onClick={toggleWatchlist}
-                  disabled={watchlistLoading}
-                  className={`inline-flex items-center gap-2.5 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 disabled:opacity-50 border ${
-                    inWatchlist
-                      ? "bg-white/10 border-white/20 text-white hover:bg-white/15"
-                      : "bg-transparent border-white/20 text-white/70 hover:bg-white/5 hover:text-white"
-                  }`}
-                >
-                  <FontAwesomeIcon icon={inWatchlist ? faCheck : faBookmark} className="text-xs" />
-                  {inWatchlist ? "In Watchlist" : "Add to Watchlist"}
-                </button>
+                {/* Watchlist Dropdown Button */}
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => {
+                      if (!user) { navigate("/auth"); return; }
+                      setStatusDropdownOpen((prev) => !prev);
+                    }}
+                    disabled={watchlistLoading}
+                    className={`inline-flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 disabled:opacity-50 border ${
+                      inWatchlist
+                        ? "bg-white/10 border-white/20 text-white hover:bg-white/15"
+                        : "bg-transparent border-white/20 text-white/70 hover:bg-white/5 hover:text-white"
+                    }`}
+                  >
+                    <FontAwesomeIcon icon={inWatchlist ? faCheck : faBookmark} className="text-xs" />
+                    <span className={inWatchlist ? statusColor(watchlistStatus) : ""}>
+                      {inWatchlist ? statusLabel(watchlistStatus) : "Add to Watchlist"}
+                    </span>
+                    <FontAwesomeIcon icon={faChevronDown} className={`text-xs transition-transform ${statusDropdownOpen ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {statusDropdownOpen && (
+                    <div className="absolute left-0 top-full mt-2 w-52 rounded-xl bg-[#1a1a1a] border border-white/10 shadow-2xl z-50 overflow-hidden">
+                      {WATCHLIST_STATUSES.map((s) => (
+                        <button
+                          key={s.value}
+                          onClick={() => setWatchlistEntry(s.value)}
+                          className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
+                            watchlistStatus === s.value
+                              ? "bg-white/10 font-semibold"
+                              : `text-white/80 ${s.bg}`
+                          }`}
+                        >
+                          {watchlistStatus === s.value && (
+                            <FontAwesomeIcon icon={faCheck} className={`text-xs ${s.color}`} />
+                          )}
+                          <span className={watchlistStatus === s.value ? s.color : ""}>{s.label}</span>
+                        </button>
+                      ))}
+                      {inWatchlist && (
+                        <>
+                          <div className="h-px bg-white/10 mx-3" />
+                          <button
+                            onClick={removeFromWatchlist}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-red-500/20 transition-colors"
+                          >
+                            <FontAwesomeIcon icon={faTrash} className="text-xs" />
+                            Remove
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Genres */}
