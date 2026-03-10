@@ -36,6 +36,7 @@ export default function Watch() {
   const {
     source,
     setSource,
+    changeSource,
     // error,
     buffering,
     streamInfo,
@@ -245,7 +246,7 @@ export default function Watch() {
                       episodes={episodes}
                       playNext={(id) => setEpisodeId(id)}
                       autoNext={autoNext}
-                    /> : source === "animepahe" && import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY ?
+                    /> : source === "animepahe" && import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY && streamUrl ?
                     <AnimePaheEmbedPlayer
                       m3u8ProxyUrl={import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY}
                       streamUrl={streamUrl}
@@ -255,7 +256,7 @@ export default function Watch() {
                       autoNext={autoNext}
                       animeInfo={animeInfo}
                       episodeNum={activeEpisodeNum}
-                    /> : <Player
+                    /> : streamUrl ? <Player
                       streamUrl={streamUrl}
                       m3u8ProxyUrl={source === "animepahe" ? import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY : null}
                       subtitles={subtitles}
@@ -272,7 +273,11 @@ export default function Watch() {
                       animeInfo={animeInfo}
                       episodeNum={activeEpisodeNum}
                       streamInfo={streamInfo}
-                    />
+                    /> : (
+                      <div className="absolute inset-0 flex justify-center items-center bg-black">
+                        <BouncingLoader />
+                      </div>
+                    )
                 ) : (
                   <div className="absolute inset-0 flex justify-center items-center bg-black">
                     <BouncingLoader />
@@ -322,7 +327,7 @@ export default function Watch() {
                     <span className="text-white text-sm font-medium">Source:</span>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => setSource("hianime")}
+                        onClick={() => changeSource("hianime")}
                         className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
                           source === "hianime"
                             ? "bg-blue-600 text-white"
@@ -332,7 +337,7 @@ export default function Watch() {
                         HiAnime
                       </button>
                       <button
-                        onClick={() => setSource("animepahe")}
+                        onClick={() => changeSource("animepahe")}
                         className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
                           source === "animepahe"
                             ? "bg-blue-600 text-white"
