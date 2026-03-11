@@ -1,6 +1,13 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import BouncingLoader from "../ui/bouncingloader/Bouncingloader";
+
+// How close to the end (seconds) we treat the video as finished
+const END_THRESHOLD_SECONDS = 1;
+// Minimum video duration (seconds) before auto-next triggers, to avoid false positives
+const MIN_VIDEO_DURATION = 30;
+// Auto-next countdown duration (seconds)
+const AUTO_NEXT_COUNTDOWN = 5;
 
 export default function IframePlayer({
   episodeId,
@@ -21,12 +28,24 @@ export default function IframePlayer({
       ? import.meta.env.VITE_BASE_IFRAME_URL
       : serverName.toLowerCase() === "hd-4"
       ? import.meta.env.VITE_BASE_IFRAME_URL_2
-      : undefined; 
+      : undefined;
+
+  // Derive the target origin for postMessage from the configured base URL.
+  // Falls back to "*" only if the URL is unavailable/unparseable.
+  const iframeOrigin = (() => {
+    try {
+      return baseURL ? new URL(baseURL).origin : "*";
+    } catch {
+      return "*";
+    }
+  })();
 
   const [loading, setLoading] = useState(true);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeSrc, setIframeSrc] = useState("");
   const [showSkipIntro, setShowSkipIntro] = useState(false);
+  // Countdown shown before auto-advancing to next episode (null = hidden)
+  const [nextCountdown, setNextCountdown] = useState(null);
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(
     episodes?.findIndex(
       (episode) => episode.id.match(/ep=(\d+)/)?.[1] === episodeId
@@ -34,17 +53,18 @@ export default function IframePlayer({
   );
 
   const iframeRef = useRef(null);
-  // Guard against sending multiple seek commands for the same skip range
   const skipSentRef = useRef(false);
+  const countdownTimerRef = useRef(null);
+  const nextTriggeredRef = useRef(false); // prevent firing playNext twice
 
-  // Refs so the message-event handler always sees the latest values
-  // without needing to be torn-down and re-registered on every change.
+  // Refs so event handlers always see latest props without re-registration
   const autoNextRef = useRef(autoNext);
   const autoSkipIntroRef = useRef(autoSkipIntro);
   const introRef = useRef(intro);
   const outroRef = useRef(outro);
   const currentEpisodeIndexRef = useRef(currentEpisodeIndex);
   const episodesRef = useRef(episodes);
+  const playNextRef = useRef(playNext);
 
   useEffect(() => { autoNextRef.current = autoNext; }, [autoNext]);
   useEffect(() => { autoSkipIntroRef.current = autoSkipIntro; }, [autoSkipIntro]);
@@ -52,20 +72,67 @@ export default function IframePlayer({
   useEffect(() => { outroRef.current = outro; }, [outro]);
   useEffect(() => { currentEpisodeIndexRef.current = currentEpisodeIndex; }, [currentEpisodeIndex]);
   useEffect(() => { episodesRef.current = episodes; }, [episodes]);
+  useEffect(() => { playNextRef.current = playNext; }, [playNext]);
 
+  /* ── helpers ─────────────────────────────────────────────────────── */
+
+  /** Extract { currentTime, duration } from any known postMessage format */
+  function extractTime(data) {
+    if (!data || typeof data !== "object") return null;
+
+    // Format 1: { currentTime, duration }
+    if (typeof data.currentTime === "number") {
+      return { currentTime: data.currentTime, duration: data.duration ?? 0 };
+    }
+    // Format 2: { type/event: 'timeupdate', currentTime, duration }
+    if (
+      (data.type === "timeupdate" || data.event === "timeupdate") &&
+      typeof data.currentTime === "number"
+    ) {
+      return { currentTime: data.currentTime, duration: data.duration ?? 0 };
+    }
+    // Format 3: nested in data.data or data.payload
+    const nested = data.data ?? data.payload;
+    if (nested && typeof nested === "object" && typeof nested.currentTime === "number") {
+      return { currentTime: nested.currentTime, duration: nested.duration ?? 0 };
+    }
+    return null;
+  }
+
+  /** Start a countdown then play the next episode */
+  const startAutoNextCountdown = useCallback(() => {
+    if (nextTriggeredRef.current) return;
+    const idx = currentEpisodeIndexRef.current;
+    const eps = episodesRef.current;
+    if (!autoNextRef.current || idx < 0 || idx >= (eps?.length ?? 0) - 1) return;
+
+    nextTriggeredRef.current = true;
+    setNextCountdown(AUTO_NEXT_COUNTDOWN);
+
+    let remaining = AUTO_NEXT_COUNTDOWN;
+    countdownTimerRef.current = setInterval(() => {
+      remaining -= 1;
+      setNextCountdown(remaining);
+      if (remaining <= 0) {
+        clearInterval(countdownTimerRef.current);
+        countdownTimerRef.current = null;
+        setNextCountdown(null);
+        const nextId = eps[idx + 1].id.match(/ep=(\d+)/)?.[1];
+        if (nextId) playNextRef.current(nextId);
+      }
+    }, 1000);
+  }, []); // intentionally empty — all values read via refs
+
+  /* ── iframe src ──────────────────────────────────────────────────── */
   useEffect(() => {
-    const loadIframeUrl = async () => {
-      setLoading(true);
-      setIframeLoaded(false);
-      setIframeSrc("");
-
-      setIframeSrc(`${baseURL}/${episodeId}/${servertype}`);
-    };
-
-    loadIframeUrl();
+    setLoading(true);
+    setIframeLoaded(false);
+    setIframeSrc("");
+    setIframeSrc(`${baseURL}/${episodeId}/${servertype}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [episodeId, servertype, serverName, animeInfo]);
 
+  /* ── episode index ───────────────────────────────────────────────── */
   useEffect(() => {
     if (episodes?.length > 0) {
       const newIndex = episodes.findIndex(
@@ -75,73 +142,88 @@ export default function IframePlayer({
     }
   }, [episodeId, episodes]);
 
-  // Reset skip-intro button and sent guard when episode changes
+  /* ── reset per-episode state ─────────────────────────────────────── */
   useEffect(() => {
     setShowSkipIntro(false);
+    setNextCountdown(null);
     skipSentRef.current = false;
+    nextTriggeredRef.current = false;
+    if (countdownTimerRef.current) {
+      clearInterval(countdownTimerRef.current);
+      countdownTimerRef.current = null;
+    }
   }, [episodeId]);
 
+  /* ── postMessage listener ────────────────────────────────────────── */
   useEffect(() => {
     const handleMessage = (event) => {
-      const { currentTime, duration } = event.data;
-      if (typeof currentTime === "number" && typeof duration === "number") {
-        const intr = introRef.current;
-        const outr = outroRef.current;
+      // Also handle "ended" event type
+      if (
+        event.data &&
+        (event.data.type === "ended" || event.data.event === "ended")
+      ) {
+        startAutoNextCountdown();
+        return;
+      }
 
-        const inIntroRange =
-          intr?.start != null &&
-          intr?.end != null &&
-          currentTime >= intr.start &&
-          currentTime < intr.end;
-        const inOutroRange =
-          outr?.start != null &&
-          outr?.end != null &&
-          currentTime >= outr.start &&
-          currentTime < outr.end;
+      const times = extractTime(event.data);
+      if (!times) return;
 
-        // Show/hide the Skip Intro overlay button
-        setShowSkipIntro(inIntroRange || inOutroRange);
+      const { currentTime, duration } = times;
+      const intr = introRef.current;
+      const outr = outroRef.current;
 
-        // Auto-skip: send a seek postMessage to the embedded player.
-        // Use skipSentRef to avoid sending the seek command on every
-        // timeupdate tick while inside the same skip range.
-        if (autoSkipIntroRef.current && iframeRef.current?.contentWindow) {
-          if (inIntroRange || inOutroRange) {
-            if (!skipSentRef.current) {
-              skipSentRef.current = true;
-              const target = inIntroRange ? intr.end : outr.end;
-              iframeRef.current.contentWindow.postMessage(
-                { type: "seek", time: target },
-                "*"
-              );
-            }
-          } else {
-            // Reset guard once we leave the skip range
-            skipSentRef.current = false;
+      const inIntroRange =
+        intr?.start != null &&
+        intr?.end != null &&
+        currentTime >= intr.start &&
+        currentTime < intr.end;
+      const inOutroRange =
+        outr?.start != null &&
+        outr?.end != null &&
+        currentTime >= outr.start &&
+        currentTime < outr.end;
+
+      setShowSkipIntro(inIntroRange || inOutroRange);
+
+      // Auto-skip: send seek postMessage (guard against repeated sends)
+      if (autoSkipIntroRef.current && iframeRef.current?.contentWindow) {
+        if (inIntroRange || inOutroRange) {
+          if (!skipSentRef.current) {
+            skipSentRef.current = true;
+            const target = inIntroRange ? intr.end : outr.end;
+            // Send in multiple formats for compatibility
+            iframeRef.current.contentWindow.postMessage(
+              { type: "seek", time: target },
+              iframeOrigin
+            );
+            iframeRef.current.contentWindow.postMessage(
+              { event: "seek", time: target },
+              iframeOrigin
+            );
           }
-        } else if (!inIntroRange && !inOutroRange) {
+        } else {
           skipSentRef.current = false;
         }
+      } else if (!inIntroRange && !inOutroRange) {
+        skipSentRef.current = false;
+      }
 
-        // Auto-next episode when video ends
-        const idx = currentEpisodeIndexRef.current;
-        const eps = episodesRef.current;
-        if (
-          currentTime >= duration &&
-          autoNextRef.current &&
-          idx >= 0 &&
-          idx < eps?.length - 1
-        ) {
-          playNext(eps[idx + 1].id.match(/ep=(\d+)/)?.[1]);
-        }
+      // Auto-next when video ends (within threshold of duration)
+      if (
+        duration > MIN_VIDEO_DURATION &&
+        currentTime >= duration - END_THRESHOLD_SECONDS &&
+        autoNextRef.current
+      ) {
+        startAutoNextCountdown();
       }
     };
-    window.addEventListener("message", handleMessage);
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, [playNext]);
 
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [startAutoNextCountdown, iframeOrigin]);
+
+  /* ── continue-watching on unmount ────────────────────────────────── */
   useEffect(() => {
     setLoading(true);
     setIframeLoaded(false);
@@ -171,6 +253,34 @@ export default function IframePlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [episodeId, servertype]);
 
+  /* ── cleanup countdown on unmount ───────────────────────────────── */
+  useEffect(() => {
+    return () => {
+      if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
+    };
+  }, []);
+
+  /* ── helpers ─────────────────────────────────────────────────────── */
+  function handleSkipClick() {
+    const intr = introRef.current;
+    const outr = outroRef.current;
+    const target = intr?.end ?? outr?.end;
+    if (target != null && iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({ type: "seek", time: target }, iframeOrigin);
+      iframeRef.current.contentWindow.postMessage({ event: "seek", time: target }, iframeOrigin);
+    }
+    setShowSkipIntro(false);
+  }
+
+  function cancelAutoNext() {
+    if (countdownTimerRef.current) {
+      clearInterval(countdownTimerRef.current);
+      countdownTimerRef.current = null;
+    }
+    setNextCountdown(null);
+    nextTriggeredRef.current = false;
+  }
+
   return (
     <div className="relative w-full h-full overflow-hidden">
       {/* Loader Overlay */}
@@ -186,20 +296,23 @@ export default function IframePlayer({
       {showSkipIntro && !autoSkipIntro && (
         <button
           className="absolute bottom-16 right-4 z-20 px-4 py-2 bg-black/80 text-white text-sm font-medium rounded border border-white/30 hover:bg-white/10 transition-all duration-200"
-          onClick={() => {
-            const intr = introRef.current;
-            const outr = outroRef.current;
-            const target = intr?.end ?? outr?.end;
-            if (target != null && iframeRef.current?.contentWindow) {
-              iframeRef.current.contentWindow.postMessage(
-                { type: "seek", time: target },
-                "*"
-              );
-            }
-          }}
+          onClick={handleSkipClick}
         >
           Skip Intro
         </button>
+      )}
+
+      {/* Auto-next Countdown Overlay */}
+      {nextCountdown !== null && (
+        <div className="absolute bottom-16 right-4 z-20 flex items-center gap-3 px-4 py-2 bg-black/85 text-white text-sm font-medium rounded border border-white/30">
+          <span>Next episode in {nextCountdown}s</span>
+          <button
+            className="ml-1 px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded text-xs border border-white/20 transition-colors"
+            onClick={cancelAutoNext}
+          >
+            Cancel
+          </button>
+        </div>
       )}
 
       <iframe
@@ -214,12 +327,15 @@ export default function IframePlayer({
         onLoad={() => {
           setIframeLoaded(true);
           setTimeout(() => setLoading(false), 1000);
-          // Notify embedded player of autoplay preference
-          if (autoPlay && iframeRef.current?.contentWindow) {
-            iframeRef.current.contentWindow.postMessage({ type: "autoplay" }, "*");
+          if (iframeRef.current?.contentWindow) {
+            // Notify embedded player of autoplay preference in multiple formats
+            if (autoPlay) {
+              iframeRef.current.contentWindow.postMessage({ type: "autoplay" }, iframeOrigin);
+              iframeRef.current.contentWindow.postMessage({ event: "autoplay" }, iframeOrigin);
+            }
           }
         }}
       ></iframe>
     </div>
   );
-} 
+}
