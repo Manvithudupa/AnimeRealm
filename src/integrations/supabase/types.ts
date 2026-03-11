@@ -153,6 +153,7 @@ export type Database = {
           anime_title: string
           anime_poster: string | null
           episode_num: number
+          episode_id: string | null
           notification_type: 'continue_watching' | 'watchlist'
           is_read: boolean
           created_at: string
@@ -165,6 +166,7 @@ export type Database = {
           anime_title: string
           anime_poster?: string | null
           episode_num: number
+          episode_id?: string | null
           notification_type: 'continue_watching' | 'watchlist'
           is_read?: boolean
           created_at?: string
@@ -176,6 +178,7 @@ export type Database = {
           anime_title?: string
           anime_poster?: string | null
           episode_num?: number
+          episode_id?: string | null
           notification_type?: 'continue_watching' | 'watchlist'
           is_read?: boolean
           updated_at?: string

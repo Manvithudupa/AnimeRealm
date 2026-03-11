@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { Button } from "@/src/components/ui/button";
 import { User, Bell, Bookmark, LogOut } from "lucide-react";
 import { useAuth } from "@/src/hooks/useAuth";
+import { useEpisodeCheck } from "@/src/hooks/useEpisodeCheck";
 import MobileSearch from "../searchbar/MobileSearch";
 import {
   faBars,
@@ -23,6 +24,9 @@ function Navbar() {
   const location = useLocation();
   const { user, profile, signOut } = useAuth();
   const { language, toggleLanguage } = useLanguage();
+
+  // Run episode check in the background — decoupled from the notification dropdown
+  useEpisodeCheck();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

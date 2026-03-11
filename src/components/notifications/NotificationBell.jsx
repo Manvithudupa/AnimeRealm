@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Bell, Check } from "lucide-react";
 import { useNotifications } from "@/src/hooks/useNotifications";
-import { checkNewEpisodes } from "@/src/utils/checkNewEpisodes.utils";
 import { useAuth } from "@/src/hooks/useAuth";
 
 const NotificationBell = () => {
@@ -18,7 +17,6 @@ const NotificationBell = () => {
     loading,
     markAsRead,
     markAllAsRead,
-    refetch,
   } = useNotifications(hasInitialFetch);
 
   // Close dropdown on outside click
@@ -38,21 +36,6 @@ const NotificationBell = () => {
       setHasInitialFetch(true);
     }
   }, [isOpen, hasInitialFetch]);
-
-  // Check for new episodes and poll when dropdown is open
-  useEffect(() => {
-    if (!user || !hasInitialFetch) return;
-
-    const runCheck = async () => {
-      await checkNewEpisodes(user.id);
-      refetch();
-    };
-
-    runCheck();
-    const checkInterval = setInterval(runCheck, 6 * 60 * 60 * 1000);
-
-    return () => clearInterval(checkInterval);
-  }, [user, hasInitialFetch, refetch]);
 
   const handleNotificationClick = async (notification) => {
     if (!notification.is_read) {
