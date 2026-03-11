@@ -26,6 +26,12 @@ import { supabase } from "@/src/integrations/supabase/client";
 Artplayer.LOG_VERSION = false;
 Artplayer.CONTEXTMENU = false;
 
+// How close to the end (seconds) we treat the video as finished for the
+// near-end auto-next fallback (mirrors the constant in IframePlayer.jsx).
+const END_THRESHOLD_SECONDS = 2;
+// Minimum video duration (seconds) before auto-next triggers.
+const MIN_VIDEO_DURATION = 30;
+
 export default function Player({
   streamUrl,
   m3u8ProxyUrl,
@@ -46,6 +52,7 @@ export default function Player({
   const artRef = useRef(null);
   const saveIntervalRef = useRef(null);
   const lastSavedTimeRef = useRef(0);
+  const nextTriggeredRef = useRef(false);
 
   const proxy = import.meta.env.VITE_PROXY_URL;
   const m3u8proxy = import.meta.env.VITE_M3U8_PROXY_URL?.split(",") || [];
@@ -79,6 +86,12 @@ export default function Player({
   useEffect(() => { currentEpisodeIndexRef.current = currentEpisodeIndex; }, [currentEpisodeIndex]);
   useEffect(() => { episodesRef.current = episodes; }, [episodes]);
 
+  // Reset per-episode state when the episode changes so that the near-end
+  // fallback and video:ended handler never double-fire for the same episode.
+  useEffect(() => {
+    nextTriggeredRef.current = false;
+  }, [episodeId]);
+
   /* =========================== Chapter Styles =========================== */
   useEffect(() => {
     if (!streamUrl) return;
@@ -103,6 +116,20 @@ export default function Player({
         fragLoadingRetryDelayMax: 8000,
         manifestLoadingTimeoutMs: 10000,
         manifestLoadingMaxRetry: 3,
+      });
+
+      // Trigger autoplay once HLS has parsed the manifest and media is
+      // attached.  Artplayer's built-in autoplay flag is unreliable when
+      // the source is managed by HLS.js (it may fire before any segments
+      // are buffered, resulting in a play() rejection).
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        if (autoPlayRef.current) {
+          art.play().catch(() => {
+            // Browser autoplay policy blocked the request – the user can
+            // start playback manually.  This is an expected failure on
+            // first page load in some browsers.
+          });
+        }
       });
 
       hls.on(Hls.Events.ERROR, (event, data) => {
@@ -142,10 +169,14 @@ export default function Player({
     if (!streamUrl || !artRef.current) return;
 
     let art;
+    // Guard that prevents a slow async init from creating a player after
+    // the effect has already been cleaned up (e.g. rapid prop changes).
+    let isCancelled = false;
 
     const init = async () => {
       // Get logged-in user
       const { data: { user } } = await supabase.auth.getUser();
+      if (isCancelled) return;
       let resumeTime = 0;
 
       // Fetch resume time from Supabase
@@ -158,6 +189,8 @@ export default function Player({
           .single();
         if (data?.left_at) resumeTime = data.left_at;
       }
+
+      if (isCancelled) return;
 
       // Fallback to localStorage
       if (!resumeTime) {
@@ -179,12 +212,14 @@ export default function Player({
 
       console.log("[Player] Initializing stream:", streamUrl);
 
-      // Initialize Artplayer
+      // Initialize Artplayer — pass autoplay:false here because we trigger
+      // play explicitly from the Hls.Events.MANIFEST_PARSED handler inside
+      // playM3u8, which gives better guarantees that media data is ready.
       art = new Artplayer({
         url: proxiedStreamUrl,
         container: artRef.current,
         type: "m3u8",
-        autoplay: autoPlayRef.current,
+        autoplay: false,
         volume: 1,
         setting: true,
         playbackRate: true,
@@ -237,18 +272,40 @@ export default function Player({
           ...(intro?.start != null && intro?.end != null ? [[intro.start + 1, intro.end - 1]] : []),
           ...(outro?.start != null && outro?.end != null ? [[outro.start + 1, outro.end]] : []),
         ];
-        if (skipRanges.length > 0) {
-          art.on("video:timeupdate", () => {
-            if (!autoSkipIntroRef.current) return;
-            const ct = art.currentTime;
+
+        art.on("video:timeupdate", () => {
+          const ct = art.currentTime;
+
+          // Auto skip intro / outro
+          if (autoSkipIntroRef.current && skipRanges.length > 0) {
             for (const [start, end] of skipRanges) {
               if (ct >= start && ct < end) {
                 art.seek(end);
                 break;
               }
             }
-          });
-        }
+          }
+
+          // Near-end fallback for auto-next.  Some HLS streams (especially
+          // through a proxy) never fire the native "ended" event because the
+          // last segment stalls or the MediaSource does not signal EOS.  We
+          // trigger auto-next whenever the player is within END_THRESHOLD_SECONDS
+          // of the end.
+          const dur = art.duration;
+          if (
+            !nextTriggeredRef.current &&
+            autoNextRef.current &&
+            dur > MIN_VIDEO_DURATION &&
+            ct >= dur - END_THRESHOLD_SECONDS
+          ) {
+            nextTriggeredRef.current = true;
+            const idx = currentEpisodeIndexRef.current;
+            const eps = episodesRef.current;
+            if (idx >= 0 && idx < eps?.length - 1) {
+              playNext(eps[idx + 1].id.match(/ep=(\d+)/)?.[1]);
+            }
+          }
+        });
 
         // Thumbnails
         if (thumbnail) art.plugins.add(artplayerPluginVttThumbnail({ vtt: `${proxy}${thumbnail}` }));
@@ -314,10 +371,12 @@ export default function Player({
               .eq("episode_id", episodeId);
           }
 
-          // Auto next episode — read refs so the handler is never stale
+          // Auto next episode — guard with nextTriggeredRef so the near-end
+          // fallback in video:timeupdate and this handler never both fire.
           const idx = currentEpisodeIndexRef.current;
           const eps = episodesRef.current;
-          if (autoNextRef.current && idx >= 0 && idx < eps?.length - 1) {
+          if (!nextTriggeredRef.current && autoNextRef.current && idx >= 0 && idx < eps?.length - 1) {
+            nextTriggeredRef.current = true;
             playNext(eps[idx + 1].id.match(/ep=(\d+)/)?.[1]);
           }
         });
@@ -328,6 +387,7 @@ export default function Player({
 
     // Cleanup
     return () => {
+      isCancelled = true;
       if (saveIntervalRef.current) clearInterval(saveIntervalRef.current);
       if (art?.destroy) art.destroy(false);
     };
