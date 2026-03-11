@@ -280,7 +280,7 @@ export default function Player({
           if (autoSkipIntroRef.current && skipRanges.length > 0) {
             for (const [start, end] of skipRanges) {
               if (ct >= start && ct < end) {
-                art.seek(end);
+                art.currentTime = end;
                 break;
               }
             }
