@@ -63,7 +63,7 @@ export default function autoSkip(option) {
         if (currentTime >= start && currentTime < end) {
           console.log(`⏭️ Skipping from ${start}s to ${end}s`);
           showSkipOverlay(start, end);
-          art.seek(end);
+          art.currentTime = end;
           break;
         }
       }
