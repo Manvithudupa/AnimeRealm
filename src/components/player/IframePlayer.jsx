@@ -44,6 +44,7 @@ export default function IframePlayer({
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeSrc, setIframeSrc] = useState("");
   const [showSkipIntro, setShowSkipIntro] = useState(false);
+  const [inOutro, setInOutro] = useState(false);
   // Countdown shown before auto-advancing to next episode (null = hidden)
   const [nextCountdown, setNextCountdown] = useState(null);
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(
@@ -145,6 +146,7 @@ export default function IframePlayer({
   /* ── reset per-episode state ─────────────────────────────────────── */
   useEffect(() => {
     setShowSkipIntro(false);
+    setInOutro(false);
     setNextCountdown(null);
     skipSentRef.current = false;
     nextTriggeredRef.current = false;
@@ -185,6 +187,7 @@ export default function IframePlayer({
         currentTime < outr.end;
 
       setShowSkipIntro(inIntroRange || inOutroRange);
+      setInOutro(inOutroRange && !inIntroRange);
 
       // Auto-skip: send seek postMessage (guard against repeated sends)
       if (autoSkipIntroRef.current && iframeRef.current?.contentWindow) {
@@ -264,7 +267,9 @@ export default function IframePlayer({
   function handleSkipClick() {
     const intr = introRef.current;
     const outr = outroRef.current;
-    const target = intr?.end ?? outr?.end;
+    // Determine which section we are currently in so we seek to the right end.
+    // `inOutro` state reflects whether the current time is inside the outro.
+    const target = inOutro ? outr?.end : (intr?.end ?? outr?.end);
     if (target != null && iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.postMessage({ type: "seek", time: target }, iframeOrigin);
       iframeRef.current.contentWindow.postMessage({ event: "seek", time: target }, iframeOrigin);
@@ -298,7 +303,7 @@ export default function IframePlayer({
           className="absolute bottom-16 right-4 z-20 px-4 py-2 bg-black/80 text-white text-sm font-medium rounded border border-white/30 hover:bg-white/10 transition-all duration-200"
           onClick={handleSkipClick}
         >
-          Skip Intro
+          {inOutro ? "Skip Outro" : "Skip Intro"}
         </button>
       )}
 

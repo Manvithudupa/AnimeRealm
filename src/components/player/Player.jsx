@@ -269,8 +269,8 @@ export default function Player({
         // toggling Skip Intro ON/OFF takes effect immediately without
         // destroying and recreating the player.
         const skipRanges = [
-          ...(intro?.start != null && intro?.end != null ? [[intro.start + 1, intro.end - 1]] : []),
-          ...(outro?.start != null && outro?.end != null ? [[outro.start + 1, outro.end]] : []),
+          ...(intro?.start != null && intro?.end != null ? [[intro.start, intro.end]] : []),
+          ...(outro?.start != null && outro?.end != null ? [[outro.start, outro.end]] : []),
         ];
 
         art.on("video:timeupdate", () => {

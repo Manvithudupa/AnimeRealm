@@ -53,7 +53,7 @@ export default function WatchControls({
           onClick={() => setAutoPlay((prev) => !prev)}
         />
         <ToggleButton
-          label="Skip Intro"
+          label="Skip Intro/Outro"
           isActive={autoSkipIntro}
           onClick={() => setAutoSkipIntro((prev) => !prev)}
         />
