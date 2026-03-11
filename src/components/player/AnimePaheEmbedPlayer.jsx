@@ -2,6 +2,11 @@
 import { useEffect, useRef, useState } from "react";
 import BouncingLoader from "../ui/bouncingloader/Bouncingloader";
 
+// How close to the end (seconds) we treat the video as finished
+const END_THRESHOLD_SECONDS = 1;
+// Minimum video duration (seconds) before auto-next triggers, to avoid false positives
+const MIN_VIDEO_DURATION = 30;
+
 export default function AnimePaheEmbedPlayer({
   m3u8ProxyUrl,
   streamUrl,
@@ -48,7 +53,8 @@ export default function AnimePaheEmbedPlayer({
         const idx = currentEpisodeIndexRef.current;
         const eps = episodesRef.current;
         if (
-          currentTime >= duration &&
+          duration > MIN_VIDEO_DURATION &&
+          currentTime >= duration - END_THRESHOLD_SECONDS &&
           autoNextRef.current &&
           idx >= 0 &&
           idx < eps?.length - 1
