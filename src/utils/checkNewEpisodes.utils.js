@@ -61,7 +61,7 @@ export const checkNewEpisodes = async (userId) => {
             .eq("anime_id", animeId)
             .eq("episode_num", latestEpisodeNum)
             .eq("notification_type", "continue_watching")
-            .single();
+            .maybeSingle();
 
           if (!existing) {
             newNotifications.push({
@@ -88,7 +88,7 @@ export const checkNewEpisodes = async (userId) => {
             .eq("anime_id", animeId)
             .eq("episode_num", latestEpisodeNum)
             .eq("notification_type", "watchlist")
-            .single();
+            .maybeSingle();
 
           if (!existing) {
             newNotifications.push({
@@ -110,7 +110,10 @@ export const checkNewEpisodes = async (userId) => {
     if (newNotifications.length > 0) {
       const { error } = await supabase
         .from("notifications")
-        .insert(newNotifications);
+        .upsert(newNotifications, {
+          onConflict: "user_id,anime_id,episode_num,notification_type",
+          ignoreDuplicates: true,
+        });
 
       if (error) {
         console.error("Error inserting notifications:", error);
