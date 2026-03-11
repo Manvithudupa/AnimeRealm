@@ -110,16 +110,18 @@ export const checkNewEpisodes = async (userId) => {
     if (newNotifications.length > 0) {
       const { error } = await supabase
         .from("notifications")
-        .upsert(newNotifications, {
-          onConflict: "user_id,anime_id,episode_num,notification_type",
-          ignoreDuplicates: true,
-        });
+        .insert(newNotifications);
 
       if (error) {
-        console.error("Error inserting notifications:", error);
-      } else {
-        return newNotifications.length;
+        // Ignore duplicate key violations (PostgreSQL error 23505) that can
+        // occur due to a race condition — the pre-check above already filters
+        // out existing notifications under normal circumstances.
+        if (error.code !== "23505") {
+          console.error("Error inserting notifications:", error);
+        }
+        return 0;
       }
+      return newNotifications.length;
     }
 
     return 0;
