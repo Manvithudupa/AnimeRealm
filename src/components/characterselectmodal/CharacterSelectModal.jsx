@@ -8,9 +8,10 @@ import {
 } from "@/src/components/ui/dialog";
 import { useToast } from "@/src/hooks/use-toast.js";
 
-// 10 most popular anime used for banner images
+// Popular anime used for banner images
 const BANNER_ANIME = [
   { name: "Solo Leveling", id: 151807 },
+  { name: "Solo Leveling Season 2", id: 170942 },
   { name: "One Piece", id: 21 },
   { name: "Attack on Titan", id: 16498 },
   { name: "Demon Slayer", id: 101922 },
@@ -20,6 +21,8 @@ const BANNER_ANIME = [
   { name: "Dragon Ball Z", id: 813 },
   { name: "Bleach", id: 269 },
   { name: "One Punch Man", id: 21087 },
+  { name: "Frieren: Beyond Journey's End", id: 154587 },
+  { name: "Oshi no Ko", id: 150672 },
 ];
 
 // Curated list of popular anime with unique characters
@@ -184,7 +187,7 @@ export const CharacterSelectModal = ({ isOpen, onClose, onSelect, onSelectBanner
       const ids = BANNER_ANIME.map((a) => a.id).join(",");
       const query = `
         query {
-          Page(page: 1, perPage: 10) {
+          Page(page: 1, perPage: 20) {
             media(id_in: [${ids}], type: ANIME) {
               id
               title { romaji english }
