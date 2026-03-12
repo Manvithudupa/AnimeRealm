@@ -63,7 +63,12 @@ export const Profile = () => {
     gender: "",
     bio: "",
     avatar_url: "",
+    banner_url: "",
   });
+
+  // Pending selections – applied only when "Save Profile" is clicked
+  const [pendingAvatar, setPendingAvatar] = useState(null);
+  const [pendingBanner, setPendingBanner] = useState(null);
 
   /* ---------- Redirect if not logged in ---------- */
   useEffect(() => {
@@ -90,6 +95,7 @@ export const Profile = () => {
             gender: data.gender || "",
             bio: data.bio || "",
             avatar_url: data.avatar_url || "",
+            banner_url: data.banner_url || "",
           });
         }
       } catch (error) {
@@ -104,10 +110,13 @@ export const Profile = () => {
     };
   }, [user?.id, authLoading]);
 
-  /* ---------- Handle Character Selection ---------- */
+  /* ---------- Handle Character / Banner Selection ---------- */
   const handleCharacterSelect = (imageUrl) => {
-    setProfile((p) => ({ ...p, avatar_url: imageUrl }));
-    toast({ title: "Avatar Updated 👌" });
+    setPendingAvatar(imageUrl);
+  };
+
+  const handleBannerSelect = (bannerUrl) => {
+    setPendingBanner(bannerUrl);
   };
 
   /* ---------- Save Profile ---------- */
@@ -126,6 +135,10 @@ export const Profile = () => {
       return;
     }
 
+    // Apply pending selections
+    const finalAvatar = pendingAvatar ?? profile.avatar_url;
+    const finalBanner = pendingBanner ?? profile.banner_url;
+
     try {
       const { error } = await supabase.from("profiles").upsert(
         {
@@ -133,12 +146,23 @@ export const Profile = () => {
           username: profile.username,
           gender: profile.gender,
           bio: profile.bio,
-          avatar_url: profile.avatar_url,
+          avatar_url: finalAvatar,
+          banner_url: finalBanner,
         },
         { onConflict: "user_id" }
       );
 
       if (error) throw error;
+
+      // Commit pending selections into profile state
+      setProfile((p) => ({
+        ...p,
+        avatar_url: finalAvatar,
+        banner_url: finalBanner,
+      }));
+      setPendingAvatar(null);
+      setPendingBanner(null);
+
       toast({ title: "Profile Saved ✨" });
     } catch (error) {
       toast({
@@ -207,6 +231,7 @@ export const Profile = () => {
         isOpen={showCharacterModal}
         onClose={() => setShowCharacterModal(false)}
         onSelect={handleCharacterSelect}
+        onSelectBanner={handleBannerSelect}
         gender={profile.gender}
       />
 
@@ -299,31 +324,49 @@ export const Profile = () => {
 
       {/* ── Hero Banner ── */}
       <div className="relative h-36 sm:h-44 overflow-hidden">
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(135deg, #1a0533 0%, #0d1a3a 50%, #0a1a2e 100%)",
-          }}
-        />
-        <div
-          className="absolute inset-0 opacity-30"
-          style={{
-            backgroundImage:
-              "radial-gradient(ellipse at 20% 50%, #7c3aed44 0%, transparent 60%), " +
-              "radial-gradient(ellipse at 80% 20%, #3b82f644 0%, transparent 60%)",
-          }}
-        />
-        {/* Decorative grid lines */}
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), " +
-              "linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
-            backgroundSize: "32px 32px",
-          }}
-        />
+        {(pendingBanner || profile.banner_url) ? (
+          <>
+            <img
+              src={pendingBanner || profile.banner_url}
+              alt="Profile banner"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/40" />
+          </>
+        ) : (
+          <>
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(135deg, #1a0533 0%, #0d1a3a 50%, #0a1a2e 100%)",
+              }}
+            />
+            <div
+              className="absolute inset-0 opacity-30"
+              style={{
+                backgroundImage:
+                  "radial-gradient(ellipse at 20% 50%, #7c3aed44 0%, transparent 60%), " +
+                  "radial-gradient(ellipse at 80% 20%, #3b82f644 0%, transparent 60%)",
+              }}
+            />
+            {/* Decorative grid lines */}
+            <div
+              className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage:
+                  "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), " +
+                  "linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
+                backgroundSize: "32px 32px",
+              }}
+            />
+          </>
+        )}
+        {pendingBanner && (
+          <span className="absolute top-2 right-2 text-[10px] bg-black/60 text-white/70 px-2 py-0.5 rounded-full">
+            Unsaved preview
+          </span>
+        )}
       </div>
 
       {/* ── Main ── */}
@@ -338,10 +381,14 @@ export const Profile = () => {
                 {/* Gradient ring (decorative); ring-white/20 ensures avatar remains
                     distinguishable from the background for users with color vision
                     deficiencies. */}
-                <div className="p-0.5 rounded-full bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-400 ring-2 ring-white/15">
+                <div className={`p-0.5 rounded-full ring-2 ring-white/15 ${
+                  pendingAvatar
+                    ? "bg-gradient-to-br from-purple-400 via-pink-400 to-orange-400"
+                    : "bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-400"
+                }`}>
                   <Avatar className="h-24 w-24 sm:h-28 sm:w-28 border-2 border-[#111]">
                     <AvatarImage
-                      src={profile.avatar_url || "/default-avatar.png"}
+                      src={pendingAvatar || profile.avatar_url || "/default-avatar.png"}
                       className="object-cover"
                     />
                     <AvatarFallback className="bg-[#1a1a1a]">
@@ -389,9 +436,19 @@ export const Profile = () => {
           <CardContent className="px-6 py-5">
             <form onSubmit={updateProfile} className="space-y-5">
               {/* Avatar hint */}
-              {!profile.gender && (
+              {!profile.gender && !pendingAvatar && (
                 <p className="text-xs text-white/40 -mt-1 text-center sm:text-left">
                   Set your gender below to filter avatar characters
+                </p>
+              )}
+              {(pendingAvatar || pendingBanner) && (
+                <p className="text-xs text-amber-400/80 -mt-1 text-center sm:text-left">
+                  {pendingAvatar && pendingBanner
+                    ? "Avatar & Banner"
+                    : pendingAvatar
+                    ? "Avatar"
+                    : "Banner"}{" "}
+                  selected — click Save Profile to apply
                 </p>
               )}
 
