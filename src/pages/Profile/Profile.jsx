@@ -484,7 +484,7 @@ export const Profile = () => {
                     hover:bg-gray-200
                     shadow-lg
                     transition-all active:scale-[0.98]
-                    disabled:opacity-60 disabled:cursor-not-allowed" 
+                    disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <>
