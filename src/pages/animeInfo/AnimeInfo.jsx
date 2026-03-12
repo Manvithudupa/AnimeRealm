@@ -17,7 +17,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import website_name from "@/src/config/website";
 import CategoryCard from "@/src/components/categorycard/CategoryCard";
-import OptimizedImage from "@/src/components/OptimizedImage";
+import OptimizedImage from "@/src/components/OptimizedImage/OptimizedImage";
 import Loader from "@/src/components/Loader/Loader";
 import Error from "@/src/components/error/Error";
 import { useLanguage } from "@/src/context/LanguageContext";

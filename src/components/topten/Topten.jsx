@@ -4,7 +4,7 @@ import {
   faClosedCaptioning,
   faMicrophone,
 } from "@fortawesome/free-solid-svg-icons";
-import OptimizedImage from "@/src/components/OptimizedImage";
+import OptimizedImage from "@/src/components/OptimizedImage/OptimizedImage";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { Link, useNavigate } from "react-router-dom";
 import useToolTipPosition from "@/src/hooks/useToolTipPosition";

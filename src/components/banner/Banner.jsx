@@ -7,7 +7,7 @@ import {
   faClock,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
-import OptimizedImage from "@/src/components/OptimizedImage";
+import OptimizedImage from "@/src/components/OptimizedImage/OptimizedImage";
 import { useLanguage } from "@/src/context/LanguageContext";
 import "./Banner.css";
 

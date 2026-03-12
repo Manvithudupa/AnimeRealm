@@ -1,7 +1,7 @@
 import { Pagination, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import OptimizedImage from "@/src/components/OptimizedImage";
+import OptimizedImage from "@/src/components/OptimizedImage/OptimizedImage";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { Link } from "react-router-dom";
 
