@@ -323,7 +323,7 @@ export const Profile = () => {
       </Dialog>
 
       {/* ── Hero Banner ── */}
-      <div className="relative h-52 sm:h-72 overflow-hidden">
+      <div className="relative h-72 sm:h-96 overflow-hidden">
         {(pendingBanner || profile.banner_url) ? (
           <>
             <img
@@ -374,7 +374,7 @@ export const Profile = () => {
         {/* ── Profile Card ── */}
         <Card className="bg-[#111] border border-white/10 shadow-2xl shadow-black/60 rounded-2xl overflow-hidden">
           {/* Avatar & name row */}
-          <CardHeader className="px-6 pt-6 pb-4 border-b border-white/8">
+          <CardHeader className="px-4 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-white/8">
             <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4">
               {/* Avatar */}
               <div className="relative shrink-0">
@@ -433,7 +433,7 @@ export const Profile = () => {
           </CardHeader>
 
           {/* Form */}
-          <CardContent className="px-6 py-5">
+          <CardContent className="px-4 sm:px-6 py-5">
             <form onSubmit={updateProfile} className="space-y-5">
               {/* Avatar hint */}
               {!profile.gender && !pendingAvatar && (
@@ -565,7 +565,7 @@ export const Profile = () => {
           className="mt-6 bg-[#111] border border-red-500/20
             shadow-xl shadow-black/40 rounded-2xl overflow-hidden"
         >
-          <CardHeader className="px-6 pt-5 pb-3">
+          <CardHeader className="px-4 sm:px-6 pt-5 pb-3">
             <div className="flex items-center gap-2">
               <ShieldAlert className="h-4 w-4 text-red-400/80" />
               <CardTitle className="text-sm font-semibold text-red-400/80 uppercase tracking-wider">
@@ -574,7 +574,7 @@ export const Profile = () => {
             </div>
           </CardHeader>
 
-          <CardContent className="px-6 pb-5">
+          <CardContent className="px-4 sm:px-6 pb-5">
             <div
               className="flex flex-col sm:flex-row sm:items-center sm:justify-between
               gap-4 p-4 rounded-xl bg-red-950/20 border border-red-500/15"
