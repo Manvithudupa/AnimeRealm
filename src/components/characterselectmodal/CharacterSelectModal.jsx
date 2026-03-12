@@ -11,7 +11,7 @@ import { useToast } from "@/src/hooks/use-toast.js";
 // Popular anime used for banner images
 const BANNER_ANIME = [
   { name: "Solo Leveling", id: 151807 },
-  { name: "Solo Leveling Season 2", id: 170942 },
+  { name: "Solo Leveling Season 2", id: 176496 },
   { name: "One Piece", id: 21 },
   { name: "Attack on Titan", id: 16498 },
   { name: "Demon Slayer", id: 101922 },
