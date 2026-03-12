@@ -323,13 +323,13 @@ export const Profile = () => {
       </Dialog>
 
       {/* ── Hero Banner ── */}
-      <div className="relative h-36 sm:h-44 overflow-hidden">
+      <div className="relative h-52 sm:h-72 overflow-hidden">
         {(pendingBanner || profile.banner_url) ? (
           <>
             <img
               src={pendingBanner || profile.banner_url}
               alt="Profile banner"
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover object-top"
             />
             <div className="absolute inset-0 bg-black/40" />
           </>

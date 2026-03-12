@@ -7,7 +7,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
 import LatestEpisodeCard from "./LatestEpisodeCard.jsx";
-import OptimizedImage from "@/src/components/OptimizedImage";
+import OptimizedImage from "@/src/components/OptimizedImage/OptimizedImage";
 import { useLanguage } from "@/src/context/LanguageContext";
 import "./CategoryCard.css";
 
