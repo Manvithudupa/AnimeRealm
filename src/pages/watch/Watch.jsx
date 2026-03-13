@@ -254,7 +254,7 @@ export default function Watch() {
               {/* Video Container */}
               <div ref={videoContainerRef} className="w-full relative aspect-video bg-black">
                 {!buffering ? (
-                  source === "animepahe" && import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY && streamUrl ?
+                  (source === "animepahe" || source === "anizone") && import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY && streamUrl ?
                     <AnimePaheEmbedPlayer
                       m3u8ProxyUrl={import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY}
                       streamUrl={streamUrl}
@@ -266,7 +266,7 @@ export default function Watch() {
                       episodeNum={activeEpisodeNum}
                     /> : streamUrl ? <Player
                       streamUrl={streamUrl}
-                      m3u8ProxyUrl={source === "animepahe" ? import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY : null}
+                      m3u8ProxyUrl={(source === "animepahe" || source === "anizone") ? import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY : null}
                       subtitles={subtitles}
                       intro={intro}
                       outro={outro}
