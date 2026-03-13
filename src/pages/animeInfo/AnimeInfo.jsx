@@ -263,7 +263,7 @@ function AnimeInfo({ random = false }) {
             <OptimizedImage
               src={bannerImage || poster}
               alt={title}
-              className="absolute inset-0 w-full h-full object-cover blur-sm scale-105"
+              className="absolute inset-0 w-full h-full object-cover"
               lazy={false}
             />
           </div>
