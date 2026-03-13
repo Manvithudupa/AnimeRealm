@@ -33,29 +33,25 @@ export async function getKaidoEpisodes(animeId) {
 }
 
 /**
- * Get episodes for an anime using AniList ID via the anilist episodes API
+ * Get episodes for an anime using AniList ID via the hianime mapping then kaido episodes API
  * @param {string|number} anilistId - AniList anime ID
  * @returns {Promise} Episodes list
  */
 export async function getKaidoEpisodesByAnilistId(anilistId) {
   try {
-    const response = await axios.get(
-      `${BASE_URL}/api/anilist/episodes/${anilistId}?provider=kaido`
+    // Step 1: Get the hianime provider ID via the anilist mappings endpoint
+    const mappingResponse = await axios.get(
+      `${BASE_URL}/api/anilist/mappings/${anilistId}?provider=hianime`
     );
-    const providerEpisodes = response.data?.providerEpisodes || [];
+    const providerId = mappingResponse.data?.provider?.id;
 
-    const transformedEpisodes = providerEpisodes.map((ep) => ({
-      id: `ep=${ep.episodeNumber}`,
-      episode_no: ep.episodeNumber,
-      episodeId: ep.episodeId,
-      title: ep.title || ep.romaji || `Episode ${ep.episodeNumber}`,
-      thumbnail: ep.thumbnail || null,
-    }));
+    if (!providerId) {
+      console.warn("No hianime provider ID found for anilistId:", anilistId);
+      return { episodes: [], totalEpisodes: 0 };
+    }
 
-    return {
-      episodes: transformedEpisodes,
-      totalEpisodes: providerEpisodes.length,
-    };
+    // Step 2: Fetch episodes from kaido using the hianime provider ID
+    return await getKaidoEpisodes(providerId);
   } catch (error) {
     if (error.response) {
       console.warn(
@@ -85,12 +81,12 @@ export async function getKaidoServers(episodeId) {
     if (data.sub && data.sub.length > 0) {
       data.sub.forEach((server, index) => {
         servers.push({
-          serverId: server.severId,
+          serverId: server.serverId,
           serverName: `SUB-${index + 1}`,
           displayName: server.serverName,
           type: "sub",
           mediaId: server.mediaId,
-          data_id: server.severId,
+          data_id: server.serverId,
           server_id: `sub-${index}`,
         });
       });
@@ -99,12 +95,12 @@ export async function getKaidoServers(episodeId) {
     if (data.dub && data.dub.length > 0) {
       data.dub.forEach((server, index) => {
         servers.push({
-          serverId: server.severId,
+          serverId: server.serverId,
           serverName: `DUB-${index + 1}`,
           displayName: server.serverName,
           type: "dub",
           mediaId: server.mediaId,
-          data_id: server.severId,
+          data_id: server.serverId,
           server_id: `dub-${index}`,
         });
       });
@@ -113,12 +109,12 @@ export async function getKaidoServers(episodeId) {
     if (data.raw && data.raw.length > 0) {
       data.raw.forEach((server, index) => {
         servers.push({
-          serverId: server.severId,
+          serverId: server.serverId,
           serverName: `RAW-${index + 1}`,
           displayName: server.serverName,
           type: "raw",
           mediaId: server.mediaId,
-          data_id: server.severId,
+          data_id: server.serverId,
           server_id: `raw-${index}`,
         });
       });
