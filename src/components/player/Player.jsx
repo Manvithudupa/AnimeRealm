@@ -260,9 +260,7 @@ export default function Player({
           artplayerPluginHlsControl({
             quality: { setting: true, getName: (l) => l.height + "P", title: "Quality", auto: "Auto" },
           }),
-          artplayerPluginSubtitleSelection(
-            subtitles.map((sub) => ({ ...sub, file: `${proxy}${sub.file}` }))
-          ),
+          artplayerPluginSubtitleSelection(subtitles),
           artplayerPluginChapter({ chapters: createChapters() }),
         ],
         icons: {
