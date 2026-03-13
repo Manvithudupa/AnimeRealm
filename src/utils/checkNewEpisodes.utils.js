@@ -34,7 +34,7 @@ export const checkNewEpisodes = async (userId) => {
     for (const animeId of allAnimeIds) {
       try {
         const response = await axios.get(
-          `${base_url}/api/anilist/episodes/${animeId}?provider=hianime`
+          `${base_url}/api/anilist/episodes/${animeId}?provider=animepahe`
         );
         const providerEpisodes = response.data?.providerEpisodes || [];
 
