@@ -107,6 +107,12 @@ export default function Watch() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [episodeId, animeId, navigate, episodes]);
 
+  // Reset the "first navigation" flag whenever the anime changes so the initial
+  // URL navigation for the new anime uses replace (avoiding extra history entries).
+  useEffect(() => {
+    isFirstSet.current = true;
+  }, [animeId]);
+
   // Update document title
   useEffect(() => {
     if (animeInfo) {
@@ -115,15 +121,14 @@ export default function Watch() {
     return () => {
       document.title = `${website_name} | Free anime streaming platform`;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [animeId]);
+  }, [animeInfo]);
 
   // Redirect if no episodes
   useEffect(() => {
     if (totalEpisodes !== null && totalEpisodes === 0) {
       navigate(`/${animeId}`);
     }
-  }, [streamInfo, episodeId, animeId, totalEpisodes, navigate]);
+  }, [animeId, totalEpisodes, navigate]);
 
   useEffect(() => {
     // Function to adjust the height of episodes list to match only video + controls
@@ -253,7 +258,7 @@ export default function Watch() {
               {/* Video Container */}
               <div ref={videoContainerRef} className="w-full relative aspect-video bg-black">
                 {!buffering ? (
-                  source === "hianime" && ["hd-1", "hd-4"].includes(activeServerName.toLowerCase()) ?
+                  source === "hianime" && ["hd-1", "hd-4"].includes(activeServerName?.toLowerCase()) ?
                     <IframePlayer
                       episodeId={episodeId}
                       servertype={activeServerType}
@@ -283,7 +288,7 @@ export default function Watch() {
                       subtitles={subtitles}
                       intro={intro}
                       outro={outro}
-                      serverName={activeServerName.toLowerCase()}
+                      serverName={activeServerName?.toLowerCase()}
                       thumbnail={thumbnail}
                       autoSkipIntro={autoSkipIntro}
                       autoPlay={autoPlay}

@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import {
   faClosedCaptioning,
   faFile,
@@ -7,7 +6,6 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import BouncingLoader from "../ui/bouncingloader/Bouncingloader";
 import "./Servers.css";
-import { useEffect } from "react";
 
 function Servers({
   servers,
@@ -24,27 +22,6 @@ function Servers({
     servers?.filter((server) => server.type === "dub") || [];
   const rawServers =
     servers?.filter((server) => server.type === "raw") || [];
-
-  useEffect(() => {
-    const savedServerName = localStorage.getItem("server_name");
-    if (savedServerName) {
-      const matchingServer = servers?.find(
-        (server) => server.serverName === savedServerName,
-      );
-
-      if (matchingServer) {
-        setActiveServerId(matchingServer.data_id);
-        setActiveServerType(matchingServer.type);
-      } else if (servers && servers.length > 0) {
-        setActiveServerId(servers[0].data_id);
-        setActiveServerType(servers[0].type);
-      }
-    } else if (servers && servers.length > 0) {
-      setActiveServerId(servers[0].data_id);
-      setActiveServerType(servers[0].type);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [servers]);
 
   const handleServerSelect = (server) => {
     setActiveServerId(server.data_id);
