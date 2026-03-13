@@ -42,6 +42,7 @@ export default function Player({
   autoSkipIntro,
   autoPlay,
   autoNext,
+  hardSub,
   episodeId,
   episodes,
   playNext,
@@ -50,6 +51,7 @@ export default function Player({
   streamInfo,
 }) {
   const artRef = useRef(null);
+  const artInstanceRef = useRef(null);
   const saveIntervalRef = useRef(null);
   const lastSavedTimeRef = useRef(0);
   const nextTriggeredRef = useRef(false);
@@ -77,12 +79,14 @@ export default function Player({
   const autoPlayRef = useRef(autoPlay);
   const autoNextRef = useRef(autoNext);
   const autoSkipIntroRef = useRef(autoSkipIntro);
+  const hardSubRef = useRef(hardSub);
   const currentEpisodeIndexRef = useRef(currentEpisodeIndex);
   const episodesRef = useRef(episodes);
 
   useEffect(() => { autoPlayRef.current = autoPlay; }, [autoPlay]);
   useEffect(() => { autoNextRef.current = autoNext; }, [autoNext]);
   useEffect(() => { autoSkipIntroRef.current = autoSkipIntro; }, [autoSkipIntro]);
+  useEffect(() => { hardSubRef.current = hardSub; }, [hardSub]);
   useEffect(() => { currentEpisodeIndexRef.current = currentEpisodeIndex; }, [currentEpisodeIndex]);
   useEffect(() => { episodesRef.current = episodes; }, [episodes]);
 
@@ -91,6 +95,23 @@ export default function Player({
   useEffect(() => {
     nextTriggeredRef.current = false;
   }, [episodeId]);
+
+  // Helper: apply or remove bold subtitle styling on an art instance.
+  const applyHardSubStyle = (art, isHard) => {
+    if (!art?.subtitle || typeof art.subtitle.style !== "function") return;
+    try {
+      art.subtitle.style({ fontWeight: isHard ? "bold" : "normal" });
+    } catch {
+      // Subtitle may not be ready yet; the ready handler will apply the style.
+    }
+  };
+
+  // Apply / remove bold subtitle styling when hardSub is toggled while the
+  // player is already live (no player recreation needed).
+  useEffect(() => {
+    applyHardSubStyle(artInstanceRef.current, hardSub);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hardSub]);
 
   /* =========================== Chapter Styles =========================== */
   useEffect(() => {
@@ -255,8 +276,15 @@ export default function Player({
         customType: { m3u8: playM3u8 },
       });
 
+      // Store the instance so that the hardSub useEffect can apply live style
+      // changes without destroying and recreating the player.
+      artInstanceRef.current = art;
+
       /* =========================== Ready =========================== */
       art.on("ready", () => {
+        // Apply initial hard sub style
+        applyHardSubStyle(art, hardSubRef.current);
+
         // Resume playback
         if (resumeTime) {
           art.once("video:loadedmetadata", () => {
@@ -389,6 +417,7 @@ export default function Player({
     return () => {
       isCancelled = true;
       if (saveIntervalRef.current) clearInterval(saveIntervalRef.current);
+      artInstanceRef.current = null;
       if (art?.destroy) art.destroy(false);
     };
   }, [streamUrl, episodeId, subtitles, intro, outro, animeInfo]);

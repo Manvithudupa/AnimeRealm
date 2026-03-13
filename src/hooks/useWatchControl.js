@@ -10,6 +10,9 @@ export default function useWatchControl() {
   const [autoNext, setAutoNext] = useState(
     () => JSON.parse(localStorage.getItem("autoNext")) || false
   );
+  const [hardSub, setHardSub] = useState(
+    () => JSON.parse(localStorage.getItem("hardSub")) || false
+  );
 
   useEffect(() => {
     localStorage.setItem("autoPlay", JSON.stringify(autoPlay));
@@ -23,6 +26,10 @@ export default function useWatchControl() {
     localStorage.setItem("autoNext", JSON.stringify(autoNext));
   }, [autoNext]);
 
+  useEffect(() => {
+    localStorage.setItem("hardSub", JSON.stringify(hardSub));
+  }, [hardSub]);
+
   return {
     autoPlay,
     setAutoPlay,
@@ -30,5 +37,7 @@ export default function useWatchControl() {
     setAutoSkipIntro,
     autoNext,
     setAutoNext,
+    hardSub,
+    setHardSub,
   };
 }
