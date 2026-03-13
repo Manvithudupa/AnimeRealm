@@ -1,10 +1,8 @@
 import { supabase } from "@/src/integrations/supabase/client";
-import axios from "axios";
+import { getKaidoEpisodesByAnilistId } from "@/src/utils/kaidoBackend.utils";
 
 export const checkNewEpisodes = async (userId) => {
   if (!userId) return;
-
-  const base_url = import.meta.env.VITE_ANIMEPAHE_URL;
 
   try {
     const [continueWatchingData, watchlistData] = await Promise.all([
@@ -33,21 +31,16 @@ export const checkNewEpisodes = async (userId) => {
 
     for (const animeId of allAnimeIds) {
       try {
-        const response = await axios.get(
-          `${base_url}/api/anilist/episodes/${animeId}?provider=animepahe`
-        );
-        const providerEpisodes = response.data?.providerEpisodes || [];
+        const { episodes } = await getKaidoEpisodesByAnilistId(animeId);
 
-        if (!providerEpisodes.length) continue;
+        if (!episodes.length) continue;
 
-        // Find the latest episode by episodeNumber
-        const latestEpisode = providerEpisodes.reduce((prev, current) =>
-          (current.episodeNumber || 0) > (prev.episodeNumber || 0)
-            ? current
-            : prev
+        // Find the latest episode by episode_no
+        const latestEpisode = episodes.reduce((prev, current) =>
+          (current.episode_no || 0) > (prev.episode_no || 0) ? current : prev
         );
 
-        const latestEpisodeNum = latestEpisode.episodeNumber || 0;
+        const latestEpisodeNum = latestEpisode.episode_no || 0;
         const latestEpisodeId = latestEpisode.episodeId;
 
         const continueWatchingItem = continueWatching.find(
