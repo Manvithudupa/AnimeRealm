@@ -186,8 +186,8 @@ export const Profile = () => {
 
       await signOut();
       toast({
-        title: "Account deleted",
-        description: "Your account and all associated data have been removed.",
+        title: "Account deleted successfully",
+        description: "We miss you soo much hope you come back 😊😊",
       });
       navigate("/auth");
     } catch (error) {
