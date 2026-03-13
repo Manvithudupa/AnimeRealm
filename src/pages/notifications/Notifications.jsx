@@ -26,7 +26,7 @@ export default function Notifications() {
 
   const handleNotificationClick = async (notification) => {
     await markAsRead(notification.id);
-    navigate(`/watch/${notification.anime_id}`);
+    navigate(`/watch/${notification.anime_id}?ep=${notification.episode_num}`);
   };
 
   const timeAgo = (isoDate) => {
