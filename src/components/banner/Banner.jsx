@@ -21,7 +21,7 @@ function Banner({ item, index }) {
       {/* Background Image */}
       <div className="absolute inset-0 w-full h-full">
         <OptimizedImage
-          src={item.poster}
+          src={item.bannerImage || item.poster}
           alt={item.title}
           className="absolute inset-0 w-full h-full object-cover"
           lazy={false}
