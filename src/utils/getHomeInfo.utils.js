@@ -2,7 +2,7 @@ import axios from "axios";
 import { transformAnilistItem } from "./transformAnilistItem.utils";
 import { ANIME_GENRES } from "@/src/constants/genres";
 
-const CACHE_KEY = "homeInfoCache";
+const CACHE_KEY = "homeInfoCache_v2";
 const CACHE_DURATION = 24 * 60 * 60 * 1000;
 
 export default async function getHomeInfo() {
@@ -32,7 +32,7 @@ export default async function getHomeInfo() {
 
   const dataToCache = {
     data: {
-      spotlights: trending.slice(0, 10),
+      spotlights: trending.slice(0, 15),
       trending,
       topten: {
         today: trending.slice(0, 10),

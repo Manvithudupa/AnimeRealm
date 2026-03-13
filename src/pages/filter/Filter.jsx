@@ -7,19 +7,7 @@ import getFilter from "../../utils/getFilter.utils";
 const Filter = () => {
   // ================= STATE =================
 
-  const [filters, setFilters] = useState({
-    type: "",
-    status: "",
-    rated: "",
-    score: "",
-    season: "",
-    language: "",
-    year: "",
-    sort: "default",
-    genres: [],
-  });
-
-  const [tempFilters, setTempFilters] = useState(filters);
+  const [selectedGenre, setSelectedGenre] = useState("");
 
   const [animeList, setAnimeList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -38,51 +26,24 @@ const Filter = () => {
     "Super_Power","Supernatural","Thriller","Vampire"
   ];
 
-  const dropdowns = {
-    type: ["", "TV", "Movie", "OVA", "ONA", "Special"],
-
-    status: ["", "Finished", "Currently Airing", "Not Yet Aired"],
-
-    rated: ["", "G", "PG", "PG-13", "R", "R+"],
-
-    score: ["", 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
-
-    season: ["", "Winter", "Spring", "Summer", "Fall"],
-
-    language: ["", "Sub", "Dub"],
-
-    year: ["", 2026, 2025, 2024, 2023, 2022, 2021, 2020],
-
-    sort: ["default", "score", "popularity", "newest"],
-  };
-
-  // ================= HANDLERS =================
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-
-    setTempFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleGenreToggle = (genre) => {
-    setTempFilters((prev) => {
-      const updated = prev.genres.includes(genre)
-        ? prev.genres.filter((g) => g !== genre)
-        : [...prev.genres, genre];
-
-      return { ...prev, genres: updated };
-    });
-  };
-
   // ================= FETCH =================
 
-  const fetchData = async (page = 1, activeFilters = filters) => {
+  const fetchData = async (page = 1, genre = selectedGenre) => {
     setLoading(true);
 
     try {
+      const activeFilters = {
+        type: "",
+        status: "",
+        rated: "",
+        score: "",
+        season: "",
+        language: "",
+        year: "",
+        sort: "default",
+        genres: genre ? [genre] : [],
+      };
+
       const data = await getFilter(activeFilters, page);
 
       setAnimeList(data.data || []);
@@ -101,30 +62,13 @@ const Filter = () => {
     }
   };
 
-  // ================= APPLY =================
+  // ================= GENRE HANDLER =================
 
-  const applyFilter = () => {
-    setFilters(tempFilters);
-    fetchData(1, tempFilters);
-  };
-
-  const resetFilter = () => {
-    const reset = {
-      type: "",
-      status: "",
-      rated: "",
-      score: "",
-      season: "",
-      language: "",
-      year: "",
-      sort: "default",
-      genres: [],
-    };
-
-    setTempFilters(reset);
-    setFilters(reset);
-
-    fetchData(1, reset);
+  const handleGenreSelect = (genre) => {
+    const newGenre = selectedGenre === genre ? "" : genre;
+    setSelectedGenre(newGenre);
+    setCurrentPage(1);
+    fetchData(1, newGenre);
   };
 
   // ================= PAGINATION =================
@@ -155,7 +99,7 @@ const Filter = () => {
   // ================= INIT =================
 
   useEffect(() => {
-    fetchData(1);
+    fetchData(1, "");
   }, []);
 
   // ================= STYLES =================
@@ -188,15 +132,6 @@ const Filter = () => {
       cursor: "pointer",
       fontSize: "0.875rem",
     },
-
-    filterSelect: {
-      width: "100%",
-      padding: "6px",
-      backgroundColor: "#2a2a2a",
-      border: "1px solid #555",
-      borderRadius: "4px",
-      color: "white",
-    },
   };
 
   // ================= RENDER =================
@@ -205,35 +140,8 @@ const Filter = () => {
     <div style={styles.filterPage}>
 
       <h2 className="text-white text-xl font-bold mb-4">
-        Filter Anime
+        Filter by Genre
       </h2>
-
-      {/* DROPDOWNS */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-
-        {Object.keys(dropdowns).map((key) => (
-
-          <select
-            key={key}
-            name={key}
-            value={tempFilters[key]}
-            onChange={handleInputChange}
-            style={styles.filterSelect}
-          >
-
-            {dropdowns[key].map((val, i) => (
-
-              <option key={i} value={val}>
-                {val || `All ${key.charAt(0).toUpperCase() + key.slice(1)}`}
-              </option>
-
-            ))}
-
-          </select>
-
-        ))}
-
-      </div>
 
       {/* GENRES */}
       <div className="mb-6">
@@ -243,35 +151,16 @@ const Filter = () => {
           <button
             key={genre}
             style={
-              tempFilters.genres.includes(genre)
+              selectedGenre === genre
                 ? styles.genreBtnSelected
                 : styles.genreBtn
             }
-            onClick={() => handleGenreToggle(genre)}
+            onClick={() => handleGenreSelect(genre)}
           >
             {genre}
           </button>
 
         ))}
-
-      </div>
-
-      {/* BUTTONS */}
-      <div className="mb-6 flex gap-4">
-
-        <button
-          onClick={applyFilter}
-          className="bg-white text-black px-6 py-2 rounded font-bold"
-        >
-          Apply
-        </button>
-
-        <button
-          onClick={resetFilter}
-          className="bg-gray-600 text-white px-6 py-2 rounded font-bold"
-        >
-          Reset
-        </button>
 
       </div>
 
@@ -281,7 +170,7 @@ const Filter = () => {
       ) : (
         <CategoryCard
           data={animeList}
-          label="Filtered Anime"
+          label={selectedGenre ? `${selectedGenre} Anime` : "All Anime"}
           categoryPage={false}
         />
       )}
@@ -291,14 +180,14 @@ const Filter = () => {
 
         <button
           disabled={currentPage <= 1}
-          onClick={() => fetchData(1, filters)}
+          onClick={() => fetchData(1, selectedGenre)}
         >
           ≪
         </button>
 
         <button
           disabled={currentPage <= 1}
-          onClick={() => fetchData(currentPage - 1, filters)}
+          onClick={() => fetchData(currentPage - 1, selectedGenre)}
         >
           ‹
         </button>
@@ -307,7 +196,7 @@ const Filter = () => {
 
           <button
             key={page}
-            onClick={() => fetchData(page, filters)}
+            onClick={() => fetchData(page, selectedGenre)}
             style={{
               background: page === currentPage ? "#fff" : "#3a3a3a",
               color: page === currentPage ? "#000" : "#fff",
@@ -322,14 +211,14 @@ const Filter = () => {
 
         <button
           disabled={currentPage >= totalPages}
-          onClick={() => fetchData(currentPage + 1, filters)}
+          onClick={() => fetchData(currentPage + 1, selectedGenre)}
         >
           ›
         </button>
 
         <button
           disabled={currentPage >= totalPages}
-          onClick={() => fetchData(totalPages, filters)}
+          onClick={() => fetchData(totalPages, selectedGenre)}
         >
           ≫
         </button>
