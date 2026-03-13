@@ -59,6 +59,9 @@ export async function getAnizoneStreamInfo(episodeId) {
       default: sub.default || false,
     }));
 
+    const posterImage = data.posterImage || null;
+    const thumbnailTrack = (data.tracks || []).find((t) => t.type === "thumbnails")?.url || null;
+
     return {
       sources: sources.map((source) => ({
         url: source.url,
@@ -66,6 +69,8 @@ export async function getAnizoneStreamInfo(episodeId) {
         type: source.type,
       })),
       subtitles,
+      posterImage,
+      thumbnail: thumbnailTrack,
       headers: response.data?.headers || {},
     };
   } catch (error) {

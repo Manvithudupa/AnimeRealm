@@ -36,6 +36,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
   const [isFullOverview, setIsFullOverview] = useState(false);
   const [subtitles, setSubtitles] = useState([]);
   const [thumbnail, setThumbnail] = useState(null);
+  const [poster, setPoster] = useState(null);
   const [intro, setIntro] = useState(null);
   const [outro, setOutro] = useState(null);
   const [episodeId, setEpisodeId] = useState(null);
@@ -68,6 +69,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     setStreamUrl(null);
     setSubtitles([]);
     setThumbnail(null);
+    setPoster(null);
     setIntro(null);
     setOutro(null);
     setBuffering(true);
@@ -399,6 +401,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
           setStreamUrl(primarySource.url);
           setSubtitles([]);
           setThumbnail(null);
+          setPoster(null);
           setIntro(null);
           setOutro(null);
         } else if (source === "anizone") {
@@ -423,7 +426,8 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
           });
           setStreamUrl(primarySource.url);
           setSubtitles(streamData.subtitles || []);
-          setThumbnail(null);
+          setThumbnail(streamData.thumbnail || null);
+          setPoster(streamData.posterImage || null);
           setIntro(null);
           setOutro(null);
         } else {
@@ -458,6 +462,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
           setStreamUrl(primarySource.url);
           setSubtitles(streamData.subtitles || []);
           setThumbnail(null);
+          setPoster(null);
           setIntro(streamData.intro || null);
           setOutro(streamData.outro || null);
         }
@@ -489,6 +494,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     setStreamUrl(null);
     setSubtitles([]);
     setThumbnail(null);
+    setPoster(null);
     setIntro(null);
     setOutro(null);
     setBuffering(true);
@@ -525,6 +531,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     setIsFullOverview,
     subtitles,
     thumbnail,
+    poster,
     intro,
     outro,
     episodeId,
