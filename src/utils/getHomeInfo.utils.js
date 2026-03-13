@@ -32,7 +32,7 @@ export default async function getHomeInfo() {
 
   const dataToCache = {
     data: {
-      spotlights: trending.slice(0, 5),
+      spotlights: trending.slice(0, 10),
       trending,
       topten: {
         today: trending.slice(0, 10),

@@ -1,8 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
-  faClosedCaptioning,
-  faMicrophone,
   faCalendar,
   faClock,
 } from "@fortawesome/free-solid-svg-icons";
@@ -58,26 +56,6 @@ function Banner({ item, index }) {
         >
           {language === "EN" ? item.title : item.japanese_title}
         </h3>
-
-        {/* Mobile Buttons */}
-        <div className="hidden max-md:flex max-md:mt-3 max-md:gap-x-3 max-md:w-full">
-
-          <Link
-            to={`/watch/${item.id}`}
-            className="bg-white/90 hover:bg-white text-black font-medium px-5 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-x-2 text-sm"
-          >
-            <FontAwesomeIcon icon={faPlay} className="text-[10px]" />
-            <span>Watch Now</span>
-          </Link>
-
-          <Link
-            to={`/${item.id}`}
-            className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-medium px-5 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-x-2 text-sm"
-          >
-            <span>Details</span>
-          </Link>
-
-        </div>
 
         {/* Info Row */}
         <div className="flex h-fit justify-start items-center w-fit space-x-5 mt-5 max-[1300px]:mt-4 max-md:hidden">
@@ -136,25 +114,27 @@ function Banner({ item, index }) {
           {item.description}
         </p>
 
-      </div>
+        {/* Buttons (all screen sizes) */}
+        <div className="flex mt-5 gap-x-3 max-md:mt-3 max-md:w-full max-[1300px]:mt-4">
 
-      {/* Desktop Buttons */}
-      <div className="absolute bottom-[50px] right-[40px] flex gap-x-5 z-[2] max-md:hidden">
+          <Link
+            to={`/watch/${item.id}`}
+            className="bg-white/90 hover:bg-white text-black font-medium px-7 py-2 rounded-lg transition-all duration-200 flex items-center gap-x-2.5 shadow-lg shadow-black/10 backdrop-blur-sm
+              max-md:px-5 max-md:py-1.5 max-md:text-sm"
+          >
+            <FontAwesomeIcon icon={faPlay} className="text-[10px]" />
+            <span>Watch Now</span>
+          </Link>
 
-        <Link
-          to={`/watch/${item.id}`}
-          className="bg-white/90 hover:bg-white text-black font-medium px-7 py-2 rounded-lg transition-all duration-200 flex items-center gap-x-2.5 shadow-lg shadow-black/10 backdrop-blur-sm"
-        >
-          <FontAwesomeIcon icon={faPlay} className="text-[10px]" />
-          <span>Watch Now</span>
-        </Link>
+          <Link
+            to={`/${item.id}`}
+            className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-medium px-7 py-2 rounded-lg transition-all duration-200 flex items-center gap-x-2.5 backdrop-blur-sm
+              max-md:px-5 max-md:py-1.5 max-md:text-sm"
+          >
+            <span>Details</span>
+          </Link>
 
-        <Link
-          to={`/${item.id}`}
-          className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-medium px-7 py-2 rounded-lg transition-all duration-200 flex items-center gap-x-2.5 backdrop-blur-sm"
-        >
-          <span>Details</span>
-        </Link>
+        </div>
 
       </div>
 
@@ -163,3 +143,4 @@ function Banner({ item, index }) {
 }
 
 export default Banner;
+
