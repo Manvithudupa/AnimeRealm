@@ -26,7 +26,15 @@ export default function Notifications() {
 
   const handleNotificationClick = async (notification) => {
     await markAsRead(notification.id);
-    navigate(`/watch/${notification.anime_id}`);
+    // Navigate to the specific episode if episode_id is available,
+    // otherwise fall back to the anime detail page.
+    if (notification.episode_id) {
+      navigate(`/watch/${notification.episode_id}`);
+    } else if (notification.episode_num) {
+      navigate(`/watch/${notification.anime_id}?ep=${notification.episode_num}`);
+    } else {
+      navigate(`/watch/${notification.anime_id}`);
+    }
   };
 
   const timeAgo = (isoDate) => {

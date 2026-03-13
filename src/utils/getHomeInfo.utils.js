@@ -7,7 +7,13 @@ export default async function getHomeInfo() {
   const api_url = import.meta.env.VITE_API_URL;
 
   const currentTime = Date.now();
-  const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY));
+  let cachedData = null;
+  try {
+    cachedData = JSON.parse(localStorage.getItem(CACHE_KEY));
+  } catch {
+    // Corrupted cache – ignore and re-fetch from network
+    localStorage.removeItem(CACHE_KEY);
+  }
 
   if (cachedData && currentTime - cachedData.timestamp < CACHE_DURATION) {
     return cachedData.data;

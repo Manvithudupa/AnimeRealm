@@ -7,7 +7,7 @@ const getNextEpisodeSchedule = async (id) => {
     return response.data.results;
   } catch (err) {
     console.error("Error fetching next episode schedule:", err);
-    return err;
+    return null;
   }
 };
 

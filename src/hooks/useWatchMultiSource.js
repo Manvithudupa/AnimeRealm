@@ -83,7 +83,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     const fetchSchedule = async () => {
       try {
         const scheduleData = await getNextEpisodeSchedule(animeId);
-        setNextEpisodeSchedule(scheduleData?.nextEpisodeSchedule || null);
+        setNextEpisodeSchedule(scheduleData || null);
       } catch {
         setNextEpisodeSchedule(null);
       }
