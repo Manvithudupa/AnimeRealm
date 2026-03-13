@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { checkNewEpisodes } from "@/src/utils/checkNewEpisodes.utils";
 import { useAuth } from "./useAuth";
 
-const CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000; // 6 hours
+const CHECK_INTERVAL_MS = 2 * 60 * 60 * 1000; // 2 hours
 const LS_KEY = "animeRealm_lastEpisodeCheck";
 
 /**
