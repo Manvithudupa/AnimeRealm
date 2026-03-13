@@ -74,6 +74,8 @@ export default function Watch() {
     setAutoSkipIntro,
     autoNext,
     setAutoNext,
+    hardSub,
+    setHardSub,
   } = useWatchControl();
   const playerRef = useRef(null);
   const videoContainerRef = useRef(null);
@@ -288,6 +290,7 @@ export default function Watch() {
                       autoSkipIntro={autoSkipIntro}
                       autoPlay={autoPlay}
                       autoNext={autoNext}
+                      hardSub={hardSub}
                       episodeId={episodeId}
                       episodes={episodes}
                       playNext={(id) => setEpisodeId(id)}
@@ -334,6 +337,8 @@ export default function Watch() {
                       setAutoSkipIntro={setAutoSkipIntro}
                       autoNext={autoNext}
                       setAutoNext={setAutoNext}
+                      hardSub={hardSub}
+                      setHardSub={setHardSub}
                       episodes={episodes}
                       totalEpisodes={totalEpisodes}
                       episodeId={episodeId}
