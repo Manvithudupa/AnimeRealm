@@ -147,8 +147,8 @@ export async function getKaidoStreamInfo(
     const sources = data.sources || [];
 
     const subtitles = (data.subtitles || []).map((sub) => ({
-      file: sub.file,
-      label: sub.label,
+      file: sub.url || sub.file,
+      label: sub.lang || sub.label,
       kind: sub.kind || "captions",
       default: sub.default || false,
     }));

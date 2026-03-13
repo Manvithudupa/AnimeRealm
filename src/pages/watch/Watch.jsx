@@ -50,6 +50,7 @@ export default function Watch() {
     outro,
     subtitles,
     thumbnail,
+    poster,
     setIsFullOverview,
     activeEpisodeNum,
     seasons,
@@ -272,6 +273,7 @@ export default function Watch() {
                       outro={outro}
                       serverName={activeServerName?.toLowerCase()}
                       thumbnail={thumbnail}
+                      poster={poster}
                       autoSkipIntro={autoSkipIntro}
                       autoPlay={autoPlay}
                       autoNext={autoNext}

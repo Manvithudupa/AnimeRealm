@@ -2,9 +2,11 @@ export default function artplayerPluginSubtitleSelection(subtitles = []) {
   return (art) => {
     if (!subtitles || subtitles.length === 0) return;
 
-    const defaultIndex = subtitles.findIndex(
-      (s) => s.label?.toLowerCase() === "english"
-    );
+    const defaultIndex = (() => {
+      const byFlag = subtitles.findIndex((s) => s.default === true);
+      if (byFlag >= 0) return byFlag;
+      return subtitles.findIndex((s) => s.label?.toLowerCase() === "english");
+    })();
     const hasDefault = defaultIndex >= 0;
 
     /* ── helpers ──────────────────────────────────────────────────────── */

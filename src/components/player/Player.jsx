@@ -37,6 +37,7 @@ export default function Player({
   m3u8ProxyUrl,
   subtitles,
   thumbnail,
+  poster,
   intro,
   outro,
   autoSkipIntro,
@@ -239,6 +240,7 @@ export default function Player({
       art = new Artplayer({
         url: proxiedStreamUrl,
         container: artRef.current,
+        poster: poster || "",
         type: "m3u8",
         autoplay: false,
         volume: 1,
