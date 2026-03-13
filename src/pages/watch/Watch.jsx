@@ -19,6 +19,7 @@ import Watchcontrols from "@/src/components/watchcontrols/Watchcontrols";
 import useWatchControl from "@/src/hooks/useWatchControl";
 import Player from "@/src/components/player/Player";
 import AnimePaheEmbedPlayer from "@/src/components/player/AnimePaheEmbedPlayer";
+import AnizoneEmbedPlayer from "@/src/components/player/AnizoneEmbedPlayer";
 import DownloadModal from "@/src/components/downloadmodal/DownloadModal";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "@/src/components/breadcrumb/Breadcrumb";
@@ -265,7 +266,20 @@ export default function Watch() {
                       autoNext={autoNext}
                       animeInfo={animeInfo}
                       episodeNum={activeEpisodeNum}
-                    /> : streamUrl ? <Player
+                    />
+                  : source === "anizone" && import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY && streamUrl ?
+                    <AnizoneEmbedPlayer
+                      m3u8ProxyUrl={import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY}
+                      streamUrl={streamUrl}
+                      subtitles={subtitles}
+                      episodeId={episodeId}
+                      episodes={episodes}
+                      playNext={(id) => setEpisodeId(id)}
+                      autoNext={autoNext}
+                      animeInfo={animeInfo}
+                      episodeNum={activeEpisodeNum}
+                    />
+                  : streamUrl ? <Player
                       streamUrl={streamUrl}
                       m3u8ProxyUrl={source === "animepahe" ? import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY : null}
                       subtitles={subtitles}
