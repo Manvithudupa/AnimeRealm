@@ -567,7 +567,9 @@ function AnimeInfo({ random = false }) {
 
       {/* =================== RECOMMENDATIONS =================== */}
       {animeInfo?.recommended_data?.length > 0 && (
-        <CategoryCard label="You May Also Like" data={animeInfo.recommended_data} showViewMore={false} />
+        <div className="px-5 mx-auto max-w-7xl py-8">
+          <CategoryCard label="You May Also Like" data={animeInfo.recommended_data} showViewMore={false} />
+        </div>
       )}
     </div>
   );
