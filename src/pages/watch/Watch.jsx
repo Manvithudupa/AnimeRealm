@@ -357,6 +357,16 @@ export default function Watch() {
                       >
                         AniZone
                       </button>
+                      <button
+                        onClick={() => changeSource("kaido")}
+                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                          source === "kaido"
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                        }`}
+                      >
+                        Kaido
+                      </button>
                     </div>
                   </div>
                 </div>
