@@ -1,13 +1,19 @@
 import axios from "axios";
 
 const getNextEpisodeSchedule = async (id) => {
-  const api_url = import.meta.env.VITE_API_URL;
+  const base_url = import.meta.env.VITE_ANIMEPAHE_URL;
   try {
-    const response = await axios.get(`${api_url}/schedule/${id}`);
-    return response.data.results;
+    const response = await axios.get(`${base_url}/api/anilist/schedule/${id}`);
+    const nextAiring = response.data?.data?.nextAiringEpisode;
+    if (!nextAiring?.airingAt) return null;
+    // Convert Unix timestamp to ISO date string for Watch.jsx
+    return {
+      nextEpisodeSchedule: new Date(nextAiring.airingAt * 1000).toISOString(),
+      episode: nextAiring.episode,
+    };
   } catch (err) {
     console.error("Error fetching next episode schedule:", err);
-    return err;
+    return null;
   }
 };
 

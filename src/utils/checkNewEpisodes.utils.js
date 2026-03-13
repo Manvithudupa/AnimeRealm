@@ -4,7 +4,7 @@ import axios from "axios";
 export const checkNewEpisodes = async (userId) => {
   if (!userId) return;
 
-  const api_url = import.meta.env.VITE_API_URL;
+  const base_url = import.meta.env.VITE_ANIMEPAHE_URL;
 
   try {
     const [continueWatchingData, watchlistData] = await Promise.all([
@@ -33,18 +33,22 @@ export const checkNewEpisodes = async (userId) => {
 
     for (const animeId of allAnimeIds) {
       try {
-        const response = await axios.get(`${api_url}/episodes/${animeId}`);
-        const episodesData = response.data.results;
+        const response = await axios.get(
+          `${base_url}/api/anilist/episodes/${animeId}?provider=hianime`
+        );
+        const providerEpisodes = response.data?.providerEpisodes || [];
 
-        if (!episodesData?.episodes?.length) continue;
+        if (!providerEpisodes.length) continue;
 
-        // Find the latest episode object by episode_no
-        const latestEpisode = episodesData.episodes.reduce((prev, current) =>
-          (current.episode_no || 0) > (prev.episode_no || 0) ? current : prev
+        // Find the latest episode by episodeNumber
+        const latestEpisode = providerEpisodes.reduce((prev, current) =>
+          (current.episodeNumber || 0) > (prev.episodeNumber || 0)
+            ? current
+            : prev
         );
 
-        const latestEpisodeNum = latestEpisode.episode_no || 0;
-        const latestEpisodeId = latestEpisode.id; // <-- store this as episode_id
+        const latestEpisodeNum = latestEpisode.episodeNumber || 0;
+        const latestEpisodeId = latestEpisode.episodeId;
 
         const continueWatchingItem = continueWatching.find(
           (item) => item.anime_id === animeId
@@ -70,7 +74,7 @@ export const checkNewEpisodes = async (userId) => {
               anime_title: continueWatchingItem.title || "Unknown Anime",
               anime_poster: continueWatchingItem.poster,
               episode_num: latestEpisodeNum,
-              episode_id: latestEpisodeId, // <-- added
+              episode_id: latestEpisodeId,
               notification_type: "continue_watching",
             });
           }
@@ -97,7 +101,7 @@ export const checkNewEpisodes = async (userId) => {
               anime_title: watchlistItem.anime_title || "Unknown Anime",
               anime_poster: watchlistItem.anime_poster,
               episode_num: latestEpisodeNum,
-              episode_id: latestEpisodeId, // <-- added
+              episode_id: latestEpisodeId,
               notification_type: "watchlist",
             });
           }
@@ -113,9 +117,6 @@ export const checkNewEpisodes = async (userId) => {
         .insert(newNotifications);
 
       if (error) {
-        // Ignore duplicate key violations (PostgreSQL error 23505) that can
-        // occur due to a race condition — the pre-check above already filters
-        // out existing notifications under normal circumstances.
         if (error.code !== "23505") {
           console.error("Error inserting notifications:", error);
         }
