@@ -1,15 +1,22 @@
 import axios from "axios";
+import { transformAnilistItem } from "./transformAnilistItem.utils";
 
 const getSearch = async (keyword, page) => {
-  const api_url = import.meta.env.VITE_API_URL;
+  const base_url = import.meta.env.VITE_ANIMEPAHE_URL;
   if (!page) page = 1;
   try {
     const response = await axios.get(
-      `${api_url}/search?keyword=${keyword}&page=${page}`
+      `${base_url}/api/anilist/anime/search?q=${encodeURIComponent(keyword)}&page=${page}&perPage=20`
     );
-    return response.data.results;
+    const result = response.data;
+    return {
+      data: (result?.data || []).map(transformAnilistItem),
+      totalPage: result?.lastPage || 1,
+      currentPage: result?.currentPage || page,
+      total: result?.total || 0,
+    };
   } catch (err) {
-    console.error("Error fetching genre info:", err);
+    console.error("Error fetching search results:", err);
     return err;
   }
 };

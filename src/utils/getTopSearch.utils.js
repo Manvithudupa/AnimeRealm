@@ -1,12 +1,8 @@
 import axios from "axios";
 
 const getTopSearch = async () => {
+  const base_url = import.meta.env.VITE_ANIMEPAHE_URL;
   try {
-    // let workerUrls = import.meta.env.VITE_WORKER_URL?.split(",");
-    // let baseUrl = workerUrls?.length
-    //   ? workerUrls[Math.floor(Math.random() * workerUrls.length)]
-    //   : import.meta.env.VITE_API_URL;
-    let baseUrl = import.meta.env.VITE_API_URL;
     const storedData = localStorage.getItem("topSearch");
     if (storedData) {
       const { data, timestamp } = JSON.parse(storedData);
@@ -14,8 +10,17 @@ const getTopSearch = async () => {
         return data;
       }
     }
-    const { data } = await axios.get(`${baseUrl}/top-search`);
-    const results = data?.results || [];
+    const response = await axios.get(
+      `${base_url}/api/anilist/anime/top/popular?perPage=20`
+    );
+    const items = response.data?.data || [];
+    const results = items.map((item) => {
+      const title = item.title?.english || item.title?.romaji || "";
+      return {
+        title,
+        link: `/search?keyword=${encodeURIComponent(title)}`,
+      };
+    });
     if (results.length) {
       localStorage.setItem(
         "topSearch",
@@ -26,7 +31,7 @@ const getTopSearch = async () => {
     return [];
   } catch (error) {
     console.error("Error fetching top search data:", error);
-    return null;
+    return [];
   }
 };
 

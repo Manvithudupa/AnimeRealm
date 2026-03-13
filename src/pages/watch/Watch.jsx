@@ -4,7 +4,6 @@ import { useLocation, useParams, Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { useWatchMultiSource } from "@/src/hooks/useWatchMultiSource";
 import BouncingLoader from "@/src/components/ui/bouncingloader/Bouncingloader";
-import IframePlayer from "@/src/components/player/IframePlayer";
 import Episodelist from "@/src/components/episodelist/Episodelist";
 import website_name from "@/src/config/website";
 import Sidecard from "@/src/components/sidecard/Sidecard";
@@ -20,6 +19,7 @@ import Watchcontrols from "@/src/components/watchcontrols/Watchcontrols";
 import useWatchControl from "@/src/hooks/useWatchControl";
 import Player from "@/src/components/player/Player";
 import AnimePaheEmbedPlayer from "@/src/components/player/AnimePaheEmbedPlayer";
+import AnizoneEmbedPlayer from "@/src/components/player/AnizoneEmbedPlayer";
 import DownloadModal from "@/src/components/downloadmodal/DownloadModal";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "@/src/components/breadcrumb/Breadcrumb";
@@ -51,6 +51,7 @@ export default function Watch() {
     outro,
     subtitles,
     thumbnail,
+    poster,
     setIsFullOverview,
     activeEpisodeNum,
     seasons,
@@ -74,6 +75,8 @@ export default function Watch() {
     setAutoSkipIntro,
     autoNext,
     setAutoNext,
+    hardSub,
+    setHardSub,
   } = useWatchControl();
   const playerRef = useRef(null);
   const videoContainerRef = useRef(null);
@@ -253,21 +256,7 @@ export default function Watch() {
               {/* Video Container */}
               <div ref={videoContainerRef} className="w-full relative aspect-video bg-black">
                 {!buffering ? (
-                  source === "hianime" && ["hd-1", "hd-4"].includes(activeServerName.toLowerCase()) ?
-                    <IframePlayer
-                      episodeId={episodeId}
-                      servertype={activeServerType}
-                      serverName={activeServerName}
-                      animeInfo={animeInfo}
-                      episodeNum={activeEpisodeNum}
-                      episodes={episodes}
-                      playNext={(id) => setEpisodeId(id)}
-                      autoNext={autoNext}
-                      autoPlay={autoPlay}
-                      autoSkipIntro={autoSkipIntro}
-                      intro={intro}
-                      outro={outro}
-                    /> : source === "animepahe" && import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY && streamUrl ?
+                  source === "animepahe" && import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY && streamUrl ?
                     <AnimePaheEmbedPlayer
                       m3u8ProxyUrl={import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY}
                       streamUrl={streamUrl}
@@ -277,17 +266,32 @@ export default function Watch() {
                       autoNext={autoNext}
                       animeInfo={animeInfo}
                       episodeNum={activeEpisodeNum}
-                    /> : streamUrl ? <Player
+                    />
+                  : source === "anizone" && import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY && streamUrl ?
+                    <AnizoneEmbedPlayer
+                      m3u8ProxyUrl={import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY}
+                      streamUrl={streamUrl}
+                      subtitles={subtitles}
+                      episodeId={episodeId}
+                      episodes={episodes}
+                      playNext={(id) => setEpisodeId(id)}
+                      autoNext={autoNext}
+                      animeInfo={animeInfo}
+                      episodeNum={activeEpisodeNum}
+                    />
+                  : streamUrl ? <Player
                       streamUrl={streamUrl}
                       m3u8ProxyUrl={source === "animepahe" ? import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY : null}
                       subtitles={subtitles}
                       intro={intro}
                       outro={outro}
-                      serverName={activeServerName.toLowerCase()}
+                      serverName={activeServerName?.toLowerCase()}
                       thumbnail={thumbnail}
+                      poster={poster}
                       autoSkipIntro={autoSkipIntro}
                       autoPlay={autoPlay}
                       autoNext={autoNext}
+                      hardSub={hardSub}
                       episodeId={episodeId}
                       episodes={episodes}
                       playNext={(id) => setEpisodeId(id)}
@@ -334,6 +338,8 @@ export default function Watch() {
                       setAutoSkipIntro={setAutoSkipIntro}
                       autoNext={autoNext}
                       setAutoNext={setAutoNext}
+                      hardSub={hardSub}
+                      setHardSub={setHardSub}
                       episodes={episodes}
                       totalEpisodes={totalEpisodes}
                       episodeId={episodeId}
@@ -348,16 +354,6 @@ export default function Watch() {
                     <span className="text-white text-sm font-medium">Source:</span>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => changeSource("hianime")}
-                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                          source === "hianime"
-                            ? "bg-blue-600 text-white"
-                            : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                        }`}
-                      >
-                        HiAnime
-                      </button>
-                      <button
                         onClick={() => changeSource("animepahe")}
                         className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
                           source === "animepahe"
@@ -365,7 +361,27 @@ export default function Watch() {
                             : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                         }`}
                       >
-                        Animepahe
+                        AnimePahe
+                      </button>
+                      <button
+                        onClick={() => changeSource("anizone")}
+                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                          source === "anizone"
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                        }`}
+                      >
+                        AniZone
+                      </button>
+                      <button
+                        onClick={() => changeSource("kaido")}
+                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                          source === "kaido"
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                        }`}
+                      >
+                        Kaido
                       </button>
                     </div>
                   </div>
@@ -428,7 +444,7 @@ export default function Watch() {
                           {nextEp.thumbnail && (
                             <div className="flex-shrink-0 w-[100px] h-[56px] relative overflow-hidden">
                               <img
-                                src={source === "animepahe" ? `${import.meta.env.VITE_PROXY_URL || ""}${nextEp.thumbnail}` : nextEp.thumbnail}
+                                src={(source === "animepahe" || source === "anizone") ? `${import.meta.env.VITE_PROXY_URL || ""}${nextEp.thumbnail}` : nextEp.thumbnail}
                                 alt={nextEp.title}
                                 className="w-full h-full object-cover"
                               />

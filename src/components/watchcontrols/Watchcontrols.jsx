@@ -25,6 +25,8 @@ export default function WatchControls({
   setAutoSkipIntro,
   autoNext,
   setAutoNext,
+  hardSub,
+  setHardSub,
   episodeId,
   episodes = [],
   onButtonClick,
@@ -61,6 +63,11 @@ export default function WatchControls({
           label="Auto Next"
           isActive={autoNext}
           onClick={() => setAutoNext((prev) => !prev)}
+        />
+        <ToggleButton
+          label="Hard Sub"
+          isActive={hardSub}
+          onClick={() => setHardSub((prev) => !prev)}
         />
       </div>
       <div className="flex items-center gap-x-2">

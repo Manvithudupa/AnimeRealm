@@ -4,7 +4,7 @@ export default async function getEpisodesFromAnilist(anilistId) {
   const base_url = import.meta.env.VITE_ANIMEPAHE_URL;
   try {
     const response = await axios.get(
-      `${base_url}/api/anilist/episodes/${anilistId}?provider=hianime`
+      `${base_url}/api/anilist/episodes/${anilistId}?provider=animepahe`
     );
     const episodes = response.data?.providerEpisodes || [];
     return {

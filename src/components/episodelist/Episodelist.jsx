@@ -234,11 +234,11 @@ function Episodelist({
     ? displayedEpisodes.filter((item) => item?.episode_no === searchNum)
     : displayedEpisodes;
 
-  // Only proxy animepahe thumbnails, not hianime
+  // Proxy thumbnails for animepahe and anizone
   function getThumbnailSrc(item) {
     if (!item?.thumbnail) return null;
     const originalUrl =
-      source === "animepahe" && proxyUrl
+      (source === "animepahe" || source === "anizone") && proxyUrl
         ? `${proxyUrl}${item.thumbnail}`
         : item.thumbnail;
     // Return cached blob URL if available, otherwise the original URL
@@ -425,7 +425,7 @@ function Episodelist({
               const isSearched = searchedEpisode === item?.id;
               // Get the original URL for cache-key lookup
               const originalUrl = item?.thumbnail
-                ? source === "animepahe" && proxyUrl
+                ? (source === "animepahe" || source === "anizone") && proxyUrl
                   ? `${proxyUrl}${item.thumbnail}`
                   : item.thumbnail
                 : null;

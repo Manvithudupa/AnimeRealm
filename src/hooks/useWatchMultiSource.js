@@ -1,10 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef } from "react";
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
-import getEpisodesFromAnilist from "@/src/utils/getEpisodesFromAnilist.utils";
-import getEpisodes from "@/src/utils/getEpisodes.utils";
-import getServers from "../utils/getServers.utils";
-import getStreamInfo from "../utils/getStreamInfo.utils";
 import getNextEpisodeSchedule from "@/src/utils/getNextEpisodeSchedule.utils";
 import {
   getAnimepaheEpisodesByAnilistId,
@@ -13,10 +9,20 @@ import {
   getAnimepaheStreamInfo,
   searchAnimepaheBackend,
 } from "@/src/utils/animepaheBackend.utils";
+import {
+  getAnizoneEpisodesByAnilistId,
+  getAnizoneStreamInfo,
+} from "@/src/utils/anizoneBackend.utils";
+import {
+  getKaidoEpisodes,
+  getKaidoEpisodesByAnilistId,
+  getKaidoServers,
+  getKaidoStreamInfo,
+} from "@/src/utils/kaidoBackend.utils";
 import { toast } from "@/src/hooks/use-toast";
 
 export const useWatchMultiSource = (animeId, initialEpisodeId) => {
-  const [source, setSource] = useState("hianime"); // 'hianime' or 'animepahe'
+  const [source, setSource] = useState("animepahe"); // 'animepahe', 'anizone', or 'kaido'
   const [error, setError] = useState(null);
   const [buffering, setBuffering] = useState(true);
   const [streamInfo, setStreamInfo] = useState(null);
@@ -30,6 +36,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
   const [isFullOverview, setIsFullOverview] = useState(false);
   const [subtitles, setSubtitles] = useState([]);
   const [thumbnail, setThumbnail] = useState(null);
+  const [poster, setPoster] = useState(null);
   const [intro, setIntro] = useState(null);
   const [outro, setOutro] = useState(null);
   const [episodeId, setEpisodeId] = useState(null);
@@ -62,6 +69,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     setStreamUrl(null);
     setSubtitles([]);
     setThumbnail(null);
+    setPoster(null);
     setIntro(null);
     setOutro(null);
     setBuffering(true);
@@ -126,10 +134,10 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
                 : cached.data?.title?.english || cached.data?.title?.romaji || null;
             if (!title) {
               toast({
-                title: "No stream available in Animepahe",
-                description: "Falling back to HiAnime.",
+                title: "No stream available in AnimePahe",
+                description: "Falling back to AniZone.",
               });
-              setSource("hianime");
+              setSource("anizone");
               return;
             }
             try {
@@ -138,10 +146,10 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
               const animepaheAnimeId = firstResult?.id || firstResult?.session;
               if (!animepaheAnimeId) {
                 toast({
-                  title: "No stream available in Animepahe",
-                  description: "Falling back to HiAnime.",
+                  title: "No stream available in AnimePahe",
+                  description: "Falling back to AniZone.",
                 });
-                setSource("hianime");
+                setSource("anizone");
                 return;
               }
               setAnimepaheId(animepaheAnimeId);
@@ -149,20 +157,20 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
             } catch (searchErr) {
               console.warn("Animepahe title search/episode fetch failed:", searchErr);
               toast({
-                title: "No stream available in Animepahe",
-                description: "Falling back to HiAnime.",
+                title: "No stream available in AnimePahe",
+                description: "Falling back to AniZone.",
               });
-              setSource("hianime");
+              setSource("anizone");
               return;
             }
           }
 
           if (!episodesData?.episodes?.length) {
             toast({
-              title: "No stream available in Animepahe",
-              description: "Falling back to HiAnime.",
+              title: "No stream available in AnimePahe",
+              description: "Falling back to AniZone.",
             });
-            setSource("hianime");
+            setSource("anizone");
             return;
           }
 
@@ -180,36 +188,81 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
               ? episodesData.episodes[0].id.match(/ep=(\d+)/)?.[1]
               : null);
           setEpisodeId(newEpisodeId);
-        } else {
-          // HiAnime flow: fetch anime info first to get anilistId, then use anilist episodes API
+        } else if (source === "anizone") {
+          // AniZone flow: fetch episodes via AniList provider mapping only
           const cached = await getAnimeInfoCached();
-          setAnimeInfo(cached.data);
-          setSeasons(cached.seasons);
+          const anilistId = cached.anilistId;
 
-          let episodesData = null;
-          if (cached.anilistId) {
-            try {
-              episodesData = await getEpisodesFromAnilist(cached.anilistId);
-            } catch (err) {
-              console.warn("Anilist episodes fetch failed, falling back to default:", err);
-              episodesData = await getEpisodes(animeId);
-            }
-          } else {
-            episodesData = await getEpisodes(animeId);
+          let episodesData;
+          if (anilistId) {
+            episodesData = await getAnizoneEpisodesByAnilistId(anilistId);
           }
 
+          if (!episodesData?.episodes?.length) {
+            toast({
+              title: "No stream available in AniZone",
+              description: "Falling back to Kaido.",
+            });
+            setSource("kaido");
+            return;
+          }
+
+          setAnimeInfo(cached.data);
+          setSeasons(cached.seasons);
           setEpisodes(episodesData?.episodes);
           setTotalEpisodes(episodesData?.totalEpisodes);
 
-          // Fetch next episode schedule using HiAnime ID
+          // Fetch next episode schedule
           await fetchSchedule();
 
-          const newEpisodeId =
+          const newEpisodeIdAnizone =
             initialEpisodeId ||
             (episodesData?.episodes?.length > 0
               ? episodesData.episodes[0].id.match(/ep=(\d+)/)?.[1]
               : null);
-          setEpisodeId(newEpisodeId);
+          setEpisodeId(newEpisodeIdAnizone);
+        } else {
+          // Kaido flow: fetch episodes via kaido API
+          const cached = await getAnimeInfoCached();
+          const anilistId = cached.anilistId;
+
+          let episodesData;
+          if (anilistId) {
+            episodesData = await getKaidoEpisodesByAnilistId(anilistId);
+          }
+
+          // Fallback: fetch episodes directly via kaido endpoint using animeId
+          if (!episodesData?.episodes?.length) {
+            try {
+              episodesData = await getKaidoEpisodes(animeId);
+            } catch (err) {
+              console.warn("Kaido direct episode fetch failed:", err);
+            }
+          }
+
+          if (!episodesData?.episodes?.length) {
+            toast({
+              title: "No stream available in Kaido",
+              description: "Falling back to AnimePahe.",
+            });
+            setSource("animepahe");
+            return;
+          }
+
+          setAnimeInfo(cached.data);
+          setSeasons(cached.seasons);
+          setEpisodes(episodesData?.episodes);
+          setTotalEpisodes(episodesData?.totalEpisodes);
+
+          // Fetch next episode schedule
+          await fetchSchedule();
+
+          const newEpisodeIdKaido =
+            initialEpisodeId ||
+            (episodesData?.episodes?.length > 0
+              ? episodesData.episodes[0].id.match(/ep=(\d+)/)?.[1]
+              : null);
+          setEpisodeId(newEpisodeIdKaido);
         }
       } catch (err) {
         console.error("Error fetching initial data:", err);
@@ -259,42 +312,38 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
           setActiveServerType(initialServer?.type);
           setActiveServerName(initialServer?.serverName);
           setActiveServerId(initialServer?.data_id);
-        } else {
-          // HiAnime flow: use the full episodeId from the episode object
+        } else if (source === "anizone") {
+          // AniZone has no servers endpoint — use a synthetic default entry so
+          // the stream-fetch effect can proceed without waiting for a real server.
           const episode = episodes.find((ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId);
-          const fullEpisodeId = episode?.id || `${animeId}?ep=${episodeId}`;
-          const data = await getServers(fullEpisodeId);
-          const filteredServers = data?.filter(
-            (server) =>
-              server.serverName === "HD-1" ||
-              server.serverName === "HD-2" ||
-              server.serverName === "HD-3"
-          );
-          if (filteredServers.some((s) => s.type === "sub")) {
-            filteredServers.push({
-              type: "sub",
-              data_id: "69696969",
-              server_id: "41",
-              serverName: "HD-4",
-            });
+          if (!episode?.episodeId) {
+            throw new Error("Episode not found");
           }
-          if (filteredServers.some((s) => s.type === "dub")) {
-            filteredServers.push({
-              type: "dub",
-              data_id: "96969696",
-              server_id: "42",
-              serverName: "HD-4",
-            });
-          }
-          const savedServerName = localStorage.getItem("server_name");
-          const savedServerType = localStorage.getItem("server_type");
-          const initialServer =
-            filteredServers.find(s => s.serverName === savedServerName && s.type === savedServerType) ||
-            filteredServers.find(s => s.serverName === savedServerName) ||
-            filteredServers.find(s => s.type === savedServerType && ["HD-1", "HD-2", "HD-3", "HD-4"].includes(s.serverName)) ||
-            filteredServers[0];
 
-          setServers(filteredServers);
+          const syntheticServer = {
+            serverId: "anizone-default",
+            serverName: "Default",
+            displayName: "AniZone",
+            type: "sub",
+            data_id: "anizone-default",
+            server_id: "sub-0",
+          };
+          setServers([syntheticServer]);
+          setActiveServerType("sub");
+          setActiveServerName("Default");
+          setActiveServerId("anizone-default");
+        } else {
+          // Kaido flow: fetch servers via kaido episode servers API
+          const episode = episodes.find((ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId);
+          if (!episode?.episodeId) {
+            throw new Error("Episode not found");
+          }
+
+          const response = await getKaidoServers(episode.episodeId);
+          setServers(response.servers);
+
+          // Select first server
+          const initialServer = response.servers?.[0];
           setActiveServerType(initialServer?.type);
           setActiveServerName(initialServer?.serverName);
           setActiveServerId(initialServer?.data_id);
@@ -319,15 +368,6 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
       isStreamFetchInProgress.current
     )
       return;
-
-    if (
-      source === "hianime" &&
-      (activeServerName?.toLowerCase() === "hd-1" || activeServerName?.toLowerCase() === "hd-4") &&
-      !serverLoading
-    ) {
-      setBuffering(false);
-      return;
-    }
 
     const fetchStreamInfo = async () => {
       isStreamFetchInProgress.current = true;
@@ -361,35 +401,70 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
           setStreamUrl(primarySource.url);
           setSubtitles([]);
           setThumbnail(null);
+          setPoster(null);
+          setIntro(null);
+          setOutro(null);
+        } else if (source === "anizone") {
+          // AniZone flow: get streaming sources via anizone sources API (no server param)
+          const episode = episodes.find((ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId);
+          if (!episode?.episodeId) {
+            throw new Error("Episode not found");
+          }
+
+          const streamData = await getAnizoneStreamInfo(episode.episodeId);
+
+          const primarySource = streamData.sources?.[0];
+          if (!primarySource) {
+            throw new Error("No streaming sources available");
+          }
+
+          setStreamInfo({
+            streamingLink: {
+              link: { file: primarySource.url },
+              headers: streamData.headers,
+            },
+          });
+          setStreamUrl(primarySource.url);
+          setSubtitles(streamData.subtitles || []);
+          setThumbnail(streamData.thumbnail || null);
+          setPoster(streamData.posterImage || null);
           setIntro(null);
           setOutro(null);
         } else {
-          // HiAnime flow: use the full episodeId from the episode object
-          const server = servers.find((srv) => srv.data_id === activeServerId);
-          if (server) {
-            const episode = episodes.find((ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId);
-            const fullEpisodeId = episode?.id || `${animeId}?ep=${episodeId}`;
-            const data = await getStreamInfo(
-              fullEpisodeId,
-              server.serverName.toLowerCase() === "hd-3" ? "hd-1" : server.serverName.toLowerCase(),
-              server.type.toLowerCase()
-            );
-            setStreamInfo(data);
-            setStreamUrl(data?.streamingLink?.link?.file || null);
-            setIntro(data?.streamingLink?.intro || null);
-            setOutro(data?.streamingLink?.outro || null);
-            const subtitles =
-              data?.streamingLink?.tracks
-                ?.filter((track) => track.kind === "captions")
-                .map(({ file, label }) => ({ file, label })) || [];
-            setSubtitles(subtitles);
-            const thumbnailTrack = data?.streamingLink?.tracks?.find(
-              (track) => track.kind === "thumbnails" && track.file
-            );
-            if (thumbnailTrack) setThumbnail(thumbnailTrack.file);
-          } else {
-            setError("No server found with the activeServerId.");
+          // Kaido flow: get streaming sources via kaido sources API
+          const episode = episodes.find((ep) => ep.id.match(/ep=(\d+)/)?.[1] === episodeId);
+          if (!episode?.episodeId) {
+            throw new Error("Episode not found");
           }
+
+          const server = servers.find((srv) => srv.data_id === activeServerId);
+          if (!server) {
+            throw new Error("Server not found");
+          }
+
+          const streamData = await getKaidoStreamInfo(
+            episode.episodeId,
+            server.type,
+            server.displayName?.toLowerCase() || "vidcloud"
+          );
+
+          const primarySource = streamData.sources?.[0];
+          if (!primarySource) {
+            throw new Error("No streaming sources available");
+          }
+
+          setStreamInfo({
+            streamingLink: {
+              link: { file: primarySource.url },
+              headers: streamData.headers,
+            },
+          });
+          setStreamUrl(primarySource.url);
+          setSubtitles(streamData.subtitles || []);
+          setThumbnail(null);
+          setPoster(null);
+          setIntro(streamData.intro || null);
+          setOutro(streamData.outro || null);
         }
       } catch (err) {
         console.error("Error fetching stream info:", err);
@@ -419,6 +494,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     setStreamUrl(null);
     setSubtitles([]);
     setThumbnail(null);
+    setPoster(null);
     setIntro(null);
     setOutro(null);
     setBuffering(true);
@@ -455,6 +531,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     setIsFullOverview,
     subtitles,
     thumbnail,
+    poster,
     intro,
     outro,
     episodeId,

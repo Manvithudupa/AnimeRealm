@@ -240,7 +240,7 @@ function AnimeInfo({ random = false }) {
     return null;
   }
 
-  const { title, japanese_title, poster, animeInfo: info } = animeInfo;
+  const { title, japanese_title, poster, bannerImage, animeInfo: info } = animeInfo;
   const currentId = animeInfo?.data_id || animeInfo?.id?.split("-").pop();
   const displayTitle = language === "EN" ? title : japanese_title || title;
   const genres = info?.Genres || info?.genres || [];
@@ -261,9 +261,9 @@ function AnimeInfo({ random = false }) {
         <div className="relative h-[50vh] overflow-hidden bg-gradient-to-b from-gray-900 to-black">
           <div className="absolute inset-0">
             <OptimizedImage
-              src={poster}
+              src={bannerImage || poster}
               alt={title}
-              className="absolute inset-0 w-full h-full object-cover blur-sm scale-105"
+              className="absolute inset-0 w-full h-full object-cover"
               lazy={false}
             />
           </div>
@@ -567,7 +567,9 @@ function AnimeInfo({ random = false }) {
 
       {/* =================== RECOMMENDATIONS =================== */}
       {animeInfo?.recommended_data?.length > 0 && (
-        <CategoryCard label="You May Also Like" data={animeInfo.recommended_data} showViewMore={false} />
+        <div className="px-5 mx-auto max-w-7xl py-8">
+          <CategoryCard label="You May Also Like" data={animeInfo.recommended_data} showViewMore={false} />
+        </div>
       )}
     </div>
   );
