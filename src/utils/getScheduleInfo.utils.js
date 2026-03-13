@@ -1,5 +1,7 @@
-export default async function getSchedInfo(/* date */) {
-  // The Anilist API does not provide a date-based airing schedule.
-  // Return an empty array so the Schedule component shows "No data to display".
-  return [];
+import axios from "axios";
+
+export default async function getSchedInfo(date) {
+  const base_url = import.meta.env.VITE_API_URL;
+  const response = await axios.get(`${base_url}/api/schedule`, { params: { date } });
+  return response.data?.results || [];
 }
