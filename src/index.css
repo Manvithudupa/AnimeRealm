@@ -308,3 +308,165 @@ html.light footer * {
 }
 
 /* Splash screen – keep dark as-is */
+
+/* ── bg-black ── */
+html.light .bg-black {
+  background-color: #f0f2f5 !important;
+}
+
+/* ── Additional hardcoded hex colors ── */
+html.light [class*="bg-\\[#070707\\]"] {
+  background-color: #e8eaed !important;
+}
+html.light [class*="bg-\\[#222222\\]"],
+html.light [class*="bg-\\[#212121\\]"] {
+  background-color: #ebebed !important;
+}
+html.light [class*="bg-\\[#252525\\]"] {
+  background-color: #e4e5e7 !important;
+}
+html.light [class*="hover\\:bg-\\[#252525\\]"]:hover {
+  background-color: #d8d9db !important;
+}
+
+/* ── bg-zinc family ── */
+html.light .bg-zinc-950,
+html.light .bg-zinc-900 {
+  background-color: #f4f5f7 !important;
+}
+html.light .bg-zinc-800 {
+  background-color: #e8e9eb !important;
+}
+html.light .bg-zinc-700 {
+  background-color: #d4d5d8 !important;
+}
+
+/* ── bg-neutral family ── */
+html.light .bg-neutral-900 {
+  background-color: #f4f5f7 !important;
+}
+html.light .bg-neutral-800 {
+  background-color: #e8e9eb !important;
+}
+
+/* ── bg-gray dark variants ── */
+html.light .bg-gray-900 {
+  background-color: #f4f5f7 !important;
+}
+html.light .bg-gray-800 {
+  background-color: #e8e9eb !important;
+}
+
+/* ── Zinc / neutral text colors ── */
+html.light .text-zinc-400 {
+  color: #6b7280 !important;
+}
+html.light .text-zinc-300 {
+  color: #4b5563 !important;
+}
+html.light .text-zinc-200 {
+  color: #374151 !important;
+}
+html.light .text-zinc-100 {
+  color: #1f2937 !important;
+}
+
+/* ── Border overrides ── */
+html.light .border-neutral-700,
+html.light .border-zinc-700,
+html.light .border-zinc-800 {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ── Schedule nav buttons ── */
+html.light .next,
+html.light .prev {
+  background-color: rgb(229 231 235) !important;
+  color: rgb(75 85 99) !important;
+}
+html.light .next:hover,
+html.light .prev:hover {
+  background-color: rgb(209 213 219) !important;
+  color: rgb(17 24 39) !important;
+}
+
+/* ── Sidebar ── */
+html.light .sidebar-main {
+  background-color: #ffffff;
+}
+html.light .sidebar-header {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+html.light .sidebar-content {
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+html.light .sidebar-content::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+html.light .close-button {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+html.light .close-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+html.light .quick-actions {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+html.light .quick-action-item {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+html.light .quick-action-item:hover {
+  background-color: rgba(0, 0, 0, 0.07);
+}
+html.light .language-switcher {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+html.light .lang-button {
+  color: rgba(0, 0, 0, 0.55);
+}
+html.light .lang-button:hover {
+  color: rgba(0, 0, 0, 0.87);
+}
+html.light .lang-button.active {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.87);
+}
+html.light .menu-item {
+  color: rgba(0, 0, 0, 0.6);
+}
+html.light .menu-item:hover {
+  color: rgba(0, 0, 0, 0.87);
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* ── Category cards ── */
+html.light .category-card-container {
+  background: #ffffff;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+}
+html.light .category-card-container:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+html.light .item-title {
+  color: rgba(0, 0, 0, 0.85);
+}
+html.light .item-title:hover {
+  color: #000000;
+}
+
+/* ── Spotlight overlay: blend into light background ── */
+html.light .spotlight-overlay {
+  background:
+    linear-gradient(
+      90deg,
+      #f0f2f5 0%,
+      rgba(240, 242, 245, 0.7) 35%,
+      rgba(240, 242, 245, 0) 65%
+    ),
+    linear-gradient(
+      to top,
+      #f0f2f5 0%,
+      rgba(240, 242, 245, 0.7) 20%,
+      rgba(240, 242, 245, 0) 50%
+    ) !important;
+}
