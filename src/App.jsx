@@ -25,6 +25,7 @@ import Auth from "./pages/Auth/Auth";
 import Profile from "./pages/Profile/Profile";
 import Watchlist from "./pages/watchlist/Watchlist";
 import Notifications from "./pages/notifications/Notifications";
+import Settings from "./pages/Settings/Settings";
 
 /* 🔑 NEW IMPORT */
 import ResetPassword from "./pages/Auth/ResetPassword";
@@ -95,6 +96,15 @@ function App() {
               element={
                 <AuthRoute>
                   <Notifications />
+                </AuthRoute>
+              }
+            />
+
+            <Route
+              path="/settings"
+              element={
+                <AuthRoute>
+                  <Settings />
                 </AuthRoute>
               }
             />
