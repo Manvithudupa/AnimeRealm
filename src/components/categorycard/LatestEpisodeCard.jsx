@@ -49,7 +49,7 @@ const LatestEpisodeCard = ({ item, path }) => {
       )}
 
       {/* Bottom Info */}
-      <div className="absolute bottom-3 left-3 right-3">
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/75 to-transparent pt-6 pb-3 px-3 rounded-b-xl">
         <p className="text-white text-sm font-semibold leading-snug line-clamp-2">
           {language === "EN" ? item.title : item.japanese_title}
         </p>

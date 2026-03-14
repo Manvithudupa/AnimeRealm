@@ -719,27 +719,27 @@ export default function Watch() {
             </div>
 
             {/* Related Anime Section */}
-            {animeInfo && animeInfo.popular_data ? (
-              <div className="bg-[#141414] rounded-lg p-4">
-                <h2 className="text-xl font-semibold mb-4 text-white">Popular Anime</h2>
-                <Sidecard
-                  data={animeInfo.popular_data}
-                  className="!mt-0"
-                />
-              </div>
-            ) : (
+            {!animeInfo ? (
               <div className="mt-6">
                 <SidecardLoader />
               </div>
-            )}
+            ) : animeInfo.recommended_data?.length > 0 ? (
+              <div className="bg-[#141414] rounded-lg p-4">
+                <h2 className="text-xl font-semibold mb-4 text-white">Related Anime</h2>
+                <Sidecard
+                  data={animeInfo.recommended_data}
+                  className="!mt-0"
+                />
+              </div>
+            ) : null}
           </div>
 
           {/* Mobile-only Related Section */}
-          {animeInfo && animeInfo.popular_data && (
+          {animeInfo?.recommended_data?.length > 0 && (
             <div className="hidden max-[1200px]:block bg-[#141414] rounded-lg p-4">
-              <h2 className="text-xl font-semibold mb-4 text-white">Popular Anime</h2>
+              <h2 className="text-xl font-semibold mb-4 text-white">Related Anime</h2>
               <Sidecard
-                data={animeInfo.popular_data}
+                data={animeInfo.recommended_data}
                 className="!mt-0"
               />
             </div>

@@ -84,7 +84,7 @@ function Servers({
                 <div className="flex items-center gap-x-2 min-w-[65px]">
                   <FontAwesomeIcon
                     icon={faFile}
-                    className="text-[#e0e0e0] text-[13px]"
+                    className="text-gray-500 dark:text-[#e0e0e0] text-[13px]"
                   />
                   <p className="font-bold text-[14px] max-[600px]:text-[12px]">RAW:</p>
                 </div>
@@ -94,8 +94,8 @@ function Servers({
                       key={index}
                       className={`px-6 py-[5px] rounded-lg cursor-pointer ${
                         activeServerId === item?.data_id
-                          ? "bg-[#e0e0e0] text-black"
-                          : "bg-[#373737] text-white"
+                          ? "bg-gray-900 text-white dark:bg-[#e0e0e0] dark:text-black"
+                          : "bg-gray-200 text-gray-700 dark:bg-[#373737] dark:text-white"
                       } max-[700px]:px-3 max-[600px]:px-2 max-[600px]:py-1`}
                       onClick={() => handleServerSelect(item)}
                     >
@@ -114,7 +114,7 @@ function Servers({
                 <div className="flex items-center gap-x-2 min-w-[65px]">
                   <FontAwesomeIcon
                     icon={faClosedCaptioning}
-                    className="text-[#e0e0e0] text-[13px]"
+                    className="text-gray-500 dark:text-[#e0e0e0] text-[13px]"
                   />
                   <p className="font-bold text-[14px] max-[600px]:text-[12px]">SUB:</p>
                 </div>
@@ -124,8 +124,8 @@ function Servers({
                       key={index}
                       className={`px-6 py-[5px] rounded-lg cursor-pointer ${
                         activeServerId === item?.data_id
-                          ? "bg-[#e0e0e0] text-black"
-                          : "bg-[#373737] text-white"
+                          ? "bg-gray-900 text-white dark:bg-[#e0e0e0] dark:text-black"
+                          : "bg-gray-200 text-gray-700 dark:bg-[#373737] dark:text-white"
                       } max-[700px]:px-3 max-[600px]:px-2 max-[600px]:py-1`}
                       onClick={() => handleServerSelect(item)}
                     >
@@ -144,7 +144,7 @@ function Servers({
                 <div className="flex items-center gap-x-2 min-w-[65px]">
                   <FontAwesomeIcon
                     icon={faMicrophone}
-                    className="text-[#e0e0e0] text-[13px]"
+                    className="text-gray-500 dark:text-[#e0e0e0] text-[13px]"
                   />
                   <p className="font-bold text-[14px] max-[600px]:text-[12px]">DUB:</p>
                 </div>
@@ -154,8 +154,8 @@ function Servers({
                       key={index}
                       className={`px-6 py-[5px] rounded-lg cursor-pointer ${
                         activeServerId === item?.data_id
-                          ? "bg-[#e0e0e0] text-black"
-                          : "bg-[#373737] text-white"
+                          ? "bg-gray-900 text-white dark:bg-[#e0e0e0] dark:text-black"
+                          : "bg-gray-200 text-gray-700 dark:bg-[#373737] dark:text-white"
                       } max-[700px]:px-3 max-[600px]:px-2 max-[600px]:py-1`}
                       onClick={() => handleServerSelect(item)}
                     >

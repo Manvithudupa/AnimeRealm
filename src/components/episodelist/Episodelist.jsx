@@ -388,10 +388,10 @@ function Episodelist({
                   className={`flex items-center justify-center h-[35px] text-xs font-medium rounded-md cursor-pointer transition-all
                     ${
                       isActive
-                        ? "bg-white text-black"
-                        : "bg-[#2a2a2a] text-gray-400 hover:bg-[#3a3a3a] hover:text-white"
+                        ? "bg-indigo-600 text-white dark:bg-white dark:text-black"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 dark:bg-[#2a2a2a] dark:text-gray-400 dark:hover:bg-[#3a3a3a] dark:hover:text-white"
                     }
-                    ${isSearched ? "ring-1 ring-white" : ""}`}
+                    ${isSearched ? "ring-1 ring-indigo-300 dark:ring-white" : ""}`}
                   onClick={() => {
                     if (episodeNumber) {
                       onEpisodeClick(episodeNumber);
@@ -431,10 +431,10 @@ function Episodelist({
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all
                     ${
                       isActive
-                        ? "bg-[#252525]"
-                        : "bg-[#212121] hover:bg-[#2a2a2a]"
+                        ? "bg-indigo-50 border-l-2 border-indigo-500 dark:border-0 dark:bg-[#252525]"
+                        : "bg-transparent hover:bg-gray-100 dark:bg-[#212121] dark:hover:bg-[#2a2a2a]"
                     }
-                    ${isSearched ? "ring-1 ring-inset ring-white/30" : ""}`}
+                    ${isSearched ? "ring-1 ring-inset ring-indigo-300 dark:ring-white/30" : ""}`}
                   onClick={() => {
                     if (episodeNumber) {
                       onEpisodeClick(episodeNumber);
@@ -482,7 +482,7 @@ function Episodelist({
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-semibold truncate leading-tight ${isActive ? "text-white" : "text-gray-200"}`}>
+                    <p className={`text-sm font-semibold truncate leading-tight ${isActive ? "text-indigo-700 dark:text-white" : "text-gray-700 dark:text-gray-200"}`}>
                       Episode {item?.episode_no}
                     </p>
                     {item?.title &&
