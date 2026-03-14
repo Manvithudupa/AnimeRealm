@@ -130,7 +130,7 @@ function Episodelist({
   }, [selectedRange, scrollToActiveEpisode]);
 
   useEffect(() => setActiveEpisodeId(episodeNum), [episodeNum]);
-  useEffect(() => scrollToActiveEpisode(), [activeEpisodeId]);
+  useEffect(() => scrollToActiveEpisode(), [activeEpisodeId, scrollToActiveEpisode]);
 
   useEffect(() => {
     if (!searchedEpisode) return;
@@ -233,17 +233,6 @@ function Episodelist({
   const filteredEpisodes = !isNaN(searchNum)
     ? displayedEpisodes.filter((item) => item?.episode_no === searchNum)
     : displayedEpisodes;
-
-  // Proxy thumbnails for animepahe and anizone
-  function getThumbnailSrc(item) {
-    if (!item?.thumbnail) return null;
-    const originalUrl =
-      (source === "animepahe" || source === "anizone") && proxyUrl
-        ? `${proxyUrl}${item.thumbnail}`
-        : item.thumbnail;
-    // Return cached blob URL if available, otherwise the original URL
-    return thumbnailBlobCache.get(originalUrl) || originalUrl;
-  }
 
   // Resolve the human-readable episode number (episode_no, e.g. 2) for the
   // currently playing episode.  currentEpisode is the internal ep= ID

@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import getCategoryInfo from "@/src/utils/getCategoryInfo.utils";
 import CategoryCard from "@/src/components/categorycard/CategoryCard";
 import CategoryCardLoader from "@/src/components/Loader/CategoryCard.loader";
-import { useNavigate } from "react-router-dom";
 import PageSlider from "@/src/components/pageslider/PageSlider";
 
 function Category({ path, label }) {
@@ -13,7 +12,6 @@ function Category({ path, label }) {
   const [error, setError] = useState(null);
   const [totalPages, setTotalPages] = useState(0);
   const page = parseInt(searchParams.get("page")) || 1;
-  const navigate = useNavigate();
   
   useEffect(() => {
     const fetchCategoryInfo = async () => {

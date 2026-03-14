@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {

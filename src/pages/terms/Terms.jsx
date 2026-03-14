@@ -1,4 +1,3 @@
-import React from 'react';
 import website_name from '@/src/config/website.js';
 
 function Terms() {

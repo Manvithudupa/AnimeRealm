@@ -58,6 +58,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     onClose();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
   return (

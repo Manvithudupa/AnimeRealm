@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -31,7 +30,7 @@ export default function DownloadModal({ open, onOpenChange, downloadOptions }) {
     }));
   };
 
-  const handleDownload = (serverId, serverName) => {
+  const handleDownload = (serverId) => {
     if (serverId && serverId.startsWith("http")) {
       window.open(serverId, "_blank", "noopener,noreferrer");
     } else {

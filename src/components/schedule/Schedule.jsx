@@ -49,6 +49,7 @@ const Schedule = () => {
       setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -64,6 +65,7 @@ const Schedule = () => {
       setCurrentActiveIndex(todayIndex);
       toggleActive(todayIndex);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dates]);
 
   const fetchSched = async (date) => {

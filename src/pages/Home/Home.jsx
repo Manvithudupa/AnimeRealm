@@ -1,5 +1,3 @@
-import website_name from "@/src/config/website.js";
-
 import Spotlight from "@/src/components/spotlight/Spotlight.jsx";
 import Trending from "@/src/components/trending/Trending.jsx";
 import CategoryCard from "@/src/components/categorycard/CategoryCard.jsx";

@@ -1,8 +1,6 @@
-import React from 'react';
 import website_name from '@/src/config/website.js';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord, faGithub } from "@fortawesome/free-brands-svg-icons";
-import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 
 function Contact() {
   return (

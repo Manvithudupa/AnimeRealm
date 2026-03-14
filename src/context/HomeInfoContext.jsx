@@ -28,4 +28,5 @@ export const HomeInfoProvider = ({ children }) => {
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useHomeInfo = () => useContext(HomeInfoContext);

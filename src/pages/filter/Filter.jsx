@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import CategoryCard from "../../components/categorycard/CategoryCard";
 import CategoryCardLoader from "../../components/Loader/CategoryCard.loader";
@@ -100,6 +100,7 @@ const Filter = () => {
 
   useEffect(() => {
     fetchData(1, "");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ================= STYLES =================

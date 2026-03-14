@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import Hls from "hls.js";
 import { useEffect, useRef, useState } from "react";
 import Artplayer from "artplayer";
@@ -111,7 +110,6 @@ export default function Player({
   // player is already live (no player recreation needed).
   useEffect(() => {
     applyHardSubStyle(artInstanceRef.current, hardSub);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hardSub]);
 
   /* =========================== Chapter Styles =========================== */
@@ -422,6 +420,7 @@ export default function Player({
       artInstanceRef.current = null;
       if (art?.destroy) art.destroy(false);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [streamUrl, episodeId, subtitles, intro, outro, animeInfo]);
 
   return <div ref={artRef} className="w-full h-full" />;
