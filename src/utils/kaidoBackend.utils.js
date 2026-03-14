@@ -86,7 +86,7 @@ export async function getKaidoServers(episodeId) {
           displayName: server.serverName,
           type: "sub",
           mediaId: server.mediaId,
-          data_id: server.serverId,
+          data_id: `sub-${server.serverId}`,
           server_id: `sub-${index}`,
         });
       });
@@ -100,7 +100,7 @@ export async function getKaidoServers(episodeId) {
           displayName: server.serverName,
           type: "dub",
           mediaId: server.mediaId,
-          data_id: server.serverId,
+          data_id: `dub-${server.serverId}`,
           server_id: `dub-${index}`,
         });
       });
@@ -114,7 +114,7 @@ export async function getKaidoServers(episodeId) {
           displayName: server.serverName,
           type: "raw",
           mediaId: server.mediaId,
-          data_id: server.serverId,
+          data_id: `raw-${server.serverId}`,
           server_id: `raw-${index}`,
         });
       });
