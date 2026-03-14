@@ -29,6 +29,7 @@ import Settings from "./pages/Settings/Settings";
 
 /* 🔑 NEW IMPORT */
 import ResetPassword from "./pages/Auth/ResetPassword";
+import AnnouncementModal from "./components/announcement/AnnouncementModal";
 
 import { azRoute, categoryRoutes } from "./utils/category.utils";
 import "./App.css";
@@ -147,6 +148,7 @@ function App() {
           </Routes>
 
           {!isSplashScreen && <Footer />}
+      {!isSplashScreen && <AnnouncementModal />}
       </main>
 
       <Analytics />
