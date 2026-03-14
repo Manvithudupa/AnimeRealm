@@ -15,7 +15,7 @@ function AnimeInfoLoader() {
         {/* Background */}
         <div className="relative h-[50vh] overflow-hidden">
           <Skeleton className="absolute inset-0 w-full h-full" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent animeinfo-hero-overlay" />
         </div>
 
         {/* Info */}
