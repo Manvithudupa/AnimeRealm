@@ -37,6 +37,7 @@ export const useNotifications = (shouldFetch = true) => {
     } finally {
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]); // Only depend on user.id
 
   useEffect(() => {

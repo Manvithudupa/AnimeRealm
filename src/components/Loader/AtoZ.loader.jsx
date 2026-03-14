@@ -1,10 +1,6 @@
 import { Skeleton } from "../ui/Skeleton/Skeleton";
 import CategoryCardLoader from "./CategoryCard.loader";
 
-const SkeletonItems = ({ count, className }) => (
-  [...Array(count)].map((_, index) => <Skeleton key={index} className={className} />)
-);
-
 function AtoZLoader() {
   const gridClass = "grid-cols-8 max-[1600px]:grid-cols-6 max-[1200px]:grid-cols-4 max-[758px]:grid-cols-3 max-[478px]:grid-cols-3 max-[478px]:gap-x-2";
 

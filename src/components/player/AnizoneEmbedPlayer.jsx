@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useEffect, useRef, useState, useCallback } from "react";
 import BouncingLoader from "../ui/bouncingloader/Bouncingloader";
 

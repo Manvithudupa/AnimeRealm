@@ -70,6 +70,7 @@ function Watchlist() {
     return () => {
       mounted = false;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, authLoading]);
 
   /* ---------- Close dropdown on outside click ---------- */

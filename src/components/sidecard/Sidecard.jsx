@@ -24,7 +24,7 @@ function Sidecard({ data, label, className }) {
     setHoveredItem(null);
   };
 
-  const { tooltipPosition, tooltipHorizontalPosition, cardRefs } = useToolTipPosition(
+  const { cardRefs } = useToolTipPosition(
     hoveredItem,
     data
   );
