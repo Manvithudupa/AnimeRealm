@@ -812,3 +812,60 @@ html.light .from-black\/90 .text-white,
 html.light .from-black\/70 .text-white {
   color: #ffffff !important;
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   Trending section fixes
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Trending cards: keep rank number and title text white over dark gradient overlay ── */
+html.light .trending-card-link .text-white {
+  color: #ffffff !important;
+}
+
+/* ── Trending navigation buttons: adapt to light background ── */
+html.light [class*="bg-\[#383747\]"],
+html.light [class*="bg-\[#373646\]"] {
+  background-color: #e2e3e8 !important;
+  color: #374151 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Episode list header controls and dropdown fixes
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Active toggle button bg (sort / grid-view) ── */
+html.light [class*="bg-\[#3a3a3a\]"] {
+  background-color: #9ca3af !important;
+}
+html.light [class*="hover\:bg-\[#3a3a3a\]"]:hover {
+  background-color: #d1d5db !important;
+}
+
+/* ── Range dropdown selected item bg ── */
+html.light [class*="bg-\[#404040\]"] {
+  background-color: #bfc0c4 !important;
+}
+
+/* ── Border overrides for episode list header ── */
+html.light [class*="border-\[#2a2a2a\]"] {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+html.light [class*="border-\[#3a3a3a\]"] {
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Next airing banner (episode list footer) – light mode
+   ══════════════════════════════════════════════════════════════════ */
+html.light [class*="bg-\[#1a3a2a\]"] {
+  background-color: #f0fdf4 !important;
+}
+html.light [class*="border-\[#2a4a3a\]"] {
+  border-color: #bbf7d0 !important;
+}
+html.light .text-green-300 {
+  color: #15803d !important;
+}
+html.light .text-green-400 {
+  color: #16a34a !important;
+}

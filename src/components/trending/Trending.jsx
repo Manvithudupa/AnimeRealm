@@ -10,7 +10,7 @@ const Trending = ({ trending }) => {
 
   return (
     <div className="mt-6 max-[1200px]:px-4 max-md:px-0">
-      <h1 className="text-[#ffffff] text-2xl font-bold max-md:pl-4">
+      <h1 className="text-white text-2xl font-bold max-md:pl-4">
         Trending
       </h1>
 
@@ -40,6 +40,7 @@ const Trending = ({ trending }) => {
                 <Link
                   to={`/${item.id}`}
                   className="
+                    trending-card-link
                     group relative w-full 
                     h-[180px] sm:h-[200px] md:h-[220px] lg:h-[240px] 
                     overflow-hidden rounded-xl bg-[#2a2c31] shadow-lg
