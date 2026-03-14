@@ -87,6 +87,13 @@
     />
   </head>
   <body>
+    <!-- Apply theme before first paint to avoid flash -->
+    <script>
+      (function () {
+        var t = localStorage.getItem("theme") || "dark";
+        document.documentElement.classList.add(t);
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

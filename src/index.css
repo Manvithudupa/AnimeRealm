@@ -7,13 +7,22 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #000000;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html.dark {
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #000000;
+}
+
+html.light {
+  color-scheme: light;
+  color: #1a1a1a;
+  background-color: #f0f2f5;
 }
 
 /* Reset */
@@ -38,6 +47,13 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.15) #000000;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.light body {
+  background-color: #f0f2f5;
+  color: #1a1a1a;
+  scrollbar-color: rgba(0,0,0,0.15) #f0f2f5;
 }
 
 /* Scrollbar - Chrome / Safari */
@@ -68,6 +84,27 @@ body {
 
 ::-webkit-scrollbar-corner {
   background-color: #000000;
+}
+
+/* Light mode scrollbar */
+html.light ::-webkit-scrollbar {
+  background-color: #f0f2f5;
+}
+
+html.light ::-webkit-scrollbar-track {
+  background-color: #f0f2f5;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+html.light ::-webkit-scrollbar-corner {
+  background-color: #f0f2f5;
 }
 
 /* Hide scrollbar */
@@ -113,28 +150,30 @@ body {
 
 /* Tailwind Theme Variables */
 @layer base {
+  /* Light theme (default when no .dark class) */
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 10%;
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 0 0% 12%;
-    --accent-foreground: 0 0% 98%;
+    --background: 220 14% 96%;
+    --foreground: 220 9% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 9% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 9% 10%;
+    --primary: 220 9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 220 14% 90%;
+    --secondary-foreground: 220 9% 15%;
+    --muted: 220 14% 90%;
+    --muted-foreground: 220 9% 45%;
+    --accent: 220 14% 88%;
+    --accent-foreground: 220 9% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 0 0% 80%;
+    --border: 220 14% 84%;
+    --input: 220 14% 84%;
+    --ring: 220 9% 30%;
     --radius: 0.5rem;
   }
+  /* Dark theme */
   .dark {
     --background: 0 0% 0%;
     --foreground: 0 0% 98%;
@@ -167,6 +206,10 @@ body {
   display: inline-block;
 }
 
+html.light .dot {
+  background: rgba(0, 0, 0, 0.3);
+}
+
 /* Animations */
 @keyframes fadeIn {
   from {
@@ -183,3 +226,85 @@ body {
   animation: fadeIn 0.5s ease-out forwards;
   opacity: 0;
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   Light-mode overrides for hardcoded dark colours used site-wide
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Navbar */
+html.light nav[class*="fixed"] {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Sidebar & modals with dark backgrounds */
+html.light [class*="bg-\[#0a0a0a\]"],
+html.light [class*="bg-\[#0A0A0A\]"] {
+  background-color: #f8f9fb !important;
+}
+html.light [class*="bg-\[#111\]"] {
+  background-color: #ffffff !important;
+}
+html.light [class*="bg-\[#18181B\]"] {
+  background-color: #f4f5f7 !important;
+}
+html.light [class*="bg-\[#1a1a1a\]"],
+html.light [class*="bg-\[#1A1A1A\]"] {
+  background-color: #f0f1f3 !important;
+}
+html.light [class*="bg-\[#2a2a2a\]"],
+html.light [class*="bg-\[#2A2A2A\]"] {
+  background-color: #e8e9eb !important;
+}
+html.light [class*="bg-\[#27272A\]"] {
+  background-color: #e8e9eb !important;
+}
+html.light [class*="bg-\[#3F3F46\]"] {
+  background-color: #d0d1d4 !important;
+}
+
+/* Common text overrides */
+html.light .text-white {
+  color: #1a1a1a !important;
+}
+html.light .text-gray-300 {
+  color: #4b5563 !important;
+}
+html.light .text-gray-400 {
+  color: #6b7280 !important;
+}
+html.light .text-white\/70,
+html.light .text-white\/60,
+html.light .text-white\/50 {
+  color: #4b5563 !important;
+}
+
+/* Border overrides */
+html.light .border-white\/10,
+html.light .border-white\/20 {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Hover bg overrides */
+html.light .hover\:bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+html.light .hover\:bg-white\/10:hover {
+  background-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+/* App container */
+html.light .app-container {
+  background-color: #f0f2f5;
+}
+
+/* Footer */
+html.light footer {
+  background-color: #e8eaed !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+html.light footer * {
+  color: #374151;
+}
+
+/* Splash screen – keep dark as-is */
