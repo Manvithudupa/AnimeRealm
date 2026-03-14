@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { Button } from "@/src/components/ui/button";
-import { User, Bell, Bookmark, LogOut, Settings, Moon, Sun } from "lucide-react";
+import { User, Bell, Bookmark, LogOut, Settings } from "lucide-react";
 import { useAuth } from "@/src/hooks/useAuth";
 import { useTheme } from "@/src/context/ThemeContext";
 import { useEpisodeCheck } from "@/src/hooks/useEpisodeCheck";
@@ -25,7 +25,7 @@ function Navbar() {
   const location = useLocation();
   const { user, profile, signOut } = useAuth();
   const { language, toggleLanguage } = useLanguage();
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
 
   // Run episode check in the background — decoupled from the notification dropdown
   useEpisodeCheck();
@@ -130,23 +130,6 @@ function Navbar() {
                 </button>
               ))}
             </div>
-
-            {/* Theme toggle */}
-            <button
-              onClick={toggleTheme}
-              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-              className={`hidden md:flex w-9 h-9 items-center justify-center rounded-lg transition-colors ${
-                theme === "dark"
-                  ? "bg-white/5 text-yellow-300 hover:bg-white/10"
-                  : "bg-black/5 text-gray-600 hover:bg-black/10"
-              }`}
-            >
-              {theme === "dark" ? (
-                <Sun className="w-4 h-4" />
-              ) : (
-                <Moon className="w-4 h-4" />
-              )}
-            </button>
 
             {/* Notifications */}
             {user && <NotificationBell />}
