@@ -721,3 +721,94 @@ html.light [class*="scrollbar-thumb-\["] {
 html.light [class*="hover\:scrollbar-thumb-\["] {
   --scrollbar-thumb: rgba(0, 0, 0, 0.3) !important;
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   Light-mode fixes – additional targeted overrides
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Genre component: replace black gradient fade-edges with light ones ── */
+html.light [class*="from-[#0a0a0a]"] {
+  --tw-gradient-from: #f0f2f5;
+  --tw-gradient-stops: #f0f2f5, rgba(240, 242, 245, 0) !important;
+}
+html.light [class*="via-[#0a0a0a]"] {
+  --tw-gradient-stops: var(--tw-gradient-from, #f0f2f5),
+    rgba(240, 242, 245, 0.8),
+    var(--tw-gradient-to, rgba(240, 242, 245, 0)) !important;
+}
+
+/* ── TabbedAnimeSection: make tab labels and section border visible ── */
+html.light [class*="text-[#ffffff80]"] {
+  color: #4b5563 !important;
+}
+html.light [class*="border-[#ffffff1a]"] {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.light [class*="before\:bg-[#ffffff40]"]::before {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ── Spotlight: make the "#N Spotlight" pink number readable ── */
+html.light [class*="text-[#ffbade]"] {
+  color: #be185d !important;
+}
+
+/* ── Watch page source-toggle buttons (inactive state) ── */
+html.light .bg-gray-700 {
+  background-color: #d1d5db !important;
+}
+html.light .hover\:bg-gray-600:hover {
+  background-color: #9ca3af !important;
+}
+html.light .bg-gray-600 {
+  background-color: #9ca3af !important;
+}
+
+/* ── AnimeInfo / hero gradient overlay – blend into light background ── */
+html.light .animeinfo-hero-overlay {
+  background-image: linear-gradient(
+    to top,
+    #f0f2f5 0%,
+    rgba(240, 242, 245, 0.7) 30%,
+    rgba(240, 242, 245, 0) 60%
+  ) !important;
+}
+
+/* ── Spotlight nav buttons: style for light background ── */
+html.light .button-prev,
+html.light .button-next {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+html.light .button-prev:hover,
+html.light .button-next:hover {
+  background-color: rgba(0, 0, 0, 0.35) !important;
+}
+html.light .button-prev::after,
+html.light .button-next::after {
+  border-color: #1a1a1a !important;
+}
+
+/* ── Spotlight thumbnail overlay: keep dark so thumb text remains readable ── */
+/* (no change needed – dark overlay on thumbnail images is intentional) */
+
+/* ── Active thumb border in light mode ── */
+html.light .swiper-slide-thumb-active .spotlight-thumb-item {
+  border-color: #1a1a1a !important;
+}
+
+/* ── AnimeInfo seasons ring (white/40 ring → dark ring) ── */
+html.light [class*="ring-white"] {
+  --tw-ring-color: rgba(0, 0, 0, 0.25) !important;
+}
+
+/* ── Keep white text readable inside dark-overlay containers (badges, play overlays) ── */
+html.light [class*="bg-black/"] .text-white {
+  color: #ffffff !important;
+}
+
+/* ── LatestEpisodeCard / hero: keep title text white on dark gradient overlay ── */
+html.light .from-black\/75 .text-white,
+html.light .from-black\/90 .text-white,
+html.light .from-black\/70 .text-white {
+  color: #ffffff !important;
+}
