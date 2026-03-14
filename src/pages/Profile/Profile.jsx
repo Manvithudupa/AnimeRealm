@@ -108,6 +108,7 @@ export const Profile = () => {
     return () => {
       mounted = false;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, authLoading]);
 
   /* ---------- Handle Character / Banner Selection ---------- */

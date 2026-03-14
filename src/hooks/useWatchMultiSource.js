@@ -45,7 +45,6 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
   const [activeServerType, setActiveServerType] = useState(null);
   const [activeServerName, setActiveServerName] = useState(null);
   const [serverLoading, setServerLoading] = useState(true);
-  const [animepaheId, setAnimepaheId] = useState(null); // Store Animepahe anime ID
   const [downloadOptions, setDownloadOptions] = useState(null);
   const [nextEpisodeSchedule, setNextEpisodeSchedule] = useState(null);
   const isServerFetchInProgress = useRef(false);
@@ -79,7 +78,6 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     setSeasons(null);
     setTotalEpisodes(null);
     setAnimeInfoLoading(true);
-    setAnimepaheId(null);
     setDownloadOptions(null);
     setNextEpisodeSchedule(null);
     isServerFetchInProgress.current = false;
@@ -152,7 +150,6 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
                 setSource("anizone");
                 return;
               }
-              setAnimepaheId(animepaheAnimeId);
               episodesData = await getAnimepaheEpisodes(animepaheAnimeId);
             } catch (searchErr) {
               console.warn("Animepahe title search/episode fetch failed:", searchErr);
@@ -504,7 +501,6 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     setSeasons(null);
     setTotalEpisodes(null);
     setAnimeInfoLoading(true);
-    setAnimepaheId(null);
     setDownloadOptions(null);
     setNextEpisodeSchedule(null);
     isServerFetchInProgress.current = false;

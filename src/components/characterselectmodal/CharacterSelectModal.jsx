@@ -128,6 +128,7 @@ export const CharacterSelectModal = ({ isOpen, onClose, onSelect, onSelectBanner
     } else {
       fetchBanners();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, mode]);
 
   const fetchPopularAnime = async () => {
