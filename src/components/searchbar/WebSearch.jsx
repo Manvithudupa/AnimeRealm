@@ -3,9 +3,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Suggestion from "../suggestion/Suggestion";
 import useSearch from "@/src/hooks/useSearch";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/src/context/ThemeContext";
 
 function WebSearch() {
     const navigate = useNavigate();
+    const { theme } = useTheme();
 
     const {
         setIsSearchVisible,
@@ -38,15 +40,16 @@ function WebSearch() {
             {/* Filter Button */}
             <button
                 onClick={handleFilterClick}
-                className="
+                className={`
                     flex items-center justify-center px-4 py-2
-                    border border-white/40
-                    bg-black/40 text-white
                     rounded-lg
-                    hover:bg-black/70
                     transition-colors
                     backdrop-blur-sm
-                "
+                    ${theme === "dark"
+                        ? "border border-white/40 bg-black/40 text-white hover:bg-black/70"
+                        : "border border-black/20 bg-black/[0.06] text-gray-700 hover:bg-black/10"
+                    }
+                `}
             >
                 <FontAwesomeIcon icon={faSliders} className="mr-2" />
                 Filter
@@ -55,16 +58,17 @@ function WebSearch() {
             {/* Search Input */}
             <input
                 type="text"
-                className="
+                className={`
                     w-full px-5 py-2
-                    bg-black/40 text-white
-                    border border-white/30
                     rounded-lg
-                    focus:outline-none focus:ring-1 focus:ring-white/50
+                    focus:outline-none focus:ring-1
                     transition-colors
-                    placeholder-white/50
                     max-[600px]:hidden
-                "
+                    ${theme === "dark"
+                        ? "bg-black/40 text-white border border-white/30 focus:ring-white/50 placeholder-white/50"
+                        : "bg-black/[0.06] text-gray-900 border border-black/[0.15] focus:ring-black/[0.30] placeholder:text-gray-400"
+                    }
+                `}
                 placeholder="Search anime..."
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
@@ -93,15 +97,18 @@ function WebSearch() {
 
             {/* Search Icon */}
             <button
-                className="
+                className={`
                     absolute right-4
-                    text-white/60 hover:text-white
                     transition-colors
                     max-[600px]:static
                     max-[600px]:bg-transparent
                     focus:outline-none
                     max-[600px]:p-0
-                "
+                    ${theme === "dark"
+                        ? "text-white/60 hover:text-white"
+                        : "text-gray-500 hover:text-gray-900"
+                    }
+                `}
                 onClick={handleSearchClick}
             >
                 <FontAwesomeIcon

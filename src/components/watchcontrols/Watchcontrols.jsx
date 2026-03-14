@@ -1,16 +1,19 @@
 import { faBackward, faForward } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
+import { useTheme } from "@/src/context/ThemeContext";
 
-const ToggleButton = ({ label, isActive, onClick }) => (
+const ToggleButton = ({ label, isActive, onClick, isDark }) => (
   <button 
-    className="flex items-center text-xs px-2 py-0.5 rounded transition-colors hover:bg-[#2a2a2a]" 
+    className={`flex items-center text-xs px-2 py-0.5 rounded transition-colors ${isDark ? "hover:bg-[#2a2a2a]" : "hover:bg-black/10"}`}
     onClick={onClick}
   >
-    <span className="text-gray-300">{label}</span>
+    <span className={isDark ? "text-gray-300" : "text-gray-600"}>{label}</span>
     <span
       className={`ml-1.5 ${
-        isActive ? "text-white" : "text-gray-500"
+        isActive
+          ? isDark ? "text-white" : "text-gray-900"
+          : isDark ? "text-gray-500" : "text-gray-400"
       }`}
     >
       {isActive ? "ON" : "OFF"}
@@ -31,6 +34,8 @@ export default function WatchControls({
   episodes = [],
   onButtonClick,
 }) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(
     episodes?.findIndex(
       (episode) => episode.id.match(/ep=(\d+)/)?.[1] === episodeId
@@ -47,27 +52,31 @@ export default function WatchControls({
   }, [episodeId, episodes]);
 
   return (
-    <div className="w-full flex justify-between items-center px-3 py-2 border-b border-gray-800">
+    <div className={`w-full flex justify-between items-center px-3 py-2 border-b ${isDark ? "border-gray-800" : "border-gray-200"}`}>
       <div className="flex gap-x-2">
         <ToggleButton
           label="Auto Play"
           isActive={autoPlay}
           onClick={() => setAutoPlay((prev) => !prev)}
+          isDark={isDark}
         />
         <ToggleButton
           label="Skip Intro/Outro"
           isActive={autoSkipIntro}
           onClick={() => setAutoSkipIntro((prev) => !prev)}
+          isDark={isDark}
         />
         <ToggleButton
           label="Auto Next"
           isActive={autoNext}
           onClick={() => setAutoNext((prev) => !prev)}
+          isDark={isDark}
         />
         <ToggleButton
           label="Hard Sub"
           isActive={hardSub}
           onClick={() => setHardSub((prev) => !prev)}
+          isDark={isDark}
         />
       </div>
       <div className="flex items-center gap-x-2">
@@ -81,9 +90,9 @@ export default function WatchControls({
           }}
           disabled={currentEpisodeIndex <= 0}
           className={`w-7 h-7 flex items-center justify-center rounded transition-colors ${
-            currentEpisodeIndex <= 0 
-              ? "text-gray-600 cursor-not-allowed" 
-              : "text-gray-300 hover:text-white"
+            currentEpisodeIndex <= 0
+              ? isDark ? "text-gray-600 cursor-not-allowed" : "text-gray-400 cursor-not-allowed"
+              : isDark ? "text-gray-300 hover:text-white" : "text-gray-500 hover:text-gray-900"
           }`}
         >
           <FontAwesomeIcon icon={faBackward} className="text-[14px]" />
@@ -98,9 +107,9 @@ export default function WatchControls({
           }}
           disabled={currentEpisodeIndex >= episodes?.length - 1}
           className={`w-7 h-7 flex items-center justify-center rounded transition-colors ${
-            currentEpisodeIndex >= episodes?.length - 1 
-              ? "text-gray-600 cursor-not-allowed" 
-              : "text-gray-300 hover:text-white"
+            currentEpisodeIndex >= episodes?.length - 1
+              ? isDark ? "text-gray-600 cursor-not-allowed" : "text-gray-400 cursor-not-allowed"
+              : isDark ? "text-gray-300 hover:text-white" : "text-gray-500 hover:text-gray-900"
           }`}
         >
           <FontAwesomeIcon icon={faForward} className="text-[14px]" />

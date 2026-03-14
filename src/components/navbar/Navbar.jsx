@@ -250,7 +250,7 @@ function Navbar() {
 
         {/* Mobile Search */}
         {isMobileSearchOpen && (
-          <div className="md:hidden bg-[#18181B] shadow-lg">
+          <div className={`md:hidden shadow-lg ${theme === "dark" ? "bg-[#18181B]" : "bg-white border-t border-black/8"}`}>
             <MobileSearch onClose={() => setIsMobileSearchOpen(false)} />
           </div>
         )}
