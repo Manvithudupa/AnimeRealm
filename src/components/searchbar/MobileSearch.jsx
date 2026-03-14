@@ -3,9 +3,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass, faSliders } from '@fortawesome/free-solid-svg-icons';
 import useSearch from '@/src/hooks/useSearch';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@/src/context/ThemeContext';
 
 function MobileSearch({ onClose }) {
     const navigate = useNavigate();
+    const { theme } = useTheme();
     const {
         searchValue,
         setSearchValue,
@@ -34,7 +36,11 @@ function MobileSearch({ onClose }) {
                 <div className="relative flex-1">
                     <input
                         type="text"
-                        className="w-full px-5 py-2 bg-[#2a2a2a]/75 text-white rounded-lg focus:outline-none transition-colors placeholder-white/50"
+                        className={`w-full px-5 py-2 rounded-lg focus:outline-none transition-colors ${
+                            theme === 'dark'
+                                ? 'bg-[#2a2a2a]/75 text-white placeholder-white/50'
+                                : 'bg-black/[0.08] text-gray-900 border border-black/[0.15] placeholder:text-gray-400'
+                        }`}
                         placeholder="Search anime..."
                         value={searchValue}
                         onChange={(e) => setSearchValue(e.target.value)}
@@ -56,8 +62,12 @@ function MobileSearch({ onClose }) {
                         }}
                     />
                     {/* Search Icon */}
-                    <button 
-                        className="absolute right-12 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+                    <button
+                        className={`absolute right-12 top-1/2 -translate-y-1/2 transition-colors ${
+                            theme === 'dark'
+                                ? 'text-white/50 hover:text-white'
+                                : 'text-gray-400 hover:text-gray-700'
+                        }`}
                         onClick={handleSearchClick}
                     >
                         <FontAwesomeIcon
@@ -69,7 +79,11 @@ function MobileSearch({ onClose }) {
 
                 {/* Filter Button (replaces Random) */}
                 <button
-                    className="p-[10px] aspect-square bg-[#2a2a2a]/75 text-white/50 hover:text-white rounded-lg transition-colors flex items-center justify-center shrink-0"
+                    className={`p-[10px] aspect-square rounded-lg transition-colors flex items-center justify-center shrink-0 ${
+                        theme === 'dark'
+                            ? 'bg-[#2a2a2a]/75 text-white/50 hover:text-white'
+                            : 'bg-black/[0.08] text-gray-500 hover:text-gray-900 border border-black/[0.15]'
+                    }`}
                     onClick={handleFilterClick}
                     title="Filter Anime"
                 >

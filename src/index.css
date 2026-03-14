@@ -470,3 +470,254 @@ html.light .spotlight-overlay {
       rgba(240, 242, 245, 0) 50%
     ) !important;
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   Additional light-mode overrides – extended coverage
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── More hardcoded hex backgrounds ── */
+html.light [class*="bg-\[#141414\]"] {
+  background-color: #f4f5f7 !important;
+}
+html.light [class*="bg-\[#121212\]"] {
+  background-color: #f8f9fb !important;
+}
+html.light [class*="bg-\[#0b0b0b\]"] {
+  background-color: #f0f2f5 !important;
+}
+html.light [class*="bg-\[#0f0f0f\]"] {
+  background-color: #f0f1f3 !important;
+}
+html.light [class*="bg-\[#0f0f1a\]"] {
+  background-color: #f4f5f7 !important;
+}
+html.light [class*="bg-\[#111111\]"],
+html.light [class*="bg-\[#151515\]"] {
+  background-color: #f8f9fb !important;
+}
+html.light [class*="bg-\[#1f1f1f\]"] {
+  background-color: #ebebed !important;
+}
+html.light [class*="bg-\[#272727\]"] {
+  background-color: #e4e5e7 !important;
+}
+html.light [class*="bg-\[#303030\]"] {
+  background-color: #dfe0e3 !important;
+}
+html.light [class*="hover\:bg-\[#272727\]"]:hover {
+  background-color: #dfe0e3 !important;
+}
+html.light [class*="hover\:bg-\[#303030\]"]:hover {
+  background-color: #d4d5d8 !important;
+}
+html.light [class*="bg-\[#373646\]"],
+html.light [class*="bg-\[#383747\]"] {
+  background-color: #d8d9e0 !important;
+}
+html.light [class*="bg-\[#2a2c31\]"] {
+  background-color: #e8e9eb !important;
+}
+html.light [class*="bg-\[#373737\]"] {
+  background-color: #d8d9db !important;
+}
+html.light [class*="bg-\[#35373d\]"] {
+  background-color: #d8d9db !important;
+}
+
+/* ── bg-white/X → subtle dark tint (near-invisible in dark, near-invisible in light without this) ── */
+html.light .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+html.light .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+html.light .bg-white\/15 {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+html.light .bg-white\/20 {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.light .bg-white\/\[0\.03\] {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+html.light .bg-white\/\[0\.05\] {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+html.light .bg-white\/\[0\.07\] {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+html.light .bg-white\/\[0\.08\] {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ── hover:bg-white/X ── */
+html.light .hover\:bg-white\/15:hover {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.light .hover\:bg-white\/20:hover {
+  background-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ── More text-white/X overrides ── */
+html.light .text-white\/80 {
+  color: #1f2937 !important;
+}
+html.light .text-white\/40,
+html.light .text-white\/45 {
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+html.light .text-white\/35,
+html.light .text-white\/30 {
+  color: rgba(0, 0, 0, 0.4) !important;
+}
+html.light .text-white\/20 {
+  color: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ── More border-white/X overrides ── */
+html.light .border-white\/5 {
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+html.light .border-white\/8 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+html.light .border-white\/15 {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+html.light .border-white\/25 {
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+html.light .border-white\/\[0\.05\] {
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+html.light .border-white\/\[0\.07\] {
+  border-color: rgba(0, 0, 0, 0.07) !important;
+}
+html.light .border-white\/\[0\.08\] {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ── Border gray/zinc dark variants ── */
+html.light .border-gray-800 {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.light .border-gray-700 {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+html.light .border-zinc-900 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ── hover:bg-zinc / bg-zinc hover states ── */
+html.light .hover\:bg-zinc-700:hover {
+  background-color: #c8c9cc !important;
+}
+html.light .hover\:bg-zinc-800:hover {
+  background-color: #dfe0e3 !important;
+}
+html.light .hover\:bg-zinc-900:hover {
+  background-color: #ebebed !important;
+}
+html.light .hover\:bg-zinc-900\/50:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* ── placeholder colour overrides ── */
+html.light .placeholder-white\/50::placeholder,
+html.light .placeholder-white\/30::placeholder {
+  color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ── group-hover:text-white ── */
+html.light .group:hover .group-hover\:text-white {
+  color: #111827 !important;
+}
+
+/* ── hover:text-white ── */
+html.light .hover\:text-white:hover {
+  color: #111827 !important;
+}
+
+/* ── text-gray-100 / text-gray-200 ── */
+html.light .text-gray-100 {
+  color: #1f2937 !important;
+}
+html.light .text-gray-200 {
+  color: #374151 !important;
+}
+
+/* ── WebSearch / input styling ── */
+html.light .search-filter-btn {
+  border-color: rgba(0, 0, 0, 0.2) !important;
+  background-color: rgba(0, 0, 0, 0.06) !important;
+  color: #374151 !important;
+}
+html.light .search-filter-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.light .search-input {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+  color: #1a1a1a !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+html.light .search-input::placeholder {
+  color: rgba(0, 0, 0, 0.4) !important;
+}
+html.light .search-input:focus {
+  --tw-ring-color: rgba(0, 0, 0, 0.3) !important;
+}
+html.light .search-icon-btn {
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+html.light .search-icon-btn:hover {
+  color: #1a1a1a !important;
+}
+
+/* ── DownloadModal scrollbar ── */
+html.light .download-modal-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2) !important;
+}
+html.light .download-modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ── Servers border ── */
+html.light .servers {
+  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ── WatchControls ── */
+html.light .watch-controls-bar {
+  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.light .watch-toggle-btn {
+  color: #4b5563 !important;
+}
+html.light .watch-toggle-btn:hover {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ── scrollbar-visible in light mode ── */
+html.light .scrollbar-visible {
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+html.light .scrollbar-visible::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+html.light .scrollbar-visible::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+html.light .scrollbar-visible::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* ── Tailwind scrollbar utilities (Tailwind Scrollbar plugin classes) ── */
+html.light [class*="scrollbar-track-\["] {
+  --scrollbar-track: #f0f2f5 !important;
+}
+html.light [class*="scrollbar-thumb-\["] {
+  --scrollbar-thumb: rgba(0, 0, 0, 0.2) !important;
+}
+html.light [class*="hover\:scrollbar-thumb-\["] {
+  --scrollbar-thumb: rgba(0, 0, 0, 0.3) !important;
+}
