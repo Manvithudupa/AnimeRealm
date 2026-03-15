@@ -168,17 +168,17 @@ const SchedulePage = () => {
   }, [timeGroups, isToday, currentTime]);
 
   return (
-    <div className="max-w-[1400px] mx-auto mt-[80px] px-4 pb-12 text-white">
+    <div className="max-w-[1400px] mx-auto mt-[80px] px-4 pb-12">
       {/* Page Title + Live Clock */}
       <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
         <div className="flex items-center gap-x-3">
-          <FaCalendarAlt className="text-2xl text-white/70" />
+          <FaCalendarAlt className="text-2xl text-gray-500 dark:text-white/70" />
           <h1 className="font-bold text-2xl">Airing Schedule</h1>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800 rounded-lg text-sm font-medium">
-          <FaClock className="text-white/60 text-xs" />
-          <span className="text-zinc-400 text-xs">({getGMTOffset()})</span>
-          <span className="text-white tabular-nums">
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-zinc-800 rounded-lg text-sm font-medium">
+          <FaClock className="text-gray-400 dark:text-white/60 text-xs" />
+          <span className="text-gray-500 dark:text-zinc-400 text-xs">({getGMTOffset()})</span>
+          <span className="text-gray-800 dark:text-white tabular-nums">
             {currentTime.toLocaleDateString()}{" "}
             {currentTime.toLocaleTimeString()}
           </span>
@@ -206,8 +206,8 @@ const SchedulePage = () => {
                 onClick={() => setActiveDate(date.fulldate)}
                 className={`h-[60px] w-full flex flex-col justify-center items-center rounded-lg cursor-pointer transition-all duration-200 ${
                   activeDate === date.fulldate
-                    ? "bg-white text-black"
-                    : "bg-zinc-800 text-white hover:bg-zinc-700"
+                    ? "bg-gray-900 text-white dark:bg-white dark:text-black"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700"
                 }`}
               >
                 <span className="text-[16px] font-bold max-[400px]:text-[13px]">
@@ -216,8 +216,8 @@ const SchedulePage = () => {
                 <span
                   className={`text-[12px] ${
                     activeDate === date.fulldate
-                      ? "text-zinc-600"
-                      : "text-zinc-400"
+                      ? "text-gray-400 dark:text-zinc-600"
+                      : "text-gray-500 dark:text-zinc-400"
                   }`}
                 >
                   {date.monthName} {date.day}
@@ -240,11 +240,11 @@ const SchedulePage = () => {
           <BouncingLoader />
         </div>
       ) : error ? (
-        <div className="text-center text-zinc-400 py-20 text-lg">
+        <div className="text-center text-gray-500 dark:text-zinc-400 py-20 text-lg">
           Something went wrong. Please try again.
         </div>
       ) : scheduleData.length === 0 ? (
-        <div className="text-center text-zinc-400 py-20 text-lg">
+        <div className="text-center text-gray-500 dark:text-zinc-400 py-20 text-lg">
           No anime scheduled for this date.
         </div>
       ) : (

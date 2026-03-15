@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./SplashScreen.css";
-import logoTitle from "@/src/config/logoTitle";
+import website_name from "@/src/config/website";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleArrowRight,
@@ -245,7 +245,7 @@ function SplashScreen() {
 
       {/* FOOTER */}
       <footer className="main-footer">
-        © {logoTitle} All rights reserved.
+        © {website_name} All rights reserved.
       </footer>
 
     </div>
