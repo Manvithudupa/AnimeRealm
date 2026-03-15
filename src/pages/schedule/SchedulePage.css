@@ -1,16 +1,129 @@
-.schedule-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+/* ─── Timeline wrapper ────────────────────────────────────────── */
+.schedule-timeline-wrapper {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
 }
 
-@media (max-width: 900px) {
-  .schedule-grid {
+/* ─── Vertical bar track ──────────────────────────────────────── */
+.schedule-timeline-bar-track {
+  flex-shrink: 0;
+  width: 4px;
+  align-self: stretch;
+  padding-top: 28px; /* visual align with first time label */
+}
+
+.schedule-timeline-bar-bg {
+  width: 4px;
+  height: 100%;
+  min-height: 200px;
+  background: #27272a;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.schedule-timeline-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to bottom, #ffffff 0%, #a1a1aa 100%);
+  border-radius: 4px;
+  transition: height 1s linear;
+}
+
+/* ─── Timeline content ────────────────────────────────────────── */
+.schedule-timeline-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ─── One time-slot group ─────────────────────────────────────── */
+.schedule-time-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Time label row */
+.schedule-time-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Dot on timeline */
+.schedule-time-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #52525b;
+  border: 2px solid #18181b;
+  box-shadow: 0 0 0 1px #52525b;
+  flex-shrink: 0;
+}
+
+.schedule-time-dot-past {
+  background: #d4d4d8;
+  box-shadow: 0 0 0 1px #d4d4d8;
+}
+
+.schedule-time-dot-next {
+  background: #60a5fa;
+  border-color: #18181b;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.35);
+  animation: schedule-dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes schedule-dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.35); }
+  50%       { box-shadow: 0 0 0 6px rgba(96, 165, 250, 0.1); }
+}
+
+/* Time text */
+.schedule-time-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  font-variant-numeric: tabular-nums;
+  min-width: 56px;
+  white-space: nowrap;
+}
+
+.schedule-time-label-past {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.schedule-time-label-next {
+  color: #93c5fd;
+}
+
+/* ─── Cards in one time slot ──────────────────────────────────── */
+.schedule-cards-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* When there are 2+ animes at the same time → side by side */
+.schedule-cards-row-multi {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 700px) {
+  .schedule-cards-row-multi {
     grid-template-columns: 1fr;
+  }
+  .schedule-timeline-bar-track {
+    display: none;
   }
 }
 
-/* Card */
+/* ─── Card ────────────────────────────────────────────────────── */
 .schedule-card {
   position: relative;
   border-radius: 12px;
@@ -25,6 +138,32 @@
 .schedule-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* "Airing Next" highlight ring */
+.schedule-card-next {
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.55);
+}
+
+.schedule-card-next:hover {
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.55), 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* ─── "Airing Next" badge ─────────────────────────────────────── */
+.schedule-airing-next-tag {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(59, 130, 246, 0.9);
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  pointer-events: none;
 }
 
 /* Banner background layer */
@@ -163,3 +302,4 @@
   background-color: rgb(63 63 70);
   color: white;
 }
+
