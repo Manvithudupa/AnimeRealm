@@ -55,6 +55,10 @@ export default function Player({
   const saveIntervalRef = useRef(null);
   const lastSavedTimeRef = useRef(0);
   const nextTriggeredRef = useRef(false);
+  const skipIntroVisibleRef = useRef(false);
+  const skipOutroVisibleRef = useRef(false);
+  const [skipIntroVisible, setSkipIntroVisible] = useState(false);
+  const [skipOutroVisible, setSkipOutroVisible] = useState(false);
 
   const proxy = import.meta.env.VITE_PROXY_URL;
   const m3u8proxy = import.meta.env.VITE_M3U8_PROXY_URL?.split(",") || [];
@@ -188,6 +192,12 @@ export default function Player({
   useEffect(() => {
     if (!streamUrl || !artRef.current) return;
 
+    // Reset skip button visibility for the new stream
+    skipIntroVisibleRef.current = false;
+    skipOutroVisibleRef.current = false;
+    setSkipIntroVisible(false);
+    setSkipOutroVisible(false);
+
     let art;
     // Guard that prevents a slow async init from creating a player after
     // the effect has already been cleaned up (e.g. rapid prop changes).
@@ -304,6 +314,23 @@ export default function Player({
         art.on("video:timeupdate", () => {
           const ct = art.currentTime;
 
+          // Show / hide skip buttons based on current playback position
+          const inIntro =
+            intro?.start != null && intro?.end != null &&
+            ct >= intro.start && ct < intro.end;
+          const inOutro =
+            outro?.start != null && outro?.end != null &&
+            ct >= outro.start && ct < outro.end;
+
+          if (inIntro !== skipIntroVisibleRef.current) {
+            skipIntroVisibleRef.current = inIntro;
+            setSkipIntroVisible(inIntro);
+          }
+          if (inOutro !== skipOutroVisibleRef.current) {
+            skipOutroVisibleRef.current = inOutro;
+            setSkipOutroVisible(inOutro);
+          }
+
           // Auto skip intro / outro
           if (autoSkipIntroRef.current && skipRanges.length > 0) {
             for (const [start, end] of skipRanges) {
@@ -419,9 +446,44 @@ export default function Player({
       if (saveIntervalRef.current) clearInterval(saveIntervalRef.current);
       artInstanceRef.current = null;
       if (art?.destroy) art.destroy(false);
+      setSkipIntroVisible(false);
+      setSkipOutroVisible(false);
+      skipIntroVisibleRef.current = false;
+      skipOutroVisibleRef.current = false;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [streamUrl, episodeId, subtitles, intro, outro, animeInfo]);
 
-  return <div ref={artRef} className="w-full h-full" />;
+  const skipBtnClass =
+    "absolute bottom-16 right-4 bg-black/75 border border-white/30 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-black/90 transition-colors cursor-pointer z-10";
+
+  return (
+    <div className="w-full h-full relative">
+      <div ref={artRef} className="w-full h-full" />
+      {skipIntroVisible && (
+        <button
+          className={skipBtnClass}
+          onClick={() => {
+            if (artInstanceRef.current && intro?.end != null) {
+              artInstanceRef.current.currentTime = intro.end;
+            }
+          }}
+        >
+          ⏭ Skip Intro
+        </button>
+      )}
+      {skipOutroVisible && (
+        <button
+          className={skipBtnClass}
+          onClick={() => {
+            if (artInstanceRef.current && outro?.end != null) {
+              artInstanceRef.current.currentTime = outro.end;
+            }
+          }}
+        >
+          ⏭ Skip Outro
+        </button>
+      )}
+    </div>
+  );
 }
