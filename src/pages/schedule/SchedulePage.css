@@ -303,3 +303,116 @@
   color: white;
 }
 
+/* ─── Light theme overrides ──────────────────────────────────────── */
+
+html.light .schedule-timeline-bar-bg {
+  background: #d1d5db;
+}
+
+html.light .schedule-timeline-bar-fill {
+  background: linear-gradient(to bottom, #374151 0%, #9ca3af 100%);
+}
+
+html.light .schedule-time-dot {
+  background: #9ca3af;
+  border-color: #f0f2f5;
+  box-shadow: 0 0 0 1px #9ca3af;
+}
+
+html.light .schedule-time-dot-past {
+  background: #374151;
+  box-shadow: 0 0 0 1px #374151;
+}
+
+html.light .schedule-time-dot-next {
+  background: #2563eb;
+  border-color: #f0f2f5;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.35);
+  animation: schedule-dot-pulse-light 2s ease-in-out infinite;
+}
+
+@keyframes schedule-dot-pulse-light {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.35); }
+  50%       { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.1); }
+}
+
+html.light .schedule-time-label {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+html.light .schedule-time-label-past {
+  color: rgba(0, 0, 0, 0.35);
+}
+
+html.light .schedule-time-label-next {
+  color: #1d4ed8;
+}
+
+html.light .schedule-card {
+  background-color: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+html.light .schedule-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+html.light .schedule-card-next {
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.55), 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+html.light .schedule-card-next:hover {
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.55), 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+html.light .schedule-card::after {
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 255, 255, 0.72) 60%,
+    rgba(255, 255, 255, 0.3) 100%
+  );
+}
+
+html.light .schedule-card-thumb {
+  background: #e5e7eb;
+}
+
+html.light .schedule-card-title {
+  color: #111827;
+}
+
+html.light .schedule-badge {
+  background: rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.6);
+}
+
+html.light .schedule-badge-score {
+  background: rgba(202, 138, 4, 0.12);
+  color: #a16207;
+}
+
+html.light .schedule-genre-tag {
+  border-color: rgba(0, 0, 0, 0.18);
+  color: rgba(0, 0, 0, 0.55);
+}
+
+html.light .schedule-airing-time {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+html.light .schedule-episode-badge {
+  background: rgba(0, 0, 0, 0.08);
+  color: #111827;
+}
+
+html.light .schedule-nav-btn {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+html.light .schedule-nav-btn:hover {
+  background-color: #d1d5db;
+  color: #111827;
+}
+
