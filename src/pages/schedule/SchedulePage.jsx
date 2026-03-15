@@ -146,16 +146,25 @@ const SchedulePage = () => {
     return null;
   }, [timeGroups, isToday]);
 
-  // Timeline bar fill: percentage of time elapsed between first and last airing
+  // Timeline bar fill: fills to the dot position of the last aired time group
+  // Using group-index ratio so the bar visually aligns with the last aired item
   const timelineProgress = useMemo(() => {
     if (!isToday || timeGroups.length === 0) return 0;
     const nowTs = Math.floor(currentTime.getTime() / 1000);
-    const firstTs = timeGroups[0].ts;
-    const lastTs = timeGroups[timeGroups.length - 1].ts;
-    if (!firstTs || firstTs === lastTs) return 0;
-    if (nowTs <= firstTs) return 0;
-    if (nowTs >= lastTs) return 100;
-    return Math.round(((nowTs - firstTs) / (lastTs - firstTs)) * 100);
+
+    // Find the last group whose airing time has already passed (or is right now)
+    let lastAiredIndex = -1;
+    for (let i = 0; i < timeGroups.length; i++) {
+      if (timeGroups[i].ts > 0 && timeGroups[i].ts <= nowTs) {
+        lastAiredIndex = i;
+      }
+    }
+
+    if (lastAiredIndex === -1) return 0;
+    if (timeGroups.length === 1) return 100;
+
+    // Fill the bar from the first dot (0%) to the last aired dot's position
+    return Math.round((lastAiredIndex / (timeGroups.length - 1)) * 100);
   }, [timeGroups, isToday, currentTime]);
 
   return (
