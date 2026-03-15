@@ -30,6 +30,7 @@ import Settings from "./pages/Settings/Settings";
 /* 🔑 NEW IMPORT */
 import ResetPassword from "./pages/Auth/ResetPassword";
 import AnnouncementModal from "./components/announcement/AnnouncementModal";
+import SchedulePage from "./pages/schedule/SchedulePage";
 
 import { azRoute, categoryRoutes } from "./utils/category.utils";
 import "./App.css";
@@ -63,6 +64,7 @@ function App() {
           {/* Splash / Home */}
           <Route path="/" element={<SplashScreen />} />
           <Route path="/home" element={<HomeInfoProvider><Home /></HomeInfoProvider>} />
+          <Route path="/schedule" element={<SchedulePage />} />
 
             {/* Auth */}
             <Route path="/auth" element={<Auth />} />

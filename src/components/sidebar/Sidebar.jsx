@@ -1,6 +1,6 @@
 import { FaChevronLeft } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFilm, faRandom, faHome, faClock, faFire, faTv, faPlay, faCirclePlay, faFilePen } from "@fortawesome/free-solid-svg-icons";
+import { faRandom, faHome, faFire, faCirclePlay, faFilePen, faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import { useLanguage } from "@/src/context/LanguageContext";
 import { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -10,14 +10,8 @@ const MENU_ITEMS = [
   { name: "Home", path: "/home", icon: faHome },
   { name: "Recently Added", path: "/recently-added", icon: faCirclePlay },
   { name: "Top Upcoming", path: "/top-upcoming", icon: faFilePen },
-  { name: "Subbed Anime", path: "/subbed-anime", icon: faFilePen },
-  { name: "Dubbed Anime", path: "/dubbed-anime", icon: faPlay },
   { name: "Most Popular", path: "/most-popular", icon: faFire },
-  { name: "Movies", path: "/movie", icon: faFilm },
-  { name: "TV Series", path: "/tv", icon: faTv },
-  { name: "OVAs", path: "/ova", icon: faCirclePlay },
-  { name: "ONAs", path: "/ona", icon: faPlay },
-  { name: "Specials", path: "/special", icon: faClock },
+  { name: "Schedule", path: "/schedule", icon: faCalendarDays },
 ];
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -96,13 +90,6 @@ const Sidebar = ({ isOpen, onClose }) => {
               >
                 <FontAwesomeIcon icon={faRandom} className="text-lg" />
                 <span className="text-xs font-medium">Random</span>
-              </Link>
-              <Link
-                to="/movie"
-                className="quick-action-item"
-              >
-                <FontAwesomeIcon icon={faFilm} className="text-lg" />
-                <span className="text-xs font-medium">Movie</span>
               </Link>
               <div className="quick-action-item">
                 <div className="language-switcher">

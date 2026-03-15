@@ -5,7 +5,6 @@ import Genre from "@/src/components/genres/Genre.jsx";
 import Topten from "@/src/components/topten/Topten.jsx";
 import Loader from "@/src/components/Loader/Loader.jsx";
 import Error from "@/src/components/error/Error.jsx";
-import Schedule from "@/src/components/schedule/Schedule";
 import ContinueWatching from "@/src/components/continue/ContinueWatching";
 import TabbedAnimeSection from "@/src/components/tabbed-anime/TabbedAnimeSection.jsx";
 import { useHomeInfo } from "@/src/context/HomeInfoContext.jsx";
@@ -58,8 +57,6 @@ function Home() {
               path="recently-updated"
               limit={12}
             />
-
-            <Schedule />
 
             {/* ✅ Tabbed Section (Replaces Top Upcoming) */}
             <TabbedAnimeSection
