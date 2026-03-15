@@ -240,8 +240,6 @@ export default function Player({
         ? `${m3u8ProxyUrl}${encodeURIComponent(streamUrl)}&headers=${encodeURIComponent(JSON.stringify(headers))}`
         : `${defaultProxy}${encodeURIComponent(streamUrl)}&headers=${encodeURIComponent(JSON.stringify(headers))}`;
 
-      console.log("[Player] Initializing stream:", streamUrl);
-
       // Initialize Artplayer — pass autoplay:false here because we trigger
       // play explicitly from the Hls.Events.MANIFEST_PARSED handler inside
       // playM3u8, which gives better guarantees that media data is ready.

@@ -1,4 +1,3 @@
-import logoTitle from "@/src/config/logoTitle.js";
 import website_name from "@/src/config/website.js";
 import { Link } from "react-router-dom";
 
@@ -17,7 +16,7 @@ function Footer() {
         {/* Branding */}
         <div>
           <h1 className="text-xl font-semibold text-white tracking-wide">
-            {logoTitle || "An!meRealm"}
+            {website_name}
           </h1>
         </div>
 
