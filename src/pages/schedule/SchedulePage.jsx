@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
-import { FaChevronLeft, FaChevronRight, FaStar, FaCalendarAlt } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaStar, FaCalendarAlt, FaClock } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import clsx from "clsx";
 import BouncingLoader from "@/src/components/ui/bouncingloader/Bouncingloader";
 import getAnilistScheduleInfo from "@/src/utils/getAnilistScheduleInfo.utils";
 import { useLanguage } from "@/src/context/LanguageContext";
@@ -40,6 +41,14 @@ function getTodayString() {
   return `${y}-${m}-${d}`;
 }
 
+function getGMTOffset() {
+  const offset = new Date().getTimezoneOffset();
+  const sign = offset > 0 ? "-" : "+";
+  const h = String(Math.floor(Math.abs(offset) / 60)).padStart(2, "0");
+  const min = String(Math.abs(offset) % 60).padStart(2, "0");
+  return `GMT${sign}${h}:${min}`;
+}
+
 const SchedulePage = () => {
   const { language } = useLanguage();
   const [dates] = useState(() => buildDatesForMonth());
@@ -47,68 +56,124 @@ const SchedulePage = () => {
   const [scheduleData, setScheduleData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [hasNextPage, setHasNextPage] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const swiperRef = useRef(null);
 
+  const todayString = getTodayString();
+  const isToday = activeDate === todayString;
   const todayActiveIndex = dates.findIndex((d) => d.fulldate === activeDate);
 
+  // Live clock — update every second
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Slide to the active date on mount / date change
   useEffect(() => {
     if (swiperRef.current && todayActiveIndex !== -1) {
       swiperRef.current.slideTo(todayActiveIndex);
     }
   }, [todayActiveIndex]);
 
-  const fetchSchedule = async (date, page = 1, append = false) => {
+  // Fetch ALL pages for the selected date automatically
+  const fetchAllSchedule = useCallback(async (date) => {
     try {
-      if (append) setLoadingMore(true);
-      else setLoading(true);
+      setLoading(true);
+      setError(null);
+      setScheduleData([]);
 
-      const cached = sessionStorage.getItem(`anilist-sched-${date}-p${page}`);
-      let result;
-      if (cached) {
-        result = JSON.parse(cached);
-      } else {
-        result = await getAnilistScheduleInfo(date, page);
-        sessionStorage.setItem(
-          `anilist-sched-${date}-p${page}`,
-          JSON.stringify(result)
-        );
+      let allItems = [];
+      let page = 1;
+      let hasNextPage = true;
+
+      while (hasNextPage) {
+        const cacheKey = `anilist-sched-${date}-p${page}`;
+        const cached = sessionStorage.getItem(cacheKey);
+        let result;
+        if (cached) {
+          result = JSON.parse(cached);
+        } else {
+          result = await getAnilistScheduleInfo(date, page);
+          sessionStorage.setItem(cacheKey, JSON.stringify(result));
+        }
+        allItems = [...allItems, ...(result.data || [])];
+        hasNextPage = result.hasNextPage || false;
+        page++;
+        if (page > 15) break; // safety cap
       }
 
-      const items = result.data || [];
-      setScheduleData((prev) => (append ? [...prev, ...items] : items));
-      setHasNextPage(result.hasNextPage || false);
-      setCurrentPage(result.currentPage || page);
-      setError(null);
+      setScheduleData(allItems);
     } catch (err) {
       console.error("Error fetching anilist schedule:", err);
       setError(err);
     } finally {
       setLoading(false);
-      setLoadingMore(false);
     }
-  };
+  }, []); // state setters and module imports are stable
 
   useEffect(() => {
-    setScheduleData([]);
-    setCurrentPage(1);
-    setHasNextPage(false);
-    fetchSchedule(activeDate, 1, false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeDate]);
+    fetchAllSchedule(activeDate);
+  }, [activeDate, fetchAllSchedule]);
 
-  const handleLoadMore = () => {
-    fetchSchedule(activeDate, currentPage + 1, true);
-  };
+  // Group animes by their formatted airing time (HH:MM)
+  // so same-time animes appear side by side
+  const timeGroups = useMemo(() => {
+    const map = new Map();
+    scheduleData.forEach((anime) => {
+      const ts = anime.nextAiringEpisode?.airingAt;
+      // Use minute-level key so animes within the same minute are grouped
+      const minuteKey = ts ? String(Math.floor(ts / 60) * 60) : "tba";
+      if (!map.has(minuteKey)) {
+        map.set(minuteKey, {
+          time: formatAiringTime(ts) || "TBA",
+          ts: ts || 0,
+          animes: [],
+        });
+      }
+      map.get(minuteKey).animes.push(anime);
+    });
+    return Array.from(map.values()).sort((a, b) => a.ts - b.ts);
+  }, [scheduleData]);
+
+  // The next anime to air (for today only): first group whose ts is still in the future
+  const nextAiringGroupTs = useMemo(() => {
+    if (!isToday) return null;
+    const nowTs = Math.floor(Date.now() / 1000);
+    for (const group of timeGroups) {
+      if (group.ts > nowTs) return group.ts;
+    }
+    return null;
+  }, [timeGroups, isToday]);
+
+  // Timeline bar fill: percentage of time elapsed between first and last airing
+  const timelineProgress = useMemo(() => {
+    if (!isToday || timeGroups.length === 0) return 0;
+    const nowTs = Math.floor(currentTime.getTime() / 1000);
+    const firstTs = timeGroups[0].ts;
+    const lastTs = timeGroups[timeGroups.length - 1].ts;
+    if (!firstTs || firstTs === lastTs) return 0;
+    if (nowTs <= firstTs) return 0;
+    if (nowTs >= lastTs) return 100;
+    return Math.round(((nowTs - firstTs) / (lastTs - firstTs)) * 100);
+  }, [timeGroups, isToday, currentTime]);
 
   return (
     <div className="max-w-[1400px] mx-auto mt-[80px] px-4 pb-12 text-white">
-      {/* Page Title */}
-      <div className="flex items-center gap-x-3 mb-6">
-        <FaCalendarAlt className="text-2xl text-white/70" />
-        <h1 className="font-bold text-2xl">Airing Schedule</h1>
+      {/* Page Title + Live Clock */}
+      <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
+        <div className="flex items-center gap-x-3">
+          <FaCalendarAlt className="text-2xl text-white/70" />
+          <h1 className="font-bold text-2xl">Airing Schedule</h1>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800 rounded-lg text-sm font-medium">
+          <FaClock className="text-white/60 text-xs" />
+          <span className="text-zinc-400 text-xs">({getGMTOffset()})</span>
+          <span className="text-white tabular-nums">
+            {currentTime.toLocaleDateString()}{" "}
+            {currentTime.toLocaleTimeString()}
+          </span>
+        </div>
       </div>
 
       {/* Date Slider */}
@@ -141,7 +206,9 @@ const SchedulePage = () => {
                 </span>
                 <span
                   className={`text-[12px] ${
-                    activeDate === date.fulldate ? "text-zinc-600" : "text-zinc-400"
+                    activeDate === date.fulldate
+                      ? "text-zinc-600"
+                      : "text-zinc-400"
                   }`}
                 >
                   {date.monthName} {date.day}
@@ -172,118 +239,165 @@ const SchedulePage = () => {
           No anime scheduled for this date.
         </div>
       ) : (
-        <>
-          <div className="schedule-grid">
-            {scheduleData.map((anime) => {
-              const title =
-                language === "EN"
-                  ? anime.title?.english || anime.title?.romaji || "Unknown"
-                  : anime.title?.native || anime.title?.romaji || "Unknown";
-              const airingTime = anime.nextAiringEpisode
-                ? formatAiringTime(anime.nextAiringEpisode.airingAt)
-                : null;
+        <div className="schedule-timeline-wrapper">
+          {/* Vertical timeline bar */}
+          <div className="schedule-timeline-bar-track">
+            <div className="schedule-timeline-bar-bg">
+              <div
+                className="schedule-timeline-bar-fill"
+                style={{ height: `${timelineProgress}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Time groups */}
+          <div className="schedule-timeline-content">
+            {timeGroups.map((group) => {
+              const isPast =
+                isToday && group.ts > 0 && group.ts < Math.floor(Date.now() / 1000);
+              const isNext = isToday && group.ts === nextAiringGroupTs;
 
               return (
-                <Link
-                  to={`/${anime.anilistId}`}
-                  key={anime.anilistId}
-                  className="schedule-card group"
-                  style={
-                    anime.bannerImage
-                      ? { "--banner": `url(${anime.bannerImage})` }
-                      : {}
-                  }
-                >
-                  {/* Banner background */}
-                  {anime.bannerImage && (
+                <div key={group.ts || group.time} className="schedule-time-group">
+                  {/* Time label row with timeline dot */}
+                  <div className="schedule-time-row">
                     <div
-                      className="schedule-card-banner"
-                      style={{ backgroundImage: `var(--banner)` }}
+                      className={clsx("schedule-time-dot", {
+                        "schedule-time-dot-past": isPast,
+                        "schedule-time-dot-next": isNext,
+                      })}
                     />
-                  )}
-
-                  {/* Content overlay */}
-                  <div className="schedule-card-content">
-                    {/* Thumbnail */}
-                    <div className="schedule-card-thumb">
-                      <img
-                        src={anime.image}
-                        alt={title}
-                        loading="lazy"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    {/* Info */}
-                    <div className="schedule-card-info">
-                      <h3 className="schedule-card-title">{title}</h3>
-
-                      {/* Badges row */}
-                      <div className="flex flex-wrap items-center gap-2 mt-1">
-                        {anime.format && (
-                          <span className="schedule-badge">{anime.format}</span>
-                        )}
-                        {anime.score != null && (
-                          <span className="schedule-badge schedule-badge-score">
-                            <FaStar className="text-[10px] mr-[2px]" />
-                            {anime.score}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Genres */}
-                      {anime.genres && anime.genres.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {anime.genres.slice(0, 3).map((genre) => (
-                            <span
-                              key={genre}
-                              className="schedule-genre-tag"
-                              style={
-                                anime.color
-                                  ? { borderColor: anime.color, color: anime.color }
-                                  : {}
-                              }
-                            >
-                              {genre}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Airing info */}
-                      {anime.nextAiringEpisode && (
-                        <div className="schedule-airing-info">
-                          {airingTime && (
-                            <span className="schedule-airing-time">{airingTime}</span>
-                          )}
-                          <span className="schedule-episode-badge">
-                            EP {anime.nextAiringEpisode.episode}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                    <span
+                      className={clsx("schedule-time-label", {
+                        "schedule-time-label-past": isPast,
+                        "schedule-time-label-next": isNext,
+                      })}
+                    >
+                      {group.time}
+                    </span>
                   </div>
-                </Link>
+
+                  {/* Cards — side-by-side when multiple animes share the same slot */}
+                  <div
+                    className={clsx("schedule-cards-row", {
+                      "schedule-cards-row-multi": group.animes.length > 1,
+                    })}
+                  >
+                    {group.animes.map((anime) => {
+                      const isNextAiring =
+                        isNext && group.animes.indexOf(anime) === 0;
+                      const title =
+                        language === "EN"
+                          ? anime.title?.english ||
+                            anime.title?.romaji ||
+                            "Unknown"
+                          : anime.title?.native ||
+                            anime.title?.romaji ||
+                            "Unknown";
+
+                      return (
+                        <Link
+                          to={`/${anime.anilistId}`}
+                          key={anime.anilistId}
+                          className={clsx("schedule-card group", {
+                            "schedule-card-next": isNextAiring,
+                          })}
+                          style={
+                            anime.bannerImage
+                              ? { "--banner": `url(${anime.bannerImage})` }
+                              : {}
+                          }
+                        >
+                          {/* "Airing Next" badge */}
+                          {isNextAiring && (
+                            <span className="schedule-airing-next-tag">
+                              Airing Next
+                            </span>
+                          )}
+
+                          {/* Banner background */}
+                          {anime.bannerImage && (
+                            <div
+                              className="schedule-card-banner"
+                              style={{ backgroundImage: `var(--banner)` }}
+                            />
+                          )}
+
+                          {/* Content overlay */}
+                          <div className="schedule-card-content">
+                            {/* Thumbnail */}
+                            <div className="schedule-card-thumb">
+                              <img
+                                src={anime.image}
+                                alt={title}
+                                loading="lazy"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+
+                            {/* Info */}
+                            <div className="schedule-card-info">
+                              <h3 className="schedule-card-title">{title}</h3>
+
+                              {/* Badges row */}
+                              <div className="flex flex-wrap items-center gap-2 mt-1">
+                                {anime.format && (
+                                  <span className="schedule-badge">
+                                    {anime.format}
+                                  </span>
+                                )}
+                                {anime.score != null && (
+                                  <span className="schedule-badge schedule-badge-score">
+                                    <FaStar className="text-[10px] mr-[2px]" />
+                                    {anime.score}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Genres */}
+                              {anime.genres && anime.genres.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                  {anime.genres.slice(0, 3).map((genre) => (
+                                    <span
+                                      key={genre}
+                                      className="schedule-genre-tag"
+                                      style={
+                                        anime.color
+                                          ? {
+                                              borderColor: anime.color,
+                                              color: anime.color,
+                                            }
+                                          : {}
+                                      }
+                                    >
+                                      {genre}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* Airing info */}
+                              {anime.nextAiringEpisode && (
+                                <div className="schedule-airing-info">
+                                  <span className="schedule-airing-time">
+                                    {group.time}
+                                  </span>
+                                  <span className="schedule-episode-badge">
+                                    EP {anime.nextAiringEpisode.episode}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
               );
             })}
           </div>
-
-          {/* Load More */}
-          {hasNextPage && (
-            <div className="flex justify-center mt-8">
-              {loadingMore ? (
-                <BouncingLoader />
-              ) : (
-                <button
-                  onClick={handleLoadMore}
-                  className="px-6 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-medium transition-all duration-200"
-                >
-                  Load More
-                </button>
-              )}
-            </div>
-          )}
-        </>
+        </div>
       )}
     </div>
   );
