@@ -2,7 +2,7 @@ import axios from "axios";
 import { transformAnilistItem } from "./transformAnilistItem.utils";
 import { ANIME_GENRES } from "@/src/constants/genres";
 
-const CACHE_KEY = "homeInfoCache_v2";
+const CACHE_KEY = "homeInfoCache_v3";
 const CACHE_DURATION = 24 * 60 * 60 * 1000;
 
 export default async function getHomeInfo() {
@@ -15,13 +15,19 @@ export default async function getHomeInfo() {
     return cachedData.data;
   }
 
-  const [trendingRes, popularRes, airingRes, upcomingRes, ratingRes] =
+  const [trendingRes, popularRes, airingRes, upcomingRes, ratingRes, recentEpisodesRes] =
     await Promise.all([
       axios.get(`${base_url}/api/anilist/anime/top/trending?perPage=20`),
       axios.get(`${base_url}/api/anilist/anime/top/popular?perPage=20`),
       axios.get(`${base_url}/api/anilist/anime/top/airing?perPage=20`),
       axios.get(`${base_url}/api/anilist/anime/top/upcoming?perPage=20`),
       axios.get(`${base_url}/api/anilist/anime/top/rating?perPage=20`),
+      axios
+        .get(`${base_url}/api/animepahe/episodes/recent?page=1`)
+        .catch((err) => {
+          console.warn("Recent episodes fetch failed, falling back to airing data:", err?.message);
+          return { data: { data: [] } };
+        }),
     ]);
 
   const trending = (trendingRes.data?.data || []).map(transformAnilistItem);
@@ -29,6 +35,7 @@ export default async function getHomeInfo() {
   const airing = (airingRes.data?.data || []).map(transformAnilistItem);
   const upcoming = (upcomingRes.data?.data || []).map(transformAnilistItem);
   const rating = (ratingRes.data?.data || []).map(transformAnilistItem);
+  const recentEpisodes = recentEpisodesRes.data?.data || [];
 
   const dataToCache = {
     data: {
@@ -44,7 +51,7 @@ export default async function getHomeInfo() {
       most_popular: popular,
       most_favorite: popular,
       latest_completed: rating,
-      latest_episode: airing,
+      latest_episode: recentEpisodes.length > 0 ? recentEpisodes : airing,
       top_upcoming: upcoming,
       recently_added: trending,
       genres: ANIME_GENRES,
