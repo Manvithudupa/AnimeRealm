@@ -245,6 +245,23 @@ function extractM3u8FromHtml(html) {
 }
 
 /**
+ * Get recently aired/added episodes from Animepahe
+ * @param {number} page - Page number (default: 1)
+ * @returns {Promise} Recent episodes list with pagination info
+ */
+export async function getRecentEpisodes(page = 1) {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/animepahe/episodes/recent?page=${page}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching recent episodes:", error);
+    throw error;
+  }
+}
+
+/**
  * Get streaming sources for an episode
  * @param {string} episodeId - Animepahe episode ID
  * @param {string} version - 'sub', 'dub', or 'raw' (default: 'sub')
