@@ -7,6 +7,7 @@ const CATEGORY_MAP = {
   "most-popular": { category: "popular" },
   "most-favorite": { category: "popular" },
   completed: { category: "rating" },
+  "recently-updated": { category: "airing" },
   "recently-added": { category: "trending" },
   "top-upcoming": { category: "upcoming" },
   "subbed-anime": { category: "popular" },
@@ -21,19 +22,6 @@ const CATEGORY_MAP = {
 const getCategoryInfo = async (path, page) => {
   const base_url = import.meta.env.VITE_ANIMEPAHE_URL;
   try {
-    // Recently-updated uses the Animepahe recent episodes endpoint
-    if (path === "recently-updated") {
-      const response = await axios.get(
-        `${base_url}/api/animepahe/episodes/recent?page=${page}`
-      );
-      const result = response.data;
-      return {
-        data: result?.data || [],
-        totalPages: result?.lastPage || 1,
-        currentPage: result?.currentPage || page,
-      };
-    }
-
     let url;
 
     if (path.startsWith("genre/")) {
