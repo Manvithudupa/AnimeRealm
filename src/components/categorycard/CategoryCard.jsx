@@ -61,7 +61,8 @@ const CategoryCard = React.memo(
     }, [getItemsToRender]);
 
     const renderCard = (item, index) => {
-      if (label === "Latest Episode") {
+      // Auto-detect episode-format items (episodeId present, no AniList id)
+      if (label === "Latest Episode" || (item.episodeId && !item.id)) {
         return <LatestEpisodeCard key={index} item={item} path={path} />;
       }
 
