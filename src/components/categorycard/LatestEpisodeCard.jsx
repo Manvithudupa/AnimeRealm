@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import OptimizedImage from "@/src/components/OptimizedImage/OptimizedImage";
 import { useLanguage } from "@/src/context/LanguageContext";
 
@@ -6,6 +8,7 @@ const LatestEpisodeCard = ({ item, path }) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const proxyUrl = import.meta.env.VITE_PROXY_URL || "";
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // Detect data format: episode-format has episodeId but no id (AniList ID)
   const isEpisodeData = Boolean(item.episodeId && !item.id);
@@ -23,9 +26,26 @@ const LatestEpisodeCard = ({ item, path }) => {
     ? item.title
     : item.japanese_title;
 
-  const handleClick = () => {
+  const handleClick = async () => {
     if (isEpisodeData) {
-      navigate(`/search?q=${encodeURIComponent(item.title)}`);
+      setIsNavigating(true);
+      try {
+        const base_url = import.meta.env.VITE_ANIMEPAHE_URL;
+        const response = await axios.get(
+          `${base_url}/api/anilist/anime/search?q=${encodeURIComponent(item.title)}&page=1&perPage=1`
+        );
+        const result = response.data?.data?.[0];
+        if (result?.anilistId) {
+          navigate(`/watch/${result.anilistId}?ep=${item.episodeNumber}`);
+        } else {
+          navigate(`/search?q=${encodeURIComponent(item.title)}`);
+        }
+      } catch (error) {
+        console.error("Failed to find AniList ID for episode navigation:", error);
+        navigate(`/search?q=${encodeURIComponent(item.title)}`);
+      } finally {
+        setIsNavigating(false);
+      }
     } else {
       navigate(path === "top-upcoming" ? `/${item.id}` : `/watch/${item.id}`);
     }
@@ -33,8 +53,10 @@ const LatestEpisodeCard = ({ item, path }) => {
 
   return (
     <div
-      onClick={handleClick}
-      className="relative cursor-pointer rounded-xl overflow-hidden bg-[#0f0f1a] group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40"
+      onClick={isNavigating ? undefined : handleClick}
+      aria-disabled={isNavigating}
+      aria-busy={isNavigating}
+      className={`relative rounded-xl overflow-hidden bg-[#0f0f1a] group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 ${isNavigating ? "cursor-wait opacity-80" : "cursor-pointer"}`}
     >
       {/* Thumbnail */}
       <div className="w-full h-48 overflow-hidden">
@@ -48,6 +70,13 @@ const LatestEpisodeCard = ({ item, path }) => {
 
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
+
+      {/* Loading Overlay */}
+      {isNavigating && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+          <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
 
       {/* Episode Badge */}
       {episodeNum && (
