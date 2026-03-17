@@ -33,25 +33,29 @@ export async function getKaidoEpisodes(animeId) {
 }
 
 /**
- * Get episodes for an anime using AniList ID via the hianime mapping then kaido episodes API
+ * Get episodes for an anime using AniList ID via the anilist episodes endpoint with kaido provider
  * @param {string|number} anilistId - AniList anime ID
  * @returns {Promise} Episodes list
  */
 export async function getKaidoEpisodesByAnilistId(anilistId) {
   try {
-    // Step 1: Get the hianime provider ID via the anilist mappings endpoint
-    const mappingResponse = await axios.get(
-      `${BASE_URL}/api/anilist/mappings/${anilistId}?provider=hianime`
+    const response = await axios.get(
+      `${BASE_URL}/api/anilist/episodes/${anilistId}?provider=kaido`
     );
-    const providerId = mappingResponse.data?.provider?.id;
+    const providerEpisodes = response.data?.providerEpisodes || [];
 
-    if (!providerId) {
-      console.warn("No hianime provider ID found for anilistId:", anilistId);
-      return { episodes: [], totalEpisodes: 0 };
-    }
+    const transformedEpisodes = providerEpisodes.map((ep) => ({
+      id: `ep=${ep.episodeNumber}`,
+      episode_no: ep.episodeNumber,
+      episodeId: ep.episodeId,
+      title: ep.title || `Episode ${ep.episodeNumber}`,
+      thumbnail: ep.thumbnail || null,
+    }));
 
-    // Step 2: Fetch episodes from kaido using the hianime provider ID
-    return await getKaidoEpisodes(providerId);
+    return {
+      episodes: transformedEpisodes,
+      totalEpisodes: providerEpisodes.length,
+    };
   } catch (error) {
     if (error.response) {
       console.warn(
