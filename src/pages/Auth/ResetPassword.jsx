@@ -36,7 +36,6 @@ const ResetPassword = () => {
       return;
     }
 
-    // ✅ Sign out after password update
     await supabase.auth.signOut();
 
     toast({

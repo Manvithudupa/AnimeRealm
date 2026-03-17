@@ -13,7 +13,6 @@ function Banner({ item, index }) {
   const { language } = useLanguage();
 
   return (
-    // 🔥 REMOVED rounded + overflow
     <section className="spotlight w-full h-full relative">
 
       {/* Background Image */}

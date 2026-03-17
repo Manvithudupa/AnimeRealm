@@ -36,7 +36,6 @@ export default function Watch() {
   const {
     source,
     changeSource,
-    // error,
     buffering,
     streamInfo,
     streamUrl,

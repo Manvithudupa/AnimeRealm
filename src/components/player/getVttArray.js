@@ -37,19 +37,15 @@ export default async function getVttArray(vttUrl = "") {
   const indexLineReg = /^\d+$/; // Regex to match lines containing only digits
 
   if (!isWebVTTHeader && indexLineReg.test(lines[0].trim())) {
-    // console.log("WEBVTT not present but index line is present");
     increment = 3; // Set increment to 3 if an index line is present
     startIndex = 1; // Start from the second line
   } else if (isWebVTTHeader) {
     // If WEBVTT is present, check the next line
-    // console.log("WEBVTT lines is present checking if index line is present...");
     const indexLine = lines[1];
     if (indexLine && indexLineReg.test(indexLine.trim())) {
-      // console.log("Index line is present");
       increment = 3; // Set increment to 3 if an index line is present
       startIndex = 2; // Start from the line after the index
     } else {
-      // console.log("Index line is not present");
       startIndex = 1; // If no index line, start from the line after WEBVTT
       increment = 2; // Set increment to 2
     }
@@ -60,14 +56,11 @@ export default async function getVttArray(vttUrl = "") {
     const text = lines[i + 1];
     if (!text.trim()) continue;
 
-    // console.log(`Processing time line: ${time}`); // Logging processing timestamps
-
     const timeReg =
       /((?:[0-9]{2}:)?(?:[0-9]{2}:)?[0-9]{2}(?:.[0-9]{3})?)(?: ?--> ?)((?:[0-9]{2}:)?(?:[0-9]{2}:)?[0-9]{2}(?:.[0-9]{3})?)/;
     const timeMatch = time.match(timeReg);
 
     if (!timeMatch) {
-      // console.warn(`Failed to match time: ${time}`); // Log failed matches
       continue; // Skip to the next loop iteration if match fails
     }
 
