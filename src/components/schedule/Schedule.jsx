@@ -11,7 +11,7 @@ import { useLanguage } from "@/src/context/LanguageContext";
 import "./schedule.css";
 
 const Schedule = () => {
-  const { language } = useLanguage(); // ✅ Language context
+  const { language } = useLanguage();
   const [dates, setDates] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

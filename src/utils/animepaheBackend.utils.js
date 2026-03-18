@@ -282,7 +282,6 @@ export async function getAnimepaheStreamInfo(episodeId, version = "sub") {
       const m3u8Url = extractM3u8FromHtml(htmlContent);
 
       if (m3u8Url) {
-        console.log("Extracted m3u8 URL from HTML:", m3u8Url);
         sources = [
           {
             url: m3u8Url,
@@ -301,7 +300,6 @@ export async function getAnimepaheStreamInfo(episodeId, version = "sub") {
       console.warn("No sources found in response. Attempting HTML parse...");
       const m3u8Url = extractM3u8FromHtml(JSON.stringify(response.data));
       if (m3u8Url) {
-        console.log("Extracted m3u8 URL from stringified response:", m3u8Url);
         sources = [
           {
             url: m3u8Url,
