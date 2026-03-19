@@ -1,5 +1,6 @@
 import axios from "axios";
 import { transformAnilistItem } from "./transformAnilistItem.utils";
+import { extractAnilistId } from "./extractAnilistId.utils";
 
 const CACHE_PREFIX = "animeInfoCache_";
 const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
@@ -102,7 +103,8 @@ function transformAnimeDetail(data, relatedAnime = []) {
 export default async function fetchAnimeInfo(id, random = false) {
   const base_url = import.meta.env.VITE_ANIMEPAHE_URL;
   try {
-    let anilistId = id;
+    // Extract the numeric anilist ID from a slug like "some-title-12345"
+    let anilistId = extractAnilistId(id);
 
     if (random) {
       // Pick a random item from the trending list

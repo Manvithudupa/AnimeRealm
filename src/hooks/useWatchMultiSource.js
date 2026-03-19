@@ -14,7 +14,6 @@ import {
   getAnizoneStreamInfo,
 } from "@/src/utils/anizoneBackend.utils";
 import {
-  getKaidoEpisodes,
   getKaidoEpisodesByAnilistId,
   getKaidoServers,
   getKaidoStreamInfo,
@@ -228,21 +227,12 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
             episodesData = await getKaidoEpisodesByAnilistId(anilistId);
           }
 
-          // Fallback: fetch episodes directly via kaido endpoint using animeId
-          if (!episodesData?.episodes?.length) {
-            try {
-              episodesData = await getKaidoEpisodes(animeId);
-            } catch (err) {
-              console.warn("Kaido direct episode fetch failed:", err);
-            }
-          }
-
           if (!episodesData?.episodes?.length) {
             toast({
-              title: "No stream available in Kaido",
-              description: "Falling back to AnimePahe.",
+              title: "No stream available",
+              description: "No episodes found across all providers.",
             });
-            setSource("animepahe");
+            setError("No episodes found across all providers.");
             return;
           }
 
