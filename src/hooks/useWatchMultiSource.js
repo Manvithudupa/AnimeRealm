@@ -85,9 +85,9 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
 
   // Fetch initial data based on source
   useEffect(() => {
-    const fetchSchedule = async () => {
+    const fetchSchedule = async (anilistId) => {
       try {
-        const scheduleData = await getNextEpisodeSchedule(animeId);
+        const scheduleData = await getNextEpisodeSchedule(anilistId);
         setNextEpisodeSchedule(scheduleData?.nextEpisodeSchedule || null);
       } catch {
         setNextEpisodeSchedule(null);
@@ -176,7 +176,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
           setTotalEpisodes(episodesData?.totalEpisodes);
 
           // Fetch next episode schedule
-          await fetchSchedule();
+          await fetchSchedule(anilistId);
 
           const newEpisodeId =
             initialEpisodeId ||
@@ -209,7 +209,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
           setTotalEpisodes(episodesData?.totalEpisodes);
 
           // Fetch next episode schedule
-          await fetchSchedule();
+          await fetchSchedule(anilistId);
 
           const newEpisodeIdAnizone =
             initialEpisodeId ||
@@ -242,7 +242,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
           setTotalEpisodes(episodesData?.totalEpisodes);
 
           // Fetch next episode schedule
-          await fetchSchedule();
+          await fetchSchedule(anilistId);
 
           const newEpisodeIdKaido =
             initialEpisodeId ||
