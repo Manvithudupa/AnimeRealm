@@ -3,36 +3,6 @@ import axios from "axios";
 const BASE_URL = import.meta.env.VITE_ANIMEPAHE_URL;
 
 /**
- * Get episodes for an anime using the kaido API
- * @param {string} animeId - Anime ID slug (e.g. "bleach-thousand-year-blood-war-the-conflict-19322")
- * @returns {Promise} Episodes list
- */
-export async function getKaidoEpisodes(animeId) {
-  try {
-    const response = await axios.get(
-      `${BASE_URL}/api/kaido/anime/${animeId}/episodes`
-    );
-    const episodes = response.data?.data || [];
-
-    const transformedEpisodes = episodes.map((ep) => ({
-      id: `ep=${ep.episodeNumber}`,
-      episode_no: ep.episodeNumber,
-      episodeId: ep.episodeId,
-      title: ep.title || ep.romaji || `Episode ${ep.episodeNumber}`,
-      thumbnail: null,
-    }));
-
-    return {
-      episodes: transformedEpisodes,
-      totalEpisodes: episodes.length,
-    };
-  } catch (error) {
-    console.error("Error fetching Kaido episodes:", error);
-    throw error;
-  }
-}
-
-/**
  * Get episodes for an anime using AniList ID via the anilist episodes endpoint with kaido provider
  * @param {string|number} anilistId - AniList anime ID
  * @returns {Promise} Episodes list
