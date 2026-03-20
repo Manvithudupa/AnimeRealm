@@ -85,12 +85,18 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
 
   // Fetch initial data based on source
   useEffect(() => {
+    // `ignore` is set to true in the cleanup function so that any in-flight
+    // async operations triggered by a stale effect invocation (e.g. React
+    // StrictMode double-invoke, rapid source-fallback transitions) do not
+    // update state after the effect has been superseded.
+    let ignore = false;
+
     const fetchSchedule = async (anilistId) => {
       try {
         const scheduleData = await getNextEpisodeSchedule(anilistId);
-        setNextEpisodeSchedule(scheduleData?.nextEpisodeSchedule || null);
+        if (!ignore) setNextEpisodeSchedule(scheduleData?.nextEpisodeSchedule || null);
       } catch {
-        setNextEpisodeSchedule(null);
+        if (!ignore) setNextEpisodeSchedule(null);
       }
     };
 
@@ -113,10 +119,11 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
 
     const fetchInitialData = async () => {
       try {
-        setAnimeInfoLoading(true);
+        if (!ignore) setAnimeInfoLoading(true);
 
         if (source === "animepahe") {
           const cached = await getAnimeInfoCached();
+          if (ignore) return;
           const anilistId = cached.anilistId;
 
           let episodesData;
@@ -130,63 +137,79 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
                 ? cached.data.title
                 : cached.data?.title?.english || cached.data?.title?.romaji || null;
             if (!title) {
-              toast({
-                title: "No stream available in AnimePahe",
-                description: "Falling back to AniZone.",
-              });
-              setSource("anizone");
-              return;
-            }
-            try {
-              const searchResults = await searchAnimepaheBackend(title);
-              const firstResult = searchResults?.data?.[0];
-              const animepaheAnimeId = firstResult?.id || firstResult?.session;
-              if (!animepaheAnimeId) {
+              if (!ignore) {
                 toast({
                   title: "No stream available in AnimePahe",
                   description: "Falling back to AniZone.",
                 });
                 setSource("anizone");
+              }
+              return;
+            }
+            try {
+              const searchResults = await searchAnimepaheBackend(title);
+              if (ignore) return;
+              const firstResult = searchResults?.data?.[0];
+              const animepaheAnimeId = firstResult?.id || firstResult?.session;
+              if (!animepaheAnimeId) {
+                if (!ignore) {
+                  toast({
+                    title: "No stream available in AnimePahe",
+                    description: "Falling back to AniZone.",
+                  });
+                  setSource("anizone");
+                }
                 return;
               }
               episodesData = await getAnimepaheEpisodes(animepaheAnimeId);
             } catch (searchErr) {
               console.warn("Animepahe title search/episode fetch failed:", searchErr);
+              if (!ignore) {
+                toast({
+                  title: "No stream available in AnimePahe",
+                  description: "Falling back to AniZone.",
+                });
+                setSource("anizone");
+              }
+              return;
+            }
+          }
+
+          if (ignore) return;
+
+          if (!episodesData?.episodes?.length) {
+            if (!ignore) {
               toast({
                 title: "No stream available in AnimePahe",
                 description: "Falling back to AniZone.",
               });
               setSource("anizone");
-              return;
             }
-          }
-
-          if (!episodesData?.episodes?.length) {
-            toast({
-              title: "No stream available in AnimePahe",
-              description: "Falling back to AniZone.",
-            });
-            setSource("anizone");
             return;
           }
 
-          setAnimeInfo(cached.data);
-          setSeasons(cached.seasons);
-          setEpisodes(episodesData?.episodes);
-          setTotalEpisodes(episodesData?.totalEpisodes);
+          if (!ignore) {
+            setAnimeInfo(cached.data);
+            setSeasons(cached.seasons);
+            setEpisodes(episodesData?.episodes);
+            setTotalEpisodes(episodesData?.totalEpisodes);
+          }
 
           // Fetch next episode schedule
           await fetchSchedule(anilistId);
 
-          const newEpisodeId =
-            initialEpisodeId ||
-            (episodesData?.episodes?.length > 0
-              ? episodesData.episodes[0].id.match(/ep=(\d+)/)?.[1]
-              : null);
-          setEpisodeId(newEpisodeId);
+          if (!ignore) {
+            const newEpisodeId =
+              initialEpisodeId ||
+              (episodesData?.episodes?.length > 0
+                ? episodesData.episodes[0].id.match(/ep=(\d+)/)?.[1]
+                : null);
+            setEpisodeId(newEpisodeId);
+          }
         } else if (source === "anizone") {
           // AniZone flow: fetch episodes via AniList provider mapping only
           const cached = await getAnimeInfoCached();
+          if (ignore) return;
           const anilistId = cached.anilistId;
 
           let episodesData;
@@ -194,32 +217,41 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
             episodesData = await getAnizoneEpisodesByAnilistId(anilistId);
           }
 
+          if (ignore) return;
+
           if (!episodesData?.episodes?.length) {
-            toast({
-              title: "No stream available in AniZone",
-              description: "Falling back to Kaido.",
-            });
-            setSource("kaido");
+            if (!ignore) {
+              toast({
+                title: "No stream available in AniZone",
+                description: "Falling back to Kaido.",
+              });
+              setSource("kaido");
+            }
             return;
           }
 
-          setAnimeInfo(cached.data);
-          setSeasons(cached.seasons);
-          setEpisodes(episodesData?.episodes);
-          setTotalEpisodes(episodesData?.totalEpisodes);
+          if (!ignore) {
+            setAnimeInfo(cached.data);
+            setSeasons(cached.seasons);
+            setEpisodes(episodesData?.episodes);
+            setTotalEpisodes(episodesData?.totalEpisodes);
+          }
 
           // Fetch next episode schedule
           await fetchSchedule(anilistId);
 
-          const newEpisodeIdAnizone =
-            initialEpisodeId ||
-            (episodesData?.episodes?.length > 0
-              ? episodesData.episodes[0].id.match(/ep=(\d+)/)?.[1]
-              : null);
-          setEpisodeId(newEpisodeIdAnizone);
+          if (!ignore) {
+            const newEpisodeIdAnizone =
+              initialEpisodeId ||
+              (episodesData?.episodes?.length > 0
+                ? episodesData.episodes[0].id.match(/ep=(\d+)/)?.[1]
+                : null);
+            setEpisodeId(newEpisodeIdAnizone);
+          }
         } else {
           // Kaido flow: fetch episodes via kaido API
           const cached = await getAnimeInfoCached();
+          if (ignore) return;
           const anilistId = cached.anilistId;
 
           let episodesData;
@@ -227,38 +259,50 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
             episodesData = await getKaidoEpisodesByAnilistId(anilistId);
           }
 
+          if (ignore) return;
+
           if (!episodesData?.episodes?.length) {
-            toast({
-              title: "No stream available",
-              description: "No episodes found across all providers.",
-            });
-            setError("No episodes found across all providers.");
+            if (!ignore) {
+              toast({
+                title: "No stream available",
+                description: "No episodes found across all providers.",
+              });
+              setError("No episodes found across all providers.");
+            }
             return;
           }
 
-          setAnimeInfo(cached.data);
-          setSeasons(cached.seasons);
-          setEpisodes(episodesData?.episodes);
-          setTotalEpisodes(episodesData?.totalEpisodes);
+          if (!ignore) {
+            setAnimeInfo(cached.data);
+            setSeasons(cached.seasons);
+            setEpisodes(episodesData?.episodes);
+            setTotalEpisodes(episodesData?.totalEpisodes);
+          }
 
           // Fetch next episode schedule
           await fetchSchedule(anilistId);
 
-          const newEpisodeIdKaido =
-            initialEpisodeId ||
-            (episodesData?.episodes?.length > 0
-              ? episodesData.episodes[0].id.match(/ep=(\d+)/)?.[1]
-              : null);
-          setEpisodeId(newEpisodeIdKaido);
+          if (!ignore) {
+            const newEpisodeIdKaido =
+              initialEpisodeId ||
+              (episodesData?.episodes?.length > 0
+                ? episodesData.episodes[0].id.match(/ep=(\d+)/)?.[1]
+                : null);
+            setEpisodeId(newEpisodeIdKaido);
+          }
         }
       } catch (err) {
         console.error("Error fetching initial data:", err);
-        setError(err.message || "An error occurred.");
+        if (!ignore) setError(err.message || "An error occurred.");
       } finally {
-        setAnimeInfoLoading(false);
+        if (!ignore) setAnimeInfoLoading(false);
       }
     };
     fetchInitialData();
+
+    return () => {
+      ignore = true;
+    };
   }, [animeId, source]);
 
   useEffect(() => {
