@@ -1,10 +1,8 @@
 import axios from "axios";
-import { extractAnilistId } from "./extractAnilistId.utils";
 
-const getNextEpisodeSchedule = async (id) => {
+const getNextEpisodeSchedule = async (anilistId) => {
   const base_url = import.meta.env.VITE_ANIMEPAHE_URL;
   try {
-    const anilistId = extractAnilistId(id);
     const response = await axios.get(`${base_url}/api/anilist/anime/schedule/${anilistId}`);
     const nextAiring = response.data?.data?.nextAiringEpisode;
     if (!nextAiring?.airingAt) return null;
