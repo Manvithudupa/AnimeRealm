@@ -149,42 +149,37 @@ export default function Watch() {
       adjustHeight();
     }, 500);
     
-    // Set up resize listener
+    // Set up resize listener for window size changes
     window.addEventListener('resize', adjustHeight);
     
-    // Create MutationObserver to monitor player changes
-    const observer = new MutationObserver(() => {
-      setTimeout(adjustHeight, 100);
+    // Use ResizeObserver to react only when element dimensions actually change,
+    // avoiding the high-frequency firing of MutationObserver on video player
+    // attribute/style mutations.
+    const resizeObserver = new ResizeObserver(() => {
+      adjustHeight();
     });
-    
-    // Start observing both video container and controls
+
     if (videoContainerRef.current) {
-      observer.observe(videoContainerRef.current, {
-        attributes: true,
-        childList: true,
-        subtree: true
-      });
+      resizeObserver.observe(videoContainerRef.current);
     }
-    
+
     if (controlsRef.current) {
-      observer.observe(controlsRef.current, {
-        attributes: true,
-        childList: true,
-        subtree: true
-      });
+      resizeObserver.observe(controlsRef.current);
     }
-    
-    // Set up additional interval for continuous adjustments
-    const intervalId = setInterval(adjustHeight, 1000);
     
     // Clean up
     return () => {
       clearTimeout(initialTimer);
-      clearInterval(intervalId);
-      observer.disconnect();
+      resizeObserver.disconnect();
       window.removeEventListener('resize', adjustHeight);
     };
-  }, [buffering, activeServerType, activeServerName, episodeId, streamUrl, episodes]);
+  // Only re-run when buffering changes: controlsRef is conditionally rendered
+  // based on !buffering and must be (re-)observed after it mounts.
+  // activeServerType, activeServerName, episodeId, streamUrl and episodes are
+  // intentionally omitted — they don't affect the DOM structure being measured
+  // and their changes are covered by ResizeObserver without re-registration.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buffering]);
 
   useEffect(() => {
     setTags([
