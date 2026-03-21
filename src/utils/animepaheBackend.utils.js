@@ -2,6 +2,21 @@ import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_ANIMEPAHE_URL;
 
+// Module-level cache for animepahe episodes keyed by anilist ID string.
+// Prevents redundant network calls from rapid re-renders, React StrictMode
+// double-invocation, and the source-fallback chain in useWatchMultiSource.
+const _episodesByAnilistCache = new Map(); // key -> { data, timestamp }
+const _episodesByAnilistInFlight = new Map(); // key -> Promise (deduplicates concurrent calls)
+const EPISODES_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const EPISODES_CACHE_MAX_SIZE = 200;
+
+function _evictOldestEpisodeEntry() {
+  const firstKey = _episodesByAnilistCache.keys().next().value;
+  if (firstKey !== undefined) {
+    _episodesByAnilistCache.delete(firstKey);
+  }
+}
+
 /**
  * Search for anime on Animepahe
  * @param {string} keyword - Anime title to search
@@ -74,39 +89,71 @@ export async function getAnimepaheEpisodes(animeId) {
  * @returns {Promise} Episodes list with provider info
  */
 export async function getAnimepaheEpisodesByAnilistId(anilistId) {
-  try {
-    const response = await axios.get(
-      `${BASE_URL}/api/anilist/episodes/${anilistId}?provider=animepahe`
-    );
-    const providerEpisodes = response.data?.providerEpisodes || [];
+  const key = String(anilistId);
 
-    // Transform episodes to match expected format
-    const transformedEpisodes = providerEpisodes.map((ep) => ({
-      id: `ep=${ep.episodeNumber}`,
-      episode_no: ep.episodeNumber,
-      episodeId: ep.episodeId,
-      title: ep.title || `Episode ${ep.episodeNumber}`,
-      thumbnail: ep.thumbnail,
-    }));
-
-    return {
-      episodes: transformedEpisodes,
-      totalEpisodes: providerEpisodes.length,
-      provider: response.data?.provider || null,
-    };
-  } catch (error) {
-    // If the server returned an HTTP error response, treat it as no data available
-    // so the caller can fall back gracefully (e.g. to HiAnime) instead of crashing
-    if (error.response) {
-      console.warn(
-        "Animepahe episodes not available for this title:",
-        error.response.data?.error || error.message
-      );
-      return { episodes: [], totalEpisodes: 0, provider: null };
-    }
-    console.error("Error fetching Animepahe episodes by Anilist ID:", error);
-    throw error;
+  // Return cached result if still within TTL.
+  const cached = _episodesByAnilistCache.get(key);
+  if (cached && Date.now() - cached.timestamp < EPISODES_CACHE_TTL_MS) {
+    return cached.data;
   }
+
+  // Deduplicate concurrent requests for the same anilist ID.
+  if (_episodesByAnilistInFlight.has(key)) {
+    return _episodesByAnilistInFlight.get(key);
+  }
+
+  const fetchPromise = (async () => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/api/anilist/episodes/${anilistId}?provider=animepahe`
+      );
+      const providerEpisodes = response.data?.providerEpisodes || [];
+
+      // Transform episodes to match expected format
+      const transformedEpisodes = providerEpisodes.map((ep) => ({
+        id: `ep=${ep.episodeNumber}`,
+        episode_no: ep.episodeNumber,
+        episodeId: ep.episodeId,
+        title: ep.title || `Episode ${ep.episodeNumber}`,
+        thumbnail: ep.thumbnail,
+      }));
+
+      const result = {
+        episodes: transformedEpisodes,
+        totalEpisodes: providerEpisodes.length,
+        provider: response.data?.provider || null,
+      };
+
+      _episodesByAnilistCache.set(key, { data: result, timestamp: Date.now() });
+      if (_episodesByAnilistCache.size > EPISODES_CACHE_MAX_SIZE) {
+        _evictOldestEpisodeEntry();
+      }
+      return result;
+    } catch (error) {
+      // If the server returned an HTTP error response, treat it as no data available
+      // so the caller can fall back gracefully (e.g. to HiAnime) instead of crashing
+      if (error.response) {
+        console.warn(
+          "Animepahe episodes not available for this title:",
+          error.response.data?.error || error.message
+        );
+        const emptyResult = { episodes: [], totalEpisodes: 0, provider: null };
+        // Cache empty results too so repeated failures don't hammer the API.
+        _episodesByAnilistCache.set(key, { data: emptyResult, timestamp: Date.now() });
+        if (_episodesByAnilistCache.size > EPISODES_CACHE_MAX_SIZE) {
+          _evictOldestEpisodeEntry();
+        }
+        return emptyResult;
+      }
+      console.error("Error fetching Animepahe episodes by Anilist ID:", error);
+      throw error;
+    } finally {
+      _episodesByAnilistInFlight.delete(key);
+    }
+  })();
+
+  _episodesByAnilistInFlight.set(key, fetchPromise);
+  return fetchPromise;
 }
 
 /**
