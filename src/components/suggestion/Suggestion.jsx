@@ -14,22 +14,30 @@ function Suggestion({ keyword, className, onSuggestionClick }) {
   const isDark = theme === "dark";
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchSearchSuggestion = async () => {
       if (!keyword) return;
       setLoading(true);
       setHasFetched(false);
       try {
         const data = await getSearchSuggestion(keyword);
+        if (controller.signal.aborted) return;
         setSuggestion(data);
         setHasFetched(true);
       } catch (err) {
+        if (controller.signal.aborted) return;
         console.error("Error fetching search suggestion info:", err);
         setError(err);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
     fetchSearchSuggestion();
+
+    return () => {
+      controller.abort();
+    };
   }, [keyword]);
 
   return (
