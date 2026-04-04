@@ -8,7 +8,6 @@ import Error from "@/src/components/error/Error.jsx";
 import ContinueWatching from "@/src/components/continue/ContinueWatching";
 import TabbedAnimeSection from "@/src/components/tabbed-anime/TabbedAnimeSection.jsx";
 import { useHomeInfo } from "@/src/context/HomeInfoContext.jsx";
-import MiniSupportCard from "@/src/components/minisupportcard/MiniSupportCard.jsx";
 
 function Home() {
   const { homeInfo, homeInfoLoading, error } = useHomeInfo();
@@ -72,7 +71,6 @@ function Home() {
           {/* Sidebar */}
           <div className="w-full mt-[60px] space-y-6">
             <Topten data={homeInfo.topten} className="mt-12" />
-            <MiniSupportCard />
           </div>
 
         </div>
