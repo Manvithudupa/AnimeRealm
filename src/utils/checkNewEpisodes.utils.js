@@ -1,5 +1,25 @@
 import { supabase } from "@/src/integrations/supabase/client";
-import { getKaidoEpisodesByAnilistId } from "@/src/utils/kaidoBackend.utils";
+import { getAnimepaheEpisodesByAnilistId } from "@/src/utils/animepaheBackend.utils";
+import { getAnizoneEpisodesByAnilistId } from "@/src/utils/anizoneBackend.utils";
+
+const getEpisodesForNotifications = async (animeId) => {
+  try {
+    const animepaheData = await getAnimepaheEpisodesByAnilistId(animeId);
+    if (animepaheData?.episodes?.length) {
+      return animepaheData.episodes;
+    }
+  } catch (error) {
+    console.warn("Error fetching AnimePahe episodes for notifications:", error);
+  }
+
+  try {
+    const anizoneData = await getAnizoneEpisodesByAnilistId(animeId);
+    return anizoneData?.episodes || [];
+  } catch (error) {
+    console.warn("Error fetching AniZone episodes for notifications:", error);
+    return [];
+  }
+};
 
 export const checkNewEpisodes = async (userId) => {
   if (!userId) return;
@@ -31,7 +51,7 @@ export const checkNewEpisodes = async (userId) => {
 
     for (const animeId of allAnimeIds) {
       try {
-        const { episodes } = await getKaidoEpisodesByAnilistId(animeId);
+        const episodes = await getEpisodesForNotifications(animeId);
 
         if (!episodes.length) continue;
 
