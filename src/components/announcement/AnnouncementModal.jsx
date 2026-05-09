@@ -118,9 +118,9 @@ function AnnouncementModal() {
                   <MonitorPlay className="w-4 h-4 text-green-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-white mb-0.5">Watch Page — 3 Anime Sources</h4>
+                  <h4 className="font-semibold text-white mb-0.5">Watch Page — 2 Anime Sources</h4>
                   <p className="text-sm text-white/60 leading-relaxed">
-                    The watch page now integrates <span className="text-white/80 font-medium">three different anime streaming sources</span>, so you always have a working stream. If one source is down, just switch to another!
+                    The watch page now integrates <span className="text-white/80 font-medium">two different anime streaming sources</span> and automatically switches if one is down.
                   </p>
                 </div>
               </div>
