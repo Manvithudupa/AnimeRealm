@@ -28,7 +28,6 @@ import Notifications from "./pages/notifications/Notifications";
 import Settings from "./pages/Settings/Settings";
 
 import ResetPassword from "./pages/Auth/ResetPassword";
-import AnnouncementModal from "./components/announcement/AnnouncementModal";
 import SchedulePage from "./pages/schedule/SchedulePage";
 
 import { azRoute, categoryRoutes } from "./utils/category.utils";
@@ -53,7 +52,6 @@ function App() {
   }, [location]);
 
   const isSplashScreen = location.pathname === "/";
-  const isHomePage = location.pathname === "/home";
 
   return (
     <div className="app-container px-4 lg:px-10">
@@ -150,7 +148,6 @@ function App() {
           </Routes>
 
           {!isSplashScreen && <Footer />}
-      {!isSplashScreen && !isHomePage && <AnnouncementModal />}
       </main>
 
       <Analytics />
