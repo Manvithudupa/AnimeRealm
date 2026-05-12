@@ -53,6 +53,7 @@ function App() {
   }, [location]);
 
   const isSplashScreen = location.pathname === "/";
+  const isHomePage = location.pathname === "/home";
 
   return (
     <div className="app-container px-4 lg:px-10">
@@ -149,7 +150,7 @@ function App() {
           </Routes>
 
           {!isSplashScreen && <Footer />}
-      {!isSplashScreen && <AnnouncementModal />}
+      {!isSplashScreen && !isHomePage && <AnnouncementModal />}
       </main>
 
       <Analytics />
