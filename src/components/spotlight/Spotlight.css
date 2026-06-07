@@ -118,7 +118,7 @@
 
 /* Active thumb highlight */
 .swiper-slide-thumb-active .spotlight-thumb-item {
-  border-color: #ffffff;
+  border-color: #eb3349;
 }
 
 .spotlight-thumb-img {
@@ -146,7 +146,7 @@
 .spotlight-thumb-num {
   font-size: 10px;
   font-weight: 700;
-  color: rgba(255, 186, 222, 0.9);
+  color: #eb3349;
   line-height: 1;
   margin-bottom: 2px;
 }

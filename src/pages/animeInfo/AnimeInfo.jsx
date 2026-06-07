@@ -74,12 +74,11 @@ const GENRE_COLORS = [
   "from-indigo-600/30 to-indigo-800/20 border-indigo-500/30 text-indigo-300",
 ];
 
-function GenrePill({ genre, index }) {
-  const color = GENRE_COLORS[index % GENRE_COLORS.length];
+function GenrePill({ genre }) {
   return (
     <Link
       to={`/genre/${genre}`}
-      className={`inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r ${color} border text-xs font-medium transition-all duration-200 hover:scale-105 hover:brightness-125`}
+      className="inline-flex items-center px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs font-bold transition-all duration-200 hover:bg-[#eb3349] hover:border-[#eb3349] hover:text-white"
     >
       {genre}
     </Link>
@@ -298,7 +297,7 @@ function AnimeInfo({ random = false }) {
                   </span>
                 )}
                 {info?.tvInfo?.quality && (
-                  <span className="px-2.5 py-1 rounded-md bg-blue-500/20 text-xs font-bold text-blue-300 uppercase tracking-wider border border-blue-500/30">
+                  <span className="px-2.5 py-1 rounded-md bg-[#eb3349]/20 text-xs font-bold text-[#eb3349] uppercase tracking-wider border border-[#eb3349]/30">
                     {info.tvInfo.quality}
                   </span>
                 )}
@@ -368,7 +367,7 @@ function AnimeInfo({ random = false }) {
                         ? `/watch/${animeInfo.id}?ep=${lastWatchedEpisode.id}`
                         : `/watch/${animeInfo.id}`
                     }
-                    className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-white text-black text-sm font-bold hover:bg-white/90 active:scale-95 transition-all duration-200 shadow-lg shadow-white/10"
+                    className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-[#eb3349] text-white text-sm font-black uppercase tracking-wide hover:bg-[#ff4d63] active:scale-95 transition-all duration-300 shadow-xl shadow-red-900/20"
                   >
                     <FontAwesomeIcon icon={faPlay} className="text-xs" />
                     {lastWatchedEpisode
@@ -384,10 +383,10 @@ function AnimeInfo({ random = false }) {
                       setStatusDropdownOpen((prev) => !prev);
                     }}
                     disabled={watchlistLoading}
-                    className={`inline-flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 disabled:opacity-50 border ${
+                    className={`inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full text-sm font-bold uppercase tracking-wide transition-all duration-300 active:scale-95 disabled:opacity-50 border ${
                       inWatchlist
                         ? "bg-white/10 border-white/20 text-white hover:bg-white/15"
-                        : "bg-transparent border-white/20 text-white/70 hover:bg-white/5 hover:text-white"
+                        : "bg-transparent border-white/20 text-white/70 hover:bg-white/10 hover:text-white"
                     }`}
                   >
                     <FontAwesomeIcon icon={inWatchlist ? faCheck : faBookmark} className="text-xs" />
@@ -495,7 +494,10 @@ function AnimeInfo({ random = false }) {
                 <InfoRow label="Premiered" value={info?.Premiered} />
                 <InfoRow label="Duration" value={info?.Duration} />
                 <InfoRow label="Status" value={info?.Status} />
-                <InfoRow label="MAL Score" value={malScore} />
+                <div className="flex justify-between items-start gap-4 py-2.5 border-b border-white/5 last:border-0">
+                  <dt className="text-xs text-white/40 uppercase tracking-wider shrink-0">MAL Score</dt>
+                  <dd className="text-sm font-bold text-[#eb3349] text-right">{malScore}</dd>
+                </div>
                 <InfoRow label="Studios" value={studios} />
               </dl>
             </div>
@@ -514,8 +516,8 @@ function AnimeInfo({ random = false }) {
                 key={index}
                 className={`relative w-full aspect-[3/1] sm:aspect-[3/1] rounded-lg overflow-hidden cursor-pointer group ${
                   currentId === String(season.data_id)
-                    ? "ring-2 ring-white/40 shadow-lg shadow-white/10"
-                    : ""
+                    ? "ring-2 ring-[#eb3349] shadow-lg shadow-red-900/20"
+                    : "border border-white/5"
                 }`}
               >
                 <img

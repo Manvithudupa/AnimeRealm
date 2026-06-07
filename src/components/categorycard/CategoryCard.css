@@ -1,23 +1,21 @@
 /* Card Wrapper */
 .category-card-container {
   position: relative;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
-  background: #1a1a1a;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+  background: #000000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .category-card-container:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  transform: translateY(-5px);
 }
 
 /* Poster */
 .card-poster {
   width: 100%;
   position: relative;
-  padding-bottom: 125%;
+  padding-bottom: 145%; /* Slightly taller for target site look */
 }
 
 .poster-wrapper {
@@ -31,14 +29,14 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 12px;
-  transition: all 0.4s ease;
-  filter: brightness(0.95);
+  border-radius: 8px;
+  transition: all 0.5s ease;
+  filter: brightness(0.9);
 }
 
 .category-card-container:hover img {
-  transform: scale(1.04);
-  filter: brightness(1.05);
+  transform: scale(1.1);
+  filter: brightness(1);
 }
 
 /* Overlay */
@@ -47,11 +45,10 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.45) 55%,
-    rgba(0, 0, 0, 0.95) 100%
+    rgba(0, 0, 0, 0) 50%,
+    rgba(0, 0, 0, 0.8) 100%
   );
-  border-radius: 12px;
+  border-radius: 8px;
   z-index: 5;
 }
 
@@ -60,15 +57,23 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0.9);
-  font-size: 42px;
-  color: white;
+  transform: translate(-50%, -50%) scale(0.8);
+  font-size: 32px;
+  color: #eb3349;
+  background: rgba(255, 255, 255, 0.9);
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
   opacity: 0;
   z-index: 10;
   transition: all 0.3s ease;
+  padding: 0;
 }
 
-.group:hover .play-icon {
+.category-card-container:hover .play-icon {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
 }
@@ -78,11 +83,11 @@
   position: absolute;
   top: 8px;
   left: 8px;
-  background: #dc2626;
+  background: #eb3349;
   color: white;
   padding: 2px 6px;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 800;
   border-radius: 4px;
   z-index: 10;
 }
@@ -90,11 +95,11 @@
 /* Sub/Dub Overlay */
 .subdub-overlay {
   position: absolute;
-  bottom: 8px;
-  left: 8px;
+  top: 8px;
   right: 8px;
   display: flex;
-  gap: 6px;
+  flex-direction: column;
+  gap: 4px;
   z-index: 10;
 }
 
@@ -102,39 +107,44 @@
 .meta-badge {
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: rgba(0, 0, 0, 0.7);
+  gap: 3px;
+  background: rgba(0, 0, 0, 0.8);
   padding: 2px 6px;
   border-radius: 4px;
-  font-size: 11px;
-  font-weight: 500;
+  font-size: 10px;
+  font-weight: 700;
   color: white;
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.meta-badge svg {
+  font-size: 10px;
+  color: #eb3349;
 }
 
 /* Title (Outside Card) */
 .item-title {
   display: block;
-  margin-top: 6px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  font-size: 14px;
-  line-height: 1.35;
-  color: rgba(255, 255, 255, 0.95);
+  margin-top: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.2;
+  color: white;
+  transition: color 0.2s;
+  text-align: left;
 }
 
 .item-title:hover {
-  color: #ffffff;
+  color: #eb3349;
 }
 
 /* Mobile */
 @media (max-width: 640px) {
-  .card-poster {
-    padding-bottom: 120%;
-  }
-
   .play-icon {
-    font-size: 34px;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
   }
 
   .item-title {

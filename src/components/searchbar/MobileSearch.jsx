@@ -31,64 +31,37 @@ function MobileSearch({ onClose }) {
     };
 
     return (
-        <div className="w-full p-4 flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-                <div className="relative flex-1">
-                    <input
-                        type="text"
-                        className={`w-full px-5 py-2 rounded-lg focus:outline-none transition-colors ${
-                            theme === 'dark'
-                                ? 'bg-[#2a2a2a]/75 text-white placeholder-white/50'
-                                : 'bg-black/[0.08] text-gray-900 border border-black/[0.15] placeholder:text-gray-400'
-                        }`}
-                        placeholder="Search anime..."
-                        value={searchValue}
-                        onChange={(e) => setSearchValue(e.target.value)}
-                        onFocus={() => setIsFocused(true)}
-                        onBlur={() => {
-                            setTimeout(() => {
-                                const isInsideSuggestionBox = suggestionRefs.current.some(
-                                    (ref) => ref && ref.contains(document.activeElement),
-                                );
-                                if (!isInsideSuggestionBox) {
-                                    setIsFocused(false);
-                                }
-                            }, 100);
-                        }}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                handleSearchClick();
-                            }
-                        }}
+        <div className="w-full p-4 flex flex-col">
+            <div className="relative w-full">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FontAwesomeIcon
+                        icon={faMagnifyingGlass}
+                        className="h-4 w-4 text-white/50"
                     />
-                    {/* Search Icon */}
-                    <button
-                        className={`absolute right-12 top-1/2 -translate-y-1/2 transition-colors ${
-                            theme === 'dark'
-                                ? 'text-white/50 hover:text-white'
-                                : 'text-gray-400 hover:text-gray-700'
-                        }`}
-                        onClick={handleSearchClick}
-                    >
-                        <FontAwesomeIcon
-                            icon={faMagnifyingGlass}
-                            className="text-lg"
-                        />
-                    </button>
                 </div>
-
-                {/* Filter Button (replaces Random) */}
-                <button
-                    className={`p-[10px] aspect-square rounded-lg transition-colors flex items-center justify-center shrink-0 ${
-                        theme === 'dark'
-                            ? 'bg-[#2a2a2a]/75 text-white/50 hover:text-white'
-                            : 'bg-black/[0.08] text-gray-500 hover:text-gray-900 border border-black/[0.15]'
-                    }`}
-                    onClick={handleFilterClick}
-                    title="Filter Anime"
-                >
-                    <FontAwesomeIcon icon={faSliders} className="text-lg" />
-                </button>
+                <input
+                    type="text"
+                    className="block w-full pl-10 pr-3 py-2 bg-white/10 border border-transparent rounded-full leading-5 text-white placeholder-white/50 focus:outline-none focus:bg-white/20 transition-all sm:text-sm"
+                    placeholder="Search anime..."
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => {
+                        setTimeout(() => {
+                            const isInsideSuggestionBox = suggestionRefs.current.some(
+                                (ref) => ref && ref.contains(document.activeElement),
+                            );
+                            if (!isInsideSuggestionBox) {
+                                setIsFocused(false);
+                            }
+                        }, 100);
+                    }}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleSearchClick();
+                        }
+                    }}
+                />
             </div>
 
             {searchValue.trim() && isFocused && (

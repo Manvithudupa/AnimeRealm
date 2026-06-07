@@ -54,8 +54,8 @@ function App() {
   const isSplashScreen = location.pathname === "/";
 
   return (
-    <div className="app-container px-4 lg:px-10">
-      <main className="content max-w-[2048px] mx-auto w-full">
+    <div className="app-container">
+      <main className="content w-full">
         {!isSplashScreen && <Navbar />}
 
         <Routes>

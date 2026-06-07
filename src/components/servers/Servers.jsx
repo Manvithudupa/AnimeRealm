@@ -54,27 +54,23 @@ function Servers({
   };
 
   return (
-    <div className="relative bg-[#111111] p-4 w-full min-h-[100px] flex justify-center items-center max-[1200px]:bg-[#151515] max-[600px]:p-2">
+    <div className="relative bg-black w-full min-h-[80px] flex justify-center items-center">
       {serverLoading ? (
-        <div className="w-full h-full rounded-lg flex justify-center items-center max-[600px]:rounded-none">
+        <div className="w-full h-full rounded-xl flex justify-center items-center">
           <BouncingLoader />
         </div>
       ) : servers ? (
-        <div className="w-full h-full rounded-lg grid grid-cols-[minmax(0,30%),minmax(0,70%)] overflow-hidden max-[800px]:grid-cols-[minmax(0,40%),minmax(0,60%)] max-[600px]:flex max-[600px]:flex-col max-[600px]:rounded-none max-[600px]:gap-2">
-          <div className="h-full bg-[#e0e0e0] px-6 text-black flex flex-col justify-center items-center gap-y-2 max-[600px]:bg-transparent max-[600px]:h-auto max-[600px]:text-white max-[600px]:py-1 max-[600px]:px-2">
-            <p className="text-center leading-5 font-medium text-[14px] max-[600px]:text-[13px] max-[600px]:mb-0">
-              You are watching:{" "}
+        <div className="w-full h-full rounded-xl grid grid-cols-[minmax(0,30%),minmax(0,70%)] overflow-hidden border border-white/5 max-[800px]:grid-cols-[minmax(0,40%),minmax(0,60%)] max-[600px]:flex max-[600px]:flex-col max-[600px]:gap-0">
+          <div className="h-full bg-white/5 px-6 text-white flex flex-col justify-center items-center gap-y-1 max-[600px]:bg-transparent max-[600px]:h-auto max-[600px]:py-3 max-[600px]:px-2">
+            <p className="text-center leading-5 font-black uppercase tracking-widest text-[11px] text-white/40">
+              Watching:{" "}
               <br className="max-[600px]:hidden" />
-              <span className="font-semibold max-[600px]:text-[#e0e0e0] max-[600px]:ml-1">
+              <span className="text-[#eb3349] block mt-1">
                 Episode {activeEpisodeNum}
               </span>
             </p>
-            <p className="leading-5 text-[14px] font-medium text-center max-[600px]:text-[12px] max-[600px]:hidden">
-              If the current server doesn&apos;t work, please try other servers
-              beside.
-            </p>
           </div>
-          <div className="bg-[#1f1f1f] flex flex-col max-[600px]:rounded-lg max-[600px]:p-2">
+          <div className="bg-black/50 backdrop-blur-sm flex flex-col p-4 gap-4">
             {rawServers.length > 0 && (
               <div className={`servers px-2 flex items-center flex-wrap gap-y-1 ml-2 max-[600px]:py-1.5 max-[600px]:px-1 max-[600px]:ml-0 ${
                 dubServers.length === 0 || subServers.length === 0
@@ -92,14 +88,14 @@ function Servers({
                   {rawServers.map((item, index) => (
                     <div
                       key={index}
-                      className={`px-6 py-[5px] rounded-lg cursor-pointer ${
+                      className={`px-5 py-2 rounded-full cursor-pointer transition-all duration-300 font-bold ${
                         activeServerId === item?.data_id
-                          ? "bg-gray-900 text-white dark:bg-[#e0e0e0] dark:text-black"
-                          : "bg-gray-200 text-gray-700 dark:bg-[#373737] dark:text-white"
-                      } max-[700px]:px-3 max-[600px]:px-2 max-[600px]:py-1`}
+                          ? "bg-[#eb3349] text-white shadow-lg shadow-red-900/20 scale-105"
+                          : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white"
+                      }`}
                       onClick={() => handleServerSelect(item)}
                     >
-                      <p className="text-[13px] font-semibold max-[600px]:text-[12px]">
+                      <p className="text-[11px] uppercase tracking-wider">
                         {item.serverName}
                       </p>
                     </div>
@@ -122,14 +118,14 @@ function Servers({
                   {subServers.map((item, index) => (
                     <div
                       key={index}
-                      className={`px-6 py-[5px] rounded-lg cursor-pointer ${
+                      className={`px-5 py-2 rounded-full cursor-pointer transition-all duration-300 font-bold ${
                         activeServerId === item?.data_id
-                          ? "bg-gray-900 text-white dark:bg-[#e0e0e0] dark:text-black"
-                          : "bg-gray-200 text-gray-700 dark:bg-[#373737] dark:text-white"
-                      } max-[700px]:px-3 max-[600px]:px-2 max-[600px]:py-1`}
+                          ? "bg-[#eb3349] text-white shadow-lg shadow-red-900/20 scale-105"
+                          : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white"
+                      }`}
                       onClick={() => handleServerSelect(item)}
                     >
-                      <p className="text-[13px] font-semibold max-[600px]:text-[12px]">
+                      <p className="text-[11px] uppercase tracking-wider">
                         {item.serverName}
                       </p>
                     </div>
@@ -152,14 +148,14 @@ function Servers({
                   {dubServers.map((item, index) => (
                     <div
                       key={index}
-                      className={`px-6 py-[5px] rounded-lg cursor-pointer ${
+                      className={`px-5 py-2 rounded-full cursor-pointer transition-all duration-300 font-bold ${
                         activeServerId === item?.data_id
-                          ? "bg-gray-900 text-white dark:bg-[#e0e0e0] dark:text-black"
-                          : "bg-gray-200 text-gray-700 dark:bg-[#373737] dark:text-white"
-                      } max-[700px]:px-3 max-[600px]:px-2 max-[600px]:py-1`}
+                          ? "bg-[#eb3349] text-white shadow-lg shadow-red-900/20 scale-105"
+                          : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white"
+                      }`}
                       onClick={() => handleServerSelect(item)}
                     >
-                      <p className="text-[13px] font-semibold max-[600px]:text-[12px]">
+                      <p className="text-[11px] uppercase tracking-wider">
                         {item.serverName}
                       </p>
                     </div>

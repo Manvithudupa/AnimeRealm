@@ -42,8 +42,8 @@ const Trending = ({ trending }) => {
                   className="
                     trending-card-link
                     group relative w-full 
-                    h-[180px] sm:h-[200px] md:h-[220px] lg:h-[240px] 
-                    overflow-hidden rounded-xl bg-[#2a2c31] shadow-lg
+                      h-[200px] sm:h-[220px] md:h-[240px] lg:h-[260px]
+                      overflow-hidden rounded-lg bg-black border border-white/5 shadow-2xl
                   "
                 >
                   {/* Poster */}
@@ -63,18 +63,18 @@ const Trending = ({ trending }) => {
                   <div
                     className="
                       absolute top-2 left-2
-                      text-white font-extrabold leading-none
-                      opacity-70
-                      drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]
-                      text-[28px] sm:text-[36px] md:text-[44px] lg:text-[48px]
+                      text-[#eb3349] font-black leading-none
+                      drop-shadow-[0_2px_8px_rgba(0,0,0,1)]
+                      text-[32px] sm:text-[40px] md:text-[48px] lg:text-[54px]
+                      tracking-tighter
                     "
                   >
                     {item.number}
                   </div>
 
                   {/* Title */}
-                  <div className="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3">
-                    <p className="text-white font-medium truncate text-[12px] sm:text-sm md:text-[15px]">
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <p className="text-white font-bold truncate text-[14px] sm:text-[15px] group-hover:text-[#eb3349] transition-colors">
                       {language === "EN" ? item.title : item.japanese_title}
                     </p>
                   </div>
@@ -85,11 +85,11 @@ const Trending = ({ trending }) => {
 
         {/* Navigation buttons */}
         <div className="absolute top-0 right-0 bottom-0 w-[45px] flex flex-col space-y-2 max-[759px]:hidden">
-          <div className="btn-next bg-[#383747] h-[50%] flex justify-center items-center rounded-[8px] cursor-pointer transition-all duration-300 ease-out hover:bg-purple-400 hover:text-[#383747]">
+          <div className="btn-next bg-white/5 hover:bg-[#eb3349] h-[50%] flex justify-center items-center rounded-lg cursor-pointer transition-all duration-300 text-white">
             <FaChevronRight />
           </div>
 
-          <div className="btn-prev bg-[#383747] h-[50%] flex justify-center items-center rounded-[8px] cursor-pointer transition-all duration-300 ease-out hover:bg-purple-400 hover:text-[#383747]">
+          <div className="btn-prev bg-white/5 hover:bg-[#eb3349] h-[50%] flex justify-center items-center rounded-lg cursor-pointer transition-all duration-300 text-white">
             <FaChevronLeft />
           </div>
         </div>

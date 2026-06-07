@@ -84,11 +84,8 @@ function TabbedAnimeSection({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`relative px-6 py-4 text-[15px] font-medium transition-all duration-300
-                ${activeTab === tab.id ? "text-white after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-primary after:rounded-t-full" : "text-[#ffffff80] hover:text-white"}
-                before:absolute before:bottom-0 before:left-1/2 before:w-0 before:h-[2px] before:bg-[#ffffff40]
-                before:transition-all before:duration-300 before:-translate-x-1/2
-                hover:before:w-full
+              className={`relative px-6 py-4 text-[15px] font-bold transition-all duration-300
+                ${activeTab === tab.id ? "text-[#eb3349] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[3px] after:bg-[#eb3349] after:rounded-t-full" : "text-white/50 hover:text-white"}
                 group
               `}
             >

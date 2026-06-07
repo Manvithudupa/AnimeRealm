@@ -4,868 +4,99 @@
 
 /* Root Settings */
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-html.dark {
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #000000;
+
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+
+  --primary: 353 80% 56%; /* #eb3349 */
+  --primary-foreground: 0 0% 100%;
+
+  --card: 0 0% 3%;
+  --card-foreground: 0 0% 100%;
+
+  --popover: 0 0% 3%;
+  --popover-foreground: 0 0% 100%;
+
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 65%;
+
+  --accent: 353 80% 56%;
+  --accent-foreground: 0 0% 100%;
+
+  --border: 0 0% 12%;
+  --input: 0 0% 12%;
+  --ring: 353 80% 56%;
 }
 
-html.light {
-  color-scheme: light;
-  color: #1a1a1a;
-  background-color: #f0f2f5;
-}
-
-/* Reset */
+/* Reset & Base */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Prevent horizontal scroll on body - IMPORTANT */
-html {
+html, body {
+  background-color: #000000;
+  color: #ffffff;
   overflow-x: hidden;
-  max-width: 100vw;
+  width: 100%;
 }
 
-/* Body */
 body {
-  background-color: #000000;
-  overflow-x: hidden;
-  overflow-y: auto;
-  max-width: 100vw;
-  -ms-overflow-style: none;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.15) #000000;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-html.light body {
-  background-color: #f0f2f5;
-  color: #1a1a1a;
-  scrollbar-color: rgba(0,0,0,0.15) #f0f2f5;
-}
-
-/* Scrollbar - Chrome / Safari */
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-  background-color: #000000;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background-color: #000000;
-  border-radius: 10px;
+  background: #000000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  transition: all 0.2s ease-in-out;
+  background: #222;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: #333;
 }
 
-::-webkit-scrollbar-button {
+/* Utilities */
+.scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 
-::-webkit-scrollbar-corner {
-  background-color: #000000;
-}
-
-/* Light mode scrollbar */
-html.light ::-webkit-scrollbar {
-  background-color: #f0f2f5;
-}
-
-html.light ::-webkit-scrollbar-track {
-  background-color: #f0f2f5;
-}
-
-html.light ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
-}
-
-html.light ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.25);
-}
-
-html.light ::-webkit-scrollbar-corner {
-  background-color: #f0f2f5;
-}
-
-/* Hide scrollbar */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+/* Transitions */
+.transition-all {
+  transition: all 0.2s ease-in-out;
 }
 
-/* Scrollbar visible */
-.scrollbar-visible {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.15) #000000;
+/* Image handling */
+img {
+  max-width: 100%;
+  height: auto;
 }
 
-.scrollbar-visible::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-  background-color: #000000;
-}
-
-.scrollbar-visible::-webkit-scrollbar-track {
-  background-color: #000000;
-  border-radius: 10px;
-}
-
-.scrollbar-visible::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.15);
-  border-radius: 10px;
-}
-
-.scrollbar-visible::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.25);
-}
-
-/* Visibility */
-.is-visible {
-  opacity: 1;
-}
-
-/* Tailwind Theme Variables */
-@layer base {
-  /* Light theme (default when no .dark class) */
-  :root {
-    --background: 220 14% 96%;
-    --foreground: 220 9% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 220 9% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 9% 10%;
-    --primary: 220 9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 220 14% 90%;
-    --secondary-foreground: 220 9% 15%;
-    --muted: 220 14% 90%;
-    --muted-foreground: 220 9% 45%;
-    --accent: 220 14% 88%;
-    --accent-foreground: 220 9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 14% 84%;
-    --input: 220 14% 84%;
-    --ring: 220 9% 30%;
-    --radius: 0.5rem;
-  }
-  /* Dark theme */
-  .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 10%;
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 0 0% 12%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 0 0% 80%;
-  }
-}
-
-/* Dot */
-.dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  display: inline-block;
-}
-
-html.light .dot {
-  background: rgba(0, 0, 0, 0.3);
-}
-
-/* Animations */
+/* Animation */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.5s ease-out forwards;
-  opacity: 0;
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   Light-mode overrides for hardcoded dark colours used site-wide
-   ══════════════════════════════════════════════════════════════════ */
-
-/* Navbar */
-html.light nav[class*="fixed"] {
-  background-color: rgba(255, 255, 255, 0.95) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-/* Sidebar & modals with dark backgrounds */
-html.light [class*="bg-\[#0a0a0a\]"],
-html.light [class*="bg-\[#0A0A0A\]"] {
-  background-color: #f8f9fb !important;
-}
-html.light [class*="bg-\[#111\]"] {
-  background-color: #ffffff !important;
-}
-html.light [class*="bg-\[#18181B\]"] {
-  background-color: #f4f5f7 !important;
-}
-html.light [class*="bg-\[#1a1a1a\]"],
-html.light [class*="bg-\[#1A1A1A\]"] {
-  background-color: #f0f1f3 !important;
-}
-html.light [class*="bg-\[#2a2a2a\]"],
-html.light [class*="bg-\[#2A2A2A\]"] {
-  background-color: #e8e9eb !important;
-}
-html.light [class*="bg-\[#27272A\]"] {
-  background-color: #e8e9eb !important;
-}
-html.light [class*="bg-\[#3F3F46\]"] {
-  background-color: #d0d1d4 !important;
-}
-
-/* Common text overrides */
-html.light .text-white {
-  color: #1a1a1a !important;
-}
-html.light .text-gray-300 {
-  color: #4b5563 !important;
-}
-html.light .text-gray-400 {
-  color: #6b7280 !important;
-}
-html.light .text-white\/70,
-html.light .text-white\/60,
-html.light .text-white\/50 {
-  color: #4b5563 !important;
-}
-
-/* Border overrides */
-html.light .border-white\/10,
-html.light .border-white\/20 {
-  border-color: rgba(0, 0, 0, 0.1) !important;
-}
-
-/* Hover bg overrides */
-html.light .hover\:bg-white\/5:hover {
-  background-color: rgba(0, 0, 0, 0.04) !important;
-}
-html.light .hover\:bg-white\/10:hover {
-  background-color: rgba(0, 0, 0, 0.07) !important;
-}
-
-/* App container */
-html.light .app-container {
-  background-color: #f0f2f5;
-}
-
-/* Footer */
-html.light footer {
-  background-color: #e8eaed !important;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-}
-html.light footer * {
-  color: #374151;
-}
-
-/* Splash screen – keep dark as-is */
-
-/* ── bg-black ── */
-html.light .bg-black {
-  background-color: #f0f2f5 !important;
-}
-
-/* ── Additional hardcoded hex colors ── */
-html.light [class*="bg-\\[#070707\\]"] {
-  background-color: #e8eaed !important;
-}
-html.light [class*="bg-\\[#222222\\]"],
-html.light [class*="bg-\\[#212121\\]"] {
-  background-color: #ebebed !important;
-}
-html.light [class*="bg-\\[#252525\\]"] {
-  background-color: #e4e5e7 !important;
-}
-html.light [class*="hover\\:bg-\\[#252525\\]"]:hover {
-  background-color: #d8d9db !important;
-}
-
-/* ── bg-zinc family ── */
-html.light .bg-zinc-950,
-html.light .bg-zinc-900 {
-  background-color: #f4f5f7 !important;
-}
-html.light .bg-zinc-800 {
-  background-color: #e8e9eb !important;
-}
-html.light .bg-zinc-700 {
-  background-color: #d4d5d8 !important;
-}
-
-/* ── bg-neutral family ── */
-html.light .bg-neutral-900 {
-  background-color: #f4f5f7 !important;
-}
-html.light .bg-neutral-800 {
-  background-color: #e8e9eb !important;
-}
-
-/* ── bg-gray dark variants ── */
-html.light .bg-gray-900 {
-  background-color: #f4f5f7 !important;
-}
-html.light .bg-gray-800 {
-  background-color: #e8e9eb !important;
-}
-
-/* ── Zinc / neutral text colors ── */
-html.light .text-zinc-400 {
-  color: #6b7280 !important;
-}
-html.light .text-zinc-300 {
-  color: #4b5563 !important;
-}
-html.light .text-zinc-200 {
-  color: #374151 !important;
-}
-html.light .text-zinc-100 {
-  color: #1f2937 !important;
-}
-
-/* ── Border overrides ── */
-html.light .border-neutral-700,
-html.light .border-zinc-700,
-html.light .border-zinc-800 {
-  border-color: rgba(0, 0, 0, 0.1) !important;
-}
-
-/* ── Schedule nav buttons ── */
-html.light .next,
-html.light .prev {
-  background-color: rgb(229 231 235) !important;
-  color: rgb(75 85 99) !important;
-}
-html.light .next:hover,
-html.light .prev:hover {
-  background-color: rgb(209 213 219) !important;
-  color: rgb(17 24 39) !important;
-}
-
-/* ── Sidebar ── */
-html.light .sidebar-main {
-  background-color: #ffffff;
-}
-html.light .sidebar-header {
-  border-bottom-color: rgba(0, 0, 0, 0.06);
-}
-html.light .sidebar-content {
-  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
-}
-html.light .sidebar-content::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.15);
-}
-html.light .close-button {
-  background-color: rgba(0, 0, 0, 0.06);
-}
-html.light .close-button:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-html.light .quick-actions {
-  border-bottom-color: rgba(0, 0, 0, 0.06);
-}
-html.light .quick-action-item {
-  background-color: rgba(0, 0, 0, 0.04);
-}
-html.light .quick-action-item:hover {
-  background-color: rgba(0, 0, 0, 0.07);
-}
-html.light .language-switcher {
-  background-color: rgba(0, 0, 0, 0.06);
-}
-html.light .lang-button {
-  color: rgba(0, 0, 0, 0.55);
-}
-html.light .lang-button:hover {
-  color: rgba(0, 0, 0, 0.87);
-}
-html.light .lang-button.active {
-  background-color: rgba(0, 0, 0, 0.1);
-  color: rgba(0, 0, 0, 0.87);
-}
-html.light .menu-item {
-  color: rgba(0, 0, 0, 0.6);
-}
-html.light .menu-item:hover {
-  color: rgba(0, 0, 0, 0.87);
-  background-color: rgba(0, 0, 0, 0.04);
-}
-
-/* ── Category cards ── */
-html.light .category-card-container {
-  background: #ffffff;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
-}
-html.light .category-card-container:hover {
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-}
-html.light .item-title {
-  color: rgba(0, 0, 0, 0.85);
-}
-html.light .item-title:hover {
-  color: #000000;
-}
-
-/* ── Spotlight overlay: blend into light background ── */
-html.light .spotlight-overlay {
-  background:
-    linear-gradient(
-      90deg,
-      #f0f2f5 0%,
-      rgba(240, 242, 245, 0.7) 35%,
-      rgba(240, 242, 245, 0) 65%
-    ),
-    linear-gradient(
-      to top,
-      #f0f2f5 0%,
-      rgba(240, 242, 245, 0.7) 20%,
-      rgba(240, 242, 245, 0) 50%
-    ) !important;
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   Additional light-mode overrides – extended coverage
-   ══════════════════════════════════════════════════════════════════ */
-
-/* ── More hardcoded hex backgrounds ── */
-html.light [class*="bg-\[#141414\]"] {
-  background-color: #f4f5f7 !important;
-}
-html.light [class*="bg-\[#121212\]"] {
-  background-color: #f8f9fb !important;
-}
-html.light [class*="bg-\[#0b0b0b\]"] {
-  background-color: #f0f2f5 !important;
-}
-html.light [class*="bg-\[#0f0f0f\]"] {
-  background-color: #f0f1f3 !important;
-}
-html.light [class*="bg-\[#0f0f1a\]"] {
-  background-color: #f4f5f7 !important;
-}
-html.light [class*="bg-\[#111111\]"],
-html.light [class*="bg-\[#151515\]"] {
-  background-color: #f8f9fb !important;
-}
-html.light [class*="bg-\[#1f1f1f\]"] {
-  background-color: #ebebed !important;
-}
-html.light [class*="bg-\[#272727\]"] {
-  background-color: #e4e5e7 !important;
-}
-html.light [class*="bg-\[#303030\]"] {
-  background-color: #dfe0e3 !important;
-}
-html.light [class*="hover\:bg-\[#272727\]"]:hover {
-  background-color: #dfe0e3 !important;
-}
-html.light [class*="hover\:bg-\[#303030\]"]:hover {
-  background-color: #d4d5d8 !important;
-}
-html.light [class*="bg-\[#373646\]"],
-html.light [class*="bg-\[#383747\]"] {
-  background-color: #d8d9e0 !important;
-}
-html.light [class*="bg-\[#2a2c31\]"] {
-  background-color: #e8e9eb !important;
-}
-html.light [class*="bg-\[#373737\]"] {
-  background-color: #d8d9db !important;
-}
-html.light [class*="bg-\[#35373d\]"] {
-  background-color: #d8d9db !important;
-}
-
-/* ── bg-white/X → subtle dark tint (near-invisible in dark, near-invisible in light without this) ── */
-html.light .bg-white\/5 {
-  background-color: rgba(0, 0, 0, 0.04) !important;
-}
-html.light .bg-white\/10 {
-  background-color: rgba(0, 0, 0, 0.06) !important;
-}
-html.light .bg-white\/15 {
-  background-color: rgba(0, 0, 0, 0.08) !important;
-}
-html.light .bg-white\/20 {
-  background-color: rgba(0, 0, 0, 0.1) !important;
-}
-html.light .bg-white\/\[0\.03\] {
-  background-color: rgba(0, 0, 0, 0.03) !important;
-}
-html.light .bg-white\/\[0\.05\] {
-  background-color: rgba(0, 0, 0, 0.04) !important;
-}
-html.light .bg-white\/\[0\.07\] {
-  background-color: rgba(0, 0, 0, 0.05) !important;
-}
-html.light .bg-white\/\[0\.08\] {
-  background-color: rgba(0, 0, 0, 0.06) !important;
-}
-
-/* ── hover:bg-white/X ── */
-html.light .hover\:bg-white\/15:hover {
-  background-color: rgba(0, 0, 0, 0.1) !important;
-}
-html.light .hover\:bg-white\/20:hover {
-  background-color: rgba(0, 0, 0, 0.12) !important;
-}
-
-/* ── More text-white/X overrides ── */
-html.light .text-white\/80 {
-  color: #1f2937 !important;
-}
-html.light .text-white\/40,
-html.light .text-white\/45 {
-  color: rgba(0, 0, 0, 0.5) !important;
-}
-html.light .text-white\/35,
-html.light .text-white\/30 {
-  color: rgba(0, 0, 0, 0.4) !important;
-}
-html.light .text-white\/20 {
-  color: rgba(0, 0, 0, 0.3) !important;
-}
-
-/* ── More border-white/X overrides ── */
-html.light .border-white\/5 {
-  border-color: rgba(0, 0, 0, 0.05) !important;
-}
-html.light .border-white\/8 {
-  border-color: rgba(0, 0, 0, 0.08) !important;
-}
-html.light .border-white\/15 {
-  border-color: rgba(0, 0, 0, 0.12) !important;
-}
-html.light .border-white\/25 {
-  border-color: rgba(0, 0, 0, 0.15) !important;
-}
-html.light .border-white\/\[0\.05\] {
-  border-color: rgba(0, 0, 0, 0.05) !important;
-}
-html.light .border-white\/\[0\.07\] {
-  border-color: rgba(0, 0, 0, 0.07) !important;
-}
-html.light .border-white\/\[0\.08\] {
-  border-color: rgba(0, 0, 0, 0.08) !important;
-}
-
-/* ── Border gray/zinc dark variants ── */
-html.light .border-gray-800 {
-  border-color: rgba(0, 0, 0, 0.1) !important;
-}
-html.light .border-gray-700 {
-  border-color: rgba(0, 0, 0, 0.12) !important;
-}
-html.light .border-zinc-900 {
-  border-color: rgba(0, 0, 0, 0.08) !important;
-}
-
-/* ── hover:bg-zinc / bg-zinc hover states ── */
-html.light .hover\:bg-zinc-700:hover {
-  background-color: #c8c9cc !important;
-}
-html.light .hover\:bg-zinc-800:hover {
-  background-color: #dfe0e3 !important;
-}
-html.light .hover\:bg-zinc-900:hover {
-  background-color: #ebebed !important;
-}
-html.light .hover\:bg-zinc-900\/50:hover {
-  background-color: rgba(0, 0, 0, 0.04) !important;
-}
-
-/* ── placeholder colour overrides ── */
-html.light .placeholder-white\/50::placeholder,
-html.light .placeholder-white\/30::placeholder {
-  color: rgba(0, 0, 0, 0.4) !important;
-}
-
-/* ── group-hover:text-white ── */
-html.light .group:hover .group-hover\:text-white {
-  color: #111827 !important;
-}
-
-/* ── hover:text-white ── */
-html.light .hover\:text-white:hover {
-  color: #111827 !important;
-}
-
-/* ── text-gray-100 / text-gray-200 ── */
-html.light .text-gray-100 {
-  color: #1f2937 !important;
-}
-html.light .text-gray-200 {
-  color: #374151 !important;
-}
-
-/* ── WebSearch / input styling ── */
-html.light .search-filter-btn {
-  border-color: rgba(0, 0, 0, 0.2) !important;
-  background-color: rgba(0, 0, 0, 0.06) !important;
-  color: #374151 !important;
-}
-html.light .search-filter-btn:hover {
-  background-color: rgba(0, 0, 0, 0.1) !important;
-}
-html.light .search-input {
-  background-color: rgba(0, 0, 0, 0.06) !important;
-  color: #1a1a1a !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-}
-html.light .search-input::placeholder {
-  color: rgba(0, 0, 0, 0.4) !important;
-}
-html.light .search-input:focus {
-  --tw-ring-color: rgba(0, 0, 0, 0.3) !important;
-}
-html.light .search-icon-btn {
-  color: rgba(0, 0, 0, 0.5) !important;
-}
-html.light .search-icon-btn:hover {
-  color: #1a1a1a !important;
-}
-
-/* ── DownloadModal scrollbar ── */
-html.light .download-modal-content::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2) !important;
-}
-html.light .download-modal-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3) !important;
-}
-
-/* ── Servers border ── */
-html.light .servers {
-  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
-}
-
-/* ── WatchControls ── */
-html.light .watch-controls-bar {
-  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
-}
-html.light .watch-toggle-btn {
-  color: #4b5563 !important;
-}
-html.light .watch-toggle-btn:hover {
-  background-color: rgba(0, 0, 0, 0.06) !important;
-}
-
-/* ── scrollbar-visible in light mode ── */
-html.light .scrollbar-visible {
-  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
-}
-html.light .scrollbar-visible::-webkit-scrollbar-track {
-  background-color: transparent;
-}
-html.light .scrollbar-visible::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
-}
-html.light .scrollbar-visible::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.25);
-}
-
-/* ── Tailwind scrollbar utilities (Tailwind Scrollbar plugin classes) ── */
-html.light [class*="scrollbar-track-\["] {
-  --scrollbar-track: #f0f2f5 !important;
-}
-html.light [class*="scrollbar-thumb-\["] {
-  --scrollbar-thumb: rgba(0, 0, 0, 0.2) !important;
-}
-html.light [class*="hover\:scrollbar-thumb-\["] {
-  --scrollbar-thumb: rgba(0, 0, 0, 0.3) !important;
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   Light-mode fixes – additional targeted overrides
-   ══════════════════════════════════════════════════════════════════ */
-
-/* ── Genre component: replace black gradient fade-edges with light ones ── */
-html.light [class*="from-[#0a0a0a]"] {
-  --tw-gradient-from: #f0f2f5;
-  --tw-gradient-stops: #f0f2f5, rgba(240, 242, 245, 0) !important;
-}
-html.light [class*="via-[#0a0a0a]"] {
-  --tw-gradient-stops: var(--tw-gradient-from, #f0f2f5),
-    rgba(240, 242, 245, 0.8),
-    var(--tw-gradient-to, rgba(240, 242, 245, 0)) !important;
-}
-
-/* ── TabbedAnimeSection: make tab labels and section border visible ── */
-html.light [class*="text-[#ffffff80]"] {
-  color: #4b5563 !important;
-}
-html.light [class*="border-[#ffffff1a]"] {
-  border-color: rgba(0, 0, 0, 0.1) !important;
-}
-html.light [class*="before\:bg-[#ffffff40]"]::before {
-  background-color: rgba(0, 0, 0, 0.1) !important;
-}
-
-/* ── Spotlight: make the "#N Spotlight" pink number readable ── */
-html.light [class*="text-[#ffbade]"] {
-  color: #be185d !important;
-}
-
-/* ── Watch page source-toggle buttons (inactive state) ── */
-html.light .bg-gray-700 {
-  background-color: #d1d5db !important;
-}
-html.light .hover\:bg-gray-600:hover {
-  background-color: #9ca3af !important;
-}
-html.light .bg-gray-600 {
-  background-color: #9ca3af !important;
-}
-
-/* ── AnimeInfo / hero gradient overlay – blend into light background ── */
-html.light .animeinfo-hero-overlay {
-  background-image: linear-gradient(
-    to top,
-    #f0f2f5 0%,
-    rgba(240, 242, 245, 0.7) 30%,
-    rgba(240, 242, 245, 0) 60%
-  ) !important;
-}
-
-/* ── Spotlight nav buttons: style for light background ── */
-html.light .button-prev,
-html.light .button-next {
-  background-color: rgba(0, 0, 0, 0.2) !important;
-}
-html.light .button-prev:hover,
-html.light .button-next:hover {
-  background-color: rgba(0, 0, 0, 0.35) !important;
-}
-html.light .button-prev::after,
-html.light .button-next::after {
-  border-color: #1a1a1a !important;
-}
-
-/* ── Spotlight thumbnail overlay: keep dark so thumb text remains readable ── */
-/* (no change needed – dark overlay on thumbnail images is intentional) */
-
-/* ── Active thumb border in light mode ── */
-html.light .swiper-slide-thumb-active .spotlight-thumb-item {
-  border-color: #1a1a1a !important;
-}
-
-/* ── AnimeInfo seasons ring (white/40 ring → dark ring) ── */
-html.light [class*="ring-white"] {
-  --tw-ring-color: rgba(0, 0, 0, 0.25) !important;
-}
-
-/* ── Keep white text readable inside dark-overlay containers (badges, play overlays) ── */
-html.light [class*="bg-black/"] .text-white {
-  color: #ffffff !important;
-}
-
-/* ── LatestEpisodeCard / hero: keep title text white on dark gradient overlay ── */
-html.light .from-black\/75 .text-white,
-html.light .from-black\/90 .text-white,
-html.light .from-black\/70 .text-white {
-  color: #ffffff !important;
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   Trending section fixes
-   ══════════════════════════════════════════════════════════════════ */
-
-/* ── Trending cards: keep rank number and title text white over dark gradient overlay ── */
-html.light .trending-card-link .text-white {
-  color: #ffffff !important;
-}
-
-/* ── Trending navigation buttons: adapt to light background ── */
-html.light [class*="bg-\[#383747\]"],
-html.light [class*="bg-\[#373646\]"] {
-  background-color: #e2e3e8 !important;
-  color: #374151 !important;
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   Episode list header controls and dropdown fixes
-   ══════════════════════════════════════════════════════════════════ */
-
-/* ── Active toggle button bg (sort / grid-view) ── */
-html.light [class*="bg-\[#3a3a3a\]"] {
-  background-color: #9ca3af !important;
-}
-html.light [class*="hover\:bg-\[#3a3a3a\]"]:hover {
-  background-color: #d1d5db !important;
-}
-
-/* ── Range dropdown selected item bg ── */
-html.light [class*="bg-\[#404040\]"] {
-  background-color: #bfc0c4 !important;
-}
-
-/* ── Border overrides for episode list header ── */
-html.light [class*="border-\[#2a2a2a\]"] {
-  border-color: rgba(0, 0, 0, 0.12) !important;
-}
-html.light [class*="border-\[#3a3a3a\]"] {
-  border-color: rgba(0, 0, 0, 0.15) !important;
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   Next airing banner (episode list footer) – light mode
-   ══════════════════════════════════════════════════════════════════ */
-html.light [class*="bg-\[#1a3a2a\]"] {
-  background-color: #f0fdf4 !important;
-}
-html.light [class*="border-\[#2a4a3a\]"] {
-  border-color: #bbf7d0 !important;
-}
-html.light .text-green-300 {
-  color: #15803d !important;
-}
-html.light .text-green-400 {
-  color: #16a34a !important;
+  animation: fadeIn 0.3s ease-in-out;
 }

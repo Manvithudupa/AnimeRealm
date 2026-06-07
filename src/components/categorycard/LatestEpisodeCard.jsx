@@ -54,50 +54,43 @@ const LatestEpisodeCard = ({ item, path }) => {
   return (
     <div
       onClick={isNavigating ? undefined : handleClick}
-      aria-disabled={isNavigating}
-      aria-busy={isNavigating}
-      className={`relative rounded-xl overflow-hidden bg-[#0f0f1a] group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 ${isNavigating ? "cursor-wait opacity-80" : "cursor-pointer"}`}
+      className={`relative rounded-lg overflow-hidden bg-[#111] group transition-all duration-300 hover:-translate-y-1.5 ${isNavigating ? "cursor-wait opacity-80" : "cursor-pointer"}`}
     >
       {/* Thumbnail */}
-      <div className="w-full h-48 overflow-hidden">
+      <div className="w-full h-48 overflow-hidden relative">
         <OptimizedImage
           src={imageSrc}
           alt={title}
-          className="w-full h-48 object-cover"
+          className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
           lazy={true}
         />
-      </div>
+        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
+        {/* Play Icon on Hover */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+           <div className="bg-[#eb3349] w-10 h-10 rounded-full flex items-center justify-center text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+           </div>
+        </div>
+      </div>
 
       {/* Loading Overlay */}
       {isNavigating && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
-          <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-[#eb3349] border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
       {/* Episode Badge */}
       {episodeNum && (
-        <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-full">
-          <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          <span className="text-xs text-white font-medium">
-            Episode {episodeNum}
-          </span>
-        </div>
-      )}
-
-      {/* 18+ Badge */}
-      {!isEpisodeData && (item.tvInfo?.rating === "18+" || item.adultContent) && (
-        <div className="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md">
-          18+
+        <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-[#eb3349] px-2 py-0.5 rounded text-[10px] font-black uppercase text-white shadow-lg">
+          EP {episodeNum}
         </div>
       )}
 
       {/* Bottom Info */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/75 to-transparent pt-6 pb-3 px-3 rounded-b-xl">
-        <p className="text-white text-sm font-semibold leading-snug line-clamp-2">
+      <div className="p-3">
+        <p className="text-white text-[13px] font-bold leading-tight line-clamp-1 group-hover:text-[#eb3349] transition-colors">
           {title}
         </p>
       </div>

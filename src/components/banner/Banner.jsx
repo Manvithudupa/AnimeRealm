@@ -38,11 +38,11 @@ function Banner({ item, index }) {
         max-[300px]:w-full"
       >
 
-        <p className="text-[#ffbade] font-semibold text-[20px] w-fit max-[1300px]:text-[15px]">
+        <p className="text-[#eb3349] font-bold text-[18px] w-fit max-[1300px]:text-[15px] uppercase tracking-wider">
           #{index + 1} Spotlight
         </p>
 
-        <h3 className="text-white line-clamp-2 text-5xl font-bold mt-4 text-left
+        <h3 className="text-white line-clamp-2 text-6xl font-black mt-2 text-left tracking-tighter
           max-[1390px]:text-[45px]
           max-[1300px]:text-3xl
           max-[1300px]:mt-3
@@ -114,23 +114,23 @@ function Banner({ item, index }) {
         </p>
 
         {/* Buttons (all screen sizes) */}
-        <div className="flex mt-5 gap-x-3 max-md:mt-3 max-md:w-full max-[1300px]:mt-4">
+        <div className="flex mt-8 gap-x-4 max-md:mt-4 max-md:w-full max-[1300px]:mt-6">
 
           <Link
             to={`/watch/${item.id}`}
-            className="bg-white/90 hover:bg-white text-black font-medium px-7 py-2 rounded-lg transition-all duration-200 flex items-center gap-x-2.5 shadow-lg shadow-black/10 backdrop-blur-sm
-              max-md:px-5 max-md:py-1.5 max-md:text-sm"
+            className="bg-[#eb3349] hover:bg-[#ff4d63] text-white font-bold px-8 py-3 rounded-full transition-all duration-300 flex items-center gap-x-3 shadow-xl shadow-red-900/20
+              max-md:px-6 max-md:py-2 max-md:text-sm"
           >
-            <FontAwesomeIcon icon={faPlay} className="text-[10px]" />
+            <FontAwesomeIcon icon={faPlay} className="text-xs" />
             <span>Watch Now</span>
           </Link>
 
           <Link
             to={`/${item.id}`}
-            className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-medium px-7 py-2 rounded-lg transition-all duration-200 flex items-center gap-x-2.5 backdrop-blur-sm
-              max-md:px-5 max-md:py-1.5 max-md:text-sm"
+            className="bg-white/10 hover:bg-white/20 text-white font-bold px-8 py-3 rounded-full transition-all duration-300 flex items-center gap-x-3 backdrop-blur-md border border-white/10
+              max-md:px-6 max-md:py-2 max-md:text-sm"
           >
-            <span>Details</span>
+            <span>View Details</span>
           </Link>
 
         </div>

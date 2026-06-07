@@ -189,7 +189,7 @@ export default function Watch() {
       },
       {
         condition: animeInfo?.animeInfo?.tvInfo?.quality,
-        bgColor: "#FFBADE",
+        bgColor: "#eb3349",
         text: animeInfo?.animeInfo?.tvInfo?.quality,
       },
       {
@@ -343,10 +343,10 @@ export default function Watch() {
                 {/* Download Modal Button */}
                 {source === "animepahe" && downloadOptions &&
                   (downloadOptions.sub?.length > 0 || downloadOptions.dub?.length > 0 || downloadOptions.raw?.length > 0) && (
-                  <div className="px-3 py-2 border-t border-gray-700">
+                  <div className="px-3 py-2 border-t border-white/5">
                     <button
                       onClick={() => setShowDownloadModal(true)}
-                      className="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
+                      className="w-full px-4 py-2.5 bg-[#eb3349] hover:bg-[#ff4d63] text-white rounded-full text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300"
                     >
                       <FontAwesomeIcon icon={faDownload} className="text-[14px]" />
                       Download Episode
@@ -375,7 +375,7 @@ export default function Watch() {
                     return (
                       <div className="px-3 pb-3">
                         <div
-                          className="w-full rounded-lg bg-[#272727] flex items-center gap-3 cursor-pointer hover:bg-[#303030] transition-colors overflow-hidden"
+                          className="w-full rounded-xl bg-white/5 flex items-center gap-3 cursor-pointer hover:bg-white/10 transition-colors overflow-hidden border border-white/5"
                           onClick={() => setEpisodeId(nextEp.id.match(/ep=(\d+)/)?.[1])}
                         >
                           {nextEp.thumbnail && (
@@ -436,8 +436,8 @@ export default function Watch() {
                           });
                       return (
                         <div className="px-3 pb-3">
-                          <div className="w-full rounded-lg bg-[#272727] flex items-center gap-3 px-4 py-3">
-                            <svg className="w-5 h-5 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <div className="w-full rounded-xl bg-white/5 flex items-center gap-3 px-4 py-3 border border-white/5">
+                            <svg className="w-5 h-5 text-[#eb3349] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             <div className="min-w-0">
@@ -465,8 +465,8 @@ export default function Watch() {
                       key={index}
                       className={`relative w-full aspect-[3/1] rounded-lg overflow-hidden cursor-pointer group ${
                         animeId === String(season.id)
-                          ? "ring-2 ring-white/40 shadow-lg shadow-white/10"
-                          : ""
+                          ? "ring-2 ring-[#eb3349] shadow-lg shadow-red-900/20"
+                          : "border border-white/5"
                       }`}
                     >
                       <img
@@ -546,10 +546,10 @@ export default function Watch() {
                       to={`/${animeId}`}
                       className="group"
                     >
-                      <h1 className="text-[28px] font-medium text-white leading-tight group-hover:text-gray-300 transition-colors max-[600px]:text-[20px]">
+                      <h1 className="text-[28px] font-bold text-white leading-tight group-hover:text-[#eb3349] transition-colors max-[600px]:text-[20px]">
                         {language ? animeInfo?.title : animeInfo?.japanese_title}
                       </h1>
-                      <div className="flex items-center gap-1.5 mt-1 text-gray-400 text-sm group-hover:text-white transition-colors max-[600px]:text-[12px] max-[600px]:mt-0.5">
+                      <div className="flex items-center gap-1.5 mt-1 text-white/40 text-sm group-hover:text-white transition-colors max-[600px]:text-[12px] max-[600px]:mt-0.5 uppercase font-black tracking-widest">
                         <span>View Details</span>
                         <svg className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform max-[600px]:w-3 max-[600px]:h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -608,8 +608,8 @@ export default function Watch() {
                       key={index}
                       className={`relative w-full aspect-[3/1] rounded-lg overflow-hidden cursor-pointer group ${
                         animeId === String(season.id)
-                          ? "ring-2 ring-white/40 shadow-lg shadow-white/10"
-                          : ""
+                          ? "ring-2 ring-[#eb3349] shadow-lg shadow-red-900/20"
+                          : "border border-white/5"
                       }`}
                     >
                       <img

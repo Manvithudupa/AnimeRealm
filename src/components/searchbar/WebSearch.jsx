@@ -1,4 +1,4 @@
-import { faMagnifyingGlass, faSliders } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Suggestion from "../suggestion/Suggestion";
 import useSearch from "@/src/hooks/useSearch";
@@ -30,46 +30,39 @@ function WebSearch() {
         }
     };
 
-    const handleFilterClick = () => {
-        navigate("/filter");
-    };
-
     return (
-        <div className="flex items-center relative w-[450px] max-[600px]:w-fit gap-2">
-
-            {/* Filter Button */}
-            <button
-                onClick={handleFilterClick}
+        <div className="flex items-center relative w-full max-w-[280px] lg:max-w-[320px] group">
+            {/* Search Icon */}
+            <div
                 className={`
-                    flex items-center justify-center px-4 py-2
-                    rounded-lg
+                    absolute left-4 z-10
                     transition-colors
-                    backdrop-blur-sm
+                    pointer-events-none
                     ${theme === "dark"
-                        ? "border border-white/40 bg-black/40 text-white hover:bg-black/70"
-                        : "border border-black/20 bg-black/[0.06] text-gray-700 hover:bg-black/10"
+                        ? "text-white/40 group-focus-within:text-white/70"
+                        : "text-gray-400 group-focus-within:text-gray-600"
                     }
                 `}
             >
-                <FontAwesomeIcon icon={faSliders} className="mr-2" />
-                Filter
-            </button>
+                <FontAwesomeIcon
+                    icon={faMagnifyingGlass}
+                    className="text-sm"
+                />
+            </div>
 
             {/* Search Input */}
             <input
                 type="text"
                 className={`
-                    w-full px-5 py-2
-                    rounded-lg
-                    focus:outline-none focus:ring-1
-                    transition-colors
-                    max-[600px]:hidden
+                    w-full pl-10 pr-4 py-2
+                    rounded-full text-sm
+                    focus:outline-none transition-all
                     ${theme === "dark"
-                        ? "bg-black/40 text-white border border-white/30 focus:ring-white/50 placeholder-white/50"
-                        : "bg-black/[0.06] text-gray-900 border border-black/[0.15] focus:ring-black/[0.30] placeholder:text-gray-400"
+                        ? "bg-white/10 text-white placeholder-white/40 focus:bg-white/15"
+                        : "bg-black/5 text-gray-900 placeholder:text-gray-400 focus:bg-black/10"
                     }
                 `}
-                placeholder="Search anime..."
+                placeholder="Search..."
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 onFocus={() => setIsFocused(true)}
@@ -95,38 +88,11 @@ function WebSearch() {
                 }}
             />
 
-            {/* Search Icon */}
-            <button
-                className={`
-                    absolute right-4
-                    transition-colors
-                    max-[600px]:static
-                    max-[600px]:bg-transparent
-                    focus:outline-none
-                    max-[600px]:p-0
-                    ${theme === "dark"
-                        ? "text-white/60 hover:text-white"
-                        : "text-gray-500 hover:text-gray-900"
-                    }
-                `}
-                onClick={handleSearchClick}
-            >
-                <FontAwesomeIcon
-                    icon={faMagnifyingGlass}
-                    className="
-                        text-lg
-                        max-[600px]:text-2xl
-                        max-[575px]:text-xl
-                        max-[600px]:mt-[7px]
-                    "
-                />
-            </button>
-
             {/* Suggestions */}
             {searchValue.trim() && isFocused && (
                 <div
                     ref={addSuggestionRef}
-                    className="absolute z-[100000] top-full w-full"
+                    className="absolute z-[100000] top-full mt-2 w-full left-0"
                 >
                     <Suggestion
                         keyword={debouncedValue}
