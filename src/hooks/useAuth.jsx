@@ -18,6 +18,51 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     let mounted = true;
 
+    /**
+     * Fetch the user's profile, or auto-create one if it doesn't exist yet.
+     * Defined inside the effect so it closes over `mounted` (passed by value
+     * would be stale on unmount). Also acts as a fallback in case the database
+     * trigger (on_auth_user_created) hasn't fired yet.
+     */
+    const fetchAndSetProfile = async (user) => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('avatar_url, username')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (!mounted) return;
+
+        if (data) {
+          setProfile(data);
+        } else if (!error) {
+          // Profile doesn't exist yet — create one
+          const username =
+            user.user_metadata?.username ||
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            user.email?.split('@')[0] ||
+            'Anime Fan';
+
+          const { data: newProfile } = await supabase
+            .from('profiles')
+            .upsert(
+              { user_id: user.id, username },
+              { onConflict: 'user_id' }
+            )
+            .select('avatar_url, username')
+            .single();
+
+          if (mounted && newProfile) {
+            setProfile(newProfile);
+          }
+        }
+      } catch {
+        // Silently ignore — profile will be created on next page load
+      }
+    };
+
     // Get initial session FIRST
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
@@ -27,14 +72,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
 
       if (session?.user) {
-        supabase
-          .from('profiles')
-          .select('avatar_url, username')
-          .eq('user_id', session.user.id)
-          .single()
-          .then(({ data }) => {
-            if (mounted && data) setProfile(data);
-          });
+        fetchAndSetProfile(session.user);
       }
     });
 
@@ -47,14 +85,7 @@ export const AuthProvider = ({ children }) => {
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          supabase
-            .from('profiles')
-            .select('avatar_url, username')
-            .eq('user_id', session.user.id)
-            .single()
-            .then(({ data }) => {
-              if (mounted && data) setProfile(data);
-            });
+          fetchAndSetProfile(session.user);
         } else {
           setProfile(null);
         }
