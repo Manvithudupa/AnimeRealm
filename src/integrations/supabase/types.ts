@@ -27,7 +27,7 @@ export type Database = {
         }
 
         Insert: {
-          id: string
+          id?: string
           user_id: string
           username?: string | null
           gender?: string | null
@@ -55,13 +55,14 @@ export type Database = {
 
       watchlists: {
         Row: {
-          id: string
+          id: number
           user_id: string
           anime_id: string
           anime_title: string
           anime_poster: string | null
           status: 'watching' | 'plan_to_watch' | 'completed' | 'on_hold' | 'dropped'
           created_at: string
+          updated_at: string
         }
 
         Insert: {
@@ -70,10 +71,16 @@ export type Database = {
           anime_title: string
           anime_poster?: string | null
           status?: 'watching' | 'plan_to_watch' | 'completed' | 'on_hold' | 'dropped'
+          created_at?: string
+          updated_at?: string
         }
 
         Update: {
+          anime_id?: string
+          anime_title?: string
+          anime_poster?: string | null
           status?: 'watching' | 'plan_to_watch' | 'completed' | 'on_hold' | 'dropped'
+          updated_at?: string
         }
 
         Relationships: []
@@ -85,7 +92,7 @@ export type Database = {
 
       continue_watching: {
         Row: {
-          id: string
+          id: number
           user_id: string
 
           anime_id: string
@@ -150,7 +157,7 @@ export type Database = {
 
       notifications: {
         Row: {
-          id: string
+          id: number
           user_id: string
           anime_id: string
           anime_title: string
