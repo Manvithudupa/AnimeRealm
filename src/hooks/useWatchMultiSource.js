@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
 import {
   getAnimepaheEpisodesByAnilistId,
@@ -167,6 +167,10 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     fetchServers();
   }, [episodeId, episodes]);
 
+  // All sources (for fallback) and current source index
+  const [allSources, setAllSources] = useState([]);
+  const [currentSourceIndex, setCurrentSourceIndex] = useState(0);
+
   // Fetch stream info when server is selected
   useEffect(() => {
     if (!episodeId || !activeServerId || !servers ||
@@ -184,14 +188,19 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
 
         const streamData = await getAnimepaheStreamInfo(apiEpisodeId, server.type, server.serverName?.toLowerCase());
 
-        const primarySource = streamData.sources?.[0];
-        if (!primarySource) throw new Error("No streaming sources available");
+        const allS = streamData.sources || [];
+        if (!allS.length) throw new Error("No streaming sources available");
+
+        setAllSources(allS);
+        setCurrentSourceIndex(0);
+        const primarySource = allS[0];
 
         setStreamInfo({
           streamingLink: {
             link: { file: primarySource.url },
             headers: streamData.headers,
           },
+          allSources: allS,
         });
         setStreamUrl(primarySource.url);
         setSubtitles(streamData.subtitles || []);
@@ -214,6 +223,24 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     fetchStream();
   }, [episodeId, activeServerId, servers]);
 
+  // Fallback to next source when the current one fails
+  const fallbackToNextSource = useCallback(() => {
+    setCurrentSourceIndex((prev) => {
+      const next = prev + 1;
+      if (next < allSources.length) {
+        const nextSource = allSources[next];
+        setStreamUrl(nextSource.url);
+        setBuffering(true);
+        setError(null);
+        console.log(`Falling back to source ${next + 1}/${allSources.length}: ${nextSource.url}`);
+        return next;
+      }
+      console.error("All sources exhausted, no more fallback available");
+      setError("All streaming sources failed. Please try a different server.");
+      return prev;
+    });
+  }, [allSources]);
+
   return {
     source, setSource, changeSource: setSource,
     error, buffering, serverLoading, streamInfo, animeInfo, episodes,
@@ -222,5 +249,6 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     episodeId, setEpisodeId, activeEpisodeNum, setActiveEpisodeNum,
     activeServerId, setActiveServerId, activeServerType, setActiveServerType,
     activeServerName, setActiveServerName, downloadOptions, nextEpisodeSchedule,
+    allSources, currentSourceIndex, fallbackToNextSource,
   };
 };

@@ -60,6 +60,8 @@ export default function Watch() {
     setActiveServerName,
     downloadOptions,
     nextEpisodeSchedule,
+    allSources,
+    fallbackToNextSource,
   } = useWatchMultiSource(animeId, initialEpisodeId);
   const {
     autoPlay,
@@ -249,6 +251,8 @@ export default function Watch() {
                     animeInfo={animeInfo}
                     episodeNum={activeEpisodeNum}
                     streamInfo={streamInfo}
+                    allSources={allSources}
+                    onSourceFallback={fallbackToNextSource}
                   />
                 ) : (
                   <div className="absolute inset-0 flex justify-center items-center bg-black">

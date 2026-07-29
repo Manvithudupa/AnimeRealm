@@ -128,17 +128,21 @@ export async function getAnimepaheStreamInfo(episodeId, version = "sub", serverN
     });
     const data = response.data?.data || {};
     const sources = data.sources || [];
-    const primarySource = sources[0] || {};
     const tracks = data.tracks || [];
 
-    const headers = primarySource.referer
-      ? { Referer: primarySource.referer }
-      : { Referer: "https://hi-anime.me/" };
+    // Use referer from first source, or fallback
+    const referer = sources.find(s => s.referer)?.referer || "https://hi-anime.me/";
+    const headers = { Referer: referer };
 
     return {
-      sources: primarySource.m3u8
-        ? [{ url: primarySource.m3u8, isM3u8: primarySource.type === "m3u8", type: primarySource.type || "hls", quality: "auto" }]
-        : [],
+      // Return ALL sources instead of just the first one
+      sources: sources.map(s => ({
+        url: s.m3u8 || "",
+        isM3u8: s.type === "m3u8",
+        type: s.type || "hls",
+        quality: s.quality || "auto",
+        referer: s.referer || null,
+      })).filter(s => s.url),
       headers,
       subtitles: tracks.filter(t => t.kind === "captions").map(t => ({
         file: t.file,

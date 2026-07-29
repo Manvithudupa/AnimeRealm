@@ -49,6 +49,8 @@ export default function Player({
   animeInfo,
   episodeNum,
   streamInfo,
+  allSources = [],
+  onSourceFallback,
 }) {
   const artRef = useRef(null);
   const artInstanceRef = useRef(null);
@@ -156,16 +158,40 @@ export default function Player({
         }
       });
 
+      let hlsRetryCount = 0;
+      const MAX_HLS_RETRIES = 3;
+
       hls.on(Hls.Events.ERROR, (event, data) => {
         if (data.fatal) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              hls.startLoad();
+              hlsRetryCount++;
+              if (hlsRetryCount >= MAX_HLS_RETRIES && onSourceFallback && allSources.length > 1) {
+                // All retries exhausted — fall back to next source
+                console.warn(`HLS fatal network error after ${hlsRetryCount} retries, falling back to next source`);
+                hls.destroy();
+                onSourceFallback();
+              } else {
+                hls.startLoad();
+              }
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
-              hls.recoverMediaError();
+              hlsRetryCount++;
+              if (hlsRetryCount >= MAX_HLS_RETRIES && onSourceFallback && allSources.length > 1) {
+                console.warn(`HLS fatal media error after ${hlsRetryCount} retries, falling back to next source`);
+                hls.destroy();
+                onSourceFallback();
+              } else {
+                hls.recoverMediaError();
+              }
               break;
             default:
+              // Unknown fatal error — try fallback
+              if (onSourceFallback && allSources.length > 1) {
+                console.warn("HLS unknown fatal error, falling back to next source");
+                hls.destroy();
+                onSourceFallback();
+              }
               break;
           }
         }

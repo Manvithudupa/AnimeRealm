@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ANIME_GENRES from "@/src/constants/genres";
+import { ANIME_GENRES } from "@/src/constants/genres";
 import { apiUrl } from "@/src/config/api";
 
 const CACHE_KEY = "homeInfoCache_v3";
