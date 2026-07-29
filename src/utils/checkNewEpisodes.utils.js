@@ -1,24 +1,16 @@
 import { supabase } from "@/src/integrations/supabase/client";
-import { getAnimepaheEpisodesByAnilistId } from "@/src/utils/animepaheBackend.utils";
-import { getAnizoneEpisodesByAnilistId } from "@/src/utils/anizoneBackend.utils";
+import { getAnimepaheEpisodesByAnilistId } from "@/src/utils/shirayukiBackend.utils";
 
 const getEpisodesForNotifications = async (animeId) => {
   try {
-    const animepaheData = await getAnimepaheEpisodesByAnilistId(animeId);
-    if (animepaheData?.episodes?.length) {
-      return animepaheData.episodes;
+    const data = await getAnimepaheEpisodesByAnilistId(animeId);
+    if (data?.episodes?.length) {
+      return data.episodes;
     }
   } catch (error) {
-    console.warn("Error fetching AnimePahe episodes for notifications:", error);
+    console.warn("Error fetching episodes for notifications:", error);
   }
-
-  try {
-    const anizoneData = await getAnizoneEpisodesByAnilistId(animeId);
-    return anizoneData?.episodes || [];
-  } catch (error) {
-    console.warn("Error fetching AniZone episodes for notifications:", error);
-    return [];
-  }
+  return [];
 };
 
 export const checkNewEpisodes = async (userId) => {

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import OptimizedImage from "@/src/components/OptimizedImage/OptimizedImage";
 import { useLanguage } from "@/src/context/LanguageContext";
+import { apiUrl } from "@/src/config/api";
 
 const LatestEpisodeCard = ({ item, path }) => {
   const navigate = useNavigate();
@@ -30,13 +31,13 @@ const LatestEpisodeCard = ({ item, path }) => {
     if (isEpisodeData) {
       setIsNavigating(true);
       try {
-        const base_url = import.meta.env.VITE_ANIMEPAHE_URL;
-        const response = await axios.get(
-          `${base_url}/api/anilist/anime/search?q=${encodeURIComponent(item.title)}&page=1&perPage=1`
-        );
-        const result = response.data?.data?.[0];
-        if (result?.anilistId) {
-          navigate(`/watch/${result.anilistId}?ep=${item.episodeNumber}`);
+        const response = await axios.get(apiUrl('/search'), {
+          params: { q: item.title, page: 1 }
+        });
+        const result = response.data?.data?.animes?.[0] || response.data?.data?.[0] || {};
+        const animeId = result.anilistId || result.id;
+        if (animeId) {
+          navigate(`/watch/${animeId}?ep=${item.episodeNumber}`);
         } else {
           navigate(`/search?q=${encodeURIComponent(item.title)}`);
         }

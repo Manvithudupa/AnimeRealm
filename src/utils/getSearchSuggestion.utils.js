@@ -1,40 +1,57 @@
 import axios from "axios";
+import { apiUrl } from "@/src/config/api";
 
-// In-memory cache for search suggestions keyed by normalised query string.
-const _suggestionCache = new Map(); // key -> { data, timestamp }
-const _suggestionInFlight = new Map(); // key -> Promise (deduplicates concurrent calls)
-const SUGGESTION_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const _suggestionCache = new Map();
+const _suggestionInFlight = new Map();
+const SUGGESTION_CACHE_TTL_MS = 5 * 60 * 1000;
 
+/**
+ * Actual suggestion response (live-tested):
+ * {
+ *   data: {
+ *     suggestions: [
+ *       { id, title, jname, poster, info: "2013TV" }
+ *     ]
+ *   }
+ * }
+ */
 const getSearchSuggestion = async (keyword) => {
-  const base_url = import.meta.env.VITE_ANIMEPAHE_URL;
   const key = keyword.trim().toLowerCase();
 
-  // Return cached result if still fresh.
   const cached = _suggestionCache.get(key);
   if (cached && Date.now() - cached.timestamp < SUGGESTION_CACHE_TTL_MS) {
     return cached.data;
   }
 
-  // Deduplicate concurrent requests for the same query.
   if (_suggestionInFlight.has(key)) {
     return _suggestionInFlight.get(key);
   }
 
   const fetchPromise = (async () => {
     try {
-      const response = await axios.get(
-        `${base_url}/api/anilist/anime/search?q=${encodeURIComponent(keyword)}&page=1&perPage=10`
-      );
-      const items = response.data?.data || [];
-      const result = items.map((item) => ({
-        id: String(item.anilistId),
-        title: item.title?.english || item.title?.romaji || "",
-        japanese_title: item.title?.native || item.title?.romaji || "",
-        poster: item.image,
-        releaseDate: item.releaseDate,
-        showType: item.format,
-        duration: item.duration ? `${item.duration}m` : null,
-      }));
+      const response = await axios.get(apiUrl('/search/suggestion'), {
+        params: { q: keyword },
+      });
+      const items = response.data?.data?.suggestions || [];
+
+      const result = items
+        .filter(item => item.id && item.title) // filter out the filter link entry
+        .map((item) => {
+          // info is like "2013TV" -> year=2013, type=TV
+          const info = item.info || "";
+          const yearMatch = info.match(/(\d{4})/);
+          const typeMatch = info.match(/(TV|Movie|OVA|ONA|Special|Music)/);
+          return {
+            id: item.id || "",
+            title: item.title || item.jname || "",
+            japanese_title: item.jname || "",
+            poster: item.poster || "",
+            releaseDate: yearMatch ? yearMatch[1] : null,
+            showType: typeMatch ? typeMatch[1] : null,
+            duration: null,
+          };
+        });
+
       _suggestionCache.set(key, { data: result, timestamp: Date.now() });
       return result;
     } catch (err) {

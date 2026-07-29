@@ -1,23 +1,56 @@
 import axios from "axios";
-import { transformAnilistItem } from "./transformAnilistItem.utils";
+import { apiUrl } from "@/src/config/api";
 
 const getProducer = async (producer, page) => {
-  const base_url = import.meta.env.VITE_ANIMEPAHE_URL;
   try {
-    // Use search with the producer/studio name as the query
-    const response = await axios.get(
-      `${base_url}/api/anilist/anime/search?q=${encodeURIComponent(producer)}&page=${page}&perPage=20`
-    );
-    const result = response.data;
+    const response = await axios.get(apiUrl(`/producer/${encodeURIComponent(producer)}`), {
+      params: { page },
+    });
+    const result = response.data?.data || {};
+    const items = result.results || [];
+    const pagination = result.pagination || {};
+
     return {
-      data: (result?.data || []).map(transformAnilistItem),
-      totalPages: result?.lastPage || 1,
-      currentPage: result?.currentPage || page,
+      data: items.map(mapItem),
+      totalPages: pagination.totalPages || 1,
+      currentPage: pagination.currentPage || page,
     };
   } catch (err) {
     console.error("Error fetching producer info:", err);
     return err;
   }
 };
+
+function mapItem(item) {
+  const epSub = item.episodes?.sub || null;
+  const epDub = item.episodes?.dub || null;
+  return {
+    id: item.id || "",
+    anilistId: item.id || "",
+    malId: null,
+    title: item.title || item.ename || item.jname || "",
+    japanese_title: item.jname || item.title || "",
+    poster: item.poster || "",
+    bannerImage: null,
+    color: null,
+    description: "",
+    episodes: epSub || null,
+    tvInfo: {
+      showType: item.type || null,
+      duration: null,
+      releaseDate: null,
+      rating: null,
+      quality: null,
+      sub: epSub,
+      dub: epDub,
+    },
+    genres: [],
+    score: null,
+    status: null,
+    season: null,
+    studio: null,
+    producers: [],
+  };
+}
 
 export default getProducer;

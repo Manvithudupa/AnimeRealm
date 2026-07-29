@@ -78,7 +78,7 @@ function CharacterCard({ character, preferredLanguage }) {
   );
 }
 
-function Voiceactor({ anilistId, className }) {
+function Voiceactor({ anilistId, animeTitle, className }) {
   const [showVoiceActors, setShowVoiceActors] = useState(false);
   const [characters, setCharacters] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -90,13 +90,13 @@ function Voiceactor({ anilistId, className }) {
       return;
     }
     setLoading(true);
-    getAnilistCharacters(anilistId).then((data) => {
+    getAnilistCharacters(anilistId, animeTitle).then((data) => {
       setCharacters(data || []);
       setLoading(false);
     }).catch(() => {
       setLoading(false);
     });
-  }, [anilistId]);
+  }, [anilistId, animeTitle]);
 
   const languages = useMemo(() => {
     const langSet = new Set();

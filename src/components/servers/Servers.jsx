@@ -25,22 +25,25 @@ function Servers({
     servers?.filter((server) => server.type === "raw") || [];
 
   useEffect(() => {
-    const savedServerName = localStorage.getItem("server_name");
-    if (savedServerName) {
-      const matchingServer = servers?.find(
-        (server) => server.serverName === savedServerName,
-      );
+    if (!servers || servers.length === 0) return;
 
-      if (matchingServer) {
-        setActiveServerId(matchingServer.data_id);
-        setActiveServerType(matchingServer.type);
-      } else if (servers && servers.length > 0) {
-        setActiveServerId(servers[0].data_id);
-        setActiveServerType(servers[0].type);
-      }
-    } else if (servers && servers.length > 0) {
-      setActiveServerId(servers[0].data_id);
-      setActiveServerType(servers[0].type);
+    const savedServerName = localStorage.getItem("server_name");
+    const savedServerType = localStorage.getItem("server_type");
+
+    // Try saved server first, then fall back to first available
+    const targetServer =
+      (savedServerName && servers.find(
+        (server) => server.serverName === savedServerName && server.type === savedServerType
+      )) ||
+      (savedServerName && servers.find(
+        (server) => server.serverName === savedServerName
+      )) ||
+      servers[0];
+
+    if (targetServer) {
+      setActiveServerId(targetServer.data_id);
+      setActiveServerType(targetServer.type);
+      setActiveServerName(targetServer.serverName);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [servers]);

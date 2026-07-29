@@ -17,8 +17,6 @@ import SidecardLoader from "@/src/components/Loader/Sidecard.loader";
 import Watchcontrols from "@/src/components/watchcontrols/Watchcontrols";
 import useWatchControl from "@/src/hooks/useWatchControl";
 import Player from "@/src/components/player/Player";
-import AnimePaheEmbedPlayer from "@/src/components/player/AnimePaheEmbedPlayer";
-import AnizoneEmbedPlayer from "@/src/components/player/AnizoneEmbedPlayer";
 import DownloadModal from "@/src/components/downloadmodal/DownloadModal";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "@/src/components/breadcrumb/Breadcrumb";
@@ -231,54 +229,27 @@ export default function Watch() {
             <div ref={playerRef} className="player w-full h-fit bg-black flex flex-col rounded-xl overflow-hidden">
               {/* Video Container */}
               <div ref={videoContainerRef} className="w-full relative aspect-video bg-black">
-                {!buffering ? (
-                  source === "animepahe" && import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY && streamUrl ?
-                    <AnimePaheEmbedPlayer
-                      m3u8ProxyUrl={import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY}
-                      streamUrl={streamUrl}
-                      episodeId={episodeId}
-                      episodes={episodes}
-                      playNext={(id) => setEpisodeId(id)}
-                      autoNext={autoNext}
-                      animeInfo={animeInfo}
-                      episodeNum={activeEpisodeNum}
-                    />
-                  : source === "anizone" && import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY && streamUrl ?
-                    <AnizoneEmbedPlayer
-                      m3u8ProxyUrl={import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY}
-                      streamUrl={streamUrl}
-                      subtitles={subtitles}
-                      episodeId={episodeId}
-                      episodes={episodes}
-                      playNext={(id) => setEpisodeId(id)}
-                      autoNext={autoNext}
-                      animeInfo={animeInfo}
-                      episodeNum={activeEpisodeNum}
-                    />
-                  : streamUrl ? <Player
-                      streamUrl={streamUrl}
-                      m3u8ProxyUrl={source === "animepahe" ? import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY : null}
-                      subtitles={subtitles}
-                      intro={intro}
-                      outro={outro}
-                      serverName={activeServerName?.toLowerCase()}
-                      thumbnail={thumbnail}
-                      poster={poster}
-                      autoSkipIntro={autoSkipIntro}
-                      autoPlay={autoPlay}
-                      autoNext={autoNext}
-                      hardSub={hardSub}
-                      episodeId={episodeId}
-                      episodes={episodes}
-                      playNext={(id) => setEpisodeId(id)}
-                      animeInfo={animeInfo}
-                      episodeNum={activeEpisodeNum}
-                      streamInfo={streamInfo}
-                    /> : (
-                      <div className="absolute inset-0 flex justify-center items-center bg-black">
-                        <BouncingLoader />
-                      </div>
-                    )
+                {!buffering && streamUrl ? (
+                  <Player
+                    streamUrl={streamUrl}
+                    m3u8ProxyUrl={import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY || null}
+                    subtitles={subtitles}
+                    intro={intro}
+                    outro={outro}
+                    serverName={activeServerName?.toLowerCase()}
+                    thumbnail={thumbnail}
+                    poster={poster}
+                    autoSkipIntro={autoSkipIntro}
+                    autoPlay={autoPlay}
+                    autoNext={autoNext}
+                    hardSub={hardSub}
+                    episodeId={episodeId}
+                    episodes={episodes}
+                    playNext={(id) => setEpisodeId(id)}
+                    animeInfo={animeInfo}
+                    episodeNum={activeEpisodeNum}
+                    streamInfo={streamInfo}
+                  />
                 ) : (
                   <div className="absolute inset-0 flex justify-center items-center bg-black">
                     <BouncingLoader />
@@ -341,7 +312,7 @@ export default function Watch() {
                 </div>
 
                 {/* Download Modal Button */}
-                {source === "animepahe" && downloadOptions &&
+                {downloadOptions &&
                   (downloadOptions.sub?.length > 0 || downloadOptions.dub?.length > 0 || downloadOptions.raw?.length > 0) && (
                   <div className="px-3 py-2 border-t border-gray-700">
                     <button
@@ -381,7 +352,7 @@ export default function Watch() {
                           {nextEp.thumbnail && (
                             <div className="flex-shrink-0 w-[100px] h-[56px] relative overflow-hidden">
                               <img
-                                src={(source === "animepahe" || source === "anizone") ? `${import.meta.env.VITE_PROXY_URL || ""}${nextEp.thumbnail}` : nextEp.thumbnail}
+                                src={nextEp.thumbnail}
                                 alt={nextEp.title}
                                 className="w-full h-full object-cover"
                               />

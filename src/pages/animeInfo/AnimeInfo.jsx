@@ -240,7 +240,7 @@ function AnimeInfo({ random = false }) {
   }
 
   const { title, japanese_title, poster, bannerImage, animeInfo: info } = animeInfo;
-  const currentId = animeInfo?.data_id || animeInfo?.id?.split("-").pop();
+  const currentId = animeInfo?.data_id || animeInfo?.id;
   const displayTitle = language === "EN" ? title : japanese_title || title;
   const genres = info?.Genres || info?.genres || [];
   const showType = info?.Type || info?.tvInfo?.showType;
@@ -558,9 +558,9 @@ function AnimeInfo({ random = false }) {
       )}
 
       {/* =================== VOICE ACTORS =================== */}
-      {animeInfo?.anilistId && (
+      {animeInfo?.id && (
         <div className="px-5 mx-auto max-w-7xl py-8">
-          <Voiceactor anilistId={animeInfo.anilistId} />
+          <Voiceactor anilistId={animeInfo.id} animeTitle={animeInfo.title} />
         </div>
       )}
 

@@ -1,38 +1,35 @@
 import axios from "axios";
+import { apiUrl } from "@/src/config/api";
 
 const getQtip = async (id) => {
-  const base_url = import.meta.env.VITE_ANIMEPAHE_URL;
   try {
-    if (!base_url) {
-      throw new Error("VITE_ANIMEPAHE_URL is not defined");
-    }
+    const response = await axios.get(apiUrl(`/anime/${id}`));
+    const data = response.data?.data || {};
 
-    // id is already an Anilist ID (numeric string)
-    const response = await axios.get(
-      `${base_url}/api/anilist/anime/${id}`
-    );
+    if (!data || !data.id) return null;
 
-    const item = response.data?.data;
-    if (!item) return null;
+    const stats = data.stats || {};
+    const info = data.info || {};
+    const genresList = (info.genres || []).map(g => g.name || g).filter(Boolean);
 
     return {
-      title: item.title?.english || item.title?.romaji || "",
-      japaneseTitle: item.title?.native || item.title?.romaji || null,
-      rating: item.score ? String(item.score) : null,
-      subCount: null,
-      dubCount: null,
-      episodeCount: item.episodes ? String(item.episodes) : null,
-      type: item.format || null,
-      poster: item.image,
-      description: item.synopsis,
-      airedDate: item.releaseDate || null,
-      status: item.status || null,
+      title: data.title || data.ename || data.jname || "",
+      japaneseTitle: data.jname || null,
+      rating: info["mal score"] || null,
+      subCount: stats.sub || null,
+      dubCount: stats.dub || null,
+      episodeCount: stats.sub ? String(stats.sub) : null,
+      type: stats.type || info.type || null,
+      poster: data.poster || "",
+      description: data.description || null,
+      airedDate: info.premiered || null,
+      status: info.status || null,
       tvInfo: {
-        showType: item.format,
-        duration: item.duration ? `${item.duration}m` : null,
-        releaseDate: item.releaseDate,
+        showType: stats.type || null,
+        duration: info.duration ? `${info.duration}m` : null,
+        releaseDate: info.premiered || null,
       },
-      genres: item.genres || [],
+      genres: genresList,
     };
   } catch (err) {
     console.error("Error fetching qtip info:", err);

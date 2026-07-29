@@ -414,7 +414,7 @@ function Episodelist({
               const isSearched = searchedEpisode === item?.id;
               // Get the original URL for cache-key lookup
               const originalUrl = item?.thumbnail
-                ? (source === "animepahe" || source === "anizone") && proxyUrl
+                ? proxyUrl
                   ? `${proxyUrl}${item.thumbnail}`
                   : item.thumbnail
                 : null;
