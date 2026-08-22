@@ -77,7 +77,6 @@ function Episodelist({
   onEpisodeClick,
   currentEpisode,
   totalEpisodes,
-  source,
   animeTitle,
 }) {
   const [activeEpisodeId, setActiveEpisodeId] = useState(currentEpisode);

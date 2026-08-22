@@ -3,34 +3,26 @@ import { apiUrl } from "@/src/config/api";
 
 export default async function getAnilistScheduleInfo(date, page = 1) {
   try {
-    const response = await axios.get(apiUrl('/schedule'), {
-      params: { date, page },
+    const response = await axios.get(apiUrl(`/airing/date/${date}`, "anilist"), {
+      params: { page, perPage: 20 },
     });
-    const data = response.data?.data || {};
-    const items = data.results || [];
+    const payload = response.data || {};
+    const items = Array.isArray(payload.data) ? payload.data : [];
 
     return {
       data: items.map((item) => ({
         anilistId: item.id || item.anilistId,
-        title: {
-          english: item.title || item.ename || "",
-          romaji: item.jname || "",
-          native: item.jname || "",
-        },
-        image: item.poster || "",
-        bannerImage: null,
-        color: null,
-        format: item.type || null,
-        score: null,
-        genres: [],
-        nextAiringEpisode: {
-          airingAt: item.time ? new Date(item.time).getTime() / 1000 : null,
-          episode: item.episode || null,
-          time: item.time || null,
-        },
+        title: item.title || { english: "", romaji: "", native: "" },
+        image: item.image || item.poster || "",
+        bannerImage: item.bannerImage || null,
+        color: item.color || null,
+        format: item.format || item.type || null,
+        score: item.score || null,
+        genres: item.genres || [],
+        nextAiringEpisode: item.nextAiringEpisode || null,
       })),
-      hasNextPage: data.pagination?.hasNextPage || false,
-      currentPage: data.pagination?.currentPage || page,
+      hasNextPage: Boolean(payload.hasNextPage),
+      currentPage: payload.currentPage || page,
     };
   } catch (error) {
     console.error("Error fetching schedule info:", error);

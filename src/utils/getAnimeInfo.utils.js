@@ -2,7 +2,7 @@ import axios from "axios";
 import { apiUrl } from "@/src/config/api";
 
 const CACHE_PREFIX = "animeInfoCache_";
-const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
+const CACHE_DURATION = 60 * 60 * 1000;
 
 function getCached(key) {
   try {
@@ -11,169 +11,79 @@ function getCached(key) {
     const { data, timestamp } = JSON.parse(raw);
     if (Date.now() - timestamp < CACHE_DURATION) return data;
     localStorage.removeItem(key);
-  } catch { /* ignore */ }
+  } catch { /* ignore storage failures */ }
   return null;
 }
 
 function setCache(key, data) {
-  try {
-    localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() }));
-  } catch { /* ignore */ }
+  try { localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() })); } catch { /* ignore */ }
 }
 
-/**
- * Transform the Shirayuki anime detail response into the shape expected by
- * AnimeInfo.jsx, Watch.jsx and useWatchMultiSource.
- *
- * Actual API response shape (live-tested):
- * {
- *   data: {
- *     id: "attack-on-titan",
- *     title: "Attack on Titan",
- *     jname: "Shingeki no Kyojin",
- *     ename: "Attack on Titan",
- *     description: "...",
- *     poster: "https://...",
- *     cover: "https://...",
- *     stats: { pg: "R", type: "TV", year: 2013, sub: 25, dub: 25 },
- *     info: {
- *       japanese: "...",
- *       aired: "Apr 7, 2013 ...",
- *       premiered: "2013",
- *       duration: "24",  // minutes as string
- *       status: "Finished Airing",
- *       "mal score": "0.",
- *       genres: [ { name: "Action", slug: "action" } ],
- *       studios: null,
- *       producers: null
- *     },
- *     recommended: [ ... ],
- *     trending: [ ... ],
- *     seasons: [ { order, id, title, jname, ename, poster, type, episodes: {sub, dub}, isCurrent } ]
- *   }
- * }
- */
-function transformAnimeDetail(apiData) {
-  const info = apiData.info || {};
-  const stats = apiData.stats || {};
-  const genresList = (info.genres || []).map(g => g.name || g).filter(Boolean);
+function splitList(value) {
+  if (Array.isArray(value)) return value;
+  return typeof value === "string" ? value.split(",").map((item) => item.trim()).filter(Boolean) : [];
+}
 
+export function transformAnimeDetail(payload = {}) {
+  const apiData = payload.data || payload;
+  const providerEpisodes = payload.providerEpisodes || [];
+  const genres = splitList(apiData.genres);
+  const episodes = providerEpisodes.map((ep) => ({
+    episodeId: ep.episodeId,
+    id: `ep=${ep.episodeNumber}`,
+    episode_no: ep.episodeNumber,
+    title: ep.title || `Episode ${ep.episodeNumber}`,
+    thumbnail: null,
+    hasDub: Boolean(ep.hasDub),
+    hasSub: Boolean(ep.hasSub),
+    aired: true,
+  }));
   const base = {
-    id: apiData.id || "",
-    anilistId: apiData.id || "",
+    id: apiData.id ?? "",
+    data_id: apiData.id ?? "",
+    anilistId: apiData.anilistId ?? null,
     malId: null,
-    title: apiData.title || apiData.ename || apiData.jname || "",
-    japanese_title: apiData.jname || apiData.title || "",
-    poster: apiData.poster || "",
-    bannerImage: apiData.cover || apiData.poster || null,
+    title: apiData.name || apiData.romaji || "Untitled",
+    japanese_title: apiData.native || apiData.romaji || apiData.name || "Untitled",
+    poster: apiData.posterImage || "",
+    bannerImage: apiData.posterImage || null,
     color: null,
-    description: apiData.description || "",
-    episodes: stats.sub || info.sub || null,
+    description: apiData.synopsis || "",
+    episodes: episodes.length || apiData.totalEpisodes || null,
     tvInfo: {
-      showType: stats.type || info.type || null,
-      duration: info.duration ? `${info.duration}m` : null,
-      releaseDate: info.premiered || null,
-      rating: stats.pg || null,
+      showType: apiData.type || null,
+      duration: null,
+      releaseDate: apiData.releaseDate || null,
+      rating: null,
       quality: null,
-      sub: stats.sub || null,
-      dub: stats.dub || null,
+      sub: episodes.filter((ep) => ep.hasSub).length || null,
+      dub: episodes.filter((ep) => ep.hasDub).length || null,
     },
-    genres: genresList,
-    score: info["mal score"] || null,
-    status: info.status || null,
+    genres,
+    score: null,
+    status: null,
     season: null,
-    studio: info.studios || null,
-    producers: info.producers ? (Array.isArray(info.producers) ? info.producers : [info.producers]) : [],
+    studio: apiData.studios || null,
+    producers: [],
   };
-
-  // Map seasons from the API response
-  const seasons = (apiData.seasons || []).map((s) => ({
-    id: s.id || "",
-    data_id: s.id || "",
-    season_poster: s.poster || apiData.poster || "",
-    season: s.title || s.ename || s.jname || s.id || "Related",
-  }));
-
-  // Map recommended anime
-  const recommended_data = (apiData.recommended || []).map((r) => ({
-    id: r.id || "",
-    anilistId: r.id || "",
-    title: r.title || r.ename || r.jname || "",
-    japanese_title: r.jname || r.title || "",
-    poster: r.poster || "",
-    bannerImage: null,
-    color: null,
-    tvInfo: { showType: r.type || null, duration: r.duration || null },
-  }));
-
-  const moreInfo = {
-    Aired: info.aired || null,
-    Status: info.status || null,
-    Season: null,
-    Studios: info.studios || null,
-    Producers: info.producers || null,
-    Japanese: info.japanese || null,
-    Synonyms: null,
-  };
-
   const animeInfo = {
-    genres: genresList,
-    Genres: genresList,
-    Type: stats.type || info.type || null,
-    Studios: info.studios || null,
-    Japanese: info.japanese || null,
-    Aired: info.aired || null,
-    "MAL Score": info["mal score"] || null,
-    Status: info.status || null,
-    Duration: info.duration ? `${info.duration}m` : null,
-    Premiered: info.premiered || null,
-    Overview: apiData.description || null,
-    tvInfo: {
-      showType: stats.type || null,
-      duration: info.duration ? `${info.duration}m` : null,
-      releaseDate: info.premiered || null,
-      rating: stats.pg || null,
-      quality: null,
-      sub: stats.sub || null,
-      dub: stats.dub || null,
-    },
-    moreInfo,
+    genres, Genres: genres, Type: apiData.type || null, Studios: apiData.studios || null,
+    Japanese: apiData.native || null, Aired: apiData.releaseDate || null,
+    Status: null, Duration: null, Premiered: apiData.releaseDate || null,
+    Overview: apiData.synopsis || null, tvInfo: base.tvInfo,
+    moreInfo: { Aired: apiData.releaseDate || null, Studios: apiData.studios || null, Japanese: apiData.native || null },
   };
-
-  return {
-    data: {
-      ...base,
-      data_id: apiData.id || "",
-      animeInfo,
-      recommended_data,
-    },
-    seasons,
-  };
+  return { data: { ...base, animeInfo, providerEpisodes: episodes }, seasons: [], episodes };
 }
 
-export default async function fetchAnimeInfo(id, random = false) {
+export default async function fetchAnimeInfo(id) {
   try {
-    // If random, get a random trending item from the home endpoint
-    if (random) {
-      const trendingRes = await axios.get(apiUrl('/home'));
-      const items = trendingRes.data?.data?.trending || [];
-      if (!items.length) return null;
-      const randomItem = items[Math.floor(Math.random() * items.length)];
-      id = randomItem.id;
-    }
-
-    // Use the slug/anilistId as the cache key
-    const cacheKey = CACHE_PREFIX + String(id).replace(/[^a-zA-Z0-9_-]/g, '_');
+    const cacheKey = CACHE_PREFIX + String(id).replace(/[^a-zA-Z0-9_-]/g, "_");
     const cached = getCached(cacheKey);
     if (cached) return cached;
-
-    // Fetch anime detail from Shirayuki API
     const response = await axios.get(apiUrl(`/anime/${id}`));
-    const responseData = response.data?.data || {};
-
-    if (!responseData || !responseData.id) return null;
-
-    const result = transformAnimeDetail(responseData);
+    if (!response.data?.data?.id) return null;
+    const result = transformAnimeDetail(response.data);
     setCache(cacheKey, result);
     return result;
   } catch (error) {

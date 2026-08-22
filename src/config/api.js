@@ -1,40 +1,38 @@
 /**
- * Shirayuki Scrapper API v2 configuration.
+ * Kenjitsu API configuration.
  *
- * Base URL and provider are configured via environment variables.
- * All endpoints use the pattern: /api/v2/<provider>/<endpoint>
+ * AnimeRealm uses AniBD for provider search/details/episodes/sources and
+ * AniList for metadata and discovery endpoints.
  */
+export const KENJITSU_API_URL = (
+  import.meta.env.VITE_KENJITSU_API_URL || "https://kenjitsu.koyeb.app"
+).replace(/\/+$/, "");
+export const ANIME_PROVIDER = import.meta.env.VITE_ANIME_PROVIDER || "anibd";
+export const METADATA_PROVIDER = "anilist";
 
-export const SHIPAYUKI_API_URL = import.meta.env.VITE_SHIPAYUKI_API_URL || '';
-export const SHIPAYUKI_PROVIDER = import.meta.env.VITE_SHIPAYUKI_PROVIDER || 'hianime';
-
-/**
- * Builds a full API URL for the given endpoint path.
- * @param {string} path - Endpoint path (e.g. '/home', '/anime/steinsgate-3')
- * @returns {string} Full URL
- */
-export function apiUrl(path) {
-  const base = SHIPAYUKI_API_URL.replace(/\/+$/, '');
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  return `${base}/api/v2/${SHIPAYUKI_PROVIDER}${cleanPath}`;
+export function apiUrl(path, provider = ANIME_PROVIDER) {
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  return `${KENJITSU_API_URL}/api/${provider}${cleanPath}`;
 }
 
-/**
- * Home & Discovery
- */
 export const ENDPOINTS = {
-  HOME: '/home',
-  AZ_LIST: (letter) => `/azlist/${letter}`,
-  ANIME_DETAIL: (id) => `/anime/${id}`,
-  ANIME_EPISODES: (id) => `/anime/${id}/episodes`,
-  NEXT_EPISODE_SCHEDULE: (id) => `/anime/${id}/next-episode-schedule`,
-  EPISODE_SERVERS: '/episode/servers',
-  EPISODE_SOURCES: '/episode/sources',
-  SEARCH: '/search',
-  SEARCH_ADVANCED: '/search/advanced',
-  SEARCH_SUGGESTION: '/search/suggestion',
-  PRODUCER: (name) => `/producer/${name}`,
-  GENRE: (name) => `/genre/${name}`,
-  CATEGORY: (name) => `/category/${name}`,
-  SCHEDULE: '/schedule',
+  SEARCH: (q) => apiUrl(`/anime/search?q=${encodeURIComponent(q)}`),
+  ANIME_DETAIL: (id) => apiUrl(`/anime/${id}`),
+  ANIME_EPISODES: (id) => apiUrl(`/anime/${id}/episodes`),
+  EPISODE_SOURCES: (episodeId, version = "sub") =>
+    apiUrl(`/sources/${encodeURIComponent(episodeId)}?version=${encodeURIComponent(version)}`),
+  ANILIST_SEARCH: (q) => apiUrl(`/anime/search?q=${encodeURIComponent(q)}`, METADATA_PROVIDER),
+  ANILIST_DETAIL: (id) => apiUrl(`/anime/${id}`, METADATA_PROVIDER),
+  ANILIST_TOP: (category, params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return apiUrl(`/anime/top/${category}${query ? `?${query}` : ""}`, METADATA_PROVIDER);
+  },
+  ANILIST_SCHEDULE: (date, params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return apiUrl(`/airing/date/${date}${query ? `?${query}` : ""}`, METADATA_PROVIDER);
+  },
+  ANILIST_ANIME_SCHEDULE: (id) => apiUrl(`/anime/${id}/schedule`, METADATA_PROVIDER),
+  ANILIST_CHARACTERS: (id) => apiUrl(`/anime/${id}/characters`, METADATA_PROVIDER),
+  ANILIST_MAPPINGS: (id, provider = ANIME_PROVIDER) =>
+    apiUrl(`/anime/${id}/mappings?provider=${encodeURIComponent(provider)}`, METADATA_PROVIDER),
 };
