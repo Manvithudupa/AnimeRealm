@@ -31,19 +31,19 @@ const LatestEpisodeCard = ({ item, path }) => {
     if (isEpisodeData) {
       setIsNavigating(true);
       try {
-        const response = await axios.get(apiUrl('/search'), {
-          params: { q: item.title, page: 1 }
+        const response = await axios.get(apiUrl('/anime/search'), {
+          params: { q: item.title }
         });
-        const result = response.data?.data?.animes?.[0] || response.data?.data?.[0] || {};
-        const animeId = result.anilistId || result.id;
+        const result = response.data?.data?.[0] || {};
+        const animeId = result.id || result.anilistId;
         if (animeId) {
           navigate(`/watch/${animeId}?ep=${item.episodeNumber}`);
         } else {
-          navigate(`/search?q=${encodeURIComponent(item.title)}`);
+          navigate(`/search?keyword=${encodeURIComponent(item.title)}`);
         }
       } catch (error) {
         console.error("Failed to find AniList ID for episode navigation:", error);
-        navigate(`/search?q=${encodeURIComponent(item.title)}`);
+        navigate(`/search?keyword=${encodeURIComponent(item.title)}`);
       } finally {
         setIsNavigating(false);
       }

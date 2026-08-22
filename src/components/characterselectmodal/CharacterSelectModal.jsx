@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import { Loader2, Search, Image } from "lucide-react";
+import { apiUrl } from "@/src/config/api";
 import { Input } from "@/src/components/ui/input";
 import {
   Dialog,
@@ -135,43 +137,14 @@ export const CharacterSelectModal = ({ isOpen, onClose, onSelect, onSelectBanner
     if (animeList.length > 0) return;
     setLoading(true);
     try {
-      const batchSize = 20;
-      const allAnime = [];
-
-      for (let i = 0; i < CURATED_ANIME.length; i += batchSize) {
-        const batch = CURATED_ANIME.slice(i, i + batchSize);
-        const ids = batch.map((a) => a.id).join(",");
-
-        const query = `
-          query {
-            Page(page: 1, perPage: ${batchSize}) {
-              media(id_in: [${ids}], type: ANIME) {
-                id
-                title { romaji english }
-                coverImage { medium }
-              }
-            }
-          }
-        `;
-
-        const response = await fetch("https://graphql.anilist.co", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ query }),
-        });
-
-        const result = await response.json();
-        if (result.data?.Page?.media) {
-          allAnime.push(...result.data.Page.media);
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, 250));
-      }
-
-      const sortedAnime = CURATED_ANIME
-        .map((curated) => allAnime.find((a) => a.id === curated.id))
-        .filter(Boolean);
-
+      const responses = await Promise.all(CURATED_ANIME.map(({ id }) =>
+        axios.get(apiUrl(`/anime/${id}`, "anilist")).then((response) => response.data?.data).catch(() => null)
+      ));
+      const sortedAnime = CURATED_ANIME.map((curated, index) => {
+        const item = responses[index];
+        if (!item) return null;
+        return { id: item.id, title: item.title, coverImage: { medium: item.image } };
+      }).filter(Boolean);
       setAnimeList(sortedAnime);
     } catch (error) {
       console.error("Failed to fetch anime:", error);
@@ -185,32 +158,14 @@ export const CharacterSelectModal = ({ isOpen, onClose, onSelect, onSelectBanner
     if (bannerList.length > 0) return;
     setBannerLoading(true);
     try {
-      const ids = BANNER_ANIME.map((a) => a.id).join(",");
-      const query = `
-        query {
-          Page(page: 1, perPage: 20) {
-            media(id_in: [${ids}], type: ANIME) {
-              id
-              title { romaji english }
-              bannerImage
-            }
-          }
-        }
-      `;
-
-      const response = await fetch("https://graphql.anilist.co", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ query }),
-      });
-
-      const result = await response.json();
-      if (result.data?.Page?.media) {
-        const sorted = BANNER_ANIME
-          .map((ba) => result.data.Page.media.find((m) => m.id === ba.id))
-          .filter((m) => m && m.bannerImage);
-        setBannerList(sorted);
-      }
+      const responses = await Promise.all(BANNER_ANIME.map(({ id }) =>
+        axios.get(apiUrl(`/anime/${id}`, "anilist")).then((response) => response.data?.data).catch(() => null)
+      ));
+      const banners = BANNER_ANIME.map((anime, index) => {
+        const item = responses[index];
+        return item?.bannerImage ? { id: item.id, title: item.title, bannerImage: item.bannerImage } : null;
+      }).filter(Boolean);
+      setBannerList(banners);
     } catch (error) {
       console.error("Failed to fetch banners:", error);
       toast({ title: "Error", description: "Failed to load banner images", variant: "destructive" });
@@ -224,41 +179,19 @@ export const CharacterSelectModal = ({ isOpen, onClose, onSelect, onSelectBanner
       setExpandedAnime(expandedAnime === animeId ? null : animeId);
       return;
     }
-
     try {
-      const query = `
-        query {
-          Media(id: ${animeId}) {
-            characters(sort: ROLE, perPage: 25) {
-              edges {
-                node {
-                  id
-                  name { full }
-                  image { large }
-                  gender
-                }
-                role
-              }
-            }
-          }
-        }
-      `;
-
-      const response = await fetch("https://graphql.anilist.co", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ query }),
-      });
-
-      const result = await response.json();
-      if (result.data?.Media?.characters?.edges) {
-        const chars = result.data.Media.characters.edges
-          .filter((edge) => edge.node.image?.large)
-          .map((edge) => edge.node);
-
-        setCharacters((prev) => ({ ...prev, [animeId]: chars }));
-        setExpandedAnime(animeId);
-      }
+      const response = await axios.get(apiUrl(`/anime/${animeId}/characters`, "anilist"));
+      const chars = (response.data?.data?.characters || [])
+        .filter((character) => character.image)
+        .map((character) => ({
+          id: character.id,
+          name: { full: character.name || "" },
+          image: { large: character.image },
+          gender: character.gender,
+          role: character.role,
+        }));
+      setCharacters((prev) => ({ ...prev, [animeId]: chars }));
+      setExpandedAnime(animeId);
     } catch (error) {
       console.error("Failed to fetch characters:", error);
     }

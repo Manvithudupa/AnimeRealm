@@ -1,56 +1,21 @@
 import axios from "axios";
 import { apiUrl } from "@/src/config/api";
+import { transformAnilistItem } from "./transformAnilistItem.utils";
 
-const getProducer = async (producer, page) => {
+export default async function getProducer(producer, page = 1) {
   try {
-    const response = await axios.get(apiUrl(`/producer/${encodeURIComponent(producer)}`), {
-      params: { page },
-    });
-    const result = response.data?.data || {};
-    const items = result.results || [];
-    const pagination = result.pagination || {};
-
+    const response = await axios.get(apiUrl("/anime/top/popular", "anilist"), { params: { format: "TV", page, perPage: 50 } });
+    const items = (Array.isArray(response.data?.data) ? response.data.data : []).map(transformAnilistItem);
+    const wanted = decodeURIComponent(String(producer || "")).replaceAll("-", " ").toLowerCase();
+    const filtered = items.filter((item) => item.producers.some((name) => String(name).toLowerCase().includes(wanted)));
     return {
-      data: items.map(mapItem),
-      totalPages: pagination.totalPages || 1,
-      currentPage: pagination.currentPage || page,
+      data: filtered,
+      currentPage: response.data?.currentPage || page,
+      totalPages: filtered.length ? (response.data?.lastPage || page) : 1,
+      hasNextPage: Boolean(response.data?.hasNextPage && filtered.length),
     };
-  } catch (err) {
-    console.error("Error fetching producer info:", err);
-    return err;
+  } catch (error) {
+    console.error("Error fetching producer info:", error);
+    return { data: [], currentPage: page, totalPages: 1, hasNextPage: false, error };
   }
-};
-
-function mapItem(item) {
-  const epSub = item.episodes?.sub || null;
-  const epDub = item.episodes?.dub || null;
-  return {
-    id: item.id || "",
-    anilistId: item.id || "",
-    malId: null,
-    title: item.title || item.ename || item.jname || "",
-    japanese_title: item.jname || item.title || "",
-    poster: item.poster || "",
-    bannerImage: null,
-    color: null,
-    description: "",
-    episodes: epSub || null,
-    tvInfo: {
-      showType: item.type || null,
-      duration: null,
-      releaseDate: null,
-      rating: null,
-      quality: null,
-      sub: epSub,
-      dub: epDub,
-    },
-    genres: [],
-    score: null,
-    status: null,
-    season: null,
-    studio: null,
-    producers: [],
-  };
 }
-
-export default getProducer;

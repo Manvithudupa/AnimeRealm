@@ -96,7 +96,7 @@ Schedule views shall use the documented AniList airing-date or per-anime schedul
 
 The application shall remain responsive on mobile and desktop layouts. API calls shall be cancellable or ignored after component unmount where practical, cached for short periods where appropriate, and protected from duplicate in-flight requests. Browser storage failures shall not prevent the rest of the application from operating.
 
-The client shall keep API URLs configurable through environment variables, with a safe public default for local development. The expected variables are `VITE_KENJITSU_API_URL`, `VITE_ANIME_PROVIDER`, and the existing optional proxy and Supabase variables. No private key or privileged credential shall be placed in client-side environment variables.
+The client shall keep API URLs configurable through environment variables, with a safe public default for local development. The expected variables are `VITE_KENJITSU_API_URL`, `VITE_ANIME_PROVIDER`, `VITE_M3U8_PROXY_URL`, and the existing optional proxy and Supabase variables. No private key or privileged credential shall be placed in client-side environment variables. When Supabase variables are absent, the public catalog and playback experience must still render; authentication and persistence controls must return a clear unavailable state rather than crash the application.
 
 Playback shall account for 403 and CORS failures. Kenjitsu documentation recommends an m3u8 proxy with a referer header when those failures occur.[1] The product shall explain this limitation in the error state or deployment documentation rather than retrying indefinitely.
 
@@ -132,9 +132,11 @@ The migration is also accepted when the production build completes, lint reports
 
 ## 13. Implementation status
 
-The current change updates the central API configuration, search adapter, anime detail adapter, episode adapter, stream adapter, shared watch backend helpers, watch hook language selection, schedule route, environment example, and missing `prop-types` build dependency. Direct ESLint validation completes with zero errors, and the Vite production build completes successfully. The remaining lint output is a non-blocking pre-existing warning for an unused suppression comment in `src/pages/watch/Watch.jsx`; it should be removed in a follow-up cleanup.
+The current implementation completes the Kenjitsu migration across the public product surfaces. It updates central API configuration, AniBD search/detail/episode/source adapters, AniList discovery/detail/characters/schedule/mapping adapters, home/category/A–Z/filter/producer/suggestion/top-search utilities, the character-selection modal, the schedule widget, tooltip data, shared watch helpers, watch-hook language selection, the HLS player URL handling, environment documentation, and the missing `prop-types` dependency. Direct ESLint validation completes with zero errors or warnings, and the Vite production build completes successfully with only the existing large-chunk optimization warning.
 
-The legacy utility modules for advanced categories, producers, suggestions, and some home sections still require individual product decisions because the current Kenjitsu documentation does not expose direct equivalents for every former Shirayuki route. Those surfaces should either be migrated to documented AniList endpoints, intentionally marked unavailable, or removed from navigation rather than continuing to call retired paths.
+Browser smoke tests verified the local homepage, search results, popular category, schedule, Naruto detail page, and Naruto watch page. The watch page resolves an AniList ID to its AniBD provider ID, loads episodes, requests a source with the documented version parameter, and renders the player without startup errors. The player now uses a direct Kenjitsu HLS URL when no m3u8 proxy is configured, instead of constructing an invalid encoded URL. The optional Supabase fallback prevents missing deployment credentials from blanking the public application; auth-backed features remain disabled until valid Supabase variables are supplied.
+
+AniList watchlist import in Settings remains a separate direct AniList user-list integration because the current Kenjitsu documentation does not expose a user-list import route. It is intentionally isolated from the public catalog and playback migration.
 
 ## 14. References
 

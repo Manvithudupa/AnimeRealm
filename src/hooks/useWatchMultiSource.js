@@ -88,10 +88,16 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
         }
         if (ignore) return;
 
-        const anilistId = cached.anilistId;
+        const providerId = cached.data?.providerId || cached.data?.id || animeId;
 
-        const episodesData = await getAnimepaheEpisodesByAnilistId(anilistId || animeId);
+        const fetchedEpisodes = await getAnimepaheEpisodesByAnilistId(providerId);
         if (ignore) return;
+        const embeddedEpisodes = cached.data?.providerEpisodes || [];
+        const episodesData = fetchedEpisodes?.episodes?.length
+          ? fetchedEpisodes
+          : embeddedEpisodes.length
+            ? { episodes: embeddedEpisodes, totalEpisodes: embeddedEpisodes.length }
+            : fetchedEpisodes;
 
         if (!episodesData?.episodes?.length) {
           toast({ title: "No episodes available", description: "Unable to load episodes." });
