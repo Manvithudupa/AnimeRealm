@@ -113,8 +113,7 @@ export default function Watch() {
     return () => {
       document.title = `${website_name} | Free anime streaming platform`;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [animeId]);
+  }, [animeInfo]);
 
   // Redirect if no episodes
   useEffect(() => {
@@ -177,7 +176,6 @@ export default function Watch() {
   // activeServerType, activeServerName, episodeId, streamUrl and episodes are
   // intentionally omitted — they don't affect the DOM structure being measured
   // and their changes are covered by ResizeObserver without re-registration.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buffering]);
 
   useEffect(() => {
@@ -234,7 +232,7 @@ export default function Watch() {
                 {!buffering && streamUrl ? (
                   <Player
                     streamUrl={streamUrl}
-                    m3u8ProxyUrl={import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY || null}
+                    m3u8ProxyUrl={import.meta.env.VITE_M3U8_PROXY_URL || import.meta.env.VITE_ANIMEPAHE_M3U8_PROXY || null}
                     subtitles={subtitles}
                     intro={intro}
                     outro={outro}

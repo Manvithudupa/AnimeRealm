@@ -1,69 +1,35 @@
 import axios from "axios";
 import { apiUrl } from "@/src/config/api";
+import { transformAnilistItem } from "./transformAnilistItem.utils";
 
-const _suggestionCache = new Map();
-const _suggestionInFlight = new Map();
-const SUGGESTION_CACHE_TTL_MS = 5 * 60 * 1000;
+const CACHE_TTL = 5 * 60 * 1000;
 
-/**
- * Actual suggestion response (live-tested):
- * {
- *   data: {
- *     suggestions: [
- *       { id, title, jname, poster, info: "2013TV" }
- *     ]
- *   }
- * }
- */
-const getSearchSuggestion = async (keyword) => {
-  const key = keyword.trim().toLowerCase();
-
-  const cached = _suggestionCache.get(key);
-  if (cached && Date.now() - cached.timestamp < SUGGESTION_CACHE_TTL_MS) {
-    return cached.data;
+export default async function getSearchSuggestion(keyword) {
+  const query = String(keyword || "").trim();
+  if (!query) return [];
+  const cacheKey = `searchSuggestions_kenjitsu_${query.toLowerCase()}`;
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(cacheKey) || "null");
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) return cached.data;
+  } catch { /* ignore */ }
+  try {
+    const response = await axios.get(apiUrl("/anime/search", "anilist"), { params: { q: query, page: 1, perPage: 8 } });
+    const data = Array.isArray(response.data?.data) ? response.data.data : [];
+    const suggestions = data.slice(0, 8).map((item) => {
+      const normalized = transformAnilistItem(item);
+      return {
+        id: normalized.id,
+        title: normalized.title,
+        japanese_title: normalized.japanese_title,
+        poster: normalized.poster,
+        releaseDate: normalized.tvInfo.releaseDate,
+        showType: normalized.tvInfo.showType,
+      };
+    });
+    try { sessionStorage.setItem(cacheKey, JSON.stringify({ data: suggestions, timestamp: Date.now() })); } catch { /* ignore */ }
+    return suggestions;
+  } catch (error) {
+    console.error("Error fetching search suggestions:", error);
+    return [];
   }
-
-  if (_suggestionInFlight.has(key)) {
-    return _suggestionInFlight.get(key);
-  }
-
-  const fetchPromise = (async () => {
-    try {
-      const response = await axios.get(apiUrl('/search/suggestion'), {
-        params: { q: keyword },
-      });
-      const items = response.data?.data?.suggestions || [];
-
-      const result = items
-        .filter(item => item.id && item.title) // filter out the filter link entry
-        .map((item) => {
-          // info is like "2013TV" -> year=2013, type=TV
-          const info = item.info || "";
-          const yearMatch = info.match(/(\d{4})/);
-          const typeMatch = info.match(/(TV|Movie|OVA|ONA|Special|Music)/);
-          return {
-            id: item.id || "",
-            title: item.title || item.jname || "",
-            japanese_title: item.jname || "",
-            poster: item.poster || "",
-            releaseDate: yearMatch ? yearMatch[1] : null,
-            showType: typeMatch ? typeMatch[1] : null,
-            duration: null,
-          };
-        });
-
-      _suggestionCache.set(key, { data: result, timestamp: Date.now() });
-      return result;
-    } catch (err) {
-      console.error("Error fetching search suggestions:", err);
-      return [];
-    } finally {
-      _suggestionInFlight.delete(key);
-    }
-  })();
-
-  _suggestionInFlight.set(key, fetchPromise);
-  return fetchPromise;
-};
-
-export default getSearchSuggestion;
+}

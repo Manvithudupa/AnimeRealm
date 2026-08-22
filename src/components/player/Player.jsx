@@ -261,10 +261,12 @@ export default function Player({
       const headers = { ...existingHeaders };
       if (iframeUrl) headers.referer = new URL(iframeUrl).origin + "/";
 
-      const defaultProxy = m3u8proxy[Math.floor(Math.random() * m3u8proxy.length)] || "";
+      const defaultProxy = m3u8proxy.find(Boolean) || "";
       const proxiedStreamUrl = m3u8ProxyUrl
         ? `${m3u8ProxyUrl}${encodeURIComponent(streamUrl)}&headers=${encodeURIComponent(JSON.stringify(headers))}`
-        : `${defaultProxy}${encodeURIComponent(streamUrl)}&headers=${encodeURIComponent(JSON.stringify(headers))}`;
+        : defaultProxy
+          ? `${defaultProxy}${encodeURIComponent(streamUrl)}&headers=${encodeURIComponent(JSON.stringify(headers))}`
+          : streamUrl;
 
       // Initialize Artplayer — pass autoplay:false here because we trigger
       // play explicitly from the Hls.Events.MANIFEST_PARSED handler inside

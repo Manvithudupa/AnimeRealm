@@ -3,7 +3,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
 import {
   getAnimepaheEpisodesByAnilistId,
-  getAnimepaheServers,
   getAnimepaheStreamInfo,
 } from "@/src/utils/shirayukiBackend.utils";
 import { toast } from "@/src/hooks/use-toast";
@@ -89,10 +88,16 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
         }
         if (ignore) return;
 
-        const anilistId = cached.anilistId;
+        const providerId = cached.data?.providerId || cached.data?.id || animeId;
 
-        const episodesData = await getAnimepaheEpisodesByAnilistId(anilistId || animeId);
+        const fetchedEpisodes = await getAnimepaheEpisodesByAnilistId(providerId);
         if (ignore) return;
+        const embeddedEpisodes = cached.data?.providerEpisodes || [];
+        const episodesData = fetchedEpisodes?.episodes?.length
+          ? fetchedEpisodes
+          : embeddedEpisodes.length
+            ? { episodes: embeddedEpisodes, totalEpisodes: embeddedEpisodes.length }
+            : fetchedEpisodes;
 
         if (!episodesData?.episodes?.length) {
           toast({ title: "No episodes available", description: "Unable to load episodes." });
@@ -137,34 +142,20 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
     setActiveEpisodeNum(activeEpisode ? activeEpisode.episode_no : null);
   }, [episodeId, episodes]);
 
-  // Fetch servers
+  // AniBD exposes language as a source query parameter instead of servers.
   useEffect(() => {
-    if (!episodeId || !episodes || isServerFetchInProgress.current) return;
-
-    const fetchServers = async () => {
-      isServerFetchInProgress.current = true;
-      setServerLoading(true);
-      try {
-        const episode = episodes.find((ep) => String(ep.episode_no) === String(episodeId));
-        const apiEpisodeId = episode?.episodeId || `${animeId}/ep-${episodeId}`;
-
-        const response = await getAnimepaheServers(apiEpisodeId);
-        if (!response?.servers?.length) throw new Error("No servers available");
-
-        setServers(response.servers);
-        setDownloadOptions(response.downloadOptions);
-
-        // Don't auto-select a server here — the Servers component handles
-        // initial selection with localStorage restoration via its own effect.
-      } catch (error) {
-        console.error("Error fetching servers:", error);
-        setError(error.message || "An error occurred.");
-      } finally {
-        setServerLoading(false);
-        isServerFetchInProgress.current = false;
-      }
-    };
-    fetchServers();
+    if (!episodeId || !episodes) return;
+    const episode = episodes.find((ep) => String(ep.episode_no) === String(episodeId));
+    const options = [];
+    if (episode?.hasSub !== false) options.push({ data_id: "sub", serverId: "sub", serverName: "SUB", type: "sub" });
+    if (episode?.hasDub) options.push({ data_id: "dub", serverId: "dub", serverName: "DUB", type: "dub" });
+    if (!options.length) options.push({ data_id: "sub", serverId: "sub", serverName: "SUB", type: "sub" });
+    setServers(options);
+    setDownloadOptions({ sub: options.filter((item) => item.type === "sub"), dub: options.filter((item) => item.type === "dub"), raw: [] });
+    setActiveServerId((current) => current && options.some((item) => item.data_id === current) ? current : options[0].data_id);
+    setActiveServerType((current) => current || options[0].type);
+    setActiveServerName((current) => current || options[0].serverName);
+    setServerLoading(false);
   }, [episodeId, episodes]);
 
   // All sources (for fallback) and current source index
@@ -186,7 +177,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
         const episode = episodes.find((ep) => String(ep.episode_no) === String(episodeId));
         const apiEpisodeId = episode?.episodeId || `${animeId}/ep-${episodeId}`;
 
-        const streamData = await getAnimepaheStreamInfo(apiEpisodeId, server.type, server.serverName?.toLowerCase());
+        const streamData = await getAnimepaheStreamInfo(apiEpisodeId, server.type);
 
         const allS = streamData.sources || [];
         if (!allS.length) throw new Error("No streaming sources available");
@@ -236,7 +227,7 @@ export const useWatchMultiSource = (animeId, initialEpisodeId) => {
         return next;
       }
       console.error("All sources exhausted, no more fallback available");
-      setError("All streaming sources failed. Please try a different server.");
+      setError("All streaming sources failed. Please try a different language option.");
       return prev;
     });
   }, [allSources]);
