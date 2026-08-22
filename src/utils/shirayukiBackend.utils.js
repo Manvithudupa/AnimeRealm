@@ -3,23 +3,26 @@ import { apiUrl } from "@/src/config/api";
 import getEpisodes from "./getEpisodes.utils";
 import getStreamInfo from "./getStreamInfo.utils";
 
-export async function searchAnimepaheBackend(keyword) {
-  const response = await axios.get(apiUrl("/anime/search"), { params: { q: keyword } });
+// Compatibility exports retained for older call sites while all catalog data is AniList-owned.
+export async function searchAnimepaheBackend(keyword, page = 1) {
+  const response = await axios.get(apiUrl("/anime/search", "anilist"), {
+    params: { q: keyword, page, perPage: 20 },
+  });
   return response.data;
 }
 
-export async function getAnimepaheInfo(animeId) {
-  const response = await axios.get(apiUrl(`/anime/${animeId}`));
+export async function getAnimepaheInfo(anilistId) {
+  const response = await axios.get(apiUrl(`/anime/${anilistId}`, "anilist"));
   return response.data;
 }
 
-export async function getAnimepaheEpisodes(animeId) {
-  return getEpisodes(animeId);
+export async function getAnimepaheEpisodes(anilistId) {
+  return getEpisodes(anilistId);
 }
 
 export async function getAnimepaheEpisodesByAnilistId(anilistId) {
   const result = await getEpisodes(anilistId);
-  return { episodes: result.episodes || [], totalEpisodes: result.totalEpisodes || 0, provider: "anibd" };
+  return { episodes: result.episodes || [], totalEpisodes: result.totalEpisodes || 0, provider: "anilist" };
 }
 
 export async function getAnimepaheServers() {
@@ -30,6 +33,6 @@ export async function getRecentEpisodes() {
   return { data: [] };
 }
 
-export async function getAnimepaheStreamInfo(episodeId, version = "sub") {
-  return getStreamInfo(episodeId, version);
+export async function getAnimepaheStreamInfo(episodeId, version = "sub", provider = "anibd", server = null) {
+  return getStreamInfo(episodeId, version, provider, server);
 }

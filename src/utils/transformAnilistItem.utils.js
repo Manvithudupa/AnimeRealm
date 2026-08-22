@@ -1,3 +1,15 @@
+function stripHtml(value = "") {
+  return String(value)
+    .replace(/<br\s*\/?>(\s*)/gi, " $1")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 export function transformAnilistItem(item = {}) {
   const title = typeof item.title === "object" ? item.title : {};
   const id = item.id ?? item.anilistId ?? item.malId ?? "";
@@ -16,7 +28,7 @@ export function transformAnilistItem(item = {}) {
     poster: item.poster || item.posterImage || item.image || item.coverImage?.large || "",
     bannerImage: item.bannerImage || item.banner || null,
     color: item.color || null,
-    description: item.description || item.synopsis || "",
+    description: stripHtml(item.description || item.synopsis || ""),
     episodes,
     tvInfo: {
       showType: item.type || item.format || item.showType || null,

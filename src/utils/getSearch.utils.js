@@ -1,40 +1,17 @@
 import axios from "axios";
 import { apiUrl } from "@/src/config/api";
+import { transformAnilistItem } from "./transformAnilistItem.utils";
 
 const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000;
 
-export const mapAnimeSummary = (item = {}) => ({
-  id: item.id ?? "",
-  data_id: item.id ?? "",
-  anilistId: item.anilistId ?? null,
-  malId: null,
-  title: item.name || item.title || item.romaji || "Untitled",
-  japanese_title: item.romaji || item.name || "Untitled",
-  poster: item.posterImage || item.poster || "",
-  bannerImage: null,
-  color: null,
-  description: "",
-  episodes: null,
-  tvInfo: {
-    showType: item.type || null,
-    duration: null,
-    releaseDate: null,
-    rating: null,
-    quality: null,
-    sub: null,
-    dub: null,
-  },
-  genres: [],
-  score: null,
-  status: null,
-  season: null,
-  studio: null,
-  producers: [],
-});
+export const mapAnimeSummary = (item = {}) => transformAnilistItem(item);
 
 const getSearch = async (keyword, page = 1) => {
+  const query = String(keyword || "").trim();
+  if (!query) return { data: [], totalPage: 1, currentPage: page, total: 0 };
+
   try {
-    const cacheKey = `searchCache_${keyword}_p${page}`;
+    const cacheKey = `searchCache_anilist_${query.toLowerCase()}_p${page}`;
     try {
       const raw = sessionStorage.getItem(cacheKey);
       if (raw) {
@@ -42,27 +19,32 @@ const getSearch = async (keyword, page = 1) => {
         if (Date.now() - timestamp < SEARCH_CACHE_TTL_MS) return cachedData;
         sessionStorage.removeItem(cacheKey);
       }
-    } catch { /* ignore storage failures */ }
+    } catch {
+      // Storage can be unavailable in private browsing; continue with the request.
+    }
 
-    const response = await axios.get(apiUrl("/anime/search"), {
-      params: { q: keyword },
+    const response = await axios.get(apiUrl("/anime/search", "anilist"), {
+      params: { q: query, page, perPage: 20 },
     });
     const payload = response.data || {};
     const items = Array.isArray(payload.data) ? payload.data : [];
     const transformed = {
       data: items.map(mapAnimeSummary),
-      totalPage: payload.hasNextPage ? page + 1 : page,
+      totalPage: payload.lastPage || (payload.hasNextPage ? page + 1 : page),
       currentPage: payload.currentPage || page,
       total: items.length,
+      hasNextPage: Boolean(payload.hasNextPage),
     };
 
     try {
       sessionStorage.setItem(cacheKey, JSON.stringify({ data: transformed, timestamp: Date.now() }));
-    } catch { /* ignore storage failures */ }
+    } catch {
+      // Ignore storage failures and return the fresh result.
+    }
     return transformed;
-  } catch (err) {
-    console.error("Error fetching search results:", err);
-    return { data: [], totalPage: 1, currentPage: page, total: 0, error: err };
+  } catch (error) {
+    console.error("Error fetching AniList search results:", error);
+    return { data: [], totalPage: 1, currentPage: page, total: 0, error };
   }
 };
 

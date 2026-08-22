@@ -20,8 +20,8 @@ const LatestEpisodeCard = ({ item, path }) => {
 
   // Use proxied thumbnail for episode data, poster for anime data
   const imageSrc = isEpisodeData
-    ? `${proxyUrl}${item.thumbnail}`
-    : item.poster;
+    ? (item.thumbnail ? `${proxyUrl}${item.thumbnail}` : item.poster || "")
+    : item.poster || "";
 
   const title = isEpisodeData || language === "EN"
     ? item.title
@@ -31,11 +31,11 @@ const LatestEpisodeCard = ({ item, path }) => {
     if (isEpisodeData) {
       setIsNavigating(true);
       try {
-        const response = await axios.get(apiUrl('/anime/search'), {
-          params: { q: item.title }
+        const response = await axios.get(apiUrl('/anime/search', 'anilist'), {
+          params: { q: item.title, page: 1, perPage: 5 }
         });
         const result = response.data?.data?.[0] || {};
-        const animeId = result.id || result.anilistId;
+        const animeId = item.anilistId || result.id || result.anilistId;
         if (animeId) {
           navigate(`/watch/${animeId}?ep=${item.episodeNumber}`);
         } else {

@@ -26,7 +26,7 @@ Artplayer.LOG_VERSION = false;
 Artplayer.CONTEXTMENU = false;
 
 // How close to the end (seconds) we treat the video as finished for the
-// near-end auto-next fallback (mirrors the constant in IframePlayer.jsx).
+// near-end auto-next fallback for the current player instance.
 const END_THRESHOLD_SECONDS = 2;
 // Minimum video duration (seconds) before auto-next triggers.
 const MIN_VIDEO_DURATION = 30;
@@ -49,7 +49,6 @@ export default function Player({
   animeInfo,
   episodeNum,
   streamInfo,
-  allSources = [],
   onSourceFallback,
 }) {
   const artRef = useRef(null);
@@ -166,7 +165,7 @@ export default function Player({
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
               hlsRetryCount++;
-              if (hlsRetryCount >= MAX_HLS_RETRIES && onSourceFallback && allSources.length > 1) {
+              if (hlsRetryCount >= MAX_HLS_RETRIES && onSourceFallback) {
                 // All retries exhausted — fall back to next source
                 console.warn(`HLS fatal network error after ${hlsRetryCount} retries, falling back to next source`);
                 hls.destroy();
@@ -177,7 +176,7 @@ export default function Player({
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
               hlsRetryCount++;
-              if (hlsRetryCount >= MAX_HLS_RETRIES && onSourceFallback && allSources.length > 1) {
+              if (hlsRetryCount >= MAX_HLS_RETRIES && onSourceFallback) {
                 console.warn(`HLS fatal media error after ${hlsRetryCount} retries, falling back to next source`);
                 hls.destroy();
                 onSourceFallback();
@@ -187,7 +186,7 @@ export default function Player({
               break;
             default:
               // Unknown fatal error — try fallback
-              if (onSourceFallback && allSources.length > 1) {
+              if (onSourceFallback) {
                 console.warn("HLS unknown fatal error, falling back to next source");
                 hls.destroy();
                 onSourceFallback();

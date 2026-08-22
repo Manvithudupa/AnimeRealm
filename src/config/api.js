@@ -10,6 +10,16 @@ export const KENJITSU_API_URL = (
 export const ANIME_PROVIDER = import.meta.env.VITE_ANIME_PROVIDER || "anibd";
 export const METADATA_PROVIDER = "anilist";
 
+// AniList owns catalog and metadata; these providers are tried in order for playback.
+export const STREAMING_PROVIDERS = ["anibd", "anidb", "anikoto", "animeheaven", "anizone"];
+export const PROVIDER_LABELS = {
+  anibd: "AniBD",
+  anidb: "AniDB",
+  anikoto: "Anikoto",
+  animeheaven: "Animeheaven",
+  anizone: "Anizone",
+};
+
 export function apiUrl(path, provider = ANIME_PROVIDER) {
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
   return `${KENJITSU_API_URL}/api/${provider}${cleanPath}`;

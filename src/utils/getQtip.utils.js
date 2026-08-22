@@ -1,9 +1,27 @@
 import axios from "axios";
 import { apiUrl } from "@/src/config/api";
 
-function toTooltip(data) {
+function stripHtml(value = "") {
+  return String(value)
+    .replace(/<br\s*\/?>(\s*)/gi, " $1")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function toTooltip(data = {}) {
   if (!data?.id) return null;
-  const title = data.title || {};
+  const title = typeof data.title === "object" ? data.title : {};
+  const genres = Array.isArray(data.genres)
+    ? data.genres
+    : typeof data.genres === "string"
+      ? data.genres.split(",").map((item) => item.trim()).filter(Boolean)
+      : [];
+
   return {
     title: title.english || title.romaji || data.name || "Untitled",
     japaneseTitle: title.native || title.romaji || data.native || null,
@@ -12,30 +30,29 @@ function toTooltip(data) {
     dubCount: null,
     episodeCount: data.episodes || data.totalEpisodes ? String(data.episodes || data.totalEpisodes) : null,
     type: data.format || data.type || null,
-    poster: data.image || data.posterImage || "",
-    description: data.synopsis || "",
-    airedDate: data.releaseDate || null,
+    poster: data.image || data.posterImage || data.poster || "",
+    description: stripHtml(data.synopsis || data.description || ""),
+    airedDate: data.releaseDate || data.startDate || null,
     status: data.status || null,
-    tvInfo: { showType: data.format || data.type || null, duration: data.duration ? `${data.duration}m` : null, releaseDate: data.releaseDate || null },
-    genres: Array.isArray(data.genres) ? data.genres : (typeof data.genres === "string" ? data.genres.split(",").map((item) => item.trim()) : []),
+    tvInfo: {
+      showType: data.format || data.type || null,
+      duration: data.duration ? `${data.duration}`.endsWith("m") ? `${data.duration}` : `${data.duration}m` : null,
+      releaseDate: data.releaseDate || data.startDate || null,
+    },
+    genres,
     watchLink: `/${data.id}`,
   };
 }
 
 export default async function getQtip(id) {
+  const numericId = String(id || "").trim();
+  if (!/^\d+$/.test(numericId)) return null;
+
   try {
-    const metadataResponse = await axios.get(apiUrl(`/anime/${id}`, "anilist")).catch(() => null);
-    if (metadataResponse?.data?.data?.id) return toTooltip(metadataResponse.data.data);
-    const providerResponse = await axios.get(apiUrl(`/anime/${id}`)).catch(() => null);
-    const providerData = providerResponse?.data?.data;
-    if (!providerData?.id) return null;
-    const metadata = providerData.anilistId
-      ? await axios.get(apiUrl(`/anime/${providerData.anilistId}`, "anilist")).catch(() => null)
-      : null;
-    const result = toTooltip(metadata?.data?.data || providerData);
-    return result ? { ...result, watchLink: `/${providerData.id}` } : null;
+    const response = await axios.get(apiUrl(`/anime/${numericId}`, "anilist"), { timeout: 12000 });
+    return toTooltip(response.data?.data || response.data);
   } catch (error) {
-    console.error("Error fetching qtip info:", error);
+    console.warn("AniList tooltip request failed:", error?.message || error);
     return null;
   }
 }

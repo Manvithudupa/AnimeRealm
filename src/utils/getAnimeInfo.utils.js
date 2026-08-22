@@ -1,7 +1,8 @@
 import axios from "axios";
 import { apiUrl } from "@/src/config/api";
+import { transformAnilistItem } from "./transformAnilistItem.utils";
 
-const CACHE_PREFIX = "animeInfoCache_";
+const CACHE_PREFIX = "animeInfoCache_anilist_v2_";
 const CACHE_DURATION = 60 * 60 * 1000;
 
 function getCached(key) {
@@ -11,112 +12,150 @@ function getCached(key) {
     const { data, timestamp } = JSON.parse(raw);
     if (Date.now() - timestamp < CACHE_DURATION) return data;
     localStorage.removeItem(key);
-  } catch { /* ignore storage failures */ }
+  } catch {
+    // Local storage is optional and can be unavailable in private browsing.
+  }
   return null;
 }
 
 function setCache(key, data) {
-  try { localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() })); } catch { /* ignore */ }
+  try {
+    localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() }));
+  } catch {
+    // Ignore storage failures; the page can still use the fresh result.
+  }
 }
 
-function splitList(value) {
-  if (Array.isArray(value)) return value;
-  return typeof value === "string" ? value.split(",").map((item) => item.trim()).filter(Boolean) : [];
+function unwrapData(payload) {
+  if (payload?.data && !Array.isArray(payload.data)) return payload.data;
+  return payload || {};
 }
 
-function mapEpisodes(providerEpisodes = []) {
-  return providerEpisodes.map((ep) => ({
-    episodeId: ep.episodeId,
-    id: `ep=${ep.episodeNumber}`,
-    episode_no: ep.episodeNumber,
-    title: ep.title || `Episode ${ep.episodeNumber}`,
-    thumbnail: null,
-    hasDub: Boolean(ep.hasDub),
-    hasSub: Boolean(ep.hasSub),
-    aired: true,
-  }));
+function mapAniListEpisodes(payload) {
+  const items = Array.isArray(payload?.data) ? payload.data : Array.isArray(payload?.episodes) ? payload.episodes : [];
+  return items
+    .map((episode, index) => {
+      const episodeNumber = Number(episode.episodeNumber ?? episode.number ?? episode.episode ?? index + 1);
+      if (!Number.isFinite(episodeNumber)) return null;
+      return {
+        episodeId: null,
+        id: `ep=${episodeNumber}`,
+        episode_no: episodeNumber,
+        title: episode.title || `Episode ${episodeNumber}`,
+        thumbnail: episode.thumbnail || episode.image || null,
+        overview: episode.overview || episode.synopsis || null,
+        airDate: episode.airDate || episode.releaseDate || null,
+        aired: episode.aired !== false,
+        hasDub: null,
+        hasSub: null,
+        isFiller: Boolean(episode.isFiller || episode.filler),
+      };
+    })
+    .filter(Boolean)
+    .filter((episode, index, all) => all.findIndex((item) => item.episode_no === episode.episode_no) === index)
+    .sort((a, b) => a.episode_no - b.episode_no);
 }
 
-export function transformAnimeDetail(payload = {}, metadata = null) {
-  const providerData = payload.data || {};
-  const metadataData = metadata?.data || {};
-  const providerEpisodes = payload.providerEpisodes || [];
-  const title = metadataData.title || {};
-  const genres = splitList(providerData.genres).length ? splitList(providerData.genres) : (metadataData.genres || []);
-  const episodes = mapEpisodes(providerEpisodes);
-  const base = {
-    id: providerData.id ?? metadataData.id ?? "",
-    data_id: providerData.id ?? metadataData.id ?? "",
-    providerId: providerData.id ?? null,
-    anilistId: providerData.anilistId ?? metadataData.id ?? null,
-    malId: metadataData.malId ?? null,
-    title: providerData.name || title.english || title.romaji || "Untitled",
-    japanese_title: providerData.native || title.native || title.romaji || providerData.name || "Untitled",
-    poster: providerData.posterImage || metadataData.image || "",
-    bannerImage: metadataData.bannerImage || providerData.posterImage || null,
-    color: metadataData.color || null,
-    description: providerData.synopsis || metadataData.synopsis || "",
-    episodes: episodes.length || Number(providerData.totalEpisodes || metadataData.episodes) || null,
-    tvInfo: {
-      showType: providerData.type || metadataData.format || null,
-      duration: metadataData.duration ? `${metadataData.duration}m` : null,
-      releaseDate: providerData.releaseDate || metadataData.releaseDate || null,
-      rating: null,
-      quality: null,
-      sub: episodes.filter((ep) => ep.hasSub).length || null,
-      dub: episodes.filter((ep) => ep.hasDub).length || null,
+function buildAnimeInfo(base) {
+  const tvInfo = base.tvInfo || {};
+  return {
+    genres: base.genres || [],
+    Genres: base.genres || [],
+    Type: tvInfo.showType,
+    Studios: base.studio,
+    Japanese: base.japanese_title,
+    Aired: tvInfo.releaseDate,
+    Status: base.status,
+    Duration: tvInfo.duration,
+    Premiered: tvInfo.releaseDate,
+    Overview: base.description,
+    "MAL Score": base.score,
+    tvInfo,
+    moreInfo: {
+      Aired: tvInfo.releaseDate,
+      Studios: base.studio,
+      Japanese: base.japanese_title,
+      Status: base.status,
     },
-    genres,
-    score: metadataData.score ?? null,
-    status: metadataData.status || null,
-    season: metadataData.season || null,
-    studio: providerData.studios || metadataData.studio || null,
-    producers: metadataData.producers || [],
   };
-  const animeInfo = {
-    genres, Genres: genres, Type: base.tvInfo.showType, Studios: base.studio,
-    Japanese: base.japanese_title, Aired: base.tvInfo.releaseDate, Status: base.status,
-    Duration: base.tvInfo.duration, Premiered: base.tvInfo.releaseDate,
-    Overview: base.description, "MAL Score": base.score, tvInfo: base.tvInfo,
-    moreInfo: { Aired: base.tvInfo.releaseDate, Studios: base.studio, Japanese: base.japanese_title, Status: base.status },
-  };
-  return { data: { ...base, animeInfo, providerEpisodes: episodes }, seasons: [], episodes };
 }
 
-async function fetchJson(url) {
+function transformAnimeDetail(metadataPayload, episodePayload, relatedPayload) {
+  const metadata = unwrapData(metadataPayload);
+  const episodes = mapAniListEpisodes(episodePayload);
+  const base = transformAnilistItem({
+    ...metadata,
+    poster: metadata.image || metadata.poster,
+    type: metadata.format || metadata.type,
+    releaseDate: metadata.releaseDate || metadata.startDate,
+    studio: metadata.studio || metadata.studios,
+    producers: metadata.producers || [],
+  });
+  const relatedRecords = Array.isArray(relatedPayload?.data)
+    ? relatedPayload.data
+    : Array.isArray(relatedPayload?.relations)
+      ? relatedPayload.relations
+      : Array.isArray(relatedPayload?.edges)
+        ? relatedPayload.edges.map((edge) => edge.node || edge)
+        : [];
+  const relatedItems = relatedRecords
+    .map((item) => item?.media || item)
+    .map(transformAnilistItem)
+    .filter((item) => item.id && item.id !== base.id);
+  const episodeCount = base.episodes ?? episodes.length ?? null;
+  const data = {
+    ...base,
+    episodes: episodeCount,
+    providerId: null,
+    providerEpisodes: [],
+    providerEpisodesByProvider: {},
+    animeInfo: buildAnimeInfo(base),
+    recommended_data: relatedItems,
+  };
+
+  return {
+    data,
+    seasons: [],
+    episodes,
+    recommended_data: relatedItems,
+  };
+}
+
+async function fetchJson(url, config = {}) {
   try {
-    const response = await axios.get(url);
+    const response = await axios.get(url, { timeout: 18000, ...config });
     return response.data || null;
-  } catch { return null; }
-}
-
-export default async function fetchAnimeInfo(id) {
-  const cacheKey = CACHE_PREFIX + String(id).replace(/[^a-zA-Z0-9_-]/g, "_");
-  const cached = getCached(cacheKey);
-  if (cached) return cached;
-  try {
-    let providerPayload = await fetchJson(apiUrl(`/anime/${id}`));
-    let metadata = null;
-    if (!providerPayload?.data?.id && /^\d+$/.test(String(id))) {
-      metadata = await fetchJson(apiUrl(`/anime/${id}`, "anilist"));
-      const mapping = await fetchJson(apiUrl(`/anime/${id}/mappings?provider=anibd`, "anilist"));
-      const providerId = mapping?.data?.provider?.id;
-      if (providerId) providerPayload = await fetchJson(apiUrl(`/anime/${providerId}`));
-      if (!providerPayload?.data?.id && metadata?.data?.id) {
-        const result = transformAnimeDetail({}, metadata);
-        setCache(cacheKey, result);
-        return result;
-      }
-    }
-    if (!providerPayload?.data?.id) return null;
-    if (!metadata && providerPayload.data.anilistId) {
-      metadata = await fetchJson(apiUrl(`/anime/${providerPayload.data.anilistId}`, "anilist"));
-    }
-    const result = transformAnimeDetail(providerPayload, metadata);
-    setCache(cacheKey, result);
-    return result;
   } catch (error) {
-    console.error("Error fetching anime info:", error);
+    console.warn(`AniList request failed for ${url}:`, error?.message || error);
     return null;
   }
 }
+
+export default async function fetchAnimeInfo(id) {
+  const numericId = String(id || "").trim();
+  if (!/^\d+$/.test(numericId)) return null;
+
+  const cacheKey = CACHE_PREFIX + numericId;
+  const cached = getCached(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const [metadata, episodes] = await Promise.all([
+      fetchJson(apiUrl(`/anime/${numericId}`, "anilist")),
+      fetchJson(apiUrl(`/anime/${numericId}/episodes`, "anilist")),
+    ]);
+
+    if (!metadata?.data?.id && !metadata?.id) return null;
+    const metadataData = unwrapData(metadata);
+    const result = transformAnimeDetail(metadata, episodes, {
+      data: metadataData.relatedAnime || metadataData.relations || metadataData.recommendations || [],
+    });
+    setCache(cacheKey, result);
+    return result;
+  } catch (error) {
+    console.error("Error fetching AniList anime info:", error);
+    return null;
+  }
+}
+
+export { mapAniListEpisodes, transformAnimeDetail };

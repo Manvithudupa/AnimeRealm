@@ -1,24 +1,24 @@
 # AnimeRealm
 
-AnimeRealm is a responsive anime discovery and streaming interface built with React, Vite, Tailwind CSS, React Router, Supabase, Artplayer, and HLS.js. It gives viewers a fast path from discovery to playback while keeping provider-specific response formats inside a small adapter layer.
+AnimeRealm is a responsive anime discovery and streaming interface built with React, Vite, Tailwind CSS, React Router, Supabase, Artplayer, and HLS.js. It takes users from discovery to playback while keeping catalog metadata and provider-specific playback concerns separate.
 
-The public catalog and playback pipeline use the documented [Kenjitsu API](https://kenjitsu-docs.vercel.app/). AniList-backed metadata and discovery requests are routed through Kenjitsu, while AniBD provides provider episode identifiers and HLS sources. AnimeRealm does not host or redistribute third-party media; streams are requested from external providers at playback time.
+**AniList is the single source of truth for catalog data.** Search, suggestions, home sections, categories, filters, schedules, anime details, recommendations, characters, voice actors, posters, descriptions, scores, and episode metadata are loaded from AniList through the documented Kenjitsu API. Playback uses the available Kenjitsu streaming providers and automatically falls through to the next provider or source when the current one is unavailable. AnimeRealm does not host or redistribute third-party media; playback URLs are requested from external providers at runtime.
 
 ## Features
 
-- **Discovery:** spotlight, trending, popular, upcoming, seasonal, genre, category, A–Z, producer, and airing-schedule views.
-- **Search:** AniBD search results with URL-backed queries, autocomplete suggestions, normalized cards, and graceful empty states.
-- **Anime details:** title variants, poster and banner art, synopsis, score, format, date, status, studio, genres, episodes, characters, and voice actors.
-- **Playback:** HLS playback through Artplayer and HLS.js, subtitle-track support, language selection, download/source metadata, intro/outro controls, autoplay, auto-next, progress saving, and source fallback.
+- **AniList discovery:** trending, airing, popular, upcoming, seasonal, rating, genre, category, producer, A–Z, search, and airing-schedule views.
+- **AniList metadata:** title variants, artwork, synopsis, score, format, dates, status, studios, genres, related anime, characters, and voice actors.
+- **Playback failover:** ordered AniBD, AniDB, Anikoto, Animeheaven, and Anizone provider options, language-aware source selection, same-provider source fallback, and cross-provider failover.
+- **HLS playback:** Artplayer and HLS.js with subtitle tracks, quality selection, optional proxy support, intro/outro controls, autoplay, auto-next, progress saving, and downloads when a direct source is available.
 - **Personal features:** optional Supabase authentication, watchlists, continue-watching records, profiles, and notifications.
-- **Responsive UI:** cinematic dark-first visual design, light-theme support, mobile navigation, keyboard focus states, reduced-motion support, and adaptive card grids.
+- **Responsive UI:** cinematic dark-first design, light-theme support, mobile navigation, keyboard focus states, reduced-motion support, and adaptive card grids.
 - **Progressive web app:** Vite PWA generation is enabled for production builds.
 
 ## Quick start
 
 ### Prerequisites
 
-Use Node.js 18 or newer and pnpm. A Supabase project is optional for public browsing and playback, but required for authentication and user-specific persistence.
+Use Node.js 18 or newer and pnpm. A Supabase project is optional for public browsing and playback, but it is required for authentication and user-specific persistence.
 
 ### Install and configure
 
@@ -29,17 +29,17 @@ pnpm install
 cp .env.example .env
 ```
 
-The default environment template points to the public Kenjitsu deployment. Edit `.env` when using another deployment or an m3u8 proxy.
+The default environment template points to the public Kenjitsu deployment. Edit `.env` when using another Kenjitsu deployment or an HLS proxy.
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `VITE_KENJITSU_API_URL` | No | Kenjitsu origin; defaults to `https://kenjitsu.koyeb.app`. |
-| `VITE_ANIME_PROVIDER` | No | Playback provider namespace; defaults to `anibd`. |
+| `VITE_ANIME_PROVIDER` | No | Preferred first playback provider; defaults to `anibd`. The app falls through to the other supported providers automatically. |
 | `VITE_M3U8_PROXY_URL` | No | Proxy URL for HLS hosts that require CORS or Referer handling. |
 | `VITE_SUPABASE_URL` | No | Supabase project URL for auth and persistence. |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | No | Supabase browser-safe publishable/anon key. |
 
-When both Supabase variables are empty, the public site remains usable and auth-backed controls return a clear unavailable state instead of crashing the application.
+When both Supabase variables are empty, public browsing and playback remain usable. Auth-backed controls show an unavailable or login state instead of crashing the application.
 
 ### Run locally
 
@@ -53,20 +53,36 @@ pnpm run preview   # Preview the production build
 
 ## API integration
 
-All application requests are built through `src/config/api.js` and normalized before reaching components. The adapter layer keeps AniList metadata separate from AniBD playback identifiers.
+All application requests are built through `src/config/api.js` and normalized before reaching components. AniList requests are used for all visible catalog and metadata data. Provider requests are isolated to playback ID resolution, provider episode identifiers, and streaming source retrieval.
+
+### AniList catalog and metadata
 
 | Capability | Kenjitsu route | Client responsibility |
 | --- | --- | --- |
-| AniBD search | `GET /api/anibd/anime/search?q={query}` | Normalize flat `data[]` search results. |
-| AniBD detail | `GET /api/anibd/anime/{id}` | Read provider metadata and embedded provider episodes. |
-| AniBD episodes | `GET /api/anibd/anime/{id}/episodes` | Use the provider ID and fall back to embedded detail episodes when necessary. |
-| AniBD sources | `GET /api/anibd/sources/{episodeId}?version=sub\|dub\|raw` | Select the language version and normalize HLS URLs, headers, subtitles, and markers. |
-| AniList detail/search | `GET /api/anilist/anime/{id}` and `GET /api/anilist/anime/search?q={query}` | Provide metadata, discovery, and AniList IDs. |
-| AniList mappings | `GET /api/anilist/anime/{id}/mappings?provider=anibd` | Resolve an AniList ID to an AniBD provider ID before playback. |
-| AniList characters | `GET /api/anilist/anime/{id}/characters` | Populate character and voice-actor views. |
-| AniList schedule | `GET /api/anilist/airing/date/{date}` | Populate date-based airing cards and schedule pages. |
+| Search | `GET /api/anilist/anime/search?q={query}&page={page}&perPage={perPage}` | Normalize AniList results into AnimeRealm card models. |
+| Top and popular lists | `GET /api/anilist/anime/top/{airing\|trending\|upcoming\|rating\|popular}` | Populate discovery sections and categories. |
+| Seasonal lists | `GET /api/anilist/seasons/{season}/{year}` | Populate seasonal and filter views. |
+| Anime detail | `GET /api/anilist/anime/{anilistId}` | Provide canonical metadata and artwork. |
+| Episode metadata | `GET /api/anilist/anime/{anilistId}/episodes` | Provide canonical episode numbers, titles, artwork, and air dates. |
+| Related anime | `GET /api/anilist/anime/{anilistId}/related` | Populate related and recommendation cards. |
+| Characters | `GET /api/anilist/anime/{anilistId}/characters` | Populate character and voice-actor views. |
+| Airing schedule | `GET /api/anilist/airing/date/{date}` | Populate date-based airing cards and schedule pages. |
 
-The API documentation is available at [kenjitsu-docs.vercel.app](https://kenjitsu-docs.vercel.app/), with provider-specific details in the [AniBD reference](https://kenjitsu-docs.vercel.app/anime/anibd) and metadata details in the [AniList reference](https://kenjitsu-docs.vercel.app/meta/anilist). Kenjitsu documents GET-based public routes and notes that provider streams may require a proxy when browsers encounter CORS or Referer restrictions.
+### Playback providers
+
+The watch page resolves the AniList ID into provider-specific identifiers through the mappings route and then hydrates provider episode IDs. Providers are tried in this order by default: **AniBD → AniDB → Anikoto → Animeheaven → Anizone**. The preferred provider can be changed with `VITE_ANIME_PROVIDER`, but the remaining providers remain available as fallbacks.
+
+| Provider | Episode metadata | Sources |
+| --- | --- | --- |
+| AniBD | `GET /api/anibd/anime/{id}/episodes` or detail-embedded episodes | `GET /api/anibd/sources/{episodeId}?version=sub\|dub\|raw` |
+| AniDB | `GET /api/anidb/anime/{id}/episodes` | `GET /api/anidb/sources/{episodeId}?version=sub\|dub\|raw` |
+| Anikoto | Detail-embedded provider episodes | `GET /api/anikoto/sources/{episodeId}?version=sub\|dub\|raw&server={server}` |
+| Animeheaven | `GET /api/animeheaven/anime/{id}/episodes` | `GET /api/animeheaven/sources/{episodeId}?version=sub\|dub\|raw` |
+| Anizone | Detail-embedded provider episodes | `GET /api/anizone/sources/{episodeId}` |
+
+The playback adapter normalizes source URLs, HLS type, quality, headers, subtitles, intro/outro markers, and provider labels. If a source fails inside the player, AnimeRealm first tries the next source from that provider and then advances to the next provider-language option. Transient provider errors are treated as recoverable playback failures rather than catalog failures.
+
+The API documentation is available at [kenjitsu-docs.vercel.app](https://kenjitsu-docs.vercel.app/), with the [AniList reference](https://kenjitsu-docs.vercel.app/meta/anilist), [AniBD reference](https://kenjitsu-docs.vercel.app/anime/anibd), [AniDB reference](https://kenjitsu-docs.vercel.app/anime/anidb), [Anikoto reference](https://kenjitsu-docs.vercel.app/anime/anikoto), [Animeheaven reference](https://kenjitsu-docs.vercel.app/anime/animeheaven), and [Anizone reference](https://kenjitsu-docs.vercel.app/anime/anizone).
 
 ## Project structure
 
@@ -77,22 +93,22 @@ src/
 ├── context/          Theme, language, search, and home data contexts
 ├── hooks/            Auth, search, watch, notification, and control hooks
 ├── integrations/     Optional Supabase browser client and generated types
-├── pages/            Route-level screens
-└── utils/            Kenjitsu request adapters and response normalizers
+├── pages/             Route-level screens
+└── utils/             AniList adapters, provider playback adapters, and normalizers
 ```
 
 The main integration files are:
 
 | File | Responsibility |
 | --- | --- |
-| `src/config/api.js` | Kenjitsu base URL and provider route builders. |
+| `src/config/api.js` | Kenjitsu base URL, AniList namespace, and ordered playback providers. |
 | `src/utils/getHomeInfo.utils.js` | Home sections from AniList discovery endpoints. |
-| `src/utils/getSearch.utils.js` | AniBD search normalization. |
-| `src/utils/getAnimeInfo.utils.js` | AniList/AniBD ID resolution and detail normalization. |
-| `src/utils/getEpisodes.utils.js` | Provider episode normalization. |
-| `src/utils/getStreamInfo.utils.js` | Source, subtitle, header, and marker normalization. |
-| `src/hooks/useWatchMultiSource.js` | Episode, language, source, and fallback state. |
-| `src/components/player/Player.jsx` | Artplayer/HLS playback and progress handling. |
+| `src/utils/getSearch.utils.js` | AniList search normalization. |
+| `src/utils/getAnimeInfo.utils.js` | AniList detail, episode metadata, and related-anime normalization. |
+| `src/utils/getEpisodes.utils.js` | AniList episode metadata normalization. |
+| `src/utils/streamingProviders.utils.js` | Provider ID resolution, episode hydration, source normalization, and playback failover primitives. |
+| `src/hooks/useWatchMultiSource.js` | AniList episode merge, provider-language choices, source state, and failover orchestration. |
+| `src/components/player/Player.jsx` | Artplayer/HLS playback, error detection, and fallback callbacks. |
 
 ## Supabase setup
 
@@ -107,11 +123,11 @@ The application uses the following tables:
 
 ## Deployment
 
-AnimeRealm is a static Vite application and can be deployed to Vercel or another static-hosting provider. Configure the environment variables in the hosting dashboard, set the build command to `pnpm run build`, and publish the generated `dist` directory according to the platform’s Vite integration. Set `VITE_M3U8_PROXY_URL` when the selected provider requires a browser-side HLS proxy.
+AnimeRealm is a static Vite application and can be deployed to Vercel or another static-hosting provider. Configure the environment variables in the hosting dashboard, set the build command to `pnpm run build`, and publish the generated `dist` directory according to the platform’s Vite integration. Set `VITE_M3U8_PROXY_URL` when a provider requires a browser-side HLS proxy.
 
 ## Maintenance and validation
 
-Before opening a pull request, run the following commands:
+Before opening a pull request, run:
 
 ```bash
 pnpm install --frozen-lockfile
@@ -119,7 +135,7 @@ pnpm run lint
 pnpm run build
 ```
 
-For endpoint changes, verify a known search query, AniList detail and mapping resolution, character response, airing-date response, AniBD episode retrieval, and a source request with `version=sub`. Public providers can rate-limit or temporarily reject individual requests; UI adapters should preserve loading, empty, and recoverable error states rather than treating transient failures as permanent catalog deletions.
+For API changes, verify an AniList search query, AniList detail and episode metadata, related titles, characters, airing-date response, provider mapping resolution, provider episode retrieval, and a `version=sub` source request. To exercise failover, select each visible provider option and confirm that a source error invokes the next source or provider without losing the current episode. Public services can rate-limit or temporarily reject individual requests; the UI should preserve loading, empty, and recoverable playback error states.
 
 ## License
 
