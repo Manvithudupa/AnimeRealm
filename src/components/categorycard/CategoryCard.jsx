@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faClosedCaptioning,
@@ -26,7 +26,7 @@ const CategoryCard = React.memo(
     const { language } = useLanguage();
     const navigate = useNavigate();
 
-    if (limit) data = data.slice(0, limit);
+    const visibleData = useMemo(() => (limit ? data.slice(0, limit) : data), [data, limit]);
 
     const [itemsToRender, setItemsToRender] = useState({
       firstRow: [],
@@ -36,20 +36,20 @@ const CategoryCard = React.memo(
     const getItemsToRender = useCallback(() => {
       if (categoryPage) {
         const firstRow =
-          window.innerWidth > 758 && data.length > 4
-            ? data.slice(0, 4)
+            window.innerWidth > 758 && visibleData.length > 4
+            ? visibleData.slice(0, 4)
             : [];
 
         const remainingItems =
-          window.innerWidth > 758 && data.length > 4
-            ? data.slice(4)
-            : data.slice(0);
+            window.innerWidth > 758 && visibleData.length > 4
+            ? visibleData.slice(4)
+            : visibleData.slice(0);
 
         return { firstRow, remainingItems };
       }
 
-      return { firstRow: [], remainingItems: data.slice(0) };
-    }, [categoryPage, data]);
+      return { firstRow: [], remainingItems: visibleData.slice(0) };
+    }, [categoryPage, visibleData]);
 
     useEffect(() => {
       const handleResize = () => setItemsToRender(getItemsToRender());
@@ -133,7 +133,7 @@ const CategoryCard = React.memo(
       <>
         {/* Section Heading */}
         {displayLabel && (
-          <h2 className="text-white text-2xl font-bold mb-4">
+          <h2 className="page-section-title text-white text-2xl font-bold mb-4">
             {displayLabel}
           </h2>
         )}
@@ -143,7 +143,7 @@ const CategoryCard = React.memo(
           <div className="flex justify-end -mt-6 mb-2">
             <button
               onClick={() => navigate("/recently-updated")}
-              className="text-sm text-white/70 hover:text-white transition"
+              className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/70 hover:border-purple-300/30 hover:bg-purple-500/10 hover:text-white transition"
             >
               View All &gt;
             </button>

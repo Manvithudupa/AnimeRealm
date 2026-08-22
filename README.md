@@ -1,164 +1,126 @@
-# 🎬 AnimeRealm
+# AnimeRealm
 
-A modern, feature-rich anime streaming platform built with React. Integrates with the **Shirayuki Scrapper API v2** to aggregate content from multiple anime providers (HiAnime, Anixo, AnimeX, Anikuro, Nyaa.si) into a unified, seamless experience.
+AnimeRealm is a responsive anime discovery and streaming interface built with React, Vite, Tailwind CSS, React Router, Supabase, Artplayer, and HLS.js. It gives viewers a fast path from discovery to playback while keeping provider-specific response formats inside a small adapter layer.
 
-## ✨ Features
+The public catalog and playback pipeline use the documented [Kenjitsu API](https://kenjitsu-docs.vercel.app/). AniList-backed metadata and discovery requests are routed through Kenjitsu, while AniBD provides provider episode identifiers and HLS sources. AnimeRealm does not host or redistribute third-party media; streams are requested from external providers at playback time.
 
-- **Unified Discovery** — Browse trending, popular, airing, and upcoming anime from multiple providers
-- **Advanced Search** — Full-text search with autocomplete suggestions + advanced filtering (genre, season, year, status, type)
-- **Anime Details** — Synopsis, scores, studios, genres, seasons/parts, character lists, and recommendations
-- **Video Player** — HLS-based streaming with subtitle support, intro/outro skipping, auto-play, and auto-next
-- **Episodic Browsing** — Chronological episode lists with click-to-watch navigation
-- **User System** — Supabase Auth-powered accounts with watchlists and continue-watching
-- **Responsive Design** — Fully responsive dark-themed UI optimized for both desktop and mobile
+## Features
 
-## 🚀 Quick Start
+- **Discovery:** spotlight, trending, popular, upcoming, seasonal, genre, category, A–Z, producer, and airing-schedule views.
+- **Search:** AniBD search results with URL-backed queries, autocomplete suggestions, normalized cards, and graceful empty states.
+- **Anime details:** title variants, poster and banner art, synopsis, score, format, date, status, studio, genres, episodes, characters, and voice actors.
+- **Playback:** HLS playback through Artplayer and HLS.js, subtitle-track support, language selection, download/source metadata, intro/outro controls, autoplay, auto-next, progress saving, and source fallback.
+- **Personal features:** optional Supabase authentication, watchlists, continue-watching records, profiles, and notifications.
+- **Responsive UI:** cinematic dark-first visual design, light-theme support, mobile navigation, keyboard focus states, reduced-motion support, and adaptive card grids.
+- **Progressive web app:** Vite PWA generation is enabled for production builds.
 
-### 1. Prerequisites
+## Quick start
 
-- Node.js 18+
-- npm or yarn
-- A Supabase account (for auth, watchlist, continue-watching features)
-- The Shirayuki Scrapper API v2 (deployed or self-hosted)
+### Prerequisites
 
-### 2. Environment Setup
+Use Node.js 18 or newer and pnpm. A Supabase project is optional for public browsing and playback, but required for authentication and user-specific persistence.
 
-Copy the environment template and fill in your values:
+### Install and configure
 
 ```bash
+git clone https://github.com/Manvith911/AnimeRealm.git
+cd AnimeRealm
+pnpm install
 cp .env.example .env
 ```
 
-Required environment variables:
+The default environment template points to the public Kenjitsu deployment. Edit `.env` when using another deployment or an m3u8 proxy.
 
-| Variable | Description |
-|----------|-------------|
-| `VITE_SHIPAYUKI_API_URL` | Base URL of the deployed Shirayuki API |
-| `VITE_SUPABASE_URL` | Your Supabase project URL |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Your Supabase anon/public key |
-| `VITE_ANIMEPAHE_M3U8_PROXY` | (Optional) M3U8 proxy URL for HLS streaming |
-| `VITE_PROXY_URL` | (Optional) General proxy URL for thumbnails |
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `VITE_KENJITSU_API_URL` | No | Kenjitsu origin; defaults to `https://kenjitsu.koyeb.app`. |
+| `VITE_ANIME_PROVIDER` | No | Playback provider namespace; defaults to `anibd`. |
+| `VITE_M3U8_PROXY_URL` | No | Proxy URL for HLS hosts that require CORS or Referer handling. |
+| `VITE_SUPABASE_URL` | No | Supabase project URL for auth and persistence. |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | No | Supabase browser-safe publishable/anon key. |
 
-### 3. Install & Run
+When both Supabase variables are empty, the public site remains usable and auth-backed controls return a clear unavailable state instead of crashing the application.
+
+### Run locally
 
 ```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
+pnpm run dev       # Start Vite on localhost
+pnpm run host      # Start Vite with network access
+pnpm run lint      # Run ESLint
+pnpm run build     # Create the production build and service worker
+pnpm run preview   # Preview the production build
 ```
 
-### 4. Supabase Setup
+## API integration
 
-Run the migration in `supabase/migrations/20260729000000_initial_schema.sql` in your Supabase SQL editor to create the required tables:
+All application requests are built through `src/config/api.js` and normalized before reaching components. The adapter layer keeps AniList metadata separate from AniBD playback identifiers.
 
-- `watchlists` — User anime watchlists with status tracking
-- `continue_watching` — Progress tracking per anime
-- `notifications` — Episode release notifications
+| Capability | Kenjitsu route | Client responsibility |
+| --- | --- | --- |
+| AniBD search | `GET /api/anibd/anime/search?q={query}` | Normalize flat `data[]` search results. |
+| AniBD detail | `GET /api/anibd/anime/{id}` | Read provider metadata and embedded provider episodes. |
+| AniBD episodes | `GET /api/anibd/anime/{id}/episodes` | Use the provider ID and fall back to embedded detail episodes when necessary. |
+| AniBD sources | `GET /api/anibd/sources/{episodeId}?version=sub\|dub\|raw` | Select the language version and normalize HLS URLs, headers, subtitles, and markers. |
+| AniList detail/search | `GET /api/anilist/anime/{id}` and `GET /api/anilist/anime/search?q={query}` | Provide metadata, discovery, and AniList IDs. |
+| AniList mappings | `GET /api/anilist/anime/{id}/mappings?provider=anibd` | Resolve an AniList ID to an AniBD provider ID before playback. |
+| AniList characters | `GET /api/anilist/anime/{id}/characters` | Populate character and voice-actor views. |
+| AniList schedule | `GET /api/anilist/airing/date/{date}` | Populate date-based airing cards and schedule pages. |
 
-Then enable Supabase Auth (email/password or OAuth providers) in your Supabase dashboard.
+The API documentation is available at [kenjitsu-docs.vercel.app](https://kenjitsu-docs.vercel.app/), with provider-specific details in the [AniBD reference](https://kenjitsu-docs.vercel.app/anime/anibd) and metadata details in the [AniList reference](https://kenjitsu-docs.vercel.app/meta/anilist). Kenjitsu documents GET-based public routes and notes that provider streams may require a proxy when browsers encounter CORS or Referer restrictions.
 
-## 🏗 Architecture
+## Project structure
 
-### API Layer
-
-The app uses the **Shirayuki Scrapper API v2** as its data source. All API calls go through `src/config/api.js` which provides:
-
-- `apiUrl(path)` — Builds full URLs with the configured provider prefix
-- `ENDPOINTS` — Named endpoint constants
-
-Response data is transformed in utility functions under `src/utils/` to match the shapes expected by the React components.
-
-### Data Flow
-
-```
-Pages/Components
-    ↕
-Custom Hooks (useWatch, useWatchMultiSource, useAuth…)
-    ↕
-Utility Functions (getHomeInfo, getAnimeInfo, getEpisodes…)
-    ↕
-apiUrl() → axios.get() → Shirayuki Scrapper API v2
+```text
+src/
+├── components/       Reusable UI, cards, navigation, player, and shadcn primitives
+├── config/           Runtime API and website configuration
+├── context/          Theme, language, search, and home data contexts
+├── hooks/            Auth, search, watch, notification, and control hooks
+├── integrations/     Optional Supabase browser client and generated types
+├── pages/            Route-level screens
+└── utils/            Kenjitsu request adapters and response normalizers
 ```
 
-### Key Files
+The main integration files are:
 
-| Path | Purpose |
-|------|---------|
-| `src/config/api.js` | API configuration & endpoint builders |
-| `src/utils/getHomeInfo.utils.js` | Homepage data (spotlight, trending, top 10) |
-| `src/utils/getAnimeInfo.utils.js` | Anime detail metadata |
-| `src/utils/getEpisodes.utils.js` | Episode list for an anime |
-| `src/utils/getServers.utils.js` | Available streaming servers |
-| `src/utils/getStreamInfo.utils.js` | Streaming sources (m3u8 URLs, subtitles) |
-| `src/utils/getSearch.utils.js` | Keyword search |
-| `src/utils/getSearchSuggestion.utils.js` | Autocomplete suggestions |
-| `src/hooks/useWatchMultiSource.js` | Main watch page state management |
+| File | Responsibility |
+| --- | --- |
+| `src/config/api.js` | Kenjitsu base URL and provider route builders. |
+| `src/utils/getHomeInfo.utils.js` | Home sections from AniList discovery endpoints. |
+| `src/utils/getSearch.utils.js` | AniBD search normalization. |
+| `src/utils/getAnimeInfo.utils.js` | AniList/AniBD ID resolution and detail normalization. |
+| `src/utils/getEpisodes.utils.js` | Provider episode normalization. |
+| `src/utils/getStreamInfo.utils.js` | Source, subtitle, header, and marker normalization. |
+| `src/hooks/useWatchMultiSource.js` | Episode, language, source, and fallback state. |
+| `src/components/player/Player.jsx` | Artplayer/HLS playback and progress handling. |
 
-### Shirayuki API Endpoints Used
+## Supabase setup
 
-| Endpoint | Purpose |
-|----------|---------|
-| `GET /api/v2/{provider}/home` | Homepage data |
-| `GET /api/v2/{provider}/anime/{id}` | Anime details |
-| `GET /api/v2/{provider}/anime/{id}/episodes` | Episode list |
-| `GET /api/v2/{provider}/search` | Basic search |
-| `GET /api/v2/{provider}/search/advanced` | Filtered search |
-| `GET /api/v2/{provider}/search/suggestion` | Autocomplete |
-| `GET /api/v2/{provider}/category/{name}` | Category browsing |
-| `GET /api/v2/{provider}/genre/{name}` | Genre pages |
-| `GET /api/v2/{provider}/azlist/{letter}` | A-Z listing |
-| `GET /api/v2/{provider}/producer/{name}` | Producer/studio pages |
-| `GET /api/v2/{provider}/episode/servers` | Episode server list |
-| `GET /api/v2/{provider}/episode/sources` | Streaming sources |
-| `GET /api/v2/{provider}/schedule` | Airing schedule |
+Supabase is only needed for user accounts and persisted personal features. When configured, run the SQL migration in `supabase/migrations/20260729000000_initial_schema.sql` in the Supabase SQL editor, then enable the desired authentication providers in the Supabase dashboard.
 
-## 🧩 Component Tree
+The application uses the following tables:
 
-```
-App
-├── SplashScreen (/) – Landing/search page
-├── Home – Trending, spotlight, categories
-│   ├── Spotlight – Hero banner carousel
-│   ├── Trending – Horizontal trending strip
-│   ├── CategoryCard – Section grids (Latest, Popular, etc.)
-│   └── Topten – Top 10 sidebar rankings
-├── Watch – Video player page
-│   ├── Player – HLS video player
-│   ├── Servers – Server selector (HD-1, HD-2, etc.)
-│   ├── Episodelist – Episode navigation
-│   └── Watchcontrols – Autoplay, skip, auto-next toggles
-├── AnimeInfo – Detailed anime metadata page
-├── Search – Search results with pagination
-├── Filter – Genre-based filtering
-├── Category / AtoZ / Producer / Schedule – Browse pages
-└── Auth – Login/signup
+- `profiles` for username and avatar metadata.
+- `watchlists` for saved titles and watch status.
+- `continue_watching` for episode and playback progress.
+- `notifications` for episode-release notices.
+
+## Deployment
+
+AnimeRealm is a static Vite application and can be deployed to Vercel or another static-hosting provider. Configure the environment variables in the hosting dashboard, set the build command to `pnpm run build`, and publish the generated `dist` directory according to the platform’s Vite integration. Set `VITE_M3U8_PROXY_URL` when the selected provider requires a browser-side HLS proxy.
+
+## Maintenance and validation
+
+Before opening a pull request, run the following commands:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run lint
+pnpm run build
 ```
 
-## 🛠 Technologies
+For endpoint changes, verify a known search query, AniList detail and mapping resolution, character response, airing-date response, AniBD episode retrieval, and a source request with `version=sub`. Public providers can rate-limit or temporarily reject individual requests; UI adapters should preserve loading, empty, and recoverable error states rather than treating transient failures as permanent catalog deletions.
 
-- **React 18** with Vite
-- **Tailwind CSS** for styling
-- **React Router v6** for routing
-- **Supabase** for auth & database
-- **Artplayer + HLS.js** for video playback
-- **Swiper** for carousels
-- **Axios** for HTTP requests
-
-## 📝 Notes
-
-- Anime IDs on the Shirayuki API are **slug-based** (e.g., `attack-on-titan`) rather than numeric Anilist IDs
-- The `/next-episode-schedule` endpoint is not available in the current Shirayuki API version
-- Episode IDs follow the format `slug/ep-N` (e.g., `attack-on-titan/ep-1`)
-- The M3U8 proxy env var (`VITE_ANIMEPAHE_M3U8_PROXY`) is only needed if you want to proxy HLS streams through a CORS-friendly server
-
-## 📄 License
+## License
 
 MIT

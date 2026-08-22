@@ -63,24 +63,24 @@ function Navbar() {
   return (
     <SearchProvider>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[1000000] transition-all duration-300 ${
+        className={`site-nav fixed top-0 left-0 right-0 z-[1000000] transition-all duration-300 ${
           theme === "dark"
             ? `bg-[#0a0a0a] ${isScrolled ? "bg-opacity-80 backdrop-blur-md shadow-lg" : "bg-opacity-100"}`
             : `bg-white ${isScrolled ? "bg-opacity-90 backdrop-blur-md shadow-sm border-b border-black/8" : "bg-opacity-100 border-b border-black/8"}`
         }`}
       >
-        <div className="relative h-16 max-w-[1920px] mx-auto px-4 flex items-center">
+        <div className="site-nav-inner relative max-w-[1920px] mx-auto px-4 flex items-center">
 
           {/* LEFT */}
           <div className="flex items-center gap-3 flex-shrink-0">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className={`p-2 rounded-lg ${theme === "dark" ? "hover:bg-white/5" : "hover:bg-black/5"}`}
+              className={`icon-button p-2 rounded-lg ${theme === "dark" ? "hover:bg-white/5" : "hover:bg-black/5"}`}
             >
               <FontAwesomeIcon icon={faBars} className={theme === "dark" ? "text-white" : "text-gray-700"} />
             </button>
 
-            <Link to="/home" className="flex items-center">
+            <Link to="/home" className="brand-link flex items-center">
               <img
                 src="/logo.png"
                 alt="AnimeRealm"
