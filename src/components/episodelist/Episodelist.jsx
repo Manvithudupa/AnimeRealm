@@ -261,7 +261,7 @@ function Episodelist({
   return (
     <div className="flex flex-col w-full h-full">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-[#1a1a1a] border-b border-[#2a2a2a]">
+      <div className="sticky top-0 z-10 bg-[#0a0a0a] border-b border-[#2a2a2a]">
         {/* Up Next / Playing info */}
         <div className="px-4 pt-3 pb-2">
           <div className="flex items-start justify-between gap-2">
@@ -281,7 +281,7 @@ function Episodelist({
 
         {/* Search + Controls */}
         <div className="flex items-center gap-2 px-3 pb-2.5">
-          <div className="flex items-center flex-1 bg-[#2a2a2a] rounded-lg px-2.5 py-1.5 border border-[#3a3a3a]">
+          <div className="flex items-center flex-1 bg-[#111] rounded-lg px-2.5 py-1.5 border border-white/10">
             <FontAwesomeIcon icon={faMagnifyingGlass} className="text-gray-400 text-xs flex-shrink-0" />
             <input
               type="text"
@@ -295,7 +295,7 @@ function Episodelist({
           <button
             onClick={goToCurrentEpisode}
             title="Go to current episode"
-            className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-[#2a2a2a] border border-[#3a3a3a] text-gray-400 hover:text-white transition-colors"
+            className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-[#111] border border-white/10 text-gray-400 hover:text-white transition-colors"
           >
             <FontAwesomeIcon icon={faArrowsRotate} className="text-xs" />
           </button>
@@ -304,8 +304,8 @@ function Episodelist({
           <button
             onClick={() => setSortDesc((prev) => !prev)}
             title={sortDesc ? "Currently: descending" : "Currently: ascending"}
-            className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md border border-[#3a3a3a] transition-colors ${
-              sortDesc ? "bg-[#3a3a3a] text-white" : "bg-[#2a2a2a] text-gray-400 hover:text-white"
+            className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md border border-white/10 transition-colors ${
+              sortDesc ? "bg-white text-black" : "bg-[#111] text-gray-400 hover:text-white"
             }`}
           >
             <FontAwesomeIcon icon={faSort} className="text-xs" />
@@ -316,7 +316,7 @@ function Episodelist({
             onClick={() => setViewMode((v) => (v === "grid" ? "list" : "grid"))}
             title={viewMode === "grid" ? "List view" : "Grid view"}
             className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md border border-[#3a3a3a] transition-colors ${
-              viewMode === "grid" ? "bg-[#3a3a3a] text-white" : "bg-[#2a2a2a] text-gray-400 hover:text-white"
+              viewMode === "grid" ? "bg-white text-black" : "bg-[#111] text-gray-400 hover:text-white"
             }`}
           >
             <FontAwesomeIcon icon={viewMode === "grid" ? faBars : faGrip} className="text-xs" />
@@ -328,13 +328,13 @@ function Episodelist({
               <button
                 onClick={() => setShowDropDown((prev) => !prev)}
                 title="Select episode range"
-                className="w-8 h-8 flex items-center justify-center rounded-md bg-[#2a2a2a] border border-[#3a3a3a] text-gray-400 hover:text-white transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-md bg-[#111] border border-white/10 text-gray-400 hover:text-white transition-colors"
               >
                 <FontAwesomeIcon icon={faList} className="text-xs" />
               </button>
 
               {showDropDown && (
-                <div className="absolute top-full mt-2 right-0 z-30 bg-[#2a2a2a] w-[150px] max-h-[200px] overflow-y-auto rounded-lg border border-[#3a3a3a] shadow-lg">
+                <div className="absolute top-full mt-2 right-0 z-30 bg-[#111] w-[150px] max-h-[200px] overflow-y-auto rounded-lg border border-white/10 shadow-lg">
                   {generateRangeOptions(totalEpisodes).map((item, index) => (
                     <div
                       key={index}
@@ -366,7 +366,7 @@ function Episodelist({
       {/* Episode List */}
       <div
         ref={listContainerRef}
-        className="w-full flex-1 overflow-y-auto bg-[#1a1a1a]"
+        className="w-full flex-1 overflow-y-auto bg-[#0a0a0a]"
       >
         {viewMode === "grid" ? (
           <div className="p-4 grid gap-2 grid-cols-6 max-[768px]:grid-cols-5 max-[576px]:grid-cols-4 max-[420px]:grid-cols-3">
@@ -388,7 +388,7 @@ function Episodelist({
                     ${
                       isActive
                         ? "bg-indigo-600 text-white dark:bg-white dark:text-black"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 dark:bg-[#2a2a2a] dark:text-gray-400 dark:hover:bg-[#3a3a3a] dark:hover:text-white"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 dark:bg-[#111] dark:text-gray-400 dark:hover:bg-[#1a1a1a] dark:hover:text-white"
                     }
                     ${isSearched ? "ring-1 ring-indigo-300 dark:ring-white" : ""}`}
                   onClick={() => {
@@ -431,7 +431,7 @@ function Episodelist({
                     ${
                       isActive
                         ? "bg-indigo-50 border-l-2 border-indigo-500 dark:border-0 dark:bg-[#252525]"
-                        : "bg-transparent hover:bg-gray-100 dark:bg-[#212121] dark:hover:bg-[#2a2a2a]"
+                        : "bg-transparent hover:bg-gray-100 dark:bg-[#0a0a0a] dark:hover:bg-[#111]"
                     }
                     ${isSearched ? "ring-1 ring-inset ring-indigo-300 dark:ring-white/30" : ""}`}
                   onClick={() => {
@@ -443,7 +443,7 @@ function Episodelist({
                   }}
                 >
                   {/* Thumbnail with Ep badge */}
-                  <div className="relative flex-shrink-0 w-[120px] h-[68px] rounded-md overflow-hidden bg-[#2a2a2a]">
+                  <div className="relative flex-shrink-0 w-[120px] h-[68px] rounded-md overflow-hidden bg-[#111]">
                     {thumbnailSrc ? (
                       <img
                         src={thumbnailSrc}
@@ -460,7 +460,7 @@ function Episodelist({
                       />
                     ) : null}
                     <div
-                      className="w-full h-full items-center justify-center bg-[#2a2a2a]"
+                      className="w-full h-full items-center justify-center bg-[#111]"
                       style={{ display: thumbnailSrc ? "none" : "flex" }}
                     >
                       <svg className="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24">

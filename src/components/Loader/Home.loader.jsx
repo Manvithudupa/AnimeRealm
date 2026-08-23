@@ -67,7 +67,7 @@ const TabbedAnimeSectionLoader = () => (
 
 function HomeLoader() {
   return (
-    <div className="pt-16 w-full bg-[#0a0a0a]">
+    <div className="w-full bg-[#0a0a0a]">
       <SpotlightLoader />
       <div className="mt-6">
         <GenreLoader />
@@ -77,15 +77,15 @@ function HomeLoader() {
       <div className="w-full grid grid-cols-[minmax(0,75%),minmax(0,25%)] gap-x-6 max-[1200px]:flex flex-col">
         <div>
           <CategoryCardLoader 
-            className="mt-[60px]"
+            className="mt-6"
             title="Latest Episode"
           />
           <ScheduleLoader />
           <TabbedAnimeSectionLoader />
         </div>
-        <div className="w-full mt-[60px]">
+        <div className="w-full mt-6">
           <TrendingLoader />
-          <div className="mt-12">
+          <div className="mt-6">
             <SidecardLoader title="Top 10" />
           </div>
         </div>

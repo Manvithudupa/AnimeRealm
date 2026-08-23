@@ -50,8 +50,8 @@ function Producer() {
   const producerName = (id.charAt(0).toUpperCase() + id.slice(1)).split("-").join(" ");
 
   return (
-    <div className="max-w-[1600px] mx-auto flex flex-col mt-[64px] max-md:mt-[50px]">
-      <div className="w-full flex flex-col gap-y-8 mt-6">
+    <div className="max-w-[1600px] mx-auto flex flex-col pt-20 max-md:pt-16">
+      <div className="w-full flex flex-col gap-y-6">
         {loading ? (
           <Loader type="producer" />
         ) : page > totalPages ? (

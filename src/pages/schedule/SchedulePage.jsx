@@ -168,7 +168,7 @@ const SchedulePage = () => {
   }, [timeGroups, isToday, currentTime]);
 
   return (
-    <div className="max-w-[1400px] mx-auto mt-[80px] px-4 pb-12">
+    <div className="max-w-[1400px] mx-auto pt-20 max-md:pt-16 px-4 pb-12">
       {/* Page Title + Live Clock */}
       <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
         <div className="flex items-center gap-x-3">

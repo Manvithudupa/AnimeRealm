@@ -83,8 +83,7 @@ export default function DownloadModal({ open, onOpenChange, downloadOptions }) {
                 <button
                   onClick={() =>
                     handleDownload(item.serverId, item.serverName)
-                  }
-                  className="ml-3 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+                  }                   className="ml-3 px-4 py-2 bg-white hover:bg-white/90 text-black rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors"
                 >
                   <FontAwesomeIcon icon={faDownload} className="text-[12px]" />
                   <span className="max-[600px]:hidden">Download</span>
@@ -108,7 +107,7 @@ export default function DownloadModal({ open, onOpenChange, downloadOptions }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="relative bg-[#141414] border border-gray-700 rounded-lg max-w-2xl w-full max-[600px]:max-w-sm">
+      <DialogContent className="relative bg-[#0a0a0a] border border-white/10 rounded-lg max-w-2xl w-full max-[600px]:max-w-sm">
 
         {/* X Close Button */}
         <button

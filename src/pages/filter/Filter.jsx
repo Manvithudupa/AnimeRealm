@@ -107,8 +107,7 @@ const Filter = () => {
 
   const styles = {
     filterPage: {
-      backgroundColor: "#1a1a1a",
-      minHeight: "100vh",
+      backgroundColor: "#0a0a0a",
       padding: "80px 1.5rem 1.5rem",
     },
 

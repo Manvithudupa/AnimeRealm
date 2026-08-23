@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/src/hooks/useAuth";
 import { supabase } from "@/src/integrations/supabase/client";
-import Navbar from "@/src/components/navbar/Navbar";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
@@ -224,8 +223,7 @@ export const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
-      <Navbar />
+    <div className="bg-[#0a0a0a] text-white">
 
       {/* Character Selection Modal */}
       <CharacterSelectModal
@@ -246,7 +244,7 @@ export const Profile = () => {
       >
         <DialogContent className="w-[calc(100%-2rem)] max-w-md">
           <div
-            className="bg-[#141414] border border-red-500/30 rounded-xl p-6 space-y-5
+            className="bg-[#0a0a0a] border border-red-500/30 rounded-xl p-6 space-y-5
             shadow-2xl shadow-red-900/20"
           >
             <DialogHeader>
@@ -528,8 +526,8 @@ export const Profile = () => {
                   type="button"
                   variant="ghost"
                   onClick={signOut}
-                  className="h-10 px-4 border border-white/15 text-white/60
-                    hover:bg-white/5 hover:text-white/80 transition"
+                  className="h-10 px-4 border border-white/20 text-white/70
+                    hover:bg-white/10 hover:text-white transition"
                   title="Sign out"
                 >
                   <LogOut className="h-4 w-4" />

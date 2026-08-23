@@ -284,7 +284,7 @@ const Auth = () => {
           {/* Google */}
           <Button
             variant="outline"
-            className="w-full bg-black/40 border-white/10 text-white hover:bg-black/60"
+            className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10 font-medium"
             onClick={handleGoogleSignIn}
           >
             <img

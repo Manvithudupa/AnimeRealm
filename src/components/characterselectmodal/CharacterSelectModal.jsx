@@ -243,7 +243,7 @@ export const CharacterSelectModal = ({ isOpen, onClose, onSelect, onSelectBanner
               onClick={() => setMode("avatar")}
               className={`flex-1 py-1.5 rounded-md text-sm font-medium transition ${
                 mode === "avatar"
-                  ? "bg-purple-600 text-white"
+                  ? "bg-white text-black font-semibold"
                   : "text-white/50 hover:text-white/80"
               }`}
             >
@@ -253,7 +253,7 @@ export const CharacterSelectModal = ({ isOpen, onClose, onSelect, onSelectBanner
               onClick={() => setMode("banner")}
               className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-sm font-medium transition ${
                 mode === "banner"
-                  ? "bg-purple-600 text-white"
+                  ? "bg-white text-black font-semibold"
                   : "text-white/50 hover:text-white/80"
               }`}
             >

@@ -45,8 +45,8 @@ function AtoZ({ path }) {
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto flex flex-col mt-[64px] max-md:mt-[50px]">
-      <div className="flex flex-col gap-y-2 max-[478px]:gap-y-0 mt-6">
+    <div className="max-w-[1600px] mx-auto flex flex-col pt-20 max-md:pt-16">
+      <div className="flex flex-col gap-y-2 max-[478px]:gap-y-0">
         <h1 className="font-bold text-2xl text-white max-[478px]:text-[18px]">
           Sort By Letters
         </h1>

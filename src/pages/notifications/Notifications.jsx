@@ -72,7 +72,7 @@ export default function Notifications() {
 
   if (authLoading || loading) {
     return (
-      <div className="max-w-[1600px] mx-auto mt-[64px]">
+      <div className="max-w-[1600px] mx-auto pt-20 max-md:pt-16">
         <Loader />
       </div>
     );
@@ -142,7 +142,7 @@ export default function Notifications() {
     );
 
   return (
-    <div className="max-w-[1600px] mx-auto mt-[72px] px-3 sm:px-6">
+    <div className="max-w-[1600px] mx-auto pt-20 max-md:pt-16 px-3 sm:px-6">
       {/* Header */}
       <div className="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>

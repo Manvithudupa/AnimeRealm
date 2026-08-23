@@ -43,7 +43,7 @@ const Trending = ({ trending }) => {
                     trending-card-link
                     group relative w-full 
                     h-[180px] sm:h-[200px] md:h-[220px] lg:h-[240px] 
-                    overflow-hidden rounded-xl bg-[#2a2c31] shadow-lg
+                    overflow-hidden rounded-xl bg-[#111] shadow-lg
                   "
                 >
                   {/* Poster */}
@@ -85,11 +85,11 @@ const Trending = ({ trending }) => {
 
         {/* Navigation buttons */}
         <div className="absolute top-0 right-0 bottom-0 w-[45px] flex flex-col space-y-2 max-[759px]:hidden">
-          <div className="btn-next bg-[#383747] h-[50%] flex justify-center items-center rounded-[8px] cursor-pointer transition-all duration-300 ease-out hover:bg-purple-400 hover:text-[#383747]">
+          <div className="btn-next bg-white/10 h-[50%] flex justify-center items-center rounded-[8px] cursor-pointer transition-all duration-300 ease-out hover:bg-white hover:text-black">
             <FaChevronRight />
           </div>
 
-          <div className="btn-prev bg-[#383747] h-[50%] flex justify-center items-center rounded-[8px] cursor-pointer transition-all duration-300 ease-out hover:bg-purple-400 hover:text-[#383747]">
+          <div className="btn-prev bg-white/10 h-[50%] flex justify-center items-center rounded-[8px] cursor-pointer transition-all duration-300 ease-out hover:bg-white hover:text-black">
             <FaChevronLeft />
           </div>
         </div>

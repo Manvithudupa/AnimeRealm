@@ -138,7 +138,7 @@ function SplashScreen() {
           </nav>
 
           {/* SPLASH */}
-          <div className="splashscreen min-h-[480px] bg-[#2B2A3C] rounded-[40px] flex relative mt-7 max-[780px]:rounded-[30px] max-[520px]:rounded-none">
+          <div className="splashscreen bg-[#2B2A3C] rounded-[40px] flex relative mt-7 max-[780px]:rounded-[30px] max-[520px]:rounded-none">
 
             {/* LEFT */}
             <div className="flex flex-col w-[700px] relative z-40 px-20 py-20 max-[1200px]:py-12 max-[780px]:px-12 max-[520px]:px-8 max-[520px]:py-6">

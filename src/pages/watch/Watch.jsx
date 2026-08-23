@@ -205,9 +205,9 @@ export default function Watch() {
     ]);
   }, [animeId, animeInfo]);
   return (
-    <div className="w-full min-h-screen bg-[#0a0a0a]">
+    <div className="w-full bg-[#0a0a0a]">
       {/* ================= BREADCRUMB ================= */}
-      <div className="pt-14">
+      <div className="pt-20 max-md:pt-16">
         <Breadcrumb
           items={[
             {
@@ -277,7 +277,7 @@ export default function Watch() {
               </div>
 
               {/* Controls Section */}
-              <div className="bg-[#121212]">
+              <div className="bg-[#0a0a0a]">
                 {!buffering && (
                   <div ref={controlsRef}>
                     <Watchcontrols
@@ -319,7 +319,7 @@ export default function Watch() {
                   <div className="px-3 py-2 border-t border-gray-700">
                     <button
                       onClick={() => setShowDownloadModal(true)}
-                      className="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
+                      className="w-full px-4 py-2.5 bg-white hover:bg-white/90 text-black rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
                     >
                       <FontAwesomeIcon icon={faDownload} className="text-[14px]" />
                       Download Episode
@@ -348,7 +348,7 @@ export default function Watch() {
                     return (
                       <div className="px-3 pb-3">
                         <div
-                          className="w-full rounded-lg bg-[#272727] flex items-center gap-3 cursor-pointer hover:bg-[#303030] transition-colors overflow-hidden"
+                          className="w-full rounded-lg bg-[#111] flex items-center gap-3 cursor-pointer hover:bg-[#1a1a1a] transition-colors overflow-hidden"
                           onClick={() => setEpisodeId(nextEp.id.match(/ep=(\d+)/)?.[1])}
                         >
                           {nextEp.thumbnail && (
@@ -409,7 +409,7 @@ export default function Watch() {
                           });
                       return (
                         <div className="px-3 pb-3">
-                          <div className="w-full rounded-lg bg-[#272727] flex items-center gap-3 px-4 py-3">
+                          <div className="w-full rounded-lg bg-[#111] flex items-center gap-3 px-4 py-3">
                             <svg className="w-5 h-5 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
@@ -429,7 +429,7 @@ export default function Watch() {
 
             {/* Mobile-only Seasons Section */}
             {seasons?.length > 0 && (
-              <div className="hidden max-[1200px]:block bg-[#141414] rounded-lg p-4">
+              <div className="hidden max-[1200px]:block bg-[#0a0a0a] rounded-lg p-4">
                 <h2 className="text-xl font-semibold mb-4 text-white">More Seasons</h2>
                 <div className="grid grid-cols-2 gap-2">
                   {seasons.map((season, index) => (
@@ -483,7 +483,7 @@ export default function Watch() {
 
             {/* Mobile-only Episodes Section */}
             <div className="hidden max-[1200px]:block">
-              <div ref={episodesRef} className="episodes flex-shrink-0 bg-[#141414] rounded-lg overflow-hidden">
+              <div ref={episodesRef} className="episodes flex-shrink-0 bg-[#0a0a0a] rounded-lg overflow-hidden">
                 {!episodes ? (
                   <div className="h-full flex items-center justify-center">
                     <BouncingLoader />
@@ -502,7 +502,7 @@ export default function Watch() {
             </div>
 
             {/* Anime Info Section */}
-            <div className="bg-[#141414] rounded-lg p-4">
+            <div className="bg-[#0a0a0a] rounded-lg p-4">
               <div className="flex gap-x-6 max-[600px]:flex-row max-[600px]:gap-4">
                 {animeInfo && animeInfo?.poster ? (
                   <img
@@ -572,7 +572,7 @@ export default function Watch() {
 
             {/* Desktop-only Seasons Section */}
             {seasons?.length > 0 && (
-              <div className="bg-[#141414] rounded-lg p-4 max-[1200px]:hidden">
+              <div className="bg-[#0a0a0a] rounded-lg p-4 max-[1200px]:hidden">
                 <h2 className="text-xl font-semibold mb-4 text-white">More Seasons</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
                   {seasons.map((season, index) => (
@@ -628,7 +628,7 @@ export default function Watch() {
           {/* Right Column - Episodes and Related (Desktop Only) */}
           <div className="flex flex-col gap-6 h-full max-[1200px]:hidden">
             {/* Episodes Section */}
-            <div ref={episodesRef} className="episodes flex-shrink-0 bg-[#141414] rounded-lg overflow-hidden">
+            <div ref={episodesRef} className="episodes flex-shrink-0 bg-[#0a0a0a] rounded-lg overflow-hidden">
               {!episodes ? (
                 <div className="h-full flex items-center justify-center">
                   <BouncingLoader />
@@ -651,7 +651,7 @@ export default function Watch() {
                 <SidecardLoader />
               </div>
             ) : animeInfo.recommended_data?.length > 0 ? (
-              <div className="bg-[#141414] rounded-lg p-4">
+              <div className="bg-[#0a0a0a] rounded-lg p-4">
                 <h2 className="text-xl font-semibold mb-4 text-white">Related Anime</h2>
                 <Sidecard
                   data={animeInfo.recommended_data}
@@ -663,7 +663,7 @@ export default function Watch() {
 
           {/* Mobile-only Related Section */}
           {animeInfo?.recommended_data?.length > 0 && (
-            <div className="hidden max-[1200px]:block bg-[#141414] rounded-lg p-4">
+            <div className="hidden max-[1200px]:block bg-[#0a0a0a] rounded-lg p-4">
               <h2 className="text-xl font-semibold mb-4 text-white">Related Anime</h2>
               <Sidecard
                 data={animeInfo.recommended_data}

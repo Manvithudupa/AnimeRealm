@@ -57,7 +57,7 @@ function Servers({
   };
 
   return (
-    <div className="relative bg-[#111111] p-4 w-full min-h-[100px] flex justify-center items-center max-[1200px]:bg-[#151515] max-[600px]:p-2">
+    <div className="relative bg-[#0a0a0a] p-4 w-full min-h-[100px] flex justify-center items-center max-[600px]:p-2">
       {serverLoading ? (
         <div className="w-full h-full rounded-lg flex justify-center items-center max-[600px]:rounded-none">
           <BouncingLoader />
@@ -77,7 +77,7 @@ function Servers({
               beside.
             </p>
           </div>
-          <div className="bg-[#1f1f1f] flex flex-col max-[600px]:rounded-lg max-[600px]:p-2">
+          <div className="bg-[#111] flex flex-col max-[600px]:rounded-lg max-[600px]:p-2">
             {rawServers.length > 0 && (
               <div className={`servers px-2 flex items-center flex-wrap gap-y-1 ml-2 max-[600px]:py-1.5 max-[600px]:px-1 max-[600px]:ml-0 ${
                 dubServers.length === 0 || subServers.length === 0

@@ -4,7 +4,7 @@ import { faDiscord, faGithub } from "@fortawesome/free-brands-svg-icons";
 
 function Contact() {
   return (
-    <div className="max-w-4xl mx-auto pt-16 pb-8">
+    <div className="max-w-4xl mx-auto pt-20 max-md:pt-16 pb-8">
       <h1 className="text-2xl font-bold mb-6">Contact Us</h1>
       <div className="space-y-8 text-white/60">
         <p>

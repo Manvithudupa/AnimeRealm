@@ -170,7 +170,7 @@ function Settings() {
 
   /* ── Render ────────────────────────────────────────────────────── */
   return (
-    <div className={`min-h-screen pt-24 pb-16 px-4 transition-colors duration-300 ${isDark ? "" : "bg-gray-50"}`}>
+    <div className={`pt-20 max-md:pt-16 pb-16 px-4 transition-colors duration-300 ${isDark ? "" : "bg-gray-50"}`}>
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Page title */}
         <div>
@@ -274,7 +274,7 @@ function Settings() {
               <Button
                 onClick={importFromAnilist}
                 disabled={importing}
-                className="bg-purple-600 hover:bg-purple-700 text-white flex-shrink-0 gap-2"
+                className="bg-white text-black font-semibold hover:bg-white/90 flex-shrink-0 gap-2 border-0"
               >
                 {importing ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

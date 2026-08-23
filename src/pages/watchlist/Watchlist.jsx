@@ -126,7 +126,7 @@ function Watchlist() {
   }, {});
 
   return (
-    <div className="min-h-screen bg-[#0b0b0b] text-white pt-[90px] pb-16">
+    <div className="bg-[#0b0b0b] text-white pt-20 max-md:pt-16 pb-16">
       <div className="max-w-[1400px] mx-auto px-4">
 
         {/* Header */}
@@ -148,7 +148,7 @@ function Watchlist() {
               onClick={() => setActiveTab(s.value)}
               className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                 activeTab === s.value
-                  ? "bg-white/15 text-white border border-white/20"
+                  ? "bg-white text-black border border-white font-semibold"
                   : "text-white/50 hover:text-white/80 hover:bg-white/5"
               }`}
             >
@@ -183,7 +183,7 @@ function Watchlist() {
             </p>
             <Link
               to="/home"
-              className="px-6 py-3 rounded-full bg-purple-600 hover:bg-purple-700 transition"
+              className="px-6 py-3 rounded-full bg-white text-black font-semibold hover:bg-white/90 transition"
             >
               Browse Anime
             </Link>

@@ -51,8 +51,7 @@ function VoiceactorList({ characters, isOpen, onClose }) {
       }}
     >
       <div className="min-h-screen w-full py-4 sm:py-8 px-2 sm:px-4 flex items-center justify-center">
-        <div
-          className="w-full max-w-[920px] bg-zinc-900/80 backdrop-blur-xl rounded-xl border border-zinc-800 shadow-2xl max-h-[85vh] flex flex-col mx-auto max-sm:max-h-[80vh] max-sm:w-[92%] max-sm:my-auto"
+        <div           className="w-full max-w-[920px] bg-[#0a0a0a]/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl max-h-[85vh] flex flex-col mx-auto max-sm:max-h-[80vh] max-sm:w-[92%] max-sm:my-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -81,8 +80,7 @@ function VoiceactorList({ characters, isOpen, onClose }) {
             )}
 
             <button
-              onClick={onClose}
-              className="absolute right-2 sm:right-4 top-2 sm:top-4 w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 transition-all duration-300"
+              onClick={onClose}               className="absolute right-2 sm:right-4 top-2 sm:top-4 w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 text-white/60 hover:text-white transition-all duration-300"
             >
               <span className="text-lg sm:text-xl leading-none mb-0.5">&times;</span>
             </button>

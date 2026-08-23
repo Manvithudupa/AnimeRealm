@@ -10,7 +10,7 @@ function Footer() {
   ];
 
   return (
-    <footer className="w-full bg-[#070707] border-t border-white/5 mt-10">
+    <footer className="w-full bg-black border-t border-white/5 mt-6">
       <div className="max-w-[1920px] mx-auto px-4 py-6 flex flex-col gap-4">
 
         {/* Branding */}

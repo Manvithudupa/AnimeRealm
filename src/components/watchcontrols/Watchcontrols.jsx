@@ -5,7 +5,7 @@ import { useTheme } from "@/src/context/ThemeContext";
 
 const ToggleButton = ({ label, isActive, onClick, isDark }) => (
   <button 
-    className={`flex items-center text-xs px-2 py-0.5 rounded transition-colors ${isDark ? "hover:bg-[#2a2a2a]" : "hover:bg-black/10"}`}
+    className={`flex items-center text-xs px-2 py-0.5 rounded transition-colors ${isDark ? "hover:bg-white/10" : "hover:bg-black/10"}`}
     onClick={onClick}
   >
     <span className={isDark ? "text-gray-300" : "text-gray-600"}>{label}</span>
@@ -52,7 +52,7 @@ export default function WatchControls({
   }, [episodeId, episodes]);
 
   return (
-    <div className={`w-full flex justify-between items-center px-3 py-2 border-b ${isDark ? "border-gray-800" : "border-gray-200"}`}>
+    <div className={`w-full flex justify-between items-center px-3 py-2 border-b ${isDark ? "border-white/10" : "border-gray-200"}`}>
       <div className="flex gap-x-2">
         <ToggleButton
           label="Auto Play"

@@ -39,8 +39,8 @@ function Search() {
     const searchGridClass = "grid-cols-8 max-[1600px]:grid-cols-6 max-[1200px]:grid-cols-4 max-[758px]:grid-cols-3 max-[478px]:grid-cols-3 max-[478px]:gap-x-2";
 
     return (
-        <div className="max-w-[1600px] mx-auto flex flex-col mt-[64px] max-md:mt-[50px]">
-            <div className="w-full flex flex-col gap-y-8 mt-6">
+        <div className="max-w-[1600px] mx-auto flex flex-col pt-20 max-md:pt-16">
+            <div className="w-full flex flex-col gap-y-6">
                 {loading ? (
                     <CategoryCardLoader className={"max-[478px]:mt-2"} gridClass={searchGridClass} />
                 ) : page > totalPages ? (

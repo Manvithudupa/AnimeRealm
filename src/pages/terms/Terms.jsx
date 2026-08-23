@@ -2,7 +2,7 @@ import website_name from '@/src/config/website.js';
 
 function Terms() {
   return (
-    <div className="max-w-5xl mx-auto pt-16 pb-5">
+    <div className="max-w-5xl mx-auto pt-20 max-md:pt-16 pb-5">
       {/* Content */}
       <div className="space-y-12 text-white/60">
         <div className="text-center mb-8">

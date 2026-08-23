@@ -42,7 +42,7 @@ function Suggestion({ keyword, className, onSuggestionClick }) {
 
   return (
     <div
-      className={`${isDark ? "bg-zinc-900" : "bg-white"} ${className} flex ${
+      className={`${isDark ? "bg-[#0a0a0a]" : "bg-white"} ${className} flex ${
         loading ? "justify-center py-4" : "justify-start"
       } ${!suggestion ? "p-2" : "justify-start"} items-center rounded-lg`}
       style={{ 
@@ -62,7 +62,7 @@ function Suggestion({ keyword, className, onSuggestionClick }) {
               key={index}
               onClick={onSuggestionClick}
               className={`group py-2 flex items-start gap-x-3 transition-all duration-200 cursor-pointer px-3 ${
-                isDark ? "hover:bg-zinc-800" : "hover:bg-gray-50"
+                isDark ? "hover:bg-white/5" : "hover:bg-gray-50"
               }`}
               style={{
                 borderBottom:
@@ -111,7 +111,7 @@ function Suggestion({ keyword, className, onSuggestionClick }) {
           {!loading && hasFetched && (
             <Link
               className={`w-full flex py-2.5 justify-center items-center transition-all duration-200 rounded-b-lg ${
-                isDark ? "bg-zinc-800 hover:bg-zinc-700" : "bg-gray-100 hover:bg-gray-200"
+                isDark ? "bg-[#111] hover:bg-white/10" : "bg-gray-100 hover:bg-gray-200"
               }`}
               to={`/search?keyword=${encodeURIComponent(keyword)}`}
               onClick={onSuggestionClick}

@@ -84,7 +84,7 @@ const NotificationBell = () => {
             left-2 right-2 sm:left-auto sm:right-0
             mt-2
             w-[calc(100vw-1rem)] sm:w-96
-            bg-[#111]/95 backdrop-blur-xl
+            bg-[#0a0a0a]/95 backdrop-blur-xl
             rounded-xl border border-white/10
             shadow-xl overflow-hidden
             z-[1000001]

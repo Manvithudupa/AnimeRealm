@@ -75,9 +75,9 @@ function Navbar() {
           <div className="flex items-center gap-3 flex-shrink-0">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className={`icon-button p-2 rounded-lg ${theme === "dark" ? "hover:bg-white/5" : "hover:bg-black/5"}`}
+              className={`icon-button p-2 rounded-lg ${theme === "dark" ? "text-white/80 hover:text-white hover:bg-white/10" : "text-gray-700 hover:bg-black/5"}`}
             >
-              <FontAwesomeIcon icon={faBars} className={theme === "dark" ? "text-white" : "text-gray-700"} />
+              <FontAwesomeIcon icon={faBars} />
             </button>
 
             <Link to="/home" className="brand-link flex items-center">
@@ -98,8 +98,8 @@ function Navbar() {
               onClick={handleRandomClick}
               className={`p-2 rounded-lg transition flex-shrink-0 ${
                 theme === "dark"
-                  ? "bg-white/5 text-white/70 hover:text-white hover:bg-white/10"
-                  : "bg-black/5 text-gray-500 hover:text-gray-900 hover:bg-black/10"
+                  ? "text-white/70 hover:text-white hover:bg-white/10"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-black/5"
               }`}
               title="Random Anime"
             >
@@ -152,7 +152,7 @@ function Navbar() {
                 {isProfileOpen && (
                   <div className={`absolute right-0 mt-2 w-56 backdrop-blur-xl rounded-xl border shadow-xl z-[1000001] overflow-hidden ${
                     theme === "dark"
-                      ? "bg-[#111]/95 border-white/10"
+                      ? "bg-[#0a0a0a]/95 border-white/10"
                       : "bg-white/95 border-black/10"
                   }`}>
                     <div className={`px-4 py-3 border-b ${theme === "dark" ? "border-white/10" : "border-black/10"}`}>
@@ -221,10 +221,10 @@ function Navbar() {
             ) : (
               <Button
                 size="sm"
-                className={`border ${
+                className={`font-semibold ${
                   theme === "dark"
-                    ? "bg-[#2a2a2a]/75 text-white border-white/20"
-                    : "bg-gray-100 text-gray-800 border-gray-300 hover:bg-gray-200"
+                    ? "bg-white text-black hover:bg-white/90 border-0"
+                    : "bg-black text-white hover:bg-black/90 border-0"
                 }`}
                 onClick={() => navigate("/auth")}
               >
@@ -237,8 +237,8 @@ function Navbar() {
               onClick={() => setIsMobileSearchOpen((p) => !p)}
               className={`md:hidden w-9 h-9 flex items-center justify-center rounded-lg ${
                 theme === "dark"
-                  ? "bg-[#2a2a2a]/75 text-white/60 hover:text-white"
-                  : "bg-black/5 text-gray-500 hover:text-gray-900"
+                  ? "text-white/70 hover:text-white hover:bg-white/10"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-black/5"
               }`}
             >
               <FontAwesomeIcon

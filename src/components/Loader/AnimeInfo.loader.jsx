@@ -8,10 +8,10 @@ const SkeletonItems = ({ count, className }) =>
 
 function AnimeInfoLoader() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="bg-black text-white">
 
       {/* ================= HERO ================= */}
-      <section className="relative pt-14">
+      <section className="relative pt-20 max-md:pt-16">
         {/* Background */}
         <div className="relative h-[50vh] overflow-hidden">
           <Skeleton className="absolute inset-0 w-full h-full" />

@@ -20,30 +20,30 @@ function Home() {
     <>
 
       {/* ================= SPOTLIGHT ================= */}
-      <div className="w-full bg-black pt-16">
+      <div className="w-full bg-black">
         <Spotlight spotlights={homeInfo.spotlights} />
       </div>
 
       {/* ================= MAIN CONTENT ================= */}
-      <div className="w-full min-h-screen bg-black px-4 max-[1200px]:px-0 text-white">
+      <div className="w-full bg-black px-4 max-[1200px]:px-0 text-white">
 
         {/* Genres */}
-        <div className="mt-6">
+        <div className="mt-4">
           <Genre data={homeInfo.genres} />
         </div>
 
         {/* Continue Watching */}
-        <div className="mt-6">
+        <div className="mt-4">
           <ContinueWatching />
         </div>
 
         {/* Trending */}
-        <div className="mt-6">
+        <div className="mt-4">
           <Trending trending={homeInfo.trending} />
         </div>
 
         {/* Main + Sidebar */}
-        <div className="w-full grid grid-cols-[minmax(0,75%),minmax(0,25%)] gap-x-6 max-[1200px]:flex flex-col max-[1200px]:px-4 mt-10">
+        <div className="w-full grid grid-cols-[minmax(0,75%),minmax(0,25%)] gap-x-6 max-[1200px]:flex flex-col max-[1200px]:px-4 mt-6">
 
           {/* Main */}
           <div>
@@ -52,7 +52,7 @@ function Home() {
             <CategoryCard
               label="Latest Episode"
               data={homeInfo.latest_episode}
-              className="mt-[60px]"
+              className="mt-6"
               path="recently-updated"
               limit={12}
             />
@@ -63,14 +63,14 @@ function Home() {
               mostFavorite={homeInfo.most_favorite}
               latestCompleted={homeInfo.latest_completed}
               topUpcoming={homeInfo.top_upcoming}
-              className="mt-[30px]"
+              className="mt-4"
             />
 
           </div>
 
           {/* Sidebar */}
-          <div className="w-full mt-[60px] space-y-6">
-            <Topten data={homeInfo.topten} className="mt-12" />
+          <div className="w-full mt-6 space-y-6">
+            <Topten data={homeInfo.topten} className="mt-4" />
           </div>
 
         </div>

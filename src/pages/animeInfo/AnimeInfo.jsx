@@ -267,15 +267,15 @@ function AnimeInfo({ random = false }) {
   const malScore = info?.["MAL Score"];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="bg-[#0a0a0a] text-white">
 
       {/* =================== BREADCRUMB =================== */}
-      <div className="pt-14">
+      <div className="pt-20 max-md:pt-16">
         <Breadcrumb items={[{ label: displayTitle }]} />
       </div>
 
       {/* ================= HERO ================= */}
-      <section className="relative pt-14">
+      <section className="relative pt-2">
         <div className="relative h-[50vh] overflow-hidden bg-gradient-to-b from-gray-900 to-black">
           <div className="absolute inset-0">
             <OptimizedImage
@@ -405,8 +405,8 @@ function AnimeInfo({ random = false }) {
                     disabled={watchlistLoading}
                     className={`inline-flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 disabled:opacity-50 border ${
                       inWatchlist
-                        ? "bg-white/10 border-white/20 text-white hover:bg-white/15"
-                        : "bg-transparent border-white/20 text-white/70 hover:bg-white/5 hover:text-white"
+                        ? "bg-white text-black border-white hover:bg-white/90"
+                        : "bg-white/10 border-white/20 text-white hover:bg-white/20"
                     }`}
                   >
                     <FontAwesomeIcon icon={inWatchlist ? faCheck : faBookmark} className="text-xs" />
