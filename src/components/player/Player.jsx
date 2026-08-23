@@ -61,7 +61,7 @@ export default function Player({
   const [skipIntroVisible, setSkipIntroVisible] = useState(false);
   const [skipOutroVisible, setSkipOutroVisible] = useState(false);
 
-  const proxy = import.meta.env.VITE_PROXY_URL;
+  const proxy = import.meta.env.VITE_PROXY_URL || "";
   const m3u8proxy = import.meta.env.VITE_M3U8_PROXY_URL?.split(",") || [];
 
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(

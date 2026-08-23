@@ -1,142 +1,311 @@
-# AnimeRealm
+<div align="center">
 
-AnimeRealm is a responsive anime discovery and streaming interface built with React, Vite, Tailwind CSS, React Router, Supabase, Artplayer, and HLS.js. It takes users from discovery to playback while keeping catalog metadata and provider-specific playback concerns separate.
+# 🎌 An!meRealm
 
-**AniList is the single source of truth for catalog data.** Search, suggestions, home sections, categories, filters, schedules, anime details, recommendations, characters, voice actors, posters, descriptions, scores, and episode metadata are loaded from AniList through the documented Kenjitsu API. Playback uses the available Kenjitsu streaming providers and automatically falls through to the next provider or source when the current one is unavailable. AnimeRealm does not host or redistribute third-party media; playback URLs are requested from external providers at runtime.
+**Free, ad-free anime streaming platform**
 
-## Features
+[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
+[![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-5-green.svg)](https://vitejs.dev)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38bdf8.svg)](https://tailwindcss.com)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth-3fcf8e.svg)](https://supabase.com)
 
-- **AniList discovery:** trending, airing, popular, upcoming, seasonal, rating, genre, category, producer, A–Z, search, and airing-schedule views.
-- **AniList metadata:** title variants, artwork, synopsis, score, format, dates, status, studios, genres, related anime, characters, and voice actors.
-- **Playback failover:** ordered AniBD, AniDB, Anikoto, Animeheaven, and Anizone provider options, language-aware source selection, same-provider source fallback, and cross-provider failover.
-- **HLS playback:** Artplayer and HLS.js with subtitle tracks, quality selection, optional proxy support, intro/outro controls, autoplay, auto-next, progress saving, and downloads when a direct source is available.
-- **Personal features:** optional Supabase authentication, watchlists, continue-watching records, profiles, and notifications.
-- **Responsive UI:** cinematic dark-first design, light-theme support, mobile navigation, keyboard focus states, reduced-motion support, and adaptive card grids.
-- **Progressive web app:** Vite PWA generation is enabled for production builds.
+[🌐 Live Site](https://animerealm.in) · [📖 API Docs](https://kenjitsu-docs.vercel.app/) · [🐛 Report Bug](https://github.com/Manvith911/AnimeRealm/issues)
 
-## Quick start
+</div>
+
+---
+
+## ✨ Features
+
+<table>
+<tr>
+<td width="50%">
+
+### 🔍 Discovery
+- **Trending, Airing, Popular, Upcoming** — curated home sections
+- **Genre & Category Browsing** — 40+ genre filters
+- **A–Z List** — full alphabetical catalog
+- **Search with Suggestions** — instant autocomplete
+- **Airing Schedule** — see what's dropping today
+
+</td>
+<td width="50%">
+
+### ▶️ Playback
+- **Multi-Provider Failover** — AniBD → AniDB → Anikoto → Animeheaven → Anizone
+- **HLS Streaming** — quality selection, subtitle tracks, intro/outro skip
+- **Auto-Play & Auto-Next** — binge-friendly controls
+- **Download Options** — when direct sources are available
+- **Progress Saving** — resume where you left off
+
+</td>
+</tr>
+<tr>
+<td>
+
+### 👤 Account Features
+- **Authentication** — email/password + Google OAuth
+- **Watchlist** — organize by status (Watching, Completed, etc.)
+- **Continue Watching** — cross-device progress sync
+- **Notifications** — new episode alerts
+- **Profile Customization** — avatar, banner, bio
+- **AniList Import** — sync your AniList library
+
+</td>
+<td>
+
+### 🎨 Design
+- **Cinematic Dark Mode** — default theme
+- **Light Mode** — full support
+- **Responsive** — mobile, tablet, desktop
+- **Animated Spotlight** — featured anime carousel
+- **Keyboard Navigation** — accessible focus states
+- **PWA Ready** — installable on any device
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-Use Node.js 18 or newer and pnpm. A Supabase project is optional for public browsing and playback, but it is required for authentication and user-specific persistence.
+- **Node.js 18+**
+- **pnpm** (recommended) or npm
 
-### Install and configure
+### Setup
 
 ```bash
+# Clone the repo
 git clone https://github.com/Manvith911/AnimeRealm.git
 cd AnimeRealm
+
+# Install dependencies
 pnpm install
+
+# Create environment file
 cp .env.example .env
+
+# Start dev server
+pnpm run dev
 ```
 
-The default environment template points to the public Kenjitsu deployment. Edit `.env` when using another Kenjitsu deployment or an HLS proxy.
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-| Variable | Required | Purpose |
-| --- | --- | --- |
-| `VITE_KENJITSU_API_URL` | No | Kenjitsu origin; defaults to `https://kenjitsu.koyeb.app`. |
-| `VITE_ANIME_PROVIDER` | No | Preferred first playback provider; defaults to `anibd`. The app falls through to the other supported providers automatically. |
-| `VITE_M3U8_PROXY_URL` | No | Proxy URL for HLS hosts that require CORS or Referer handling. |
-| `VITE_SUPABASE_URL` | No | Supabase project URL for auth and persistence. |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | No | Supabase browser-safe publishable/anon key. |
+### Available Scripts
 
-When both Supabase variables are empty, public browsing and playback remain usable. Auth-backed controls show an unavailable or login state instead of crashing the application.
+| Command | Description |
+|---------|-------------|
+| `pnpm run dev` | Start Vite dev server |
+| `pnpm run build` | Production build + PWA service worker |
+| `pnpm run preview` | Preview production build |
+| `pnpm run lint` | Run ESLint |
+| `pnpm run host` | Dev server with network access |
 
-### Run locally
+---
 
-```bash
-pnpm run dev       # Start Vite on localhost
-pnpm run host      # Start Vite with network access
-pnpm run lint      # Run ESLint
-pnpm run build     # Create the production build and service worker
-pnpm run preview   # Preview the production build
+## ⚙️ Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `VITE_KENJITSU_API_URL` | No | `https://kenjitsu.koyeb.app` | Kenjitsu API base URL |
+| `VITE_ANIME_PROVIDER` | No | `anibd` | Preferred playback provider |
+| `VITE_M3U8_PROXY_URL` | No | — | HLS proxy for CORS/Referer issues |
+| `VITE_SUPABASE_URL` | No | — | Supabase project URL |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | No | — | Supabase anon/public key |
+
+> 💡 **Supabase is optional** — public browsing and playback work without it. Auth features require Supabase configuration.
+
+---
+
+## 🏗️ Tech Stack
+
+<div align="center">
+
+| Category | Technologies |
+|----------|-------------|
+| **Framework** | React 18, React Router 6 |
+| **Build Tool** | Vite 5, PWA Plugin |
+| **Styling** | Tailwind CSS, CSS Modules, shadcn/ui |
+| **Video Player** | Artplayer, HLS.js |
+| **State & Data** | React Context, Axios, localStorage caching |
+| **Auth & DB** | Supabase Auth, Supabase PostgreSQL |
+| **Icons** | FontAwesome, Lucide, React Icons |
+| **UI Components** | Radix UI, Swiper, class-variance-authority |
+| **Analytics** | Vercel Analytics, Vercel Speed Insights |
+| **Deployment** | Vercel |
+
+</div>
+
+---
+
+## 📁 Project Structure
+
 ```
-
-## API integration
-
-All application requests are built through `src/config/api.js` and normalized before reaching components. AniList requests are used for all visible catalog and metadata data. Provider requests are isolated to playback ID resolution, provider episode identifiers, and streaming source retrieval.
-
-### AniList catalog and metadata
-
-| Capability | Kenjitsu route | Client responsibility |
-| --- | --- | --- |
-| Search | `GET /api/anilist/anime/search?q={query}&page={page}&perPage={perPage}` | Normalize AniList results into AnimeRealm card models. |
-| Top and popular lists | `GET /api/anilist/anime/top/{airing\|trending\|upcoming\|rating\|popular}` | Populate discovery sections and categories. |
-| Seasonal lists | `GET /api/anilist/seasons/{season}/{year}` | Populate seasonal and filter views. |
-| Anime detail | `GET /api/anilist/anime/{anilistId}` | Provide canonical metadata and artwork. |
-| Episode metadata | `GET /api/anilist/anime/{anilistId}/episodes` | Provide canonical episode numbers, titles, artwork, and air dates. |
-| Related anime | `GET /api/anilist/anime/{anilistId}/related` | Populate related and recommendation cards. |
-| Characters | `GET /api/anilist/anime/{anilistId}/characters` | Populate character and voice-actor views. |
-| Airing schedule | `GET /api/anilist/airing/date/{date}` | Populate date-based airing cards and schedule pages. |
-
-### Playback providers
-
-The watch page resolves the AniList ID into provider-specific identifiers through the mappings route and then hydrates provider episode IDs. Providers are tried in this order by default: **AniBD → AniDB → Anikoto → Animeheaven → Anizone**. The preferred provider can be changed with `VITE_ANIME_PROVIDER`, but the remaining providers remain available as fallbacks.
-
-| Provider | Episode metadata | Sources |
-| --- | --- | --- |
-| AniBD | `GET /api/anibd/anime/{id}/episodes` or detail-embedded episodes | `GET /api/anibd/sources/{episodeId}?version=sub\|dub\|raw` |
-| AniDB | `GET /api/anidb/anime/{id}/episodes` | `GET /api/anidb/sources/{episodeId}?version=sub\|dub\|raw` |
-| Anikoto | Detail-embedded provider episodes | `GET /api/anikoto/sources/{episodeId}?version=sub\|dub\|raw&server={server}` |
-| Animeheaven | `GET /api/animeheaven/anime/{id}/episodes` | `GET /api/animeheaven/sources/{episodeId}?version=sub\|dub\|raw` |
-| Anizone | Detail-embedded provider episodes | `GET /api/anizone/sources/{episodeId}` |
-
-The playback adapter normalizes source URLs, HLS type, quality, headers, subtitles, intro/outro markers, and provider labels. If a source fails inside the player, AnimeRealm first tries the next source from that provider and then advances to the next provider-language option. Transient provider errors are treated as recoverable playback failures rather than catalog failures.
-
-The API documentation is available at [kenjitsu-docs.vercel.app](https://kenjitsu-docs.vercel.app/), with the [AniList reference](https://kenjitsu-docs.vercel.app/meta/anilist), [AniBD reference](https://kenjitsu-docs.vercel.app/anime/anibd), [AniDB reference](https://kenjitsu-docs.vercel.app/anime/anidb), [Anikoto reference](https://kenjitsu-docs.vercel.app/anime/anikoto), [Animeheaven reference](https://kenjitsu-docs.vercel.app/anime/animeheaven), and [Anizone reference](https://kenjitsu-docs.vercel.app/anime/anizone).
-
-## Project structure
-
-```text
 src/
-├── components/       Reusable UI, cards, navigation, player, and shadcn primitives
-├── config/           Runtime API and website configuration
-├── context/          Theme, language, search, and home data contexts
-├── hooks/            Auth, search, watch, notification, and control hooks
-├── integrations/     Optional Supabase browser client and generated types
-├── pages/             Route-level screens
-└── utils/             AniList adapters, provider playback adapters, and normalizers
+├── components/          # Reusable UI components
+│   ├── banner/          # Hero banner carousel
+│   ├── categorycard/    # Anime grid cards
+│   ├── continue/        # Continue watching slider
+│   ├── episodelist/     # Episode list with search/sort
+│   ├── navbar/          # Top navigation bar
+│   ├── notifications/   # Notification bell & dropdown
+│   ├── player/          # Artplayer/HLS video player
+│   ├── searchbar/       # Web & mobile search
+│   ├── servers/         # Provider/language selection
+│   ├── sidebar/         # Mobile nav drawer
+│   ├── spotlight/       # Featured anime swiper
+│   ├── suggestion/      # Search autocomplete
+│   ├── topten/          # Top 10 ranking cards
+│   ├── trending/        # Trending anime slider
+│   └── ui/              # shadcn primitives (Button, Input, etc.)
+├── config/              # API config & constants
+├── context/             # React contexts (Theme, Language, Search, HomeInfo)
+├── hooks/               # Custom hooks (Auth, Watch, Notifications)
+├── integrations/        # Supabase client & types
+├── pages/               # Route-level views
+│   ├── Home/            # Discovery homepage
+│   ├── watch/           # Video player page
+│   ├── animeInfo/       # Anime detail page
+│   ├── Auth/            # Login & signup
+│   ├── Profile/         # User profile editor
+│   ├── watchlist/       # Saved anime list
+│   ├── notifications/   # Notification center
+│   ├── Settings/        # Theme & AniList import
+│   ├── search/          # Search results
+│   ├── filter/          # Genre filter
+│   ├── schedule/        # Airing schedule
+│   └── category/        # Genre/category browsing
+└── utils/               # API adapters & normalizers
+    ├── getHomeInfo.utils.js
+    ├── getSearch.utils.js
+    ├── getAnimeInfo.utils.js
+    ├── streamingProviders.utils.js
+    └── ...              # 19 utility modules
 ```
 
-The main integration files are:
+---
 
-| File | Responsibility |
-| --- | --- |
-| `src/config/api.js` | Kenjitsu base URL, AniList namespace, and ordered playback providers. |
-| `src/utils/getHomeInfo.utils.js` | Home sections from AniList discovery endpoints. |
-| `src/utils/getSearch.utils.js` | AniList search normalization. |
-| `src/utils/getAnimeInfo.utils.js` | AniList detail, episode metadata, and related-anime normalization. |
-| `src/utils/getEpisodes.utils.js` | AniList episode metadata normalization. |
-| `src/utils/streamingProviders.utils.js` | Provider ID resolution, episode hydration, source normalization, and playback failover primitives. |
-| `src/hooks/useWatchMultiSource.js` | AniList episode merge, provider-language choices, source state, and failover orchestration. |
-| `src/components/player/Player.jsx` | Artplayer/HLS playback, error detection, and fallback callbacks. |
+## 🎬 API Integration
 
-## Supabase setup
+AniList powers all **catalog and metadata** (search, details, episodes, characters, schedules). Streaming providers power **playback** (source URLs, subtitles, quality).
 
-Supabase is only needed for user accounts and persisted personal features. When configured, run the SQL migration in `supabase/migrations/20260729000000_initial_schema.sql` in the Supabase SQL editor, then enable the desired authentication providers in the Supabase dashboard.
+### Provider Failover Flow
 
-The application uses the following tables:
+```
+User selects episode
+        │
+        ▼
+  Resolve AniList ID → Provider ID (via mappings endpoint)
+        │
+        ▼
+  Fetch provider episodes
+        │
+        ▼
+  Request sources (version=sub|dub|raw)
+        │
+        ├── ✅ Play first source
+        │
+        └── ❌ Source fails
+              │
+              ▼
+        Try next source from same provider
+              │
+              └── ❌ All sources failed
+                    │
+                    ▼
+              Try next provider (AniBD → AniDB → ...)
+```
 
-- `profiles` for username and avatar metadata.
-- `watchlists` for saved titles and watch status.
-- `continue_watching` for episode and playback progress.
-- `notifications` for episode-release notices.
+### Supported Providers
 
-## Deployment
+| Provider | Episodes | Sources | Quality Selection |
+|----------|----------|---------|-------------------|
+| AniBD | ✅ | ✅ | ✅ |
+| AniDB | ✅ | ✅ | ✅ |
+| Anikoto | ✅ | ✅ | ✅ |
+| Animeheaven | ✅ | ✅ | ✅ |
+| Anizone | ✅ | ✅ | ✅ |
 
-AnimeRealm is a static Vite application and can be deployed to Vercel or another static-hosting provider. Configure the environment variables in the hosting dashboard, set the build command to `pnpm run build`, and publish the generated `dist` directory according to the platform’s Vite integration. Set `VITE_M3U8_PROXY_URL` when a provider requires a browser-side HLS proxy.
+> 📖 Full API documentation: [kenjitsu-docs.vercel.app](https://kenjitsu-docs.vercel.app/)
 
-## Maintenance and validation
+---
 
-Before opening a pull request, run:
+## 🗄️ Supabase Setup (Optional)
+
+AnimeRealm works without Supabase. To enable accounts and personal features:
+
+1. Create a [Supabase project](https://supabase.com)
+2. Run the migration in `supabase/migrations/20260729000000_initial_schema.sql`
+3. Enable auth providers in the Supabase dashboard
+4. Add your credentials to `.env`:
+   ```
+   VITE_SUPABASE_URL=your-project-url
+   VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
+   ```
+
+### Database Tables
+
+| Table | Purpose |
+|-------|---------|
+| `profiles` | Username, avatar, banner |
+| `watchlists` | Saved anime with status |
+| `continue_watching` | Episode progress & resume |
+| `notifications` | New episode alerts |
+
+---
+
+## 🚢 Deployment
+
+Deploy to **Vercel** (or any static host):
+
+1. Push to GitHub
+2. Import repo in Vercel dashboard
+3. Set build command: `pnpm run build`
+4. Add environment variables
+5. Deploy
 
 ```bash
-pnpm install --frozen-lockfile
+# Or deploy via CLI
+npx vercel --prod
+```
+
+> ⚠️ Set `VITE_M3U8_PROXY_URL` if streaming providers return 403/CORS errors.
+
+---
+
+## 🤝 Contributing
+
+```bash
+# Create a feature branch
+git checkout -b feature/amazing-feature
+
+# Make changes and verify
 pnpm run lint
 pnpm run build
+
+# Commit
+git commit -m "feat: add amazing feature"
+
+# Push and open a PR
+git push origin feature/amazing-feature
 ```
 
-For API changes, verify an AniList search query, AniList detail and episode metadata, related titles, characters, airing-date response, provider mapping resolution, provider episode retrieval, and a `version=sub` source request. To exercise failover, select each visible provider option and confirm that a source error invokes the next source or provider without losing the current episode. Public services can rate-limit or temporarily reject individual requests; the UI should preserve loading, empty, and recoverable playback error states.
+---
 
-## License
+## 📄 License
 
-MIT
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file.
+
+---
+
+<div align="center">
+
+**Made with ❤️ by [Manvith](https://github.com/Manvith911)**
+
+[⬆ Back to top](#-anme.realm)
+
+</div>

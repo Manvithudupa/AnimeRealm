@@ -1,4 +1,5 @@
 import getAnimeInfo from "@/src/utils/getAnimeInfo.utils";
+import getRandomAnime from "@/src/utils/getRandomAnime.utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
@@ -117,7 +118,24 @@ function AnimeInfo({ random = false }) {
     const fetchAnime = async () => {
       setLoading(true);
       try {
-        const data = await getAnimeInfo(id, random);
+        let animeId = id;
+
+        // When random mode is active, pick a random anime from AniList
+        if (random) {
+          animeId = await getRandomAnime();
+          if (!animeId) {
+            setError(new Error("Could not fetch a random anime."));
+            return;
+          }
+          // Redirect to the canonical URL so the user can bookmark/share it
+          navigate(`/${animeId}`, { replace: true });
+        }
+
+        const data = await getAnimeInfo(animeId);
+        if (!data?.data) {
+          setError(new Error("Anime not found."));
+          return;
+        }
         setAnimeInfo(data.data);
         setSeasons(data.seasons || []);
       } catch (err) {
@@ -128,6 +146,7 @@ function AnimeInfo({ random = false }) {
     };
     fetchAnime();
     window.scrollTo(0, 0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, random]);
 
   /* -------- Page Title -------- */

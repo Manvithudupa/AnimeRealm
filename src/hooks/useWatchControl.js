@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
 
+function safeGetBool(key) {
+  try {
+    const val = JSON.parse(localStorage.getItem(key));
+    return typeof val === "boolean" ? val : false;
+  } catch {
+    return false;
+  }
+}
+
 export default function useWatchControl() {
-  const [autoPlay, setAutoPlay] = useState(
-    () => JSON.parse(localStorage.getItem("autoPlay")) || false
-  );
-  const [autoSkipIntro, setAutoSkipIntro] = useState(
-    () => JSON.parse(localStorage.getItem("autoSkipIntro")) || false
-  );
-  const [autoNext, setAutoNext] = useState(
-    () => JSON.parse(localStorage.getItem("autoNext")) || false
-  );
-  const [hardSub, setHardSub] = useState(
-    () => JSON.parse(localStorage.getItem("hardSub")) || false
-  );
+  const [autoPlay, setAutoPlay] = useState(() => safeGetBool("autoPlay"));
+  const [autoSkipIntro, setAutoSkipIntro] = useState(() => safeGetBool("autoSkipIntro"));
+  const [autoNext, setAutoNext] = useState(() => safeGetBool("autoNext"));
+  const [hardSub, setHardSub] = useState(() => safeGetBool("hardSub"));
 
   useEffect(() => {
     localStorage.setItem("autoPlay", JSON.stringify(autoPlay));
